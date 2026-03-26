@@ -1,5 +1,4 @@
 #pragma once
-#include "raylib.h"
 
 enum class ScreenState {
     SPLASH,

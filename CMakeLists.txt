@@ -20,5 +20,12 @@ add_executable(${PROJECT_NAME} src/main.cpp
         src/MainMenuScreen.h
         src/SplashScreen.cpp
         src/SplashScreen.h
-        src/Constants.h)
+        src/Constants.h
+        src/GameplayScreen.cpp
+        src/GameplayScreen.h
+        src/GameState.cpp
+        src/GameState.h
+        src/primitives/GameCamera.cpp
+        src/primitives/GameCamera.h
+)
 target_link_libraries(${PROJECT_NAME} PRIVATE raylib)

@@ -1,8 +1,9 @@
 #include "SplashScreen.h"
+#include "Constants.h"
 #include "raylib.h"
 
-SplashScreen::SplashScreen() : music(LoadMusicStream("res/sound1.mp3")),
-                               texture(LoadTexture("res/seorg.png")) {
+SplashScreen::SplashScreen() : music(LoadMusicStream(GameConfig::INTRO_MUSIC_PATH.data())),
+                               texture(LoadTexture(GameConfig::SPLASH_PATH.data())) {
     PlayMusicStream(music);
 }
 

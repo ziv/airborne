@@ -1,8 +1,14 @@
-//
-// Created by Ziv Perry on 26/03/2026.
-//
+#pragma once
+#include <string_view>
 
-#ifndef RAYLIB_APP_CONSTANTS_H
-#define RAYLIB_APP_CONSTANTS_H
+namespace GameConfig {
+    inline constexpr int SCREEN_WIDTH = 1280;
+    inline constexpr int SCREEN_HEIGHT = 720;
+    inline constexpr int VIRTUAL_WIDTH = 800;
+    inline constexpr int VIRTUAL_HEIGHT = 600;
 
-#endif //RAYLIB_APP_CONSTANTS_H
+    inline constexpr std::string_view SPLASH_PATH = "res/seorg.png";
+    inline constexpr std::string_view INTRO_MUSIC_PATH = "res/sound1.mp3";
+
+    inline constexpr std::string_view GAME_TITLE = "AIRBORNE";
+}
