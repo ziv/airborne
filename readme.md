@@ -9,6 +9,8 @@ between just genius like [Sid Meier](https://en.wikipedia.org/wiki/Sid_Meier) ca
 
 ## How to
 
+Still in progress, but...
+
 ```shell
 cmake --build cmake-build-debug
 ./cmake-build-debug/se
