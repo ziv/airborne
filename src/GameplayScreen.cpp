@@ -12,8 +12,8 @@ ScreenState GameplayScreen::Update() {
     playerInput.Yaw = 0.0f;
     playerInput.Roll = 0.0f;
 
-    float deltaTime = GetFrameTime();
-    float turnSpeed = 1.5f * deltaTime;
+    const float deltaTime = GetFrameTime();
+    const float turnSpeed = 1.5f * deltaTime;
 
     if (IsKeyDown(KEY_W) || IsKeyDown(KEY_UP)) playerInput.Pitch = -turnSpeed;
     if (IsKeyDown(KEY_S) || IsKeyDown(KEY_DOWN)) playerInput.Pitch = turnSpeed;
@@ -27,8 +27,8 @@ ScreenState GameplayScreen::Update() {
     if (IsKeyDown(KEY_E)) playerInput.Yaw = -turnSpeed;
 
     // שליטה במצערת (מהירות)
-    if (IsKeyDown(KEY_LEFT_SHIFT)) playerInput.Speed += 10.0f; //  * deltaTime; // האצה
-    if (IsKeyDown(KEY_LEFT_CONTROL)) playerInput.Speed -= 10.0f; //  * deltaTime; // האטה
+    if (IsKeyDown(KEY_LEFT_SHIFT)) playerInput.Speed += 10.0f * deltaTime; //  * deltaTime; // האצה
+    if (IsKeyDown(KEY_LEFT_CONTROL)) playerInput.Speed -= 10.0f * deltaTime; //  * deltaTime; // האטה
 
     playerCamera.move(playerInput);
 
@@ -47,8 +47,8 @@ void GameplayScreen::Draw() {
     DrawText("Use WASD/Arrows to fly. Q/E to Yaw. Shift/Ctrl for Speed.", 20, 50, 20, LIGHTGRAY);
 
     // כוונת צלב פשוטה באמצע המסך הוירטואלי שלנו
-    int centerX = GameConfig::SCREEN_WIDTH / 2;
-    int centerY = GameConfig::SCREEN_HEIGHT / 2;
+    constexpr int centerX = GameConfig::SCREEN_WIDTH / 2;
+    constexpr int centerY = GameConfig::SCREEN_HEIGHT / 2;
     DrawLine(centerX - 15, centerY, centerX + 15, centerY, GREEN);
     DrawLine(centerX, centerY - 15, centerX, centerY + 15, GREEN);
 }

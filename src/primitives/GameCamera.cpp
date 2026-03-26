@@ -26,14 +26,13 @@ void GameCamera::move(const Orientation &orientation) {
     Vector3 right   = Vector3RotateByQuaternion(worldRight, rotation);
 
     // roll effect (some "physics")
-    // todo check the commented lines in real world rendered, use - and +
-    float bankInducedYaw = -right.y * 1.0f * GetFrameTime();
-    // float liftLossPitch = (1.0f - up.y) * 0.5f * GetFrameTime();
+    // todo check the effects of those items:
+    const float bankInducedYaw = right.y * .4f * GetFrameTime();
+    const float liftLossPitch = (1.0f - up.y) * .5f * GetFrameTime();
 
     // apply the changes
-    // const Quaternion qPitch = QuaternionFromAxisAngle(right, orientation.Pitch + liftLossPitch);
     const Quaternion qPitch = QuaternionFromAxisAngle(right, orientation.Pitch);
-    const Quaternion qYaw   = QuaternionFromAxisAngle(up, orientation.Yaw - bankInducedYaw);
+    const Quaternion qYaw   = QuaternionFromAxisAngle(up, orientation.Yaw + bankInducedYaw);
     const Quaternion qRoll  = QuaternionFromAxisAngle(forward, orientation.Roll);
 
     // all of them together
