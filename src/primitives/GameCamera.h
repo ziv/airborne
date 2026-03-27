@@ -15,7 +15,7 @@ class GameCamera {
     Camera camera = {0};
     Quaternion rotation = {0.0f, 0.0f, 0.0f, 1.0f};
 
-    void placeCamera(const Orientation &orientation);
+    void PlaceCamera(const Orientation &orientation, const Vector3 &forward, const Vector3 &up, const Vector3 &right);
 
 public:
     /**
@@ -36,22 +36,22 @@ public:
     [[nodiscard]] Vector3 GetRight() const { return Vector3RotateByQuaternion(GamePhysics::WorldRight, rotation); }
 
     /**
-     * Initial place of the plane
+     * Initial Place of the plane
      * @param position
      * @param lookAt
      * @param up
      */
-    void place(const Vector3 &position, const Vector3 &lookAt, const Vector3 &up);
+    void Place(const Vector3 &position, const Vector3 &lookAt, const Vector3 &up);
 
     /**
      * Moving the plane by the orientation
      * @param orientation
      */
-    void move(const Orientation &orientation);
+    void Move(const Orientation &orientation);
 
     /**
      * Bringing the plane to horizontal flight
      * @param orientation
      */
-    void levelOut(const Orientation &orientation);
+    void LevelOut(const Orientation &orientation);
 };

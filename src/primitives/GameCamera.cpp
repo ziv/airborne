@@ -1,5 +1,6 @@
 #include "GameCamera.h"
 #include "raymath.h"
+#include "Utils.h"
 
 GameCamera::GameCamera() {
     camera.up = GamePhysics::WorldUp;
@@ -7,15 +8,16 @@ GameCamera::GameCamera() {
     camera.projection = CAMERA_PERSPECTIVE;
 }
 
-void GameCamera::place(const Vector3 &position, const Vector3 &lookAt, const Vector3 &up) {
+void GameCamera::Place(const Vector3 &position, const Vector3 &lookAt, const Vector3 &up) {
     camera.position = position;
     camera.target = lookAt;
     camera.up = up;
     rotation = QuaternionIdentity(); // todo should be built from lookAt and up?!
 }
 
-void GameCamera::move(const Orientation &orientation) {
+void GameCamera::Move(const Orientation &orientation) {
     // extract local vertices from local quaternion
+    const Vector3 localForward = GetForward();
     const Vector3 localUp = GetUp();
     const Vector3 localRight = GetRight();
 
@@ -26,7 +28,7 @@ void GameCamera::move(const Orientation &orientation) {
     // apply the changes
     const Quaternion qPitch = QuaternionFromAxisAngle(localRight, orientation.Pitch + liftLossPitch);
     const Quaternion qYaw = QuaternionFromAxisAngle(localUp, orientation.Yaw + bankInducedYaw);
-    const Quaternion qRoll = QuaternionFromAxisAngle(GetForward(), orientation.Roll);
+    const Quaternion qRoll = QuaternionFromAxisAngle(localForward, orientation.Roll);
 
     // all of them together
     const Quaternion qDelta = QuaternionMultiply(qYaw, QuaternionMultiply(qPitch, qRoll));
@@ -34,33 +36,32 @@ void GameCamera::move(const Orientation &orientation) {
     // update and normalize
     rotation = QuaternionNormalize(QuaternionMultiply(qDelta, rotation));
 
-    placeCamera(orientation);
+    PlaceCamera(orientation, localForward, localUp, localRight);
 }
 
-void GameCamera::levelOut(const Orientation &orientation) {
-    const Vector3 currentForward = GetForward();
-    Vector3 flatForward = {currentForward.x, 0.0f, currentForward.z};
-
-    // edge case guard
-    if (Vector3Length(flatForward) < 0.001f) {
-        const Vector3 currentUp = Vector3RotateByQuaternion(GamePhysics::WorldUp, rotation);
-        flatForward = {currentUp.x, 0.0f, currentUp.z};
-    }
+void GameCamera::LevelOut(const Orientation &orientation) {
+    const Vector3 localForward = GetForward();
+    const Vector3 localUp = GetUp();
+    const Vector3 localRight = GetRight();
+    const Vector3 flatForward = GetFlatForward(localForward, localUp);
 
     const float targetYaw = atan2f(flatForward.x, flatForward.z);
     const Quaternion targetRotation = QuaternionFromAxisAngle(GamePhysics::WorldUp, targetYaw);
 
-    rotation = QuaternionNormalize(QuaternionSlerp(rotation, targetRotation, GameConfig::AUTO_LEVEL_SPEED * orientation.DeltaTime));
+    rotation = QuaternionNormalize(QuaternionSlerp(rotation, targetRotation,
+                                                   GameConfig::AUTO_LEVEL_SPEED * orientation.DeltaTime));
 
-    placeCamera(orientation);
+    PlaceCamera(orientation, localForward, localUp, localRight);
 }
 
-void GameCamera::placeCamera(const Orientation &orientation) {
+void GameCamera::PlaceCamera(const Orientation &orientation,
+                             const Vector3 &forward,
+                             const Vector3 &up,
+                             const Vector3 &right) {
     // pilot look a little bit down
-    const Quaternion qTilt = QuaternionFromAxisAngle(GetRight(), -TiltDown);
-    const Vector3 forward = GetForward();
+    const Quaternion qTilt = QuaternionFromAxisAngle(right, -TiltDown);
 
     camera.position = Vector3Add(camera.position, Vector3Scale(forward, orientation.Speed * orientation.DeltaTime));
     camera.target = Vector3Add(camera.position, Vector3RotateByQuaternion(forward, qTilt));
-    camera.up = Vector3RotateByQuaternion(GetUp(), qTilt);
+    camera.up = Vector3RotateByQuaternion(up, qTilt);
 }

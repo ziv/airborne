@@ -2,7 +2,7 @@
 #include "Constants.h"
 
 GameplayScreen::GameplayScreen() : cockpit(LoadTexture(GameConfig::COCKPIT_OVERLAY_PATH.data())) {
-    playerCamera.place({0.0f, 10.0f, -20.0f}, {0.0f, 10.0f, 0.0f}, {0.0f, 1.0f, 0.0f});
+    playerCamera.Place({0.0f, 10.0f, -20.0f}, {0.0f, 10.0f, 0.0f}, {0.0f, 1.0f, 0.0f});
     playerInput.Speed = 5.0f;
 
     // todo temporary auto pilot points
@@ -24,7 +24,7 @@ ScreenState GameplayScreen::Update() {
     // fast return, autopilot mode, no need to get other user inputs
     if (autopilotEngaged && flightComputer.IsActive()) {
         playerInput = flightComputer.CalculateSteering(playerCamera, playerInput.Speed, deltaTime);
-        playerCamera.move(playerInput);
+        playerCamera.Move(playerInput);
         return ScreenState::GAMEPLAY;
     }
 
@@ -50,9 +50,9 @@ ScreenState GameplayScreen::Update() {
     if (playerInput.Speed >= GameConfig::MAX_SPEED) playerInput.Speed = GameConfig::MAX_SPEED;
 
     if (IsKeyDown(KEY_R)) {
-        playerCamera.levelOut(playerInput);
+        playerCamera.LevelOut(playerInput);
     } else {
-        playerCamera.move(playerInput);
+        playerCamera.Move(playerInput);
     }
 
     return ScreenState::GAMEPLAY;
