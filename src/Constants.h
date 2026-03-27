@@ -2,7 +2,6 @@
 #include "raylib.h"
 #include <string_view>
 
-
 namespace GameConfig {
     // global
     inline constexpr int SCREEN_WIDTH = 1280;
@@ -17,6 +16,17 @@ namespace GameConfig {
 
     // game
     inline constexpr std::string_view COCKPIT_OVERLAY_PATH = "res/cockpit-05.png";
+
+    // airplane behavior
+    inline constexpr float MAX_SPEED = 4000.0f;
+    inline constexpr float MIN_SPEED = 0.0f;
+    inline constexpr float PITCH_RATIO = 1.0f;
+    inline constexpr float ROLL_RATIO = 1.0f;
+    inline constexpr float YAW_RATIO = 0.5f;
+    inline constexpr float SPEED_RATIO = 0.5f;
+
+    // auto leveling
+    inline constexpr float AUTO_LEVEL_SPEED = 1.0f;
 }
 
 /**

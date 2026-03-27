@@ -11,6 +11,7 @@
 #include "GameplayScreen.h"
 
 int main() {
+    SetTraceLogLevel(LOG_INFO);
     SetConfigFlags(FLAG_WINDOW_RESIZABLE | FLAG_VSYNC_HINT);
     InitWindow(GameConfig::SCREEN_WIDTH, GameConfig::SCREEN_HEIGHT, GameConfig::GAME_TITLE.data());
     InitAudioDevice();

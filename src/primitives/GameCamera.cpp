@@ -11,7 +11,7 @@ void GameCamera::place(const Vector3 &position, const Vector3 &lookAt, const Vec
     camera.position = position;
     camera.target = lookAt;
     camera.up = up;
-    rotation = QuaternionIdentity();
+    rotation = QuaternionIdentity(); // todo should be built from lookAt and up?!
 }
 
 void GameCamera::move(const Orientation &orientation) {
@@ -34,14 +34,14 @@ void GameCamera::move(const Orientation &orientation) {
     // update and normalize
     rotation = QuaternionNormalize(QuaternionMultiply(qDelta, rotation));
 
-    placeCamera(orientation.Speed, orientation.DeltaTime);
+    placeCamera(orientation);
 }
 
-void GameCamera::levelOut(const float levelingSpeed, const Orientation &orientation) {
+void GameCamera::levelOut(const Orientation &orientation) {
     const Vector3 currentForward = GetForward();
     Vector3 flatForward = {currentForward.x, 0.0f, currentForward.z};
 
-    // edge case
+    // edge case guard
     if (Vector3Length(flatForward) < 0.001f) {
         const Vector3 currentUp = Vector3RotateByQuaternion(GamePhysics::WorldUp, rotation);
         flatForward = {currentUp.x, 0.0f, currentUp.z};
@@ -50,17 +50,17 @@ void GameCamera::levelOut(const float levelingSpeed, const Orientation &orientat
     const float targetYaw = atan2f(flatForward.x, flatForward.z);
     const Quaternion targetRotation = QuaternionFromAxisAngle(GamePhysics::WorldUp, targetYaw);
 
-    rotation = QuaternionNormalize(QuaternionSlerp(rotation, targetRotation, levelingSpeed * orientation.DeltaTime));
+    rotation = QuaternionNormalize(QuaternionSlerp(rotation, targetRotation, GameConfig::AUTO_LEVEL_SPEED * orientation.DeltaTime));
 
-    placeCamera(orientation.Speed, orientation.DeltaTime);
+    placeCamera(orientation);
 }
 
-void GameCamera::placeCamera(const float speed, const float deltaTime) {
+void GameCamera::placeCamera(const Orientation &orientation) {
     // pilot look a little bit down
     const Quaternion qTilt = QuaternionFromAxisAngle(GetRight(), -TiltDown);
     const Vector3 forward = GetForward();
 
-    camera.position = Vector3Add(camera.position, Vector3Scale(forward, speed * deltaTime));
+    camera.position = Vector3Add(camera.position, Vector3Scale(forward, orientation.Speed * orientation.DeltaTime));
     camera.target = Vector3Add(camera.position, Vector3RotateByQuaternion(forward, qTilt));
     camera.up = Vector3RotateByQuaternion(GetUp(), qTilt);
 }

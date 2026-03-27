@@ -25,5 +25,7 @@ add_executable(${PROJECT_NAME} src/main.cpp
         src/GameplayScreen.h
         src/primitives/GameCamera.cpp
         src/primitives/GameCamera.h
+        src/primitives/Autopilot.cpp
+        src/primitives/Autopilot.h
 )
 target_link_libraries(${PROJECT_NAME} PRIVATE raylib)
