@@ -7,8 +7,8 @@ namespace GameConfig {
     // global
     inline constexpr int SCREEN_WIDTH = 1280;
     inline constexpr int SCREEN_HEIGHT = 720;
-    inline constexpr int VIRTUAL_WIDTH = 800;
-    inline constexpr int VIRTUAL_HEIGHT = 600;
+    // inline constexpr int VIRTUAL_WIDTH = 800;
+    // inline constexpr int VIRTUAL_HEIGHT = 600;
     inline constexpr std::string_view GAME_TITLE = "AIRBORNE";
 
     // splash

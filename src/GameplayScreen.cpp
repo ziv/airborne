@@ -61,6 +61,7 @@ void GameplayScreen::Draw() {
 }
 
 void GameplayScreen::DrawHud() const {
+    // hud position
     constexpr int hudSize = 280;
     constexpr int hudX = (GameConfig::SCREEN_WIDTH - hudSize) / 2;
     constexpr int hudY = (GameConfig::SCREEN_HEIGHT - hudSize) / 2 - 100;
@@ -70,91 +71,84 @@ void GameplayScreen::DrawHud() const {
     // Speed label
     DrawText(TextFormat("%0.f", playerInput.Speed), 510, 260, 15, GREEN);
 
-    // Height label todo this is absolute, replace with relative
+    // Height label todo this is absolute, replace with relative after we will add the terrain
     DrawText(TextFormat("%0.f", playerCamera.GetRaylibCamera().position.y), 760, 260, 15, GREEN);
 
-    // details required to create the pitch ladder
+    // todo rethink this calculation (from this point to the end of this function), it should be simpler and right now it not working well
+
+    const Camera rayCam = playerCamera.GetRaylibCamera();
+    const Vector3 camForward = Vector3Normalize(Vector3Subtract(rayCam.target, rayCam.position));
+
     const Vector3 forward = playerCamera.GetForward();
     const Vector3 up = playerCamera.GetUp();
     const Vector3 right = playerCamera.GetRight();
+    //
+    // // point somewhere in front of us
+    // const Vector3 nose3D = Vector3Add(rayCam.position, Vector3Scale(forward, 10000.0f));
+    // // the real center (nose of the plan)
+    // const auto [x, y] = GetWorldToScreenEx(nose3D, rayCam, GameConfig::SCREEN_WIDTH, GameConfig::SCREEN_HEIGHT);
 
-    // this vector is always normal to the horizon
+    // todo temporary cross
+    // DrawLineEx({x - 15, y}, {x + 15, y}, 2.0f, GREEN);
+    // DrawLineEx({x, y - 15}, {x, y + 15}, 2.0f, GREEN);
+
+    // forward with the horizon
+    Vector3 flatForward = {forward.x, 0.0f, forward.z};
+    if (Vector3Length(flatForward) < 0.001f) flatForward = {up.x, 0.0f, up.z};
+    flatForward = Vector3Normalize(flatForward);
+
+    // right with the horizon
+    const Vector3 flatRight = Vector3Normalize(Vector3CrossProduct(flatForward, GamePhysics::WorldUp));
+
     Vector3 horizonDir3D = Vector3CrossProduct(forward, GamePhysics::WorldUp);
+    if (Vector3Length(horizonDir3D) < 0.001f) horizonDir3D = right;
+    else horizonDir3D = Vector3Normalize(horizonDir3D);
 
-    // protect the value in case of edges
-    horizonDir3D = Vector3Length(horizonDir3D) < 0.001f ? right : Vector3Normalize(horizonDir3D);
-
-    // get the slope
+    // slop
     const float dx = Vector3DotProduct(horizonDir3D, right);
     const float dy = -Vector3DotProduct(horizonDir3D, up);
 
-    // the "sky" direction
     const float skyDirX = dy;
     const float skyDirY = -dx;
 
-    // calculate the pitch in rads
-    const float pitch = asinf(forward.y);
-
-    // some ratios
-    constexpr float fovRadians = 85.0f * PI / 180.0f;
-    constexpr float pixelsPerRadian = GameConfig::SCREEN_HEIGHT / fovRadians;
-
-    // take an imaginary point in front of the plane nose (long distance)
-    const Vector3 nose3D = Vector3Add(playerCamera.GetRaylibCamera().position,
-                                      Vector3Scale(forward, 10000.0f));
-
-    // find this point as vector of screen location (this is the center of the HUD)
-    const auto [centerX, centerY] = GetWorldToScreenEx(nose3D,
-                                                       playerCamera.GetRaylibCamera(),
-                                                       GameConfig::SCREEN_WIDTH,
-                                                       GameConfig::SCREEN_HEIGHT);
-
-    // creating the pitch ladder (-80 to 80 deg)
     for (int currentAngle = -80; currentAngle <= 80; currentAngle += 20) {
-        // deg to rad
         const float targetPitch = static_cast<float>(currentAngle) * PI / 180.0f;
 
-        // how many rads from the center
-        const float deltaPitch = targetPitch - pitch;
+        // direction in the space
+        const Vector3 rungDir = Vector3RotateByAxisAngle(flatForward, flatRight, targetPitch);
 
-        // rads to pixels
-        const float pixelDist = deltaPitch * pixelsPerRadian;
+        // is it in front of us?
+        if (Vector3DotProduct(rungDir, camForward) < 0.1f) continue;
 
-        // middle point
-        const float rungCenterX = centerX + skyDirX * pixelDist;
-        const float rungCenterY = centerY + skyDirY * pixelDist;
+        // convert angles to pixels
+        const Vector3 rungPos3D = Vector3Add(rayCam.position, Vector3Scale(rungDir, 10000.0f));
+        const Vector2 rungCenter = GetWorldToScreenEx(rungPos3D, rayCam, GameConfig::SCREEN_WIDTH,
+                                                      GameConfig::SCREEN_HEIGHT);
 
-        // line 0 is longer
         const float rungLength = (currentAngle == 0) ? 110.0f : 90.0f;
+        const Vector2 startPos = {rungCenter.x - dx * rungLength, rungCenter.y - dy * rungLength};
+        const Vector2 endPos = {rungCenter.x + dx * rungLength, rungCenter.y + dy * rungLength};
 
-        // the ends of line
-        const Vector2 startPos = {rungCenterX - dx * rungLength, rungCenterY - dy * rungLength};
-        const Vector2 endPos = {rungCenterX + dx * rungLength, rungCenterY + dy * rungLength};
+        const Vector2 midLeft = {rungCenter.x - dx * 30.0f, rungCenter.y - dy * 30.0f};
+        const Vector2 midRight = {rungCenter.x + dx * 30.0f, rungCenter.y + dy * 30.0f};
 
-        // a space in the middle
-        const Vector2 midLeft = {rungCenterX - dx * 30.0f, rungCenterY - dy * 30.0f};
-        const Vector2 midRight = {rungCenterX + dx * 30.0f, rungCenterY + dy * 30.0f};
-
-        // line 0 is thicker
         const float thickness = (currentAngle == 0) ? 2.0f : 1.0f;
 
         DrawLineEx(startPos, midLeft, thickness, GREEN);
         DrawLineEx(midRight, endPos, thickness, GREEN);
 
-        // lines wings
         if (currentAngle == 0) {
             DrawLineEx(startPos, {startPos.x + dy * 15.0f, startPos.y - dx * 15.0f}, thickness, GREEN);
             DrawLineEx(endPos, {endPos.x + dy * 15.0f, endPos.y - dx * 15.0f}, thickness, GREEN);
         } else {
-            // the direction of the wings is always to the zero
             const float tickDirX = (currentAngle > 0) ? -skyDirX : skyDirX;
             const float tickDirY = (currentAngle > 0) ? -skyDirY : skyDirY;
 
             DrawLineEx(startPos, {startPos.x + tickDirX * 15.0f, startPos.y + tickDirY * 15.0f}, thickness, GREEN);
             DrawLineEx(endPos, {endPos.x + tickDirX * 15.0f, endPos.y + tickDirY * 15.0f}, thickness, GREEN);
-
-            DrawText(TextFormat("%d", currentAngle), static_cast<int>(startPos.x) - 35,
-                     static_cast<int>(startPos.y) - 10, 10,GREEN);
+            // DrawText(TextFormat("%d", currentAngle), static_cast<int>(startPos.x) - 35, static_cast<int>(startPos.y) - 10, 20, GREEN);
+            DrawText(TextFormat("%d", currentAngle), static_cast<int>(startPos.x) - 20,
+                     static_cast<int>(startPos.y) - 5, 10,GREEN);
         }
     }
     EndScissorMode();
