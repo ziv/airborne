@@ -1,11 +1,11 @@
 #pragma once
-#include <string_view>
+// #include <string_view>
 #include "GameScreen.h"
 #include "primitives/GameCamera.h"
 
-struct GameplayConfig {
-    std::string_view name;
-};
+// struct GameplayConfig {
+//     std::string_view name;
+// };
 
 class GameplayScreen : public GameScreen {
     // the camera is the airplane

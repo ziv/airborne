@@ -20,8 +20,8 @@ void GameCamera::move(const Orientation &orientation) {
     const Vector3 localRight = GetRight();
 
     // roll effect (some "physics")
-    const float bankInducedYaw = orientation.Speed == 0 ? 0 : localRight.y * .2f * GetFrameTime();
-    const float liftLossPitch = orientation.Speed == 0 ? 0 : (1.0f - localUp.y) * 0.1f * GetFrameTime();
+    const float bankInducedYaw = orientation.Speed == 0 ? 0 : localRight.y * .2f * orientation.DeltaTime;
+    const float liftLossPitch = orientation.Speed == 0 ? 0 : (1.0f - localUp.y) * 0.1f * orientation.DeltaTime;
 
     // apply the changes
     const Quaternion qPitch = QuaternionFromAxisAngle(localRight, orientation.Pitch + liftLossPitch);
@@ -34,15 +34,10 @@ void GameCamera::move(const Orientation &orientation) {
     // update and normalize
     rotation = QuaternionNormalize(QuaternionMultiply(qDelta, rotation));
 
-    placeCamera(orientation.Speed);
+    placeCamera(orientation.Speed, orientation.DeltaTime);
 }
 
-/**
- * Bring the plan to horizontal flight
- * @param levelingSpeed
- * @param flightSpeed
- */
-void GameCamera::levelOut(const float levelingSpeed, const float flightSpeed) {
+void GameCamera::levelOut(const float levelingSpeed, const Orientation &orientation) {
     const Vector3 currentForward = GetForward();
     Vector3 flatForward = {currentForward.x, 0.0f, currentForward.z};
 
@@ -55,21 +50,17 @@ void GameCamera::levelOut(const float levelingSpeed, const float flightSpeed) {
     const float targetYaw = atan2f(flatForward.x, flatForward.z);
     const Quaternion targetRotation = QuaternionFromAxisAngle(GamePhysics::WorldUp, targetYaw);
 
-    rotation = QuaternionNormalize(QuaternionSlerp(rotation, targetRotation, levelingSpeed * GetFrameTime()));
+    rotation = QuaternionNormalize(QuaternionSlerp(rotation, targetRotation, levelingSpeed * orientation.DeltaTime));
 
-    placeCamera(flightSpeed);
+    placeCamera(orientation.Speed, orientation.DeltaTime);
 }
 
-/**
- * Place the camera and make it look to where the pilot look
- * @param speed The current speed
- */
-void GameCamera::placeCamera(const float speed) {
+void GameCamera::placeCamera(const float speed, const float deltaTime) {
     // pilot look a little bit down
     const Quaternion qTilt = QuaternionFromAxisAngle(GetRight(), -TiltDown);
     const Vector3 forward = GetForward();
 
-    camera.position = Vector3Add(camera.position, Vector3Scale(forward, speed * GetFrameTime()));
+    camera.position = Vector3Add(camera.position, Vector3Scale(forward, speed * deltaTime));
     camera.target = Vector3Add(camera.position, Vector3RotateByQuaternion(forward, qTilt));
     camera.up = Vector3RotateByQuaternion(GetUp(), qTilt);
 }

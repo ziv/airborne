@@ -1,5 +1,7 @@
 #pragma once
+#include "raylib.h"
 #include <string_view>
+
 
 namespace GameConfig {
     // global
@@ -14,7 +16,7 @@ namespace GameConfig {
     inline constexpr std::string_view INTRO_MUSIC_PATH = "res/sound0.mp3";
 
     // game
-    inline constexpr std::string_view COCKPIT_OVERLAY_PATH = "res/cockpit-1.png";
+    inline constexpr std::string_view COCKPIT_OVERLAY_PATH = "res/cockpit-05.png";
 }
 
 /**

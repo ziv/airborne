@@ -4,21 +4,29 @@
 #include "../Constants.h"
 
 struct Orientation {
-    float Pitch;
-    float Yaw;
-    float Roll;
-    float Speed;
+    float Pitch = 0.0f;
+    float Yaw = 0.0f;
+    float Roll = 0.0f;
+    float Speed = 0.0f;
+    float DeltaTime = 0.0f;
 };
 
 class GameCamera {
     Camera camera = {0};
     Quaternion rotation = {0.0f, 0.0f, 0.0f, 1.0f};
 
-    void placeCamera(float speed);
+    void placeCamera(float speed, float deltaTime);
 
 public:
-    const float TiltDown = 0.45f;
-    const float FieldOfView = 85.0f;
+    /**
+     * The direction we look at the world (a little bit down)
+     */
+    static constexpr float TiltDown = 0.45f;
+
+    /**
+     * Pilot field of view (deg)
+     */
+    static constexpr float FieldOfView = 85.0f;
 
     GameCamera();
 
@@ -27,9 +35,24 @@ public:
     [[nodiscard]] Vector3 GetUp() const { return Vector3RotateByQuaternion(GamePhysics::WorldUp, rotation); }
     [[nodiscard]] Vector3 GetRight() const { return Vector3RotateByQuaternion(GamePhysics::WorldRight, rotation); }
 
+    /**
+     * Initial place of the plan
+     * @param position
+     * @param lookAt
+     * @param up
+     */
     void place(const Vector3 &position, const Vector3 &lookAt, const Vector3 &up);
 
+    /**
+     * Moving the plan by the orientation
+     * @param orientation
+     */
     void move(const Orientation &orientation);
 
-    void levelOut(float levelingSpeed, float flightSpeed);
+    /**
+     * Bringing the plan to horizontal flight
+     * @param levelingSpeed
+     * @param orientation
+     */
+    void levelOut(float levelingSpeed, const Orientation &orientation);
 };

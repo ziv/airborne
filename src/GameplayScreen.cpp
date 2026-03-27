@@ -1,8 +1,7 @@
 #include "GameplayScreen.h"
-
 #include "Constants.h"
 
-GameplayScreen::GameplayScreen() : cockpit(LoadTexture("res/cockpit-05.png")) {
+GameplayScreen::GameplayScreen() : cockpit(LoadTexture(GameConfig::COCKPIT_OVERLAY_PATH.data())) {
     playerCamera.place({0.0f, 10.0f, -20.0f}, {0.0f, 10.0f, 0.0f}, {0.0f, 1.0f, 0.0f});
     playerInput.Speed = 5.0f;
 }
@@ -17,9 +16,10 @@ ScreenState GameplayScreen::Update() {
     playerInput.Roll = 0.0f;
 
     const float deltaTime = GetFrameTime();
+    playerInput.DeltaTime = deltaTime;
 
     if (IsKeyDown(KEY_W) || IsKeyDown(KEY_UP)) playerInput.Pitch = -1.0f * deltaTime;
-    if (IsKeyDown(KEY_S) || IsKeyDown(KEY_DOWN)) playerInput.Pitch = 1.0f * deltaTime;;
+    if (IsKeyDown(KEY_S) || IsKeyDown(KEY_DOWN)) playerInput.Pitch = 1.0f * deltaTime;
 
     if (IsKeyDown(KEY_A) || IsKeyDown(KEY_LEFT)) playerInput.Roll = -1.0f * deltaTime;
     if (IsKeyDown(KEY_D) || IsKeyDown(KEY_RIGHT)) playerInput.Roll = 1.0f * deltaTime;
@@ -31,10 +31,10 @@ ScreenState GameplayScreen::Update() {
     if (IsKeyDown(KEY_LEFT_SHIFT)) playerInput.Speed += 20.0f * deltaTime;
     if (IsKeyDown(KEY_LEFT_CONTROL)) playerInput.Speed -= 20.0f * deltaTime;
     if (playerInput.Speed <= 0.0f) playerInput.Speed = 0.0f;
-    if (playerInput.Pitch > 2000.0f) playerInput.Pitch = 2000.0f;
+    if (playerInput.Speed > 2000.0f) playerInput.Speed = 2000.0f;
 
     if (IsKeyDown(KEY_R)) {
-        playerCamera.levelOut(1.0f, playerInput.Speed);
+        playerCamera.levelOut(1.0f, playerInput);
     } else {
         playerCamera.move(playerInput);
     }
@@ -46,13 +46,13 @@ void GameplayScreen::Draw() {
     ClearBackground(BLUE);
 
     BeginMode3D(playerCamera.GetRaylibCamera());
-        // draw some "enemies"
-        DrawGrid(100, 20.0f);
-        DrawCube({100.0f, 10.0f, -100.0f}, 10.0f, 10.0f, 10.0f, RED);
-        DrawCube({300.0f, 10.0f, 300.0f}, 10.0f, 10.0f, 10.0f, MAROON);
-        DrawCube({-100.0f, 10.0f, -100.0f}, 10.0f, 10.0f, 10.0f, PURPLE);
-        DrawCube({-100.0f, 10.0f, -100.0f}, 10.0f, 10.0f, 10.0f, GREEN);
-        DrawCube({0.0f, 10.0f, 0.0f}, 10.0f, 10.0f, 10.0f, ORANGE);
+    // draw some "enemies"
+    DrawGrid(100, 20.0f);
+    DrawCube({100.0f, 10.0f, -100.0f}, 10.0f, 10.0f, 10.0f, RED);
+    DrawCube({300.0f, 10.0f, 300.0f}, 10.0f, 10.0f, 10.0f, MAROON);
+    DrawCube({-100.0f, 10.0f, -100.0f}, 10.0f, 10.0f, 10.0f, PURPLE);
+    DrawCube({-100.0f, 10.0f, -100.0f}, 10.0f, 10.0f, 10.0f, GREEN);
+    DrawCube({0.0f, 10.0f, 0.0f}, 10.0f, 10.0f, 10.0f, ORANGE);
     EndMode3D();
 
     DrawTexture(cockpit, -8, 0, WHITE);
@@ -79,7 +79,7 @@ void GameplayScreen::DrawHud() const {
     const Vector3 right = playerCamera.GetRight();
 
     // this vector is always normal to the horizon
-    Vector3 horizonDir3D = Vector3CrossProduct(forward, playerCamera.worldUp);
+    Vector3 horizonDir3D = Vector3CrossProduct(forward, GamePhysics::WorldUp);
 
     // protect the value in case of edges
     horizonDir3D = Vector3Length(horizonDir3D) < 0.001f ? right : Vector3Normalize(horizonDir3D);
@@ -104,7 +104,9 @@ void GameplayScreen::DrawHud() const {
                                       Vector3Scale(forward, 10000.0f));
 
     // find this point as vector of screen location (this is the center of the HUD)
-    const auto [centerX, centerY] = GetWorldToScreenEx(nose3D, playerCamera.GetRaylibCamera(), GameConfig::SCREEN_WIDTH,
+    const auto [centerX, centerY] = GetWorldToScreenEx(nose3D,
+                                                       playerCamera.GetRaylibCamera(),
+                                                       GameConfig::SCREEN_WIDTH,
                                                        GameConfig::SCREEN_HEIGHT);
 
     // creating the pitch ladder (-80 to 80 deg)
