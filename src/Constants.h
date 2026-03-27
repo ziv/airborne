@@ -15,5 +15,13 @@ namespace GameConfig {
 
     // game
     inline constexpr std::string_view COCKPIT_OVERLAY_PATH = "res/cockpit-1.png";
+}
 
+/**
+ * Some definitions for our world
+ */
+namespace GamePhysics {
+    constexpr Vector3 WorldForward = {0.0f, 0.0f, 1.0f};
+    constexpr Vector3 WorldUp = {0.0f, 1.0f, 0.0f};
+    constexpr Vector3 WorldRight = {-1.0f, 0.0f, 0.0f};
 }

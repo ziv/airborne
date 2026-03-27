@@ -14,6 +14,7 @@ class GameplayScreen : public GameScreen {
     Texture2D cockpit;
 
     void DrawHud() const;
+    void DrawLegend() const;
 public:
     GameplayScreen();
 

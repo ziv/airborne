@@ -44,172 +44,122 @@ ScreenState GameplayScreen::Update() {
 
 void GameplayScreen::Draw() {
     ClearBackground(BLUE);
-    BeginMode3D(playerCamera.GetRaylibCamera());
-    DrawGrid(100, 20.0f);
-    DrawCube({100.0f, 10.0f, -100.0f}, 10.0f, 10.0f, 10.0f, RED);
-    DrawCube({300.0f, 10.0f, 300.0f}, 10.0f, 10.0f, 10.0f, MAROON);
-    DrawCube({-100.0f, 10.0f, -100.0f}, 10.0f, 10.0f, 10.0f, PURPLE);
-    DrawCube({-100.0f, 10.0f, -100.0f}, 10.0f, 10.0f, 10.0f, GREEN);
-    DrawCube({0.0f, 10.0f, 0.0f}, 10.0f, 10.0f, 10.0f, ORANGE);
 
-    // DrawCubeWires({0.0f, 10.0f, 100.0f}, 10.0f, 10.0f, 10.0f, MAROON);
+    BeginMode3D(playerCamera.GetRaylibCamera());
+        // draw some "enemies"
+        DrawGrid(100, 20.0f);
+        DrawCube({100.0f, 10.0f, -100.0f}, 10.0f, 10.0f, 10.0f, RED);
+        DrawCube({300.0f, 10.0f, 300.0f}, 10.0f, 10.0f, 10.0f, MAROON);
+        DrawCube({-100.0f, 10.0f, -100.0f}, 10.0f, 10.0f, 10.0f, PURPLE);
+        DrawCube({-100.0f, 10.0f, -100.0f}, 10.0f, 10.0f, 10.0f, GREEN);
+        DrawCube({0.0f, 10.0f, 0.0f}, 10.0f, 10.0f, 10.0f, ORANGE);
     EndMode3D();
 
-    DrawText(TextFormat("SPEED: %0.f", playerInput.Speed), 20, 20, 20, BLACK);
-    DrawText(TextFormat("X: %0.f", playerCamera.GetRaylibCamera().position.x), 20, 40, 20, BLACK);
-    DrawText(TextFormat("Y: %0.f", playerCamera.GetRaylibCamera().position.z), 20, 60, 20, BLACK);
-    DrawText(TextFormat("H: %0.f", playerCamera.GetRaylibCamera().position.y), 20, 80, 20, BLACK);
-    // DrawText("Use WASD/Arrows to fly. Q/E to Yaw. Shift/Ctrl for Speed.", 20, 50, 20, LIGHTGRAY);
-
-    // כוונת צלב פשוטה באמצע המסך הוירטואלי שלנו
-    constexpr int centerX = GameConfig::SCREEN_WIDTH / 2;
-    constexpr int centerY = GameConfig::SCREEN_HEIGHT / 2;
-    DrawLine(centerX - 15, centerY, centerX + 15, centerY, BLACK);
-    DrawLine(centerX, centerY - 15, centerX, centerY + 15, BLACK);
-
+    DrawTexture(cockpit, -8, 0, WHITE);
+    DrawLegend();
     DrawHud();
 }
 
 void GameplayScreen::DrawHud() const {
-    DrawTexture(cockpit, -8, 0, WHITE);
-    DrawText(TextFormat("%0.f", playerInput.Speed), 510, 260, 15, DARKGREEN);
-    DrawText(TextFormat("%0.f", playerCamera.GetRaylibCamera().position.y), 760, 260, 15, DARKGREEN);
-
     constexpr int hudSize = 280;
-    // int hudWidth = 300;
-    // int hudHeight = 300;
     constexpr int hudX = (GameConfig::SCREEN_WIDTH - hudSize) / 2;
     constexpr int hudY = (GameConfig::SCREEN_HEIGHT - hudSize) / 2 - 100;
+
     BeginScissorMode(hudX, hudY, hudSize, hudSize);
-    // ==========================================
-    // ציור ממשק משתמש (HUD)
-    // ==========================================
 
-    // קבלת צירי המטוס הנוכחיים מהמצלמה
-    Vector3 forward = playerCamera.GetForward();
-    Vector3 up = playerCamera.GetUp();
-    Vector3 right = playerCamera.GetRight();
+    // Speed label
+    DrawText(TextFormat("%0.f", playerInput.Speed), 510, 260, 15, GREEN);
 
-    // --- א. חישוב זווית הגלגול (שיפוע הקו) ---
-    // נמצא וקטור תלת-ממדי שמקביל תמיד לאופק של כדור הארץ (ניצב לכיוון המבט שלנו ול"שמיים")
-    Vector3 horizonDir3D = Vector3CrossProduct(forward, {0.0f, 1.0f, 0.0f});
+    // Height label todo this is absolute, replace with relative
+    DrawText(TextFormat("%0.f", playerCamera.GetRaylibCamera().position.y), 760, 260, 15, GREEN);
 
-    // הגנת קצה: אם המטוס טס בול 90 מעלות למעלה/למטה, המכפלה תתאפס
-    if (Vector3Length(horizonDir3D) < 0.001f) {
-        horizonDir3D = right;
-    } else {
-        horizonDir3D = Vector3Normalize(horizonDir3D);
-    }
+    // details required to create the pitch ladder
+    const Vector3 forward = playerCamera.GetForward();
+    const Vector3 up = playerCamera.GetUp();
+    const Vector3 right = playerCamera.GetRight();
 
-    // נתרגם את הווקטור התלת-ממדי לשיפוע (dx, dy) על המסך שלנו
-    // על ידי בדיקה כמה ממנו פונה ימינה (right) וכמה למעלה (up) ביחס לעיניים שלנו
-    float dx = Vector3DotProduct(horizonDir3D, right);
-    float dy = -Vector3DotProduct(horizonDir3D, up); // מינוס כי ציר ה-Y במסך הולך הפוך
+    // this vector is always normal to the horizon
+    Vector3 horizonDir3D = Vector3CrossProduct(forward, playerCamera.worldUp);
 
-    // --- ב. מציאת ציר ה"שמיים" על המסך ---
-    // אם dx, dy זה ימינה ושמאלה לאורך האופק, אז 90 מעלות לזה יהיה למעלה ולמטה
-    float skyDirX = dy;
-    float skyDirY = -dx;
+    // protect the value in case of edges
+    horizonDir3D = Vector3Length(horizonDir3D) < 0.001f ? right : Vector3Normalize(horizonDir3D);
 
-    // --- ב. חישוב העלרוד (הסטה אנכית) ---
-    // כמה המטוס מסתכל למעלה/למטה? (מחזיר זווית ברדיאנים)
-    float pitch = asinf(forward.y);
+    // get the slope
+    const float dx = Vector3DotProduct(horizonDir3D, right);
+    const float dy = -Vector3DotProduct(horizonDir3D, up);
 
-    // חישוב יחס: כמה פיקסלים על המסך שווים לזווית של רדיאן אחד?
-    // משתמשים ב-FOV של המצלמה (85 מעלות) שעליו "נמתח" הגובה של המסך
-    float fovRadians = 85.0f * PI / 180.0f;
-    float pixelsPerRadian = GameConfig::SCREEN_HEIGHT / fovRadians;
+    // the "sky" direction
+    const float skyDirX = dy;
+    const float skyDirY = -dx;
 
-    // הסטת הקו מהמרכז: אף עולה (pitch חיובי) -> הקו יורד למטה במסך
-    float pitchOffset = pitch * pixelsPerRadian;
+    // calculate the pitch in rads
+    const float pitch = asinf(forward.y);
 
-    // --- ג. ציור הקו ---
-    // float centerX = GameConfig::SCREEN_WIDTH / 2.0f;
-    // float cameraTiltOffset = playerCamera.TiltDown * pixelsPerRadian;
-    // // float centerY = (GameConfig::SCREEN_HEIGHT / 2.0f) + pitchOffset;
-    // float centerY = (GameConfig::VIRTUAL_HEIGHT / 2.0f) - cameraTiltOffset;
-    // 1. ניקח נקודה דמיונית שנמצאת בדיוק מול האף של המטוס (מרחק עצום קדימה)
-    Vector3 nose3D = Vector3Add(playerCamera.GetRaylibCamera().position, Vector3Scale(forward, 10000.0f));
+    // some ratios
+    constexpr float fovRadians = 85.0f * PI / 180.0f;
+    constexpr float pixelsPerRadian = GameConfig::SCREEN_HEIGHT / fovRadians;
 
-    // 2. נמיר את הנקודה התלת-ממדית לקואורדינטות פיקסלים על המסך הוירטואלי שלנו!
-    Vector2 nose2D = GetWorldToScreenEx(nose3D, playerCamera.GetRaylibCamera(), GameConfig::SCREEN_WIDTH, GameConfig::SCREEN_HEIGHT);
+    // take an imaginary point in front of the plane nose (long distance)
+    const Vector3 nose3D = Vector3Add(playerCamera.GetRaylibCamera().position,
+                                      Vector3Scale(forward, 10000.0f));
 
-    // 3. זה מרכז ה-HUD האמיתי והמדויק מתמטית
-    float centerX = nose2D.x;
-    float centerY = nose2D.y;
+    // find this point as vector of screen location (this is the center of the HUD)
+    const auto [centerX, centerY] = GetWorldToScreenEx(nose3D, playerCamera.GetRaylibCamera(), GameConfig::SCREEN_WIDTH,
+                                                       GameConfig::SCREEN_HEIGHT);
 
-    // --- ד. ציור סולם העלרוד (Pitch Ladder) ---
-    // נרוץ ממינוס 80 מעלות (צלילה) עד פלוס 80 מעלות (נסיקה) בקפיצות של 20
+    // creating the pitch ladder (-80 to 80 deg)
     for (int currentAngle = -80; currentAngle <= 80; currentAngle += 20) {
-        // המרת המעלה של הקו הנוכחי לרדיאנים
-        float targetPitch = currentAngle * PI / 180.0f;
+        // deg to rad
+        const float targetPitch = static_cast<float>(currentAngle) * PI / 180.0f;
 
-        // כמה רדיאנים הקו הזה רחוק ממרכז הכוונת שלנו?
-        float deltaPitch = targetPitch - pitch;
+        // how many rads from the center
+        const float deltaPitch = targetPitch - pitch;
 
-        // המרה למרחק בפיקסלים על המסך
-        float pixelDist = deltaPitch * pixelsPerRadian;
+        // rads to pixels
+        const float pixelDist = deltaPitch * pixelsPerRadian;
 
-        // מציאת נקודת האמצע של השלב הנוכחי בסולם
-        float rungCenterX = centerX + skyDirX * pixelDist;
-        float rungCenterY = centerY + skyDirY * pixelDist;
+        // middle point
+        const float rungCenterX = centerX + skyDirX * pixelDist;
+        const float rungCenterY = centerY + skyDirY * pixelDist;
 
-        // קו האופק (0) יהיה ארוך יותר משאר הקווים
-        float rungLength = (currentAngle == 0) ? 110.0f : 90.0f;
+        // line 0 is longer
+        const float rungLength = (currentAngle == 0) ? 110.0f : 90.0f;
 
-        // נקודות הקצה של הקו (נמתחות לאורך dx, dy)
-        Vector2 startPos = {rungCenterX - dx * rungLength, rungCenterY - dy * rungLength};
-        Vector2 endPos = {rungCenterX + dx * rungLength, rungCenterY + dy * rungLength};
+        // the ends of line
+        const Vector2 startPos = {rungCenterX - dx * rungLength, rungCenterY - dy * rungLength};
+        const Vector2 endPos = {rungCenterX + dx * rungLength, rungCenterY + dy * rungLength};
 
-        // משאירים רווח באמצע לכוונת
-        Vector2 midLeft = {rungCenterX - dx * 30.0f, rungCenterY - dy * 30.0f};
-        Vector2 midRight = {rungCenterX + dx * 30.0f, rungCenterY + dy * 30.0f};
+        // a space in the middle
+        const Vector2 midLeft = {rungCenterX - dx * 30.0f, rungCenterY - dy * 30.0f};
+        const Vector2 midRight = {rungCenterX + dx * 30.0f, rungCenterY + dy * 30.0f};
 
-        // בחירת עובי הקו (האופק מודגש יותר)
-        float thickness = (currentAngle == 0) ? 2.0f : 1.0f;
+        // line 0 is thicker
+        const float thickness = (currentAngle == 0) ? 2.0f : 1.0f;
 
         DrawLineEx(startPos, midLeft, thickness, GREEN);
         DrawLineEx(midRight, endPos, thickness, GREEN);
 
-        // ציור ה"פסיקים" בקצוות של כל שלב
+        // lines wings
         if (currentAngle == 0) {
-            // לאופק עצמו הפסיקים יורדים קצת למטה
             DrawLineEx(startPos, {startPos.x + dy * 15.0f, startPos.y - dx * 15.0f}, thickness, GREEN);
             DrawLineEx(endPos, {endPos.x + dy * 15.0f, endPos.y - dx * 15.0f}, thickness, GREEN);
         } else {
-            // במטוסים אמיתיים, הפסיקים של הסולם תמיד מצביעים לכיוון קו האופק!
-            // אם אנחנו בזווית חיובית - הפסיק יצביע למטה (נגד skyDir).
-            // אם בזווית שלילית - הפסיק יצביע למעלה (עם skyDir).
-            float tickDirX = (currentAngle > 0) ? -skyDirX : skyDirX;
-            float tickDirY = (currentAngle > 0) ? -skyDirY : skyDirY;
+            // the direction of the wings is always to the zero
+            const float tickDirX = (currentAngle > 0) ? -skyDirX : skyDirX;
+            const float tickDirY = (currentAngle > 0) ? -skyDirY : skyDirY;
 
             DrawLineEx(startPos, {startPos.x + tickDirX * 15.0f, startPos.y + tickDirY * 15.0f}, thickness, GREEN);
             DrawLineEx(endPos, {endPos.x + tickDirX * 15.0f, endPos.y + tickDirY * 15.0f}, thickness, GREEN);
 
-            // כיתוב המעלה ליד הקו
-            DrawText(TextFormat("%d", currentAngle), startPos.x - 35, startPos.y - 10, 20, GREEN);
+            DrawText(TextFormat("%d", currentAngle), static_cast<int>(startPos.x) - 35,
+                     static_cast<int>(startPos.y) - 10, 10,GREEN);
         }
     }
-    //
-    //
-    //
-    // float lineLength = 100.0f; // חצי מאורך הקו שיוצג
-    //
-    // // נקודת התחלה וסיום של קו האופק
-    // Vector2 startPos = {centerX - dx * lineLength, centerY - dy * lineLength};
-    // Vector2 endPos = {centerX + dx * lineLength, centerY + dy * lineLength};
-    //
-    // // ב-HUD אמיתי יש רווח באמצע עבור כוונת הטיסה, אז נצייר שני קווים מופרדים
-    // Vector2 midLeft = {centerX - dx * 30.0f, centerY - dy * 30.0f};
-    // Vector2 midRight = {centerX + dx * 30.0f, centerY + dy * 30.0f};
-    //
-    // DrawLineEx(startPos, midLeft, 2.0f, GREEN);
-    // DrawLineEx(midRight, endPos, 2.0f, GREEN);
-    //
-    // // נוסיף פסיקים קטנים בקצוות כדי שזה ייראה כמו אופק מקצועי
-    // DrawLineEx(startPos, {startPos.x + dy * 15.0f, startPos.y - dx * 15.0f}, 2.0f, GREEN);
-    // DrawLineEx(endPos, {endPos.x + dy * 15.0f, endPos.y - dx * 15.0f}, 2.0f, GREEN);
     EndScissorMode();
-    DrawRectangleLines(hudX, hudY, hudSize, hudSize, DARKGREEN);
-    DrawText(TextFormat("SPD: %0.f", playerInput.Speed), hudX - 80, hudY + hudSize / 2, 20, GREEN);
+}
+
+void GameplayScreen::DrawLegend() const {
+    DrawText(TextFormat("X: %0.f", playerCamera.GetRaylibCamera().position.x), 20, 40, 20, BLACK);
+    DrawText(TextFormat("Z: %0.f", playerCamera.GetRaylibCamera().position.z), 20, 60, 20, BLACK);
+    DrawText(TextFormat("Y: %0.f", playerCamera.GetRaylibCamera().position.y), 20, 80, 20, BLACK);
 }
