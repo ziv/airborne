@@ -11,7 +11,7 @@ struct Waypoint {
 class Autopilot {
     std::vector<Waypoint> route;
     size_t currentWaypointIndex = 0;
-    float arrivalRadius = 100.0f;
+    float arrivalRadius = 20.0f;
 
 public:
     Autopilot() = default;
@@ -20,5 +20,10 @@ public:
 
     [[nodiscard]] bool IsActive() const;
 
-    Orientation CalculateSteering(const GameCamera &camera, float currentSpeed, float deltaTime);
+    Orientation CalculateSteering(const Vector3 &camPos,
+                                  const Vector3 &forward,
+                                  const Vector3 &up,
+                                  const Vector3 &right,
+                                  float currentSpeed,
+                                  float deltaTime);
 };

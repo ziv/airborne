@@ -14,7 +14,7 @@ SplashScreen::~SplashScreen() {
 
 ScreenState SplashScreen::Update() {
     UpdateMusicStream(music);
-    if (IsKeyPressed(KEY_SPACE)) {
+    if (IsKeyPressed(KEY_ENTER) || IsKeyPressed(KEY_SPACE)) {
         return ScreenState::MAIN_MENU;
     }
     return ScreenState::SPLASH;

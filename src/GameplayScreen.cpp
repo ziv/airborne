@@ -2,13 +2,14 @@
 #include "Constants.h"
 
 GameplayScreen::GameplayScreen() : cockpit(LoadTexture(GameConfig::COCKPIT_OVERLAY_PATH.data())) {
-    playerCamera.Place({0.0f, 10.0f, -20.0f}, {0.0f, 10.0f, 0.0f}, {0.0f, 1.0f, 0.0f});
-    playerInput.Speed = 5.0f;
+    playerCamera.Place({0.0f, 10.0f, 0.0f}, {10.0f, 10.0f, 10.0f}, {0.0f, 1.0f, 0.0f});
+    playerInput.Speed = 0.0f;
 
     // todo temporary auto pilot points
-    flightComputer.AddWaypoint({400.0f, 100.0f, 400.0f}, 100.0f); // נסיקה חדה ופנייה ימינה
-    flightComputer.AddWaypoint({-500.0f, 200.0f, -500.0f}, 80.0f); // צלילה שמאלה והאטה
-    // flightComputer.AddWaypoint({.0f, .0f, .0f}, 10.0f); // סיום
+    flightComputer.AddWaypoint({200.0f, 100.0f, 100.0f}, 15.0f);
+    flightComputer.AddWaypoint({500.0f, 100.0f, 200.0f}, 15.0f);
+    flightComputer.AddWaypoint({700.0f, 130.0f, 500.0f}, 20.0f);
+    flightComputer.AddWaypoint({800.0f, 100.0f, -100.0f}, 30.0f);
 }
 
 GameplayScreen::~GameplayScreen() {
@@ -23,7 +24,11 @@ ScreenState GameplayScreen::Update() {
 
     // fast return, autopilot mode, no need to get other user inputs
     if (autopilotEngaged && flightComputer.IsActive()) {
-        playerInput = flightComputer.CalculateSteering(playerCamera, playerInput.Speed, deltaTime);
+        playerInput = flightComputer.CalculateSteering(playerCamera.GetRaylibCamera().position,
+                                                       playerCamera.GetForward(),
+                                                       playerCamera.GetUp(),
+                                                       playerCamera.GetRight(),
+                                                       playerInput.Speed, deltaTime);
         playerCamera.Move(playerInput);
         return ScreenState::GAMEPLAY;
     }
@@ -64,11 +69,13 @@ void GameplayScreen::Draw() {
     BeginMode3D(playerCamera.GetRaylibCamera());
     // draw some "enemies"
     DrawGrid(100, 20.0f);
-    DrawCube({100.0f, 10.0f, -100.0f}, 10.0f, 10.0f, 10.0f, RED);
-    DrawCube({300.0f, 10.0f, 300.0f}, 10.0f, 10.0f, 10.0f, MAROON);
-    DrawCube({-100.0f, 10.0f, -200.0f}, 10.0f, 10.0f, 10.0f, PURPLE);
+    DrawCube({200.0f, 100.0f, 100.0f}, 10.0f, 10.0f, 10.0f, RED);
+    DrawCube({500.0f, 100.0f, 200.0f}, 10.0f, 10.0f, 10.0f, RED);
+    DrawCube({700.0f, 130.0f, 500.0f}, 10.0f, 10.0f, 10.0f, RED);
+    DrawCube({800.0f, 100.0f, -100.0f}, 10.0f, 10.0f, 10.0f, RED);
+    DrawCube({-100.0f, 10.0f, -200.0f}, 10.0f, 10.0f, 10.0f, GREEN);
     DrawCube({-100.0f, 10.0f, -100.0f}, 10.0f, 10.0f, 10.0f, GREEN);
-    DrawCube({0.0f, 10.0f, 0.0f}, 10.0f, 10.0f, 10.0f, ORANGE);
+    DrawCube({0.0f, 10.0f, 0.0f}, 10.0f, 10.0f, 10.0f, GREEN);
     EndMode3D();
 
     DrawTexture(cockpit, -8, 0, WHITE);

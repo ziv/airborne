@@ -2,7 +2,7 @@
 #include "raylib.h"
 
 ScreenState MainMenuScreen::Update() {
-    if (IsKeyPressed(KEY_ENTER)) {
+    if (IsKeyPressed(KEY_ENTER) || IsKeyPressed(KEY_SPACE)) {
         return ScreenState::GAMEPLAY;
     }
     return ScreenState::MAIN_MENU;

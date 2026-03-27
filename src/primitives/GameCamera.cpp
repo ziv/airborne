@@ -22,6 +22,7 @@ void GameCamera::Move(const Orientation &orientation) {
     const Vector3 localRight = GetRight();
 
     // roll effect (some "physics")
+    // todo missing speed as dependant of climbing or diving
     const float bankInducedYaw = orientation.Speed == 0 ? 0 : localRight.y * .2f * orientation.DeltaTime;
     const float liftLossPitch = orientation.Speed == 0 ? 0 : (1.0f - localUp.y) * 0.1f * orientation.DeltaTime;
 
@@ -30,7 +31,7 @@ void GameCamera::Move(const Orientation &orientation) {
     const Quaternion qYaw = QuaternionFromAxisAngle(localUp, orientation.Yaw + bankInducedYaw);
     const Quaternion qRoll = QuaternionFromAxisAngle(localForward, orientation.Roll);
 
-    // all of them together
+    // all of them together (the order is important!)
     const Quaternion qDelta = QuaternionMultiply(qYaw, QuaternionMultiply(qPitch, qRoll));
 
     // update and normalize

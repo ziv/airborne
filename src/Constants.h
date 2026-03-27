@@ -23,7 +23,7 @@ namespace GameConfig {
     inline constexpr float PITCH_RATIO = 1.0f;
     inline constexpr float ROLL_RATIO = 1.0f;
     inline constexpr float YAW_RATIO = 0.5f;
-    inline constexpr float SPEED_RATIO = 0.5f;
+    inline constexpr float SPEED_RATIO = 10.0f;
 
     // auto leveling
     inline constexpr float AUTO_LEVEL_SPEED = 1.0f;

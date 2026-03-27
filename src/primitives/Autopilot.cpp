@@ -1,6 +1,6 @@
 #include "Autopilot.h"
 
-void Autopilot::AddWaypoint(const Vector3& position, float targetSpeed) {
+void Autopilot::AddWaypoint(const Vector3 &position, float targetSpeed) {
     route.push_back({position, targetSpeed});
 }
 
@@ -8,80 +8,82 @@ bool Autopilot::IsActive() const {
     return currentWaypointIndex < route.size();
 }
 
-Orientation Autopilot::CalculateSteering(const GameCamera& camera, const float currentSpeed, const float deltaTime) {
+Orientation Autopilot::CalculateSteering(const Vector3 &position,
+                                         const Vector3 &forward,
+                                         const Vector3 &up,
+                                         const Vector3 &right,
+                                         const float currentSpeed,
+                                         const float deltaTime) {
     Orientation input = {0.0f, 0.0f, 0.0f, currentSpeed, deltaTime};
     if (!IsActive()) return input;
 
-    const Waypoint& target = route[currentWaypointIndex];
-    const Vector3 camPos = camera.GetRaylibCamera().position;
+    const Waypoint target = route[currentWaypointIndex];
 
-    if (Vector3Distance(camPos, target.Position) < arrivalRadius) {
+    if (Vector3Distance(target.Position, position) < arrivalRadius) {
         TraceLog(LOG_INFO, "AUTOPILOT---------: Reached Waypoint %zu!", currentWaypointIndex);
         currentWaypointIndex++;
         return input;
     }
 
-    const Vector3 forward = camera.GetForward();
-    const Vector3 right = camera.GetRight();
-    const Vector3 up = camera.GetUp();
+    // normalized line of sight to the target
+    const Vector3 dirToTarget = Vector3Normalize(Vector3Subtract(target.Position, position));
 
-    // ==========================================
-    // 1. Horizontal steering via bank-and-turn
-    // ==========================================
-    // The physics engine already converts bank angle into yaw via bankInducedYaw
-    // in GameCamera::move(). We steer by banking, not by commanding Yaw directly.
+    // normalize flat vectors
+    const Vector3 flatForward = Vector3Normalize({forward.x, 0.0f, forward.z});
+    const Vector3 flatDirToTarget = Vector3Normalize({dirToTarget.x, 0.0f, dirToTarget.z});
 
-    Vector3 flatForward = {forward.x, 0.0f, forward.z};
-    if (Vector3Length(flatForward) < 0.001f) flatForward = {up.x, 0.0f, up.z};
-    flatForward = Vector3Normalize(flatForward);
+    // angle in rad (on XZ space)
+    const float currentHeading = atan2f(flatForward.x, flatForward.z);
+    const float targetHeading = atan2f(flatDirToTarget.x, flatDirToTarget.z);
 
-    const Vector3 toTarget = {target.Position.x - camPos.x, 0.0f, target.Position.z - camPos.z};
-    const float horizDist = Vector3Length(toTarget);
+    // angle diff
+    float headingError = targetHeading - currentHeading;
 
-    float desiredBank = 0.0f;
+    // 360 deg guard
+    while (headingError > PI) headingError -= 2.0f * PI;
+    while (headingError < -PI) headingError += 2.0f * PI;
 
-    if (horizDist > 0.001f) {
-        constexpr float maxBankAngle = 0.5f;
-        const Vector3 dirToTarget = Vector3Scale(toTarget, 1.0f / horizDist);
+    // our target angle limited to 45 (todo play with the number and give the autopilot more freedom?!)
+    constexpr float maxBankAngle = 45.0f * PI / 180.0f;
+    const float targetBank = Clamp(headingError * 1.5f, -maxBankAngle, maxBankAngle);
 
-        // Signed heading error via cross/dot — positive crossY = target is to our left
-        const float crossY = flatForward.x * dirToTarget.z - flatForward.z * dirToTarget.x;
-        const float dot = flatForward.x * dirToTarget.x + flatForward.z * dirToTarget.z;
-        const float turnAngle = atan2f(crossY, dot);
+    const float currentBank = atan2f(right.y, up.y);
+    float rollError = currentBank - targetBank;
 
-        // Desired bank proportional to turn needed (same sign: left target → left bank)
-        desiredBank = Clamp(turnAngle * 1.5f, -maxBankAngle, maxBankAngle);
-    }
+    // 360 deg guard
+    while (rollError > PI) rollError -= 2.0f * PI;
+    while (rollError < -PI) rollError += 2.0f * PI;
 
-    // Current bank: right.y > 0 = left bank, right.y < 0 = right bank
-    const float currentBank = asinf(Clamp(right.y, -1.0f, 1.0f));
+    input.Roll = rollError * 2.0f * GetFrameTime();
 
-    // Roll to reach desired bank (negative Roll input → left bank in our engine)
-    const float bankError = desiredBank - currentBank;
-    input.Roll = Clamp(-bankError * 3.0f, -2.0f, 2.0f) * deltaTime;
+    // vertical distance
+    const Vector2 sourcePosXZ = {position.x, position.z};
+    const Vector2 targetPosXZ = {target.Position.x, target.Position.z};
+    const float distanceXZ = Vector2Distance(sourcePosXZ, targetPosXZ);
+    const float heightDiff = target.Position.y - position.y;
 
-    // ==========================================
-    // 2. Vertical steering (pitch)
-    // ==========================================
-    // In our engine positive Pitch = nose UP:
-    //   QuaternionFromAxisAngle(WorldRight(-1,0,0), +angle) rotates
-    //   WorldForward(0,0,1) toward +Y.
-    const float heightDiff = target.Position.y - camPos.y;
-    const float targetPitch = atan2f(heightDiff, fmaxf(horizDist, 1.0f));
-    const float currentPitch = asinf(Clamp(forward.y, -1.0f, 1.0f));
-    const float pitchError = targetPitch - currentPitch;
+    // the pitch angle with guard
+    const float targetPitchAngle = (distanceXZ > 0.1f) ? atan2f(heightDiff, distanceXZ) : 0.0f;
 
-    input.Pitch = Clamp(pitchError * 2.0f, -1.5f, 1.5f) * deltaTime;
+    // plane pitch angle
+    const float currentPitchAngle = asinf(Clamp(forward.y, -1.0f, 1.0f));
 
-    // ==========================================
-    // 3. Speed management
-    // ==========================================
-    const float speedDiff = target.TargetSpeed - currentSpeed;
-    if (speedDiff > 5.0f) {
-        input.Speed += 20.0f * deltaTime;
-    } else if (speedDiff < -5.0f) {
-        input.Speed -= 20.0f * deltaTime;
-    }
+    // height error angle
+    const float pitchError = targetPitchAngle - currentPitchAngle;
+
+    // the pull with aggression factor
+    const float turnPull = fabsf(currentBank) * 0.8f;
+
+    // pitch results
+    const float desiredPitchInput = pitchError + turnPull;
+
+    // limiting the result to not "break" the stick
+    input.Pitch = Clamp(desiredPitchInput, -2.0f, 1.5f) * deltaTime;
+
+    if (currentSpeed < target.TargetSpeed) input.Speed += 5 * deltaTime;
+    else if (currentSpeed > target.TargetSpeed) input.Speed -= 5 * deltaTime;
+
+    input.Yaw = 0.0f;
 
     return input;
 }
