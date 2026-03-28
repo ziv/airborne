@@ -49,6 +49,8 @@ public:
     float yawRatio() { return config["airplane"]["yawRatio"].get<float>(); }
     float acceleration() { return config["airplane"]["acceleration"].get<float>(); }
     float stallSpeed() { return config["airplane"]["stallSpeed"].get<float>(); }
+    float engineThrust() { return config["airplane"]["engineThrust"].get<float>(); }
+    float liftCoefficient() { return config["airplane"]["liftCoefficient"].get<float>(); }
 
     // development
     bool showGrid() { return config["development"]["showGrid"].get<bool>(); }

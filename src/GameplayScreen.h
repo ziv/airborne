@@ -1,7 +1,6 @@
 #pragma once
 #include "GameScreen.h"
 #include "primitives/Autopilot.h"
-#include "primitives/GameCamera.h"
 #include "primitives/GameData.h"
 #include "primitives/Utils.h"
 #include "views/Cockpit.h"

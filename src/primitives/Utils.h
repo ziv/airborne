@@ -54,21 +54,20 @@ constexpr float gravity = 9.81f;
 
 // todo breaks on/off, zero height, landing
 inline Vector3 UpdatePhysics(GameData &game, AppConfig &config) {
-    const float engineThrust = game.throttle * 150;
+    const float engineThrust = game.throttle * config.engineThrust();
     const float currentSpeed = game.Speed();
     Vector3 velocity = game.velocity;
 
-    // forces
+    // collect all forces
 
     // gravity
-    constexpr Vector3 gravityForce = { 0.0f, -gravity, 0.0f };
+    constexpr Vector3 gravityForce = {0.0f, -gravity, 0.0f};
 
     // thrust
     const Vector3 thrustForce = Vector3Scale(game.GetForward(), engineThrust);
 
     // lift magnitude
-    constexpr float liftCoefficient = 0.0015f; // שחק עם המספר הזה עד שתרגיש שהמטוס טס טוב
-    float liftMagnitude = (currentSpeed * currentSpeed) * liftCoefficient;
+    float liftMagnitude = (currentSpeed * currentSpeed) * config.liftCoefficient();
 
     // stall
     bool isStalling = false;
@@ -87,9 +86,8 @@ inline Vector3 UpdatePhysics(GameData &game, AppConfig &config) {
     // acceleration results
     velocity = Vector3Add(velocity, Vector3Scale(totalForce, game.deltaTime));
 
-
     // drag
-    velocity = Vector3Scale(velocity, 0.99f);
+    velocity = Vector3Scale(velocity, 0.98f);
 
     // weathervaning
     if (currentSpeed > 5.0f && !isStalling) {
@@ -99,5 +97,9 @@ inline Vector3 UpdatePhysics(GameData &game, AppConfig &config) {
         velocity.z = Lerp(velocity.z, z, 2.0f * game.deltaTime);
     }
 
+    // limit velocity
+    while (Vector3Length(velocity) > 1000.0f) {
+        velocity = Vector3Scale(velocity, 0.9f);
+    }
     return velocity;
 }

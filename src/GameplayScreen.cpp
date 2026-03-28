@@ -5,7 +5,7 @@ GameplayScreen::GameplayScreen(AppConfig &inputConfig) : GameScreen(inputConfig)
     game = std::make_unique<GameData>(inputConfig);
     autopilot = std::make_unique<Autopilot>(config.maxBankAngle(), config.maxPullRatio(), config.speedRatio());
 
-    game->GetCamera().position = {0.0f, 10.0f, 0.0f};
+    game->GetCamera().position = {0.0f, 20.0f, 0.0f};
     game->GetCamera().target = {10.0f, 10.0f, 0.0f};
     game->GetCamera().up = GamePhysics::WorldUp;
 }
@@ -94,9 +94,16 @@ void GameplayScreen::Draw() {
 
     // if (config.showGrid())
     DrawGrid(100, 20.0f);
+
+    DrawCube({0.0f, 10.0f, 0.0f}, 10.0f, 10.0f, 10.0f, RED);
+    DrawCube({300.0f, 10.0f, 0.0f}, 10.0f, 10.0f, 10.0f, RED);
+    DrawCube({0.0f, 10.0f, 300.0f}, 10.0f, 10.0f, 10.0f, RED);
+    DrawCube({300.0f, 10.0f, 300.0f}, 10.0f, 10.0f, 10.0f, RED);
+
     EndMode3D();
     DrawHud(*game);
     DrawFloater(*game);
+
     // DrawLegend();
     //
     // BeginMode3D(playerCamera.GetRaylibCamera());

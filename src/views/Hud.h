@@ -4,10 +4,9 @@
 
 constexpr int HudSize = 280;
 constexpr int HudX = (GameConfig::SCREEN_WIDTH - HudSize) / 2;
-constexpr int HudY = (GameConfig::SCREEN_HEIGHT - HudSize) / 2 - 100;
+constexpr int HudY = (GameConfig::SCREEN_HEIGHT - HudSize) / 2; // - 100;
 
 inline void DrawHud(const GameData &game) {
-    BeginScissorMode(HudX, HudY, HudSize, HudSize);
     BeginScissorMode(HudX, HudY, HudSize, HudSize);
 
     const Camera rayCam = game.GetCamera();
@@ -33,7 +32,7 @@ inline void DrawHud(const GameData &game) {
 
 
     // --- speed & altitude labels (relative to HUD rect) ---
-    // DrawText(TextFormat("%0.f", std::abs(game.velocity)), HudX + 10, HudY + HudSize / 2, 15, GREEN);
+    DrawText(TextFormat("%0.f", std::abs(game.Speed())), HudX + 10, HudY + HudSize / 2, 15, GREEN);
     DrawText(TextFormat("%0.f", std::abs(game.GetPosition().y)), HudX + HudSize - 30, HudY + HudSize / 2, 15, GREEN);
 
     // --- pitch ladder ---

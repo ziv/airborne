@@ -18,7 +18,9 @@
     "rollRaio": 1,
     "yawRatio": 0.5,
     "acceleration": 80,
-    "stallSpeed": 100
+    "stallSpeed": 100,
+    "engineThrust": 150,
+    "liftCoefficient": 0.0005
   },
   "pilot": {
     "fov": 85,

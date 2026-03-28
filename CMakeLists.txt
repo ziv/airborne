@@ -23,8 +23,6 @@ add_executable(${PROJECT_NAME} src/main.cpp
         src/Constants.h
         src/GameplayScreen.cpp
         src/GameplayScreen.h
-        src/primitives/GameCamera.cpp
-        src/primitives/GameCamera.h
         src/primitives/Autopilot.cpp
         src/primitives/Autopilot.h
         src/primitives/Utils.h

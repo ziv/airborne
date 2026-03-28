@@ -12,6 +12,6 @@ inline void DrawFloater(const GameData &game) {
     DrawText(TextFormat("r: %f", game.controls.Roll * m), 20, 120, 20, GREEN);
     DrawText(TextFormat("y: %f", game.controls.Yaw * m), 20, 140, 20, GREEN);
     DrawText(TextFormat("t: %f", game.controls.Throttle * m), 20, 160, 20, GREEN);
-    DrawText(TextFormat("s: %f", std::abs(game.Speed())), 20, 180, 20, GREEN);
-    DrawText(TextFormat("T: %f", game.throttle), 20, 200, 20, GREEN);
+    DrawText(TextFormat("s: %f", std::round(game.Speed())), 20, 180, 20, GREEN);
+    DrawText(TextFormat("T: %f", game.throttle * 100), 20, 200, 20, GREEN);
 }

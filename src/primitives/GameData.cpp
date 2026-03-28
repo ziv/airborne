@@ -35,9 +35,17 @@ void GameData::Update() {
 
     velocity = UpdatePhysics(*this, config);
 
+    auto newPosition = Vector3Add(camera.position, Vector3Scale(velocity, deltaTime));
+
+    // do not go under the ground
+    if (newPosition.y <= 10.0f) {
+        velocity.y = 0.0f;
+        newPosition.y = 10.0f;
+    }
+
     // position the pilot
     // camera.position = Vector3Add(camera.position, Vector3Scale(forward, velocity * deltaTime));
-    camera.position = Vector3Add(camera.position, Vector3Scale(velocity, deltaTime));
+    camera.position = newPosition;
     camera.target = Vector3Add(camera.position, Vector3RotateByQuaternion(forward, qTilt));
     camera.up = Vector3RotateByQuaternion(up, qTilt);
 }
