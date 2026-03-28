@@ -28,5 +28,7 @@ add_executable(${PROJECT_NAME} src/main.cpp
         src/primitives/Autopilot.cpp
         src/primitives/Autopilot.h
         src/primitives/Utils.h
+        src/views/Hud.cpp
+        src/views/Hud.h
 )
 target_link_libraries(${PROJECT_NAME} PRIVATE raylib)

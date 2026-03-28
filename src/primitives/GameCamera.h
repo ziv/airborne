@@ -34,6 +34,8 @@ public:
     [[nodiscard]] Vector3 GetForward() const { return Vector3RotateByQuaternion(GamePhysics::WorldForward, rotation); }
     [[nodiscard]] Vector3 GetUp() const { return Vector3RotateByQuaternion(GamePhysics::WorldUp, rotation); }
     [[nodiscard]] Vector3 GetRight() const { return Vector3RotateByQuaternion(GamePhysics::WorldRight, rotation); }
+    [[nodiscard]] Vector3 GetPosition() const { return camera.position; }
+    [[nodiscard]] float GetAltitude() const { return camera.position.y; }
 
     /**
      * Initial Place of the plane
