@@ -2,14 +2,14 @@
 #include "Constants.h"
 
 GameplayScreen::GameplayScreen() : cockpit(LoadTexture(GameConfig::COCKPIT_OVERLAY_PATH.data())) {
-    playerCamera.Place({0.0f, 10.0f, 0.0f}, {10.0f, 10.0f, 10.0f}, {0.0f, 1.0f, 0.0f});
+    playerCamera.Place({0.0f, 10.0f, 0.0f}, {10.0f, 10.0f, 0.0f}, {0.0f, 1.0f, 0.0f});
     playerInput.Speed = 0.0f;
 
     // todo temporary auto pilot points
-    flightComputer.AddWaypoint({200.0f, 100.0f, 100.0f}, 15.0f);
-    flightComputer.AddWaypoint({500.0f, 100.0f, 200.0f}, 15.0f);
-    flightComputer.AddWaypoint({700.0f, 130.0f, 500.0f}, 20.0f);
-    flightComputer.AddWaypoint({800.0f, 100.0f, -100.0f}, 30.0f);
+    flightComputer.AddWaypoint({400.0f, 100.0f, 400}, 25.0f);
+    flightComputer.AddWaypoint({400.0f, 100.0f, 0.0f}, 25.0f);
+    flightComputer.AddWaypoint({0.0f, 200.0f, 0.0f}, 25.0f);
+    flightComputer.AddWaypoint({0.0f, 100.0f, 400.0f}, 25.0f);
 }
 
 GameplayScreen::~GameplayScreen() {
@@ -69,10 +69,10 @@ void GameplayScreen::Draw() {
     BeginMode3D(playerCamera.GetRaylibCamera());
     // draw some "enemies"
     DrawGrid(100, 20.0f);
-    DrawCube({200.0f, 100.0f, 100.0f}, 10.0f, 10.0f, 10.0f, RED);
-    DrawCube({500.0f, 100.0f, 200.0f}, 10.0f, 10.0f, 10.0f, RED);
-    DrawCube({700.0f, 130.0f, 500.0f}, 10.0f, 10.0f, 10.0f, RED);
-    DrawCube({800.0f, 100.0f, -100.0f}, 10.0f, 10.0f, 10.0f, RED);
+    DrawCube({400.0f, 100.0f, 400.0f}, 10.0f, 10.0f, 10.0f, RED);
+    DrawCube({400.0f, 100.0f, 0.0f}, 10.0f, 10.0f, 10.0f, ORANGE);
+    DrawCube({0.0f, 200.0f, 0.0f}, 10.0f, 10.0f, 10.0f, DARKBLUE);
+    DrawCube({0.0f, 100.0f, 400.0f}, 10.0f, 10.0f, 10.0f, GOLD);
     DrawCube({-100.0f, 10.0f, -200.0f}, 10.0f, 10.0f, 10.0f, GREEN);
     DrawCube({-100.0f, 10.0f, -100.0f}, 10.0f, 10.0f, 10.0f, GREEN);
     DrawCube({0.0f, 10.0f, 0.0f}, 10.0f, 10.0f, 10.0f, GREEN);
@@ -82,7 +82,7 @@ void GameplayScreen::Draw() {
     DrawLegend();
     DrawHud();
 
-    if (autopilotEngaged) {
+    if (flightComputer.IsActive()) {
         DrawText("AUTOPILOT ENGAGED", GameConfig::SCREEN_WIDTH / 2 - 100, 20, 20, RED);
     }
 }
@@ -214,8 +214,8 @@ void GameplayScreen::DrawLegend() const {
     DrawText(TextFormat("X: %0.f", p.x), 20, 40, 20, BLACK);
     DrawText(TextFormat("Z: %0.f", p.z), 20, 60, 20, BLACK);
     DrawText(TextFormat("Y: %0.f", p.y), 20, 80, 20, BLACK);
-    // DrawText(TextFormat("p: %0.f", playerInput.Pitch), 20, 100, 20, GREEN);
-    // DrawText(TextFormat("r: %0.f", playerInput.Roll), 20, 120, 20, GREEN);
-    // DrawText(TextFormat("y: %0.f", playerInput.Yaw), 20, 140, 20, GREEN);
-    // DrawText(TextFormat("s: %0.f", playerInput.Speed), 20, 160, 20, GREEN);
+    DrawText(TextFormat("p: %f", playerInput.Pitch), 20, 100, 20, GREEN);
+    DrawText(TextFormat("r: %f", playerInput.Roll), 20, 120, 20, GREEN);
+    DrawText(TextFormat("y: %f", playerInput.Yaw), 20, 140, 20, GREEN);
+    DrawText(TextFormat("s: %f", playerInput.Speed), 20, 160, 20, GREEN);
 }

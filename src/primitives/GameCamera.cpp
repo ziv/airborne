@@ -12,6 +12,20 @@ void GameCamera::Place(const Vector3 &position, const Vector3 &lookAt, const Vec
     camera.position = position;
     camera.target = lookAt;
     camera.up = up;
+
+    // don't work for some reason
+    // const Vector3 fwd = Vector3Normalize(Vector3Subtract(lookAt, position));
+    // const Vector3 right = Vector3Normalize(Vector3CrossProduct(up, fwd));
+    // const Vector3 left = {-right.x, -right.y, -right.z};
+    // const Vector3 trueUp = up; // Vector3CrossProduct(fwd, right);
+    // rotation matrix
+    // Matrix rotMatrix = { 0 };
+    // rotMatrix.m0 = left.x;   rotMatrix.m4 = trueUp.x;   rotMatrix.m8 = fwd.x;    rotMatrix.m12 = 0.0f;
+    // rotMatrix.m1 = left.y;   rotMatrix.m5 = trueUp.y;   rotMatrix.m9 = fwd.y;    rotMatrix.m13 = 0.0f;
+    // rotMatrix.m2 = left.z;   rotMatrix.m6 = trueUp.z;   rotMatrix.m10 = fwd.z;   rotMatrix.m14 = 0.0f;
+    // rotMatrix.m3 = 0.0f;     rotMatrix.m7 = 0.0f;       rotMatrix.m11 = 0.0f;    rotMatrix.m15 = 1.0f;
+    // rotation = QuaternionFromMatrix(rotMatrix);
+
     rotation = QuaternionIdentity(); // todo should be built from lookAt and up?!
 }
 

@@ -43,8 +43,8 @@ Orientation Autopilot::CalculateSteering(const Vector3 &position,
     while (headingError > PI) headingError -= 2.0f * PI;
     while (headingError < -PI) headingError += 2.0f * PI;
 
-    // our target angle limited to 45 (todo play with the number and give the autopilot more freedom?!)
-    constexpr float maxBankAngle = 45.0f * PI / 180.0f;
+    // our target angle limited
+    constexpr float maxBankAngle = GameConfig::AUTO_PILOT_MAX_BANK_ANGLE * PI / 180.0f;
     const float targetBank = Clamp(headingError * 1.5f, -maxBankAngle, maxBankAngle);
 
     const float currentBank = atan2f(right.y, up.y);
@@ -72,13 +72,13 @@ Orientation Autopilot::CalculateSteering(const Vector3 &position,
     const float pitchError = targetPitchAngle - currentPitchAngle;
 
     // the pull with aggression factor
-    const float turnPull = fabsf(currentBank) * 0.8f;
+    const float turnPull = fabsf(currentBank) * GameConfig::AUTO_PILOT_PULL_RATIO;
 
     // pitch results
     const float desiredPitchInput = pitchError + turnPull;
 
     // limiting the result to not "break" the stick
-    input.Pitch = Clamp(desiredPitchInput, -2.0f, 1.5f) * deltaTime;
+    input.Pitch = Clamp(desiredPitchInput, -1.0f, 1.0f) * deltaTime;
 
     if (currentSpeed < target.TargetSpeed) input.Speed += 5 * deltaTime;
     else if (currentSpeed > target.TargetSpeed) input.Speed -= 5 * deltaTime;

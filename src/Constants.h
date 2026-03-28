@@ -27,6 +27,9 @@ namespace GameConfig {
 
     // auto leveling
     inline constexpr float AUTO_LEVEL_SPEED = 1.0f;
+
+    inline constexpr float AUTO_PILOT_MAX_BANK_ANGLE = 60.f;
+    inline constexpr float AUTO_PILOT_PULL_RATIO = 0.8f;
 }
 
 /**

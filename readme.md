@@ -19,13 +19,14 @@ cmake --build cmake-build-debug
 ## The Rules
 
 - Do not use game engine
-- I have to re-learn CPP and linear algebra...
+- I have to re-learn CPP and linear algebra (ohh, trigonometry)
 - To have fun
 
 ## Nostalgia Moment
 
 I spent so many hours flying this beast on my XT-16MGhz machine with monochrome CGA resolution screen. I tried to play
-it again, it was fun but somthing is missing. No, I don't want another DCS neither an arcade game, I want the same gameplay I
+it again, it was fun but somthing is missing. No, I don't want another DCS neither an arcade game, I want the same
+gameplay I
 got from this magic game, so this project has begun.
 
 ![ia](./res/seorg.png)
