@@ -5,7 +5,7 @@ void Autopilot::AddWaypoint(const Vector3 &position, float targetSpeed) {
 }
 
 bool Autopilot::IsActive() const {
-    return currentWaypointIndex < route.size();
+    return currentWaypointIndex < route.size() && active;;
 }
 
 Orientation Autopilot::CalculateSteering(const Vector3 &position,
@@ -80,8 +80,8 @@ Orientation Autopilot::CalculateSteering(const Vector3 &position,
     // limiting the result to not "break" the stick
     input.Pitch = Clamp(desiredPitchInput, -1.0f, 1.0f) * deltaTime;
 
-    if (currentSpeed < target.TargetSpeed) input.Speed += 5 * deltaTime;
-    else if (currentSpeed > target.TargetSpeed) input.Speed -= 5 * deltaTime;
+    if (currentSpeed < target.TargetSpeed) input.Speed += 20 * deltaTime;
+    else if (currentSpeed > target.TargetSpeed) input.Speed -= 20 * deltaTime;
 
     input.Yaw = 0.0f;
 

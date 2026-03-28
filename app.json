@@ -1,0 +1,26 @@
+{
+  "version": "0.0.0",
+  "name": "airborne",
+  "config": {
+    "screenWidth": 1200,
+    "screenHeight": 728,
+    "clipPlans": 10000,
+    "splashScreenPath": "res/splash-3.png"
+  },
+  "splash": {
+    "bgPath": "res/splash-3.png",
+    "musicPath": "res/sound1.mp3"
+  },
+  "airplane": {
+    "maxSpeed": 2000,
+    "minSpeed": 0,
+    "pitchRatio": 1,
+    "rollRaio": 1,
+    "yawRatio": 0.5,
+    "speedRatio": 10
+  },
+  "autoPilot": {
+    "maxBankAngle": 60,
+    "pullRatio": 0.8
+  }
+}

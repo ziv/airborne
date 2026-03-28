@@ -12,9 +12,12 @@ class Autopilot {
     std::vector<Waypoint> route;
     size_t currentWaypointIndex = 0;
     float arrivalRadius = 20.0f;
+    bool active = false;
 
 public:
     Autopilot() = default;
+
+    void Toggle() { this->active = !this->active; }
 
     void AddWaypoint(const Vector3 &position, float targetSpeed);
 

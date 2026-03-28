@@ -2,30 +2,36 @@
 #include "Constants.h"
 #include "primitives/Utils.h"
 
-GameplayScreen::GameplayScreen() : cockpit(LoadTexture(GameConfig::COCKPIT_OVERLAY_PATH.data())) {
-    playerCamera.Place({0.0f, 10.0f, 0.0f}, {10.0f, 10.0f, 0.0f}, {0.0f, 1.0f, 0.0f});
-    playerInput.Speed = 0.0f;
-
-    // todo temporary auto pilot points
-    flightComputer.AddWaypoint({400.0f, 100.0f, 400}, 25.0f);
-    flightComputer.AddWaypoint({400.0f, 100.0f, 0.0f}, 25.0f);
-    flightComputer.AddWaypoint({0.0f, 200.0f, 0.0f}, 25.0f);
-    flightComputer.AddWaypoint({0.0f, 100.0f, 400.0f}, 25.0f);
-}
+// GameplayScreen::GameplayScreen() : cockpit(LoadTexture(GameConfig::COCKPIT_OVERLAY_PATH.data())),
+//                                    music(LoadMusicStream("res/jet-engine-9.mp3")) {
+//     playerCamera.Place({0.0f, 15000.0f, 0.0f}, {10.0f, 500.0f, 0.0f}, {0.0f, 1.0f, 0.0f});
+//     playerInput.Speed = 0.0f;
+//
+//     // todo temporary auto pilot points
+//     flightComputer.AddWaypoint({400.0f, 500.0f, 400}, 25.0f);
+//     flightComputer.AddWaypoint({400.0f, 500.0f, 0.0f}, 25.0f);
+//     flightComputer.AddWaypoint({0.0f, 500.0f, 0.0f}, 25.0f);
+//     flightComputer.AddWaypoint({0.0f, 500.0f, 400.0f}, 25.0f);
+//
+//     // PlayMusicStream(music);
+// }
 
 GameplayScreen::~GameplayScreen() {
+    UnloadMusicStream(music);
+    UnloadModel(map);
     UnloadTexture(cockpit);
 }
 
 ScreenState GameplayScreen::Update() {
+    // UpdateMusicStream(music);
     const float deltaTime = GetFrameTime();
 
     // should be first to allow disengaged autopilot
-    if (IsKeyPressed(KEY_P)) autopilotEngaged = !autopilotEngaged;
+    if (IsKeyPressed(KEY_P)) flightComputer.Toggle();
 
     // fast return, autopilot mode, no need to get other user inputs
-    if (autopilotEngaged && flightComputer.IsActive()) {
-        playerInput = flightComputer.CalculateSteering(playerCamera.GetRaylibCamera().position,
+    if (flightComputer.IsActive()) {
+        playerInput = flightComputer.CalculateSteering(playerCamera.GetPosition(),
                                                        playerCamera.GetForward(),
                                                        playerCamera.GetUp(),
                                                        playerCamera.GetRight(),
@@ -70,13 +76,15 @@ void GameplayScreen::Draw() {
     BeginMode3D(playerCamera.GetRaylibCamera());
     // draw some "enemies"
     DrawGrid(100, 20.0f);
-    DrawCube({400.0f, 100.0f, 400.0f}, 10.0f, 10.0f, 10.0f, RED);
-    DrawCube({400.0f, 100.0f, 0.0f}, 10.0f, 10.0f, 10.0f, ORANGE);
-    DrawCube({0.0f, 200.0f, 0.0f}, 10.0f, 10.0f, 10.0f, DARKBLUE);
-    DrawCube({0.0f, 100.0f, 400.0f}, 10.0f, 10.0f, 10.0f, GOLD);
+    DrawCube({500.0f, 150.0f, 500.0f}, 10.0f, 10.0f, 10.0f, RED);
+    DrawCube({400.0f, 250.0f, 200.0f}, 10.0f, 10.0f, 10.0f, RED);
+    DrawCube({200.0f, 150.0f, 400.0f}, 10.0f, 10.0f, 10.0f, RED);
+    DrawCube({100.0f, 250.0f, 100.0f}, 10.0f, 10.0f, 10.0f, RED);
     DrawCube({-100.0f, 10.0f, -200.0f}, 10.0f, 10.0f, 10.0f, GREEN);
     DrawCube({-100.0f, 10.0f, -100.0f}, 10.0f, 10.0f, 10.0f, GREEN);
     DrawCube({0.0f, 10.0f, 0.0f}, 10.0f, 10.0f, 10.0f, GREEN);
+
+    DrawModel(map, (Vector3){0.0f, 0.0f, 0.0f}, 1.0f, WHITE);
     EndMode3D();
 
     DrawTexture(cockpit, -8, 0, WHITE);
@@ -87,6 +95,7 @@ void GameplayScreen::Draw() {
         DrawText("AUTOPILOT ENGAGED", GameConfig::SCREEN_WIDTH / 2 - 100, 20, 20, RED);
     }
 }
+
 void GameplayScreen::DrawLegend() const {
     const auto p = playerCamera.GetRaylibCamera().position;
     DrawText(TextFormat("X: %0.f", p.x), 20, 40, 20, BLACK);

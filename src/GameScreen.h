@@ -1,4 +1,8 @@
 #pragma once
+#include "json.hpp"
+#include "primitives/AppConfig.h"
+
+using json = nlohmann::json;
 
 enum class ScreenState {
     SPLASH,
@@ -8,7 +12,13 @@ enum class ScreenState {
 };
 
 class GameScreen {
+protected:
+    const AppConfig &config;
+
 public:
+    explicit GameScreen(AppConfig &inputConfig) : config(inputConfig) {
+    }
+
     virtual ~GameScreen() = default;
 
     virtual ScreenState Update() = 0;

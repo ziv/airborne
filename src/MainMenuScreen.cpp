@@ -9,7 +9,7 @@ ScreenState MainMenuScreen::Update() {
 }
 
 void MainMenuScreen::Draw() {
-    DrawText("AIRBORNE", 100, 100, 40, GREEN);
+    DrawText("Just another screen to pass", 100, 100, 40, PURPLE);
     // DrawText("Select mission", 100, 140, 30, GREEN);
     // DrawText("Smaller text", 100, 170, 20, GREEN);
     // DrawText("Tiny text", 100, 190, 10, GREEN);
