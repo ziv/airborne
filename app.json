@@ -9,18 +9,27 @@
   },
   "splash": {
     "bgPath": "res/splash-3.png",
-    "musicPath": "res/sound1.mp3"
+    "musicPath": "res/sound0.mp3"
   },
   "airplane": {
-    "maxSpeed": 2000,
+    "maxSpeed": 1100,
     "minSpeed": 0,
     "pitchRatio": 1,
     "rollRaio": 1,
     "yawRatio": 0.5,
-    "speedRatio": 10
+    "acceleration": 80,
+    "stallSpeed": 100
+  },
+  "pilot": {
+    "fov": 85,
+    "tilt": 0.45
   },
   "autoPilot": {
     "maxBankAngle": 60,
-    "pullRatio": 0.8
+    "pullRatio": 0.8,
+    "speedRatio": 1
+  },
+  "development": {
+    "showGrid": true
   }
 }

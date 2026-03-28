@@ -11,8 +11,8 @@ public:
     using GameScreen::GameScreen;
 
     explicit SplashScreen(AppConfig &inputConfig) : GameScreen(inputConfig) {
-        music = LoadMusicStream(inputConfig.splashMusicPath().data());
-        texture = LoadTexture(inputConfig.splashBgPath().data());
+        music = LoadMusicStream(config.splashMusicPath().data());
+        texture = LoadTexture(config.splashBgPath().data());
         PlayMusicStream(music);
     }
 
@@ -20,7 +20,6 @@ public:
         UnloadTexture(texture);
         UnloadMusicStream(music);
     }
-
 
     ScreenState Update() override {
         UpdateMusicStream(music);

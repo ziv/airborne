@@ -1,36 +1,55 @@
 #include "Autopilot.h"
 
-void Autopilot::AddWaypoint(const Vector3 &position, float targetSpeed) {
-    route.push_back({position, targetSpeed});
+#include "Utils.h"
+
+Autopilot::Autopilot(const float maxBankAngle,
+                     const float maxPullRatio,
+                     const float speedRatio) : maxBankAngle(maxBankAngle),
+                                               maxPullRatio(maxPullRatio),
+                                               speedRatio(speedRatio) {
+}
+
+void Autopilot::AddWaypoint(const Vector3 &position, const float targetSpeed, const float arrivalRadius) {
+    route.push_back({position, targetSpeed, arrivalRadius});
 }
 
 bool Autopilot::IsActive() const {
-    return currentWaypointIndex < route.size() && active;;
+    return currentWaypointIndex < route.size() && active;
 }
 
-Orientation Autopilot::CalculateSteering(const Vector3 &position,
-                                         const Vector3 &forward,
-                                         const Vector3 &up,
-                                         const Vector3 &right,
-                                         const float currentSpeed,
-                                         const float deltaTime) {
-    Orientation input = {0.0f, 0.0f, 0.0f, currentSpeed, deltaTime};
+PilotControls Autopilot::AutoSteer(GameData &game) {
+    PilotControls input = {0.0f, 0.0f, 0.0f, 0.0f};
+
+    // nothing changed
     if (!IsActive()) return input;
 
-    const Waypoint target = route[currentWaypointIndex];
+    const auto position = game.GetPosition();
+    const auto forward = game.GetForward();
+    const auto up = game.GetUp();
+    const auto right = game.GetRight();
 
-    if (Vector3Distance(target.Position, position) < arrivalRadius) {
-        TraceLog(LOG_INFO, "AUTOPILOT---------: Reached Waypoint %zu!", currentWaypointIndex);
+    // current target
+    const auto target = route[currentWaypointIndex];
+
+    // did we reach the target?
+    if (Vector3Distance(target.Position, position) < target.ArrivalRadius) {
+        TraceLog(LOG_INFO, "[Autopilot] reached waypoint %zu!", currentWaypointIndex);
+        // move to the next waypoint if any, let the next tick
+        // to handle to steering
         currentWaypointIndex++;
         return input;
     }
 
-    // normalized line of sight to the target
-    const Vector3 dirToTarget = Vector3Normalize(Vector3Subtract(target.Position, position));
+    // this is basically a "BANK NAD ROLL" maneuver
 
-    // normalize flat vectors
-    const Vector3 flatForward = Vector3Normalize({forward.x, 0.0f, forward.z});
-    const Vector3 flatDirToTarget = Vector3Normalize({dirToTarget.x, 0.0f, dirToTarget.z});
+    // normalized line of sight to the target
+    const auto dirToTarget = Vector3Normalize(Vector3Subtract(target.Position, position));
+
+    // normalize flat forward vectors
+    // Vector3Normalize({forward.x, 0.0f, forward.z});
+    const Vector3 flatForward = GetFlatForward(forward, up);
+    // Vector3Normalize({dirToTarget.x, 0.0f, dirToTarget.z});
+    const Vector3 flatDirToTarget = GetFlatForward(dirToTarget, up);
 
     // angle in rad (on XZ space)
     const float currentHeading = atan2f(flatForward.x, flatForward.z);
@@ -43,10 +62,11 @@ Orientation Autopilot::CalculateSteering(const Vector3 &position,
     while (headingError > PI) headingError -= 2.0f * PI;
     while (headingError < -PI) headingError += 2.0f * PI;
 
-    // our target angle limited
-    constexpr float maxBankAngle = GameConfig::AUTO_PILOT_MAX_BANK_ANGLE * PI / 180.0f;
-    const float targetBank = Clamp(headingError * 1.5f, -maxBankAngle, maxBankAngle);
+    // our target angle is limited by autopilot restrictions
+    const float maxBankAngleRad = maxBankAngle * PI / 180.0f;
+    const float targetBank = Clamp(headingError * 1.5f, -maxBankAngleRad, maxBankAngleRad);
 
+    // the required roll
     const float currentBank = atan2f(right.y, up.y);
     float rollError = currentBank - targetBank;
 
@@ -54,7 +74,7 @@ Orientation Autopilot::CalculateSteering(const Vector3 &position,
     while (rollError > PI) rollError -= 2.0f * PI;
     while (rollError < -PI) rollError += 2.0f * PI;
 
-    input.Roll = rollError * 2.0f * GetFrameTime();
+    input.Roll = rollError * 2.0f * game.deltaTime;
 
     // vertical distance
     const Vector2 sourcePosXZ = {position.x, position.z};
@@ -72,16 +92,18 @@ Orientation Autopilot::CalculateSteering(const Vector3 &position,
     const float pitchError = targetPitchAngle - currentPitchAngle;
 
     // the pull with aggression factor
-    const float turnPull = fabsf(currentBank) * GameConfig::AUTO_PILOT_PULL_RATIO;
+    const float turnPull = fabsf(currentBank) * maxPullRatio;
 
     // pitch results
     const float desiredPitchInput = pitchError + turnPull;
 
     // limiting the result to not "break" the stick
-    input.Pitch = Clamp(desiredPitchInput, -1.0f, 1.0f) * deltaTime;
+    input.Pitch = Clamp(desiredPitchInput, -1.0f, 1.0f) * game.deltaTime;
 
-    if (currentSpeed < target.TargetSpeed) input.Speed += 20 * deltaTime;
-    else if (currentSpeed > target.TargetSpeed) input.Speed -= 20 * deltaTime;
+    // todo velocity
+    // update throttle direction
+    // if (game.velocity < target.TargetSpeed) input.Throttle = speedRatio * game.deltaTime;
+    // else if (game.velocity > target.TargetSpeed) input.Throttle = -speedRatio * game.deltaTime;
 
     input.Yaw = 0.0f;
 

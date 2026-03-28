@@ -1,5 +1,20 @@
 #pragma once
+#include "AppConfig.h"
 #include "raylib.h"
+#include "raymath.h"
+#include "../Constants.h"
+
+// inline Vector3 CalculateForward(const Quaternion &rotation) {
+//     return Vector3RotateByQuaternion(GamePhysics::WorldForward, rotation);
+// }
+//
+// inline Vector3 CalculateUp(const Quaternion &rotation) {
+//     return Vector3RotateByQuaternion(GamePhysics::WorldUp, rotation);
+// }
+//
+// inline Vector3 CalculateRight(const Quaternion &rotation) {
+//     return Vector3RotateByQuaternion(GamePhysics::WorldRight, rotation);
+// }
 
 enum PlaneState {
     Ground,
@@ -8,6 +23,13 @@ enum PlaneState {
     Landing,
     Crushing,
     Crushed
+};
+
+enum GearState {
+    Close,
+    Opening,
+    Opened,
+    Closing
 };
 
 struct PilotControls {
@@ -24,15 +46,42 @@ class GameData {
     // the position/direction airplane in 3d space
     Quaternion rotation = {0.0f, 0.0f, 0.0f, 1.0f};
 
+    Vector3 forward{0};
+    Vector3 up{0};
+    Vector3 right{0};
+
+    AppConfig config;
+
+    void recalcVectors();
+
 public:
-    // pilot field of view (deg)
-    static constexpr float FieldOfView = 85.0f;
+    explicit GameData(AppConfig &config);
 
-    // the direction the pilot look at the world (a little bit down)
-    static constexpr float TiltDown = 0.45f;
-
-    PlaneState planeState = PlaneState::Ground;
     PilotControls controls = {};
-    float velocity = 0.0f;
+    PlaneState planeState = PlaneState::Ground;
+    GearState gearState = GearState::Opened;
+
+    Vector3 velocity = {0.0f, 0.0f, 0.0f};
+    float throttle = 0.0f;
     float deltaTime = 0.0f;
+    bool autoPiloting = false;
+    bool breaks = false;
+
+    void Update();
+
+    float Tick();
+
+    void ToggleAutopilot();
+
+    void ToggleBreaks();
+
+    PilotControls ResetControls();
+
+    // todo is the camera by ref....?
+    [[nodiscard]] Camera GetCamera() const { return camera; }
+    [[nodiscard]] Vector3 GetPosition() const { return camera.position; }
+    [[nodiscard]] Vector3 GetForward() const { return forward; }
+    [[nodiscard]] Vector3 GetUp() const { return up; }
+    [[nodiscard]] Vector3 GetRight() const { return right; }
+    [[nodiscard]] float Speed() const { return Vector3Length(velocity); }
 };

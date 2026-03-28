@@ -13,9 +13,10 @@ enum class ScreenState {
 
 class GameScreen {
 protected:
-    const AppConfig &config;
+    AppConfig &config;
 
 public:
+
     explicit GameScreen(AppConfig &inputConfig) : config(inputConfig) {
     }
 

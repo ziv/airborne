@@ -28,7 +28,6 @@ add_executable(${PROJECT_NAME} src/main.cpp
         src/primitives/Autopilot.cpp
         src/primitives/Autopilot.h
         src/primitives/Utils.h
-        src/views/Hud.cpp
         src/views/Hud.h
         src/views/Radar.cpp
         src/views/Radar.h
@@ -36,10 +35,9 @@ add_executable(${PROJECT_NAME} src/main.cpp
         src/primitives/GameData.h
         src/items/Structure.cpp
         src/items/Structure.h
-        src/primitives/AppConfig.cpp
         src/primitives/AppConfig.h
-        src/views/Floater.cpp
         src/views/Floater.h
         src/views/View.h
+        src/views/Cockpit.h
 )
 target_link_libraries(${PROJECT_NAME} PRIVATE raylib)

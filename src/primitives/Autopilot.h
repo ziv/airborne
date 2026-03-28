@@ -1,32 +1,37 @@
 #pragma once
 #include <vector>
-#include "GameCamera.h"
+#include "GameData.h"
 #include "raylib.h"
 
 struct Waypoint {
     Vector3 Position;
     float TargetSpeed;
+    float ArrivalRadius;
 };
 
 class Autopilot {
     std::vector<Waypoint> route;
     size_t currentWaypointIndex = 0;
-    float arrivalRadius = 20.0f;
+
+    // limit the roll
+    float maxBankAngle = 45.0f;
+
+    // limit the pitch
+    float maxPullRatio = 1.0f;
+
+    // limit the throttle
+    float speedRatio = 1.0f;
+
     bool active = false;
 
 public:
-    Autopilot() = default;
+    Autopilot(float maxBankAngle, float maxPullRatio, float speedRatio);
 
-    void Toggle() { this->active = !this->active; }
+    void Toggle() { active = !active; }
 
-    void AddWaypoint(const Vector3 &position, float targetSpeed);
+    void AddWaypoint(const Vector3 &position, float targetSpeed, float arrivalRadius);
 
     [[nodiscard]] bool IsActive() const;
 
-    Orientation CalculateSteering(const Vector3 &camPos,
-                                  const Vector3 &forward,
-                                  const Vector3 &up,
-                                  const Vector3 &right,
-                                  float currentSpeed,
-                                  float deltaTime);
+    PilotControls AutoSteer(GameData &game);
 };
