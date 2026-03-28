@@ -78,7 +78,7 @@ void GameplayScreen::Draw() {
     DrawCube({0.0f, 10.0f, 0.0f}, 10.0f, 10.0f, 10.0f, GREEN);
     EndMode3D();
 
-    DrawTexture(cockpit, -8, 0, WHITE);
+    // DrawTexture(cockpit, -8, 0, WHITE);
     DrawLegend();
     DrawHud();
 
