@@ -8,8 +8,8 @@
     "splashScreenPath": "res/splash-3.png"
   },
   "splash": {
-    "bgPath": "res/splash-3.png",
-    "musicPath": "res/sound0.mp3"
+    "bgPath": "res/splash.png",
+    "musicPath": "res/sound1.mp3"
   },
   "airplane": {
     "maxSpeed": 500,

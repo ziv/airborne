@@ -1,5 +1,4 @@
 #include "Autopilot.h"
-
 #include "Utils.h"
 
 Autopilot::Autopilot(const float maxBankAngle,
@@ -18,15 +17,19 @@ bool Autopilot::IsActive() const {
 }
 
 PilotControls Autopilot::AutoSteer(GameData &game) {
+    return Steer(game.GetPosition(), game.GetForward(), game.GetRight(), game.GetUp(), game.deltaTime, game.Speed());
+}
+
+PilotControls Autopilot::Steer(const Vector3 &position,
+                               const Vector3 &forward,
+                               const Vector3 &right,
+                               const Vector3 &up,
+                               const float deltaTime,
+                               const float speed) {
     PilotControls input = {0.0f, 0.0f, 0.0f, 0.0f};
 
     // nothing changed
     if (!IsActive()) return input;
-
-    const auto position = game.GetPosition();
-    const auto forward = game.GetForward();
-    const auto up = game.GetUp();
-    const auto right = game.GetRight();
 
     // current target
     const auto target = route[currentWaypointIndex];
@@ -72,7 +75,8 @@ PilotControls Autopilot::AutoSteer(GameData &game) {
     while (rollError > PI) rollError -= 2.0f * PI;
     while (rollError < -PI) rollError += 2.0f * PI;
 
-    input.Roll = rollError * 2.0f * game.deltaTime;
+    // todo why 2.0?
+    input.Roll = rollError * 2.0f * deltaTime;
 
     // vertical distance
     const Vector2 sourcePosXZ = {position.x, position.z};
@@ -96,12 +100,11 @@ PilotControls Autopilot::AutoSteer(GameData &game) {
     const float desiredPitchInput = pitchError + turnPull;
 
     // limiting the result to not "break" the stick
-    input.Pitch = Clamp(desiredPitchInput, -1.0f, 1.0f) * game.deltaTime;
+    input.Pitch = Clamp(desiredPitchInput, -1.0f, 1.0f) * deltaTime;
 
     // update throttle direction
-    const auto speed = game.Speed();
-    if (speed < target.TargetSpeed) input.Throttle = speedRatio * game.deltaTime;
-    else if (speed > target.TargetSpeed) input.Throttle = -speedRatio * game.deltaTime;
+    if (speed < target.TargetSpeed) input.Throttle = speedRatio * deltaTime;
+    else if (speed > target.TargetSpeed) input.Throttle = -speedRatio * deltaTime;
 
     input.Yaw = 0.0f;
 

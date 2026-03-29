@@ -24,13 +24,24 @@ class Autopilot {
     bool active = false;
 
 public:
-    Autopilot(float maxBankAngle, float maxPullRatio, float speedRatio);
+    Autopilot(float maxBankAngle,
+              float maxPullRatio,
+              float speedRatio);
 
     void Toggle() { active = !active; }
 
-    void AddWaypoint(const Vector3 &position, float targetSpeed, float arrivalRadius);
+    void AddWaypoint(const Vector3 &position,
+                     float targetSpeed,
+                     float arrivalRadius);
 
     [[nodiscard]] bool IsActive() const;
 
     PilotControls AutoSteer(GameData &game);
+
+    PilotControls Steer(const Vector3 &position,
+                        const Vector3 &forward,
+                        const Vector3 &right,
+                        const Vector3 &up,
+                        float deltaTime,
+                        float speed);
 };

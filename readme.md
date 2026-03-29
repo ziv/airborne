@@ -29,5 +29,5 @@ it again, it was fun but somthing is missing. No, I don't want another DCS neith
 gameplay I
 got from this magic game, so this project has begun.
 
-![ia](./res/seorg.png)
+![ia](res/f15-se-ii.png)
 

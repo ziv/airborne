@@ -38,12 +38,6 @@ GameplayScreen::~GameplayScreen() {
 }
 
 ScreenState GameplayScreen::Update() {
-    const float targetPitch = 0.8f + (game->throttle * 0.7f);
-    const float targetVolume = 0.2f + (game->throttle * 0.9f);
-    SetMusicPitch(engine, targetPitch);
-    SetMusicVolume(engine, targetVolume);
-
-    UpdateMusicStream(engine);
     const float deltaTime = game->Tick();
 
     // should be first to allow disengaged autopilot
@@ -52,7 +46,13 @@ ScreenState GameplayScreen::Update() {
     // fast return, autopilot mode, no need to get other user inputs
     if (autopilot->IsActive()) {
         // get controls from autopilot and update game state
-        game->controls = autopilot->AutoSteer(*game);
+        // game->controls = autopilot->AutoSteer(*game);
+        game->controls = autopilot->Steer(game->GetPosition(),
+                                          game->GetForward(),
+                                          game->GetRight(),
+                                          game->GetUp(),
+                                          game->deltaTime,
+                                          game->Speed());
         // autopilot update throttle
         game->throttle += game->controls.Throttle;
         game->throttle = Clamp(game->throttle, 0.0f, 1.2f);
@@ -81,18 +81,19 @@ ScreenState GameplayScreen::Update() {
     // throttling
 
     // set throttle directly
-    constexpr float ta = 0.12375f;
+    constexpr float minThrust = 0.01f;
+    constexpr float stepThrust = 0.12375f; // the step size required to get from 0.1 to 10 using 1-9
     if (IsKeyDown(KEY_A)) game->throttle = 1.2f; // after burners
     if (IsKeyDown(KEY_ZERO)) game->throttle = 0.0f;
-    if (IsKeyDown(KEY_ONE)) game->throttle = 0.01f;
-    if (IsKeyDown(KEY_TWO)) game->throttle = 0.01f + ta;
-    if (IsKeyDown(KEY_THREE)) game->throttle = 0.01f + ta * 2;
-    if (IsKeyDown(KEY_FOUR)) game->throttle = 0.01f + ta * 3;
-    if (IsKeyDown(KEY_FIVE)) game->throttle = 0.01f + ta * 4;
-    if (IsKeyDown(KEY_SIX)) game->throttle = 0.01f + ta * 5;
-    if (IsKeyDown(KEY_SEVEN)) game->throttle = 0.01f + ta * 6;
-    if (IsKeyDown(KEY_EIGHT)) game->throttle = 0.01f + ta * 7;
-    if (IsKeyDown(KEY_NINE)) game->throttle = 0.01f + ta * 8;
+    if (IsKeyDown(KEY_ONE)) game->throttle = minThrust;
+    if (IsKeyDown(KEY_TWO)) game->throttle = minThrust + stepThrust;
+    if (IsKeyDown(KEY_THREE)) game->throttle = minThrust + stepThrust * 2;
+    if (IsKeyDown(KEY_FOUR)) game->throttle = minThrust + stepThrust * 3;
+    if (IsKeyDown(KEY_FIVE)) game->throttle = minThrust + stepThrust * 4;
+    if (IsKeyDown(KEY_SIX)) game->throttle = minThrust + stepThrust * 5;
+    if (IsKeyDown(KEY_SEVEN)) game->throttle = minThrust + stepThrust * 6;
+    if (IsKeyDown(KEY_EIGHT)) game->throttle = minThrust + stepThrust * 7;
+    if (IsKeyDown(KEY_NINE)) game->throttle = minThrust + stepThrust * 8;
 
     // increase/decrease throttle
     if (IsKeyDown(KEY_MINUS)) game->throttle -= 0.005f;
@@ -106,6 +107,12 @@ ScreenState GameplayScreen::Update() {
     game->controls = controls;
     game->Update();
 
+    const float targetPitch = 0.8f + (game->throttle * 0.7f);
+    const float targetVolume = 0.2f + (game->throttle * 0.9f);
+    SetMusicPitch(engine, targetPitch);
+    SetMusicVolume(engine, targetVolume);
+
+    UpdateMusicStream(engine);
     // cockpitModel.transform = MatrixMultiply(MatrixRotateY(-90 * DEG2RAD), QuaternionToMatrix(game->GetRotation()));
 
     return ScreenState::GAMEPLAY;
@@ -123,6 +130,8 @@ void GameplayScreen::Draw() {
     DrawCube(l2, 10.0f, 10.0f, 10.0f, RED);
     DrawCube(l3, 10.0f, 10.0f, 10.0f, RED);
     DrawCube(l4, 10.0f, 10.0f, 10.0f, RED);
+
+    DrawModel(aircraft.model, (Vector3){10.0, 10.0, 10.0}, 1.0f, RED);
 
     EndMode3D();
     // DrawTexture(cockpit, -51, 0, WHITE);

@@ -1,5 +1,6 @@
 #pragma once
 #include "GameScreen.h"
+#include "items/Aircraft.h"
 #include "primitives/Autopilot.h"
 #include "primitives/GameData.h"
 #include "primitives/Utils.h"
@@ -16,6 +17,9 @@ class GameplayScreen : public GameScreen {
     Texture2D cockpit = LoadTexture("res/cockpit-g1-cut.png");
     Shader chromaShader = LoadShader(nullptr, "src/shaders/chromakey.fs");
     Music engine = LoadMusicStream("res/engine.mp3");
+
+    // todo temporary
+    Aircraft aircraft{"MIG-29", "res/mig-29.glb"};
 
     // Model cockpitModel = LoadModel("res/mig-23-cockpit.glb");
     // Shader paintingShader = LoadShader(nullptr, "src/shaders/painting.fs");
