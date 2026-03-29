@@ -29,7 +29,7 @@ int main() {
 
     // load first screen
     std::unique_ptr<GameScreen> currentScreen = std::make_unique<SplashScreen>(*config);
-    auto currentState = ScreenState::GAMEPLAY;
+    auto currentState = ScreenState::SPLASH;
 
     while (!WindowShouldClose()) {
         // screens state machine

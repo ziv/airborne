@@ -12,8 +12,6 @@ GameData::GameData(AppConfig &config) : config(config) {
 }
 
 void GameData::Update() {
-    Tick();
-
     // some effects (arcade style)
     const auto speed = Speed();
     const float bankInducedYaw = speed == 0 ? 0 : right.y * config.bankInduceYawRatio() * deltaTime;
@@ -69,8 +67,8 @@ void GameData::Update() {
     }
 
     // limit velocity
-    while (Vector3Length(velocity) > config.maxSpeed()) {
-        velocity = Vector3Scale(velocity, 0.9f);
+    if (const float current = Vector3Length(velocity); current > config.maxSpeed()) {
+        velocity = Vector3Scale(velocity, config.maxSpeed() / speed);
     }
 
     // todo breaks on/off, zero height, landing

@@ -24,7 +24,7 @@ public:
     ScreenState Update() override {
         UpdateMusicStream(music);
         if (IsKeyPressed(KEY_ENTER) || IsKeyPressed(KEY_SPACE)) {
-            return ScreenState::GAMEPLAY;
+            return ScreenState::MAIN_MENU;
         }
         return ScreenState::SPLASH;
     }

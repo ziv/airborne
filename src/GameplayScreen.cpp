@@ -99,7 +99,7 @@ ScreenState GameplayScreen::Update() {
     if (IsKeyDown(KEY_MINUS)) game->throttle -= 0.005f;
     if (IsKeyDown(KEY_EQUAL)) game->throttle += 0.005f;
 
-    if (IsKeyDown(KEY_B)) game->breaks = !game->breaks;
+    if (IsKeyPressed(KEY_B)) game->breaks = !game->breaks;
 
     // limit
     game->throttle = Clamp(game->throttle, 0.0f, 1.2f);

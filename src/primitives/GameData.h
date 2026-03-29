@@ -37,7 +37,7 @@ class GameData {
     Vector3 up{0};
     Vector3 right{0};
 
-    AppConfig config;
+    AppConfig &config;
 
     void recalcVectors();
 

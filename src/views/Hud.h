@@ -2,11 +2,12 @@
 #include "../Constants.h"
 #include "../primitives/GameData.h"
 
-constexpr int HudSize = 280;
-constexpr int HudX = (GameConfig::SCREEN_WIDTH - HudSize) / 2;
-constexpr int HudY = (GameConfig::SCREEN_HEIGHT - HudSize) / 2 - 200;
 
 inline void DrawHud(const GameData &game) {
+    constexpr int HudSize = 280;
+    const int HudX = (GetScreenWidth() - HudSize) / 2;
+    const int HudY = (GetScreenHeight() - HudSize) / 2 - 200;
+
     BeginScissorMode(HudX, HudY, HudSize, HudSize);
     // ClearBackground(ORANGE);
     const Camera rayCam = game.GetCamera();
@@ -19,10 +20,12 @@ inline void DrawHud(const GameData &game) {
     const Vector3 flatRight = GetFlatRight(flatForward);
 
     // --- screen-space sky reference (computed once, valid for all rungs) ---
+    const auto width = GetScreenWidth();
+    const auto height = GetScreenHeight();
     const Vector3 refPt = Vector3Add(game.GetPosition(), Vector3Scale(camForward, 10000.0f));
     const Vector3 skyPt = Vector3Add(refPt, Vector3Scale(GamePhysics::WorldUp, 500.0f));
-    const Vector2 refScr = GetWorldToScreenEx(refPt, rayCam, GameConfig::SCREEN_WIDTH, GameConfig::SCREEN_HEIGHT);
-    const Vector2 skyScr = GetWorldToScreenEx(skyPt, rayCam, GameConfig::SCREEN_WIDTH, GameConfig::SCREEN_HEIGHT);
+    const Vector2 refScr = GetWorldToScreenEx(refPt, rayCam, width, height);
+    const Vector2 skyScr = GetWorldToScreenEx(skyPt, rayCam, width, height);
 
     Vector2 skyRef = {skyScr.x - refScr.x, skyScr.y - refScr.y};
     if (const float skyRefLen = sqrtf(skyRef.x * skyRef.x + skyRef.y * skyRef.y); skyRefLen > 0.001f) {
@@ -34,7 +37,8 @@ inline void DrawHud(const GameData &game) {
     // --- speed & altitude labels (relative to HUD rect) ---
     DrawText(TextFormat("%0.f", std::round(game.Speed() * 3.6)), HudX + 10, HudY + HudSize / 2, 15, GREEN);
     // DrawText(TextFormat("%0.f", formatNumber(std::round(game.GetPosition().y)).c_str()), HudX + HudSize - 30, HudY + HudSize / 2, 15, GREEN);
-    DrawText(formatNumber(std::round(game.GetPosition().y)).c_str(), HudX + HudSize - 40, HudY + HudSize / 2, 15, GREEN);
+    DrawText(formatNumber(std::round(game.GetPosition().y)).c_str(), HudX + HudSize - 40, HudY + HudSize / 2, 15,
+             GREEN);
 
     // --- pitch ladder ---
     for (int angle = -80; angle <= 80; angle += 20) {

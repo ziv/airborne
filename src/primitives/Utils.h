@@ -18,7 +18,7 @@ inline Vector3 GetFlatForward(const Vector3 &currentForward, const Vector3 &curr
     if (Vector3Length(flatForward) < 0.001f) {
         flatForward = {currentUp.x, 0.0f, currentUp.z};
     }
-    return flatForward;
+    return Vector3Normalize(flatForward);
 }
 
 inline Vector3 GetFlatRight(const Vector3 &currentForward, const Vector3 &currentUp = GamePhysics::WorldUp) {
