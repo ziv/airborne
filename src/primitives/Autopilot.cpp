@@ -46,10 +46,8 @@ PilotControls Autopilot::AutoSteer(GameData &game) {
     const auto dirToTarget = Vector3Normalize(Vector3Subtract(target.Position, position));
 
     // normalize flat forward vectors
-    // Vector3Normalize({forward.x, 0.0f, forward.z});
-    const Vector3 flatForward = GetFlatForward(forward, up);
-    // Vector3Normalize({dirToTarget.x, 0.0f, dirToTarget.z});
-    const Vector3 flatDirToTarget = GetFlatForward(dirToTarget, up);
+    const auto flatForward = GetFlatForward(forward, up);
+    const auto flatDirToTarget = GetFlatForward(dirToTarget, up);
 
     // angle in rad (on XZ space)
     const float currentHeading = atan2f(flatForward.x, flatForward.z);
@@ -100,10 +98,11 @@ PilotControls Autopilot::AutoSteer(GameData &game) {
     // limiting the result to not "break" the stick
     input.Pitch = Clamp(desiredPitchInput, -1.0f, 1.0f) * game.deltaTime;
 
-    // todo velocity
     // update throttle direction
-    // if (game.velocity < target.TargetSpeed) input.Throttle = speedRatio * game.deltaTime;
-    // else if (game.velocity > target.TargetSpeed) input.Throttle = -speedRatio * game.deltaTime;
+    const auto speed = game.Speed();
+    if (speed < target.TargetSpeed) input.Throttle = speedRatio * game.deltaTime;
+    else if (speed > target.TargetSpeed) input.Throttle = -speedRatio * game.deltaTime;
+    else TraceLog(LOG_INFO, "well, its happen?");
 
     input.Yaw = 0.0f;
 

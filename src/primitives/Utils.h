@@ -4,10 +4,10 @@
 #include <string>
 #include <iomanip>
 #include <sstream>
-
 #include "GameData.h"
 #include "raylib.h"
 #include "raymath.h"
+#include "../Constants.h"
 #include "../json.hpp"
 
 using json = nlohmann::json;
@@ -68,9 +68,10 @@ inline json LoadAppConfig() {
 constexpr float gravity = 9.81f;
 
 // todo breaks on/off, zero height, landing
-inline Vector3 UpdatePhysics(GameData &game, AppConfig &config) {
+inline Vector3 UpdatePhysics(const GameData &game, AppConfig &config) {
     const float engineThrust = game.throttle * config.engineThrust();
     const float currentSpeed = game.Speed();
+    const auto negativeSpeed = currentSpeed == 0.0f ? 1.0f : 1 / currentSpeed;
     Vector3 velocity = game.velocity;
 
     // collect all forces
@@ -79,33 +80,32 @@ inline Vector3 UpdatePhysics(GameData &game, AppConfig &config) {
     constexpr Vector3 gravityForce = {0.0f, -gravity, 0.0f};
 
     // thrust
-    const Vector3 thrustForce = Vector3Scale(game.GetForward(), engineThrust);
+    const auto thrustForce = Vector3Scale(game.GetForward(), engineThrust);
 
-    // lift magnitude
-    float liftMagnitude = (currentSpeed * currentSpeed) * config.liftCoefficient();
+    // lift magnitude (depends on speed^2 and wingspan represented as lift coefficien
+    auto liftMagnitude = (currentSpeed * currentSpeed) * config.liftCoefficient();
 
     // stall
     bool isStalling = false;
     if (currentSpeed < config.stallSpeed()) {
-        // too slow, cut the lift by 99%
-        liftMagnitude *= 0.01f;
+        // too slow, cut the lift by 90%
+        liftMagnitude *= 0.1f;
         isStalling = true;
     }
 
     // lift force
-    const Vector3 liftForce = Vector3Scale(game.GetUp(), liftMagnitude);
+    const auto liftForce = Vector3Scale(game.GetUp(), liftMagnitude);
+
+    // drag force
+    const auto dragMagnitude = currentSpeed * config.dragCoefficient();
+    const auto dragForce = Vector3Scale(game.GetForward(), -dragMagnitude);
 
     // combining all forces
-    const Vector3 totalForce = Vector3Add(Vector3Add(gravityForce, thrustForce), liftForce);
+    const auto totalForce = Vector3Add(Vector3Add(Vector3Add(thrustForce, dragForce), gravityForce), liftForce);
 
     // acceleration results
     velocity = Vector3Add(velocity, Vector3Scale(totalForce, game.deltaTime));
 
-    // drag
-    const float dragCoefficient = config.dragCoefficient();
-    float dragFactor = 1.0f - (dragCoefficient * game.deltaTime);
-    if (dragFactor < 0.0f) dragFactor = 0.0f;
-    velocity = Vector3Scale(velocity, dragFactor);
 
     // weathervaning
     if (!isStalling) {
@@ -116,8 +116,9 @@ inline Vector3 UpdatePhysics(GameData &game, AppConfig &config) {
     }
 
     // limit velocity
-    while (Vector3Length(velocity) > 600.0f) {
+    while (Vector3Length(velocity) > config.maxSpeed()) {
         velocity = Vector3Scale(velocity, 0.9f);
     }
+
     return velocity;
 }

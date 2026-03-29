@@ -2,6 +2,13 @@
 #include "primitives/Utils.h"
 #include "views/Floater.h"
 #include "views/Hud.h"
+#include "views/PowerGauge.h"
+
+constexpr Vector3 l1 = {2400.0f, 200.0f, 2400};
+constexpr Vector3 l2 = {2400.0f, 200.0f, 0.0f};
+constexpr Vector3 l3 = {0.0f, 200.0f, 0.0f};
+constexpr Vector3 l4 = {0.0f, 200.0f, 2400.0f};
+constexpr Vector3 a{0.0f, 10.0f, 0.0f};
 
 GameplayScreen::GameplayScreen(AppConfig &inputConfig) : GameScreen(inputConfig) {
     game = std::make_unique<GameData>(inputConfig);
@@ -10,17 +17,34 @@ GameplayScreen::GameplayScreen(AppConfig &inputConfig) : GameScreen(inputConfig)
     game->GetCamera().position = {100.0f, 1000.0f, 100.0f};
     game->GetCamera().target = {10.0f, 10.0f, 0.0f};
     game->GetCamera().up = GamePhysics::WorldUp;
+
+    // cockpitModel.transform = MatrixRotateY(-90 * DEG2RAD);
+
+    autopilot->AddWaypoint(Vector3Add(l1, a), 70.0f, 25.0f);
+    autopilot->AddWaypoint(Vector3Add(l2, a), 50.0f, 25.0f);
+    autopilot->AddWaypoint(Vector3Add(l3, a), 80.0f, 25.0f);
+    autopilot->AddWaypoint(Vector3Add(l4, a), 50.0f, 25.0f);
+
+
+    // shader
+    constexpr float thresholdValue = 0.5f;
+    SetShaderValue(chromaShader, GetShaderLocation(chromaShader, "threshold"), &thresholdValue, SHADER_UNIFORM_FLOAT);
+    PlayMusicStream(engine);
 }
 
 GameplayScreen::~GameplayScreen() {
-    // UnloadMusicStream(music);
-    // UnloadModel(map);
-    // UnloadTexture(cockpit);
-    // // UpdateMusicStream(music);
-    UnloadModel(map);
+    UnloadTexture(cockpit);
+    UnloadShader(chromaShader);
+    UnloadMusicStream(engine);
 }
 
 ScreenState GameplayScreen::Update() {
+    const float targetPitch = 0.8f + (game->throttle * 0.7f);
+    const float targetVolume = 0.2f + (game->throttle * 0.9f);
+    SetMusicPitch(engine, targetPitch);
+    SetMusicVolume(engine, targetVolume);
+
+    UpdateMusicStream(engine);
     const float deltaTime = game->Tick();
 
     // should be first to allow disengaged autopilot
@@ -30,6 +54,9 @@ ScreenState GameplayScreen::Update() {
     if (autopilot->IsActive()) {
         // get controls from autopilot and update game state
         game->controls = autopilot->AutoSteer(*game);
+        // autopilot update throttle
+        game->throttle += game->controls.Throttle;
+        game->throttle = Clamp(game->throttle, 0.0f, 1.2f);
         game->Update();
         return ScreenState::GAMEPLAY;
     }
@@ -37,16 +64,16 @@ ScreenState GameplayScreen::Update() {
     auto controls = game->ResetControls();
 
     // faster is better for steering, no speed -> no steer
-    auto const speed = game->Speed();
-    auto const speedEffect = speed == 0 ? 0 :Clamp( 1 - (10 / game->Speed()), 0.0f, 1.0f);
+    // auto const speed = game->Speed();
+    // auto const speedEffect = speed == 0 ? 0 : Clamp(1 - (1 / game->Speed()), 0.0f, 1.0f);
 
     // steering
 
-    if (IsKeyDown(KEY_UP)) controls.Pitch = -config.pitchRatio() * deltaTime * speedEffect;
-    if (IsKeyDown(KEY_DOWN)) controls.Pitch = config.pitchRatio() * deltaTime * speedEffect;
+    if (IsKeyDown(KEY_UP)) controls.Pitch = -config.pitchRatio() * deltaTime;
+    if (IsKeyDown(KEY_DOWN)) controls.Pitch = config.pitchRatio() * deltaTime;
 
-    if (IsKeyDown(KEY_LEFT)) controls.Roll = -config.rollRaio() * deltaTime * speedEffect;
-    if (IsKeyDown(KEY_RIGHT)) controls.Roll = config.rollRaio() * deltaTime * speedEffect;
+    if (IsKeyDown(KEY_LEFT)) controls.Roll = -config.rollRaio() * deltaTime;
+    if (IsKeyDown(KEY_RIGHT)) controls.Roll = config.rollRaio() * deltaTime;
 
     // // todo for debug only, user should not be allow to change YAW directly
     if (IsKeyDown(KEY_Q)) controls.Yaw = config.yawRatio() * deltaTime;
@@ -55,42 +82,32 @@ ScreenState GameplayScreen::Update() {
     // throttling
 
     // set throttle directly
+    const float ta = 0.12375f;
     if (IsKeyDown(KEY_A)) game->throttle = 1.2f; // after burners
     if (IsKeyDown(KEY_ZERO)) game->throttle = 0.0f;
-    if (IsKeyDown(KEY_ONE)) game->throttle = 0.1f;
-    if (IsKeyDown(KEY_TWO)) game->throttle = 0.2f;
-    if (IsKeyDown(KEY_THREE)) game->throttle = 0.3f;
-    if (IsKeyDown(KEY_FOUR)) game->throttle = 0.4f;
-    if (IsKeyDown(KEY_FIVE)) game->throttle = 0.5f;
-    if (IsKeyDown(KEY_SIX)) game->throttle = 0.6f;
-    if (IsKeyDown(KEY_SEVEN)) game->throttle = 0.7f;
-    if (IsKeyDown(KEY_EIGHT)) game->throttle = 0.8f;
-    if (IsKeyDown(KEY_NINE)) game->throttle = 0.9f;
+    if (IsKeyDown(KEY_ONE)) game->throttle = 0.01f;
+    if (IsKeyDown(KEY_TWO)) game->throttle = 0.01f + ta;
+    if (IsKeyDown(KEY_THREE)) game->throttle = 0.01f + ta * 2;
+    if (IsKeyDown(KEY_FOUR)) game->throttle = 0.01f + ta * 3;
+    if (IsKeyDown(KEY_FIVE)) game->throttle = 0.01f + ta * 4;
+    if (IsKeyDown(KEY_SIX)) game->throttle = 0.01f + ta * 5;
+    if (IsKeyDown(KEY_SEVEN)) game->throttle = 0.01f + ta * 6;
+    if (IsKeyDown(KEY_EIGHT)) game->throttle = 0.01f + ta * 7;
+    if (IsKeyDown(KEY_NINE)) game->throttle = 0.01f + ta * 8;
 
     // increase/decrease throttle
-    if (IsKeyDown(KEY_MINUS)) game->throttle -= 0.001f;
-    if (IsKeyDown(KEY_EQUAL)) game->throttle += 0.001f;
+    if (IsKeyDown(KEY_MINUS)) game->throttle -= 0.005f;
+    if (IsKeyDown(KEY_EQUAL)) game->throttle += 0.005f;
 
     if (IsKeyDown(KEY_B)) game->breaks = !game->breaks;
 
-    // if throttle comes from the control (like autopilot)
-    if (controls.Throttle != 0.0f) {
-        game->throttle = controls.Throttle;
-    }
-
-    if (game->throttle > 1.2f) game->throttle = 1.2f;
-    if (game->throttle < 0.0f) game->throttle = 0.0f;
-
-    // todo check this...
-    // if (const auto targetVelocity = game->throttle * config.maxSpeed(); game->velocity < targetVelocity) {
-    //     game->velocity = config.acceleration() * (game->velocity != 0 ? game->velocity : 1.0f);
-    // } else if (game->velocity > targetVelocity) {
-    //     game->velocity = (1 / config.acceleration()) * (game->velocity != 0 ? game->velocity : 1.0f);
-    // }
-    // game->velocity = game->throttle * config.maxSpeed();
+    // limit
+    game->throttle = Clamp(game->throttle, 0.0f, 1.2f);
 
     game->controls = controls;
     game->Update();
+
+    // cockpitModel.transform = MatrixMultiply(MatrixRotateY(-90 * DEG2RAD), QuaternionToMatrix(game->GetRotation()));
 
     return ScreenState::GAMEPLAY;
 }
@@ -102,13 +119,20 @@ void GameplayScreen::Draw() {
     if (config.showGrid()) DrawGrid(100, 20.0f);
 
     // DrawModel(map, (Vector3){0.0f, -1200.0f, 0.0f}, 1.0f, WHITE);
-    DrawCube({0.0f, 10.0f, 0.0f}, 10.0f, 10.0f, 10.0f, RED);
-    DrawCube({300.0f, 10.0f, 0.0f}, 10.0f, 10.0f, 10.0f, RED);
-    DrawCube({0.0f, 10.0f, 300.0f}, 10.0f, 10.0f, 10.0f, RED);
-    DrawCube({300.0f, 10.0f, 300.0f}, 10.0f, 10.0f, 10.0f, RED);
+    // DrawModel(cockpitModel, Vector3Subtract(game->GetPosition(), {0, 10, -1}), 10.0f, WHITE);
+    DrawCube(l1, 10.0f, 10.0f, 10.0f, RED);
+    DrawCube(l2, 10.0f, 10.0f, 10.0f, RED);
+    DrawCube(l3, 10.0f, 10.0f, 10.0f, RED);
+    DrawCube(l4, 10.0f, 10.0f, 10.0f, RED);
 
     EndMode3D();
-    DrawTexture(cockpit, -51, 0, WHITE);
+    // DrawTexture(cockpit, -51, 0, WHITE);
+    BeginShaderMode(chromaShader);
+    // מציירים את התמונה על כל המסך
+    // DrawTextureEx(cockpit, {-60, 10}, 0, 1.0f, WHITE);
+    DrawTextureEx(cockpit, {-40, 0}, 0, 1.0f, WHITE);
+    EndShaderMode();
+    DrawPowerGauge(*game);
     DrawHud(*game);
     DrawFloater(*game);
 

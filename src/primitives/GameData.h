@@ -2,19 +2,6 @@
 #include "AppConfig.h"
 #include "raylib.h"
 #include "raymath.h"
-#include "../Constants.h"
-
-// inline Vector3 CalculateForward(const Quaternion &rotation) {
-//     return Vector3RotateByQuaternion(GamePhysics::WorldForward, rotation);
-// }
-//
-// inline Vector3 CalculateUp(const Quaternion &rotation) {
-//     return Vector3RotateByQuaternion(GamePhysics::WorldUp, rotation);
-// }
-//
-// inline Vector3 CalculateRight(const Quaternion &rotation) {
-//     return Vector3RotateByQuaternion(GamePhysics::WorldRight, rotation);
-// }
 
 enum PlaneState {
     Ground,
@@ -78,6 +65,7 @@ public:
     PilotControls ResetControls();
 
     // todo is the camera by ref....?
+    [[nodiscard]] Quaternion GetRotation() const { return rotation; }
     [[nodiscard]] Camera GetCamera() const { return camera; }
     [[nodiscard]] Vector3 GetPosition() const { return camera.position; }
     [[nodiscard]] Vector3 GetForward() const { return forward; }

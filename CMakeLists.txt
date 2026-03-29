@@ -16,6 +16,9 @@ FetchContent_MakeAvailable(raylib)
 
 add_executable(${PROJECT_NAME} src/main.cpp
         src/json.hpp
+        src/utils/loaders.h
+        src/primitives/AppConfig.h
+        src/primitives/AppConfig.cpp
         src/GameScreen.h
         src/MainMenuScreen.cpp
         src/MainMenuScreen.h
@@ -26,12 +29,14 @@ add_executable(${PROJECT_NAME} src/main.cpp
         src/primitives/Autopilot.cpp
         src/primitives/Autopilot.h
         src/primitives/Utils.h
-        src/views/Hud.h
         src/primitives/GameData.cpp
         src/primitives/GameData.h
         src/items/Structure.cpp
         src/items/Structure.h
-        src/primitives/AppConfig.h
+        src/items/Aircraft.cpp
+        src/items/Aircraft.h
         src/views/Floater.h
+        src/views/Hud.h
+        src/views/PowerGauge.h
 )
 target_link_libraries(${PROJECT_NAME} PRIVATE raylib)

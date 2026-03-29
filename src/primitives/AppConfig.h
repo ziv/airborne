@@ -1,6 +1,5 @@
 #pragma once
 #include <fstream>
-#include "raylib.h"
 #include "../json.hpp"
 
 using json = nlohmann::json;
@@ -9,15 +8,7 @@ class AppConfig {
     json config;
 
 public:
-    AppConfig() {
-        std::ifstream file("app.json");
-        if (!file.is_open()) {
-            throw std::runtime_error("Could not open app.json");
-        }
-        file >> config;
-        file.close();
-        TraceLog(LOG_INFO, "[AppConfig] configuration loaded");
-    }
+    AppConfig();
 
     // root
     json raw() { return config; }
