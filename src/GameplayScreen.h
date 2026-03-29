@@ -16,6 +16,7 @@ class GameplayScreen : public GameScreen {
     Texture2D cockpit = LoadTexture("res/cockpit-g1-cut.png");
     Shader chromaShader = LoadShader(nullptr, "src/shaders/chromakey.fs");
     Music engine = LoadMusicStream("res/engine.mp3");
+
     // Model cockpitModel = LoadModel("res/mig-23-cockpit.glb");
     // Shader paintingShader = LoadShader(nullptr, "src/shaders/painting.fs");
     // RenderTexture2D target = LoadRenderTexture(GetScreenWidth(), GetScreenHeight());

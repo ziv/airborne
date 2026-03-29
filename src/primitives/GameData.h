@@ -62,6 +62,8 @@ public:
 
     void ToggleBreaks();
 
+    void SetPosition(const Vector3 &position);
+
     PilotControls ResetControls();
 
     // todo is the camera by ref....?

@@ -4,7 +4,7 @@
 
 constexpr int HudSize = 280;
 constexpr int HudX = (GameConfig::SCREEN_WIDTH - HudSize) / 2;
-constexpr int HudY = (GameConfig::SCREEN_HEIGHT - HudSize) / 2 - 100;
+constexpr int HudY = (GameConfig::SCREEN_HEIGHT - HudSize) / 2 - 200;
 
 inline void DrawHud(const GameData &game) {
     BeginScissorMode(HudX, HudY, HudSize, HudSize);

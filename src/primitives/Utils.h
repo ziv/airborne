@@ -67,58 +67,57 @@ inline json LoadAppConfig() {
 
 constexpr float gravity = 9.81f;
 
-// todo breaks on/off, zero height, landing
-inline Vector3 UpdatePhysics(const GameData &game, AppConfig &config) {
-    const float engineThrust = game.throttle * config.engineThrust();
-    const float currentSpeed = game.Speed();
-    const auto negativeSpeed = currentSpeed == 0.0f ? 1.0f : 1 / currentSpeed;
-    Vector3 velocity = game.velocity;
-
-    // collect all forces
-
-    // gravity
-    constexpr Vector3 gravityForce = {0.0f, -gravity, 0.0f};
-
-    // thrust
-    const auto thrustForce = Vector3Scale(game.GetForward(), engineThrust);
-
-    // lift magnitude (depends on speed^2 and wingspan represented as lift coefficien
-    auto liftMagnitude = (currentSpeed * currentSpeed) * config.liftCoefficient();
-
-    // stall
-    bool isStalling = false;
-    if (currentSpeed < config.stallSpeed()) {
-        // too slow, cut the lift by 90%
-        liftMagnitude *= 0.1f;
-        isStalling = true;
-    }
-
-    // lift force
-    const auto liftForce = Vector3Scale(game.GetUp(), liftMagnitude);
-
-    // drag force
-    const auto dragMagnitude = currentSpeed * config.dragCoefficient();
-    const auto dragForce = Vector3Scale(game.GetForward(), -dragMagnitude);
-
-    // combining all forces
-    const auto totalForce = Vector3Add(Vector3Add(Vector3Add(thrustForce, dragForce), gravityForce), liftForce);
-
-    // acceleration results
-    velocity = Vector3Add(velocity, Vector3Scale(totalForce, game.deltaTime));
-
-
-    // weathervaning
-    if (!isStalling) {
-        auto [x, y, z] = Vector3Scale(game.GetForward(), currentSpeed);
-        velocity.x = Lerp(velocity.x, x, 2.0f * game.deltaTime);
-        velocity.y = Lerp(velocity.y, y, 2.0f * game.deltaTime);
-        velocity.z = Lerp(velocity.z, z, 2.0f * game.deltaTime);
-    }
-
-    // limit velocity
-    while (Vector3Length(velocity) > config.maxSpeed()) {
-        velocity = Vector3Scale(velocity, 0.9f);
-    }
-
-    return velocity;
-}
+// inline Vector3 UpdatePhysics(const GameData &game, AppConfig &config) {
+//     const float engineThrust = game.throttle * config.engineThrust();
+//     const float currentSpeed = game.Speed();
+//     const auto negativeSpeed = currentSpeed == 0.0f ? 1.0f : 1 / currentSpeed;
+//     Vector3 velocity = game.velocity;
+//
+//     // collect all forces
+//
+//     // gravity
+//     constexpr Vector3 gravityForce = {0.0f, -gravity, 0.0f};
+//
+//     // thrust
+//     const auto thrustForce = Vector3Scale(game.GetForward(), engineThrust);
+//
+//     // lift magnitude (depends on speed^2 and wingspan represented as lift coefficien
+//     auto liftMagnitude = (currentSpeed * currentSpeed) * config.liftCoefficient();
+//
+//     // stall
+//     bool isStalling = false;
+//     if (currentSpeed < config.stallSpeed()) {
+//         // too slow, cut the lift by 90%
+//         liftMagnitude *= 0.1f;
+//         isStalling = true;
+//     }
+//
+//     // lift force
+//     const auto liftForce = Vector3Scale(game.GetUp(), liftMagnitude);
+//
+//     // drag force
+//     const auto dragMagnitude = currentSpeed * config.dragCoefficient();
+//     const auto dragForce = Vector3Scale(game.GetForward(), -dragMagnitude);
+//
+//     // combining all forces
+//     const auto totalForce = Vector3Add(Vector3Add(Vector3Add(thrustForce, dragForce), gravityForce), liftForce);
+//
+//     // acceleration results
+//     velocity = Vector3Add(velocity, Vector3Scale(totalForce, game.deltaTime));
+//
+//
+//     // weathervaning
+//     if (!isStalling) {
+//         auto [x, y, z] = Vector3Scale(game.GetForward(), currentSpeed);
+//         velocity.x = Lerp(velocity.x, x, 2.0f * game.deltaTime);
+//         velocity.y = Lerp(velocity.y, y, 2.0f * game.deltaTime);
+//         velocity.z = Lerp(velocity.z, z, 2.0f * game.deltaTime);
+//     }
+//
+//     // limit velocity
+//     while (Vector3Length(velocity) > config.maxSpeed()) {
+//         velocity = Vector3Scale(velocity, 0.9f);
+//     }
+//
+//     return velocity;
+// }

@@ -21,7 +21,9 @@
     "stallSpeed": 28,
     "engineThrust": 150,
     "liftCoefficient": 0.0005,
-    "dragCoefficient": 0.09
+    "dragCoefficient": 0.09,
+    "bankInduceYawRatio": 0.2,
+    "liftLossPitchRatio": 0.1
   },
   "pilot": {
     "fov": 85,

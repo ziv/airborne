@@ -13,10 +13,11 @@ GameData::GameData(AppConfig &config) : config(config) {
 
 void GameData::Update() {
     Tick();
+
     // some effects (arcade style)
     const auto speed = Speed();
-    const float bankInducedYaw = speed == 0 ? 0 : right.y * .2f * deltaTime;
-    const float liftLossPitch = speed == 0 ? 0 : (1.0f - up.y) * 0.1f * deltaTime;
+    const float bankInducedYaw = speed == 0 ? 0 : right.y * config.bankInduceYawRatio() * deltaTime;
+    const float liftLossPitch = speed == 0 ? 0 : (1.0f - up.y) * config.liftLossPitchRatio() * deltaTime;
 
     // apply the changes
     const auto qPitch = QuaternionFromAxisAngle(right, controls.Pitch + liftLossPitch);
@@ -30,11 +31,49 @@ void GameData::Update() {
     rotation = QuaternionNormalize(QuaternionMultiply(qDelta, rotation));
     recalcVectors();
 
-    // pilot look a little bit down
-    const Quaternion qTilt = QuaternionFromAxisAngle(right, -config.pilotTilt());
+    // some "physics"
 
-    velocity = UpdatePhysics(*this, config);
+    // gravity
+    constexpr Vector3 gravityForce = {0.0f, -gravity, 0.0f};
 
+    // thrust
+    const auto engineThrust = throttle * config.engineThrust();
+    const auto thrustForce = Vector3Scale(GetForward(), engineThrust);
+
+    // lift
+    auto liftMagnitude = (speed * speed) * config.liftCoefficient();
+    auto isStalling = false;
+    if (speed < config.stallSpeed()) {
+        // too slow, cut the lift by 90%
+        liftMagnitude *= 0.1f;
+        isStalling = true;
+    }
+    const auto liftForce = Vector3Scale(GetUp(), liftMagnitude);
+
+    // drag force
+    const auto dragMagnitude = speed * config.dragCoefficient();
+    const auto dragForce = Vector3Scale(GetForward(), -dragMagnitude);
+
+    // combining all forces
+    const auto totalForce = Vector3Add(Vector3Add(Vector3Add(thrustForce, dragForce), gravityForce), liftForce);
+
+    // acceleration results
+    velocity = Vector3Add(velocity, Vector3Scale(totalForce, deltaTime));
+
+    // weathervaning
+    if (!isStalling) {
+        auto [x, y, z] = Vector3Scale(GetForward(), speed);
+        velocity.x = Lerp(velocity.x, x, 2.0f * deltaTime);
+        velocity.y = Lerp(velocity.y, y, 2.0f * deltaTime);
+        velocity.z = Lerp(velocity.z, z, 2.0f * deltaTime);
+    }
+
+    // limit velocity
+    while (Vector3Length(velocity) > config.maxSpeed()) {
+        velocity = Vector3Scale(velocity, 0.9f);
+    }
+
+    // todo breaks on/off, zero height, landing
     auto newPosition = Vector3Add(camera.position, Vector3Scale(velocity, deltaTime));
 
     // do not go under the ground
@@ -43,8 +82,10 @@ void GameData::Update() {
         newPosition.y = 10.0f;
     }
 
+    // pilot look a little bit down
+    const Quaternion qTilt = QuaternionFromAxisAngle(right, -config.pilotTilt());
+
     // position the pilot
-    // camera.position = Vector3Add(camera.position, Vector3Scale(forward, velocity * deltaTime));
     camera.position = newPosition;
     camera.target = Vector3Add(camera.position, Vector3RotateByQuaternion(forward, qTilt));
     camera.up = Vector3RotateByQuaternion(up, qTilt);
@@ -72,4 +113,8 @@ void GameData::ToggleBreaks() {
 PilotControls GameData::ResetControls() {
     controls = {0.0f, 0.0f, 0.0f, 0.0f};
     return controls;
+}
+
+void GameData::SetPosition(const Vector3 &position) {
+    camera.position = position;
 }

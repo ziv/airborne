@@ -102,7 +102,6 @@ PilotControls Autopilot::AutoSteer(GameData &game) {
     const auto speed = game.Speed();
     if (speed < target.TargetSpeed) input.Throttle = speedRatio * game.deltaTime;
     else if (speed > target.TargetSpeed) input.Throttle = -speedRatio * game.deltaTime;
-    else TraceLog(LOG_INFO, "well, its happen?");
 
     input.Yaw = 0.0f;
 

@@ -14,21 +14,20 @@ GameplayScreen::GameplayScreen(AppConfig &inputConfig) : GameScreen(inputConfig)
     game = std::make_unique<GameData>(inputConfig);
     autopilot = std::make_unique<Autopilot>(config.maxBankAngle(), config.maxPullRatio(), config.speedRatio());
 
-    game->GetCamera().position = {100.0f, 1000.0f, 100.0f};
-    game->GetCamera().target = {10.0f, 10.0f, 0.0f};
-    game->GetCamera().up = GamePhysics::WorldUp;
+    // todo create game->SetPosition
+    game->SetPosition((Vector3){0.0f, 10.0f, 0.0f});
 
-    // cockpitModel.transform = MatrixRotateY(-90 * DEG2RAD);
+    // todo temporary
+    autopilot->AddWaypoint(Vector3Add(l1, a), 80.0f, 50.0f);
+    autopilot->AddWaypoint(Vector3Add(l2, a), 60.0f, 50.0f);
+    autopilot->AddWaypoint(Vector3Add(l3, a), 90.0f, 50.0f);
+    autopilot->AddWaypoint(Vector3Add(l4, a), 50.0f, 50.0f);
 
-    autopilot->AddWaypoint(Vector3Add(l1, a), 70.0f, 25.0f);
-    autopilot->AddWaypoint(Vector3Add(l2, a), 50.0f, 25.0f);
-    autopilot->AddWaypoint(Vector3Add(l3, a), 80.0f, 25.0f);
-    autopilot->AddWaypoint(Vector3Add(l4, a), 50.0f, 25.0f);
-
-
-    // shader
+    // shader for the cockpit image
     constexpr float thresholdValue = 0.5f;
     SetShaderValue(chromaShader, GetShaderLocation(chromaShader, "threshold"), &thresholdValue, SHADER_UNIFORM_FLOAT);
+
+    // engine sound
     PlayMusicStream(engine);
 }
 
@@ -82,7 +81,7 @@ ScreenState GameplayScreen::Update() {
     // throttling
 
     // set throttle directly
-    const float ta = 0.12375f;
+    constexpr float ta = 0.12375f;
     if (IsKeyDown(KEY_A)) game->throttle = 1.2f; // after burners
     if (IsKeyDown(KEY_ZERO)) game->throttle = 0.0f;
     if (IsKeyDown(KEY_ONE)) game->throttle = 0.01f;

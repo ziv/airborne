@@ -1,5 +1,4 @@
 #pragma once
-#include <fstream>
 #include "../json.hpp"
 
 using json = nlohmann::json;
@@ -43,6 +42,8 @@ public:
     float engineThrust() { return config["airplane"]["engineThrust"].get<float>(); }
     float liftCoefficient() { return config["airplane"]["liftCoefficient"].get<float>(); }
     float dragCoefficient() { return config["airplane"]["dragCoefficient"].get<float>(); }
+    float bankInduceYawRatio() { return config["airplane"]["bankInduceYawRatio"].get<float>(); }
+    float liftLossPitchRatio() { return config["airplane"]["liftLossPitchRatio"].get<float>(); }
 
     // development
     bool showGrid() { return config["development"]["showGrid"].get<bool>(); }
