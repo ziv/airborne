@@ -4,7 +4,7 @@
   "config": {
     "screenWidth": 1200,
     "screenHeight": 728,
-    "clipPlans": 10000,
+    "clipPlans": 30000,
     "splashScreenPath": "res/splash-3.png"
   },
   "splash": {
@@ -14,13 +14,14 @@
   "airplane": {
     "maxSpeed": 1100,
     "minSpeed": 0,
-    "pitchRatio": 1,
-    "rollRaio": 1,
+    "pitchRatio": 0.5,
+    "rollRaio": 0.6,
     "yawRatio": 0.5,
     "acceleration": 80,
     "stallSpeed": 100,
-    "engineThrust": 150,
-    "liftCoefficient": 0.0005
+    "engineThrust": 30,
+    "liftCoefficient": 0.0003,
+    "dragCoefficient": 0.09
   },
   "pilot": {
     "fov": 85,

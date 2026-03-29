@@ -4,11 +4,11 @@
 
 constexpr int HudSize = 280;
 constexpr int HudX = (GameConfig::SCREEN_WIDTH - HudSize) / 2;
-constexpr int HudY = (GameConfig::SCREEN_HEIGHT - HudSize) / 2; // - 100;
+constexpr int HudY = (GameConfig::SCREEN_HEIGHT - HudSize) / 2 - 100;
 
 inline void DrawHud(const GameData &game) {
     BeginScissorMode(HudX, HudY, HudSize, HudSize);
-
+    // ClearBackground(ORANGE);
     const Camera rayCam = game.GetCamera();
     const Vector3 camForward = Vector3Normalize(Vector3Subtract(rayCam.target, game.GetPosition()));
     const Vector3 forward = game.GetForward();
@@ -32,8 +32,9 @@ inline void DrawHud(const GameData &game) {
 
 
     // --- speed & altitude labels (relative to HUD rect) ---
-    DrawText(TextFormat("%0.f", std::abs(game.Speed())), HudX + 10, HudY + HudSize / 2, 15, GREEN);
-    DrawText(TextFormat("%0.f", std::abs(game.GetPosition().y)), HudX + HudSize - 30, HudY + HudSize / 2, 15, GREEN);
+    DrawText(TextFormat("%0.f", std::round(game.Speed() * 3.6)), HudX + 10, HudY + HudSize / 2, 15, GREEN);
+    // DrawText(TextFormat("%0.f", formatNumber(std::round(game.GetPosition().y)).c_str()), HudX + HudSize - 30, HudY + HudSize / 2, 15, GREEN);
+    DrawText(formatNumber(std::round(game.GetPosition().y)).c_str(), HudX + HudSize - 40, HudY + HudSize / 2, 15, GREEN);
 
     // --- pitch ladder ---
     for (int angle = -80; angle <= 80; angle += 20) {

@@ -51,6 +51,7 @@ public:
     float stallSpeed() { return config["airplane"]["stallSpeed"].get<float>(); }
     float engineThrust() { return config["airplane"]["engineThrust"].get<float>(); }
     float liftCoefficient() { return config["airplane"]["liftCoefficient"].get<float>(); }
+    float dragCoefficient() { return config["airplane"]["dragCoefficient"].get<float>(); }
 
     // development
     bool showGrid() { return config["development"]["showGrid"].get<bool>(); }

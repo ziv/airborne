@@ -50,12 +50,11 @@ int main() {
 
         BeginDrawing();
         ClearBackground(BLACK);
-        // DrawModel(model, (Vector3){0.0f, 0.0f, 0.0f}, 1.0f, WHITE);
         currentScreen->Draw();
         EndDrawing();
     }
 
-    // UnloadModel(model);
+
     CloseAudioDevice();
     CloseWindow();
     return 0;

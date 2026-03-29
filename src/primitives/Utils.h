@@ -1,6 +1,9 @@
 #pragma once
 #include <iostream>
 #include <fstream>
+#include <string>
+#include <iomanip>
+#include <sstream>
 
 #include "GameData.h"
 #include "raylib.h"
@@ -22,14 +25,26 @@ inline Vector3 GetFlatRight(const Vector3 &currentForward, const Vector3 &curren
     return Vector3Normalize(Vector3CrossProduct(currentForward, currentUp));
 }
 
+inline std::string formatNumber(const float num) {
+    std::stringstream ss;
+    if (num >= 1000000) {
+        ss << std::fixed << std::setprecision(2) << (num / 1000000.0) << "M";
+    } else if (num >= 1000) {
+        ss << std::fixed << std::setprecision(2) << (num / 1000.0) << "K";
+    } else {
+        ss << num;
+    }
+    return ss.str();
+}
+
 inline Model TmpLoadModel() {
-    Image textureImage = LoadImage("res/texture.png");
+    Image textureImage = LoadImage("res/texture.jpg");
     const Texture2D texture = LoadTextureFromImage(textureImage);
     UnloadImage(textureImage);
 
     Image heightImage = LoadImage("res/heightmap.png");
-    // Vector3 size = {10000.0f, 10000.0f, 10000.0f};
-    Vector3 size = {100000.0f, 20000.0f, 100000.0f};
+    Vector3 size = {10000.0f, 5000.0f, 10000.0f};
+    // Vector3 size = {100000.0f, 20000.0f, 100000.0f};
     Mesh mesh = GenMeshHeightmap(heightImage, size);
     UnloadImage(heightImage);
 
@@ -72,8 +87,8 @@ inline Vector3 UpdatePhysics(GameData &game, AppConfig &config) {
     // stall
     bool isStalling = false;
     if (currentSpeed < config.stallSpeed()) {
-        // too slow, cut the lift by 90%
-        liftMagnitude *= 0.1f;
+        // too slow, cut the lift by 99%
+        liftMagnitude *= 0.01f;
         isStalling = true;
     }
 
@@ -81,16 +96,19 @@ inline Vector3 UpdatePhysics(GameData &game, AppConfig &config) {
     const Vector3 liftForce = Vector3Scale(game.GetUp(), liftMagnitude);
 
     // combining all forces
-    Vector3 totalForce = Vector3Add(Vector3Add(gravityForce, thrustForce), liftForce);
+    const Vector3 totalForce = Vector3Add(Vector3Add(gravityForce, thrustForce), liftForce);
 
     // acceleration results
     velocity = Vector3Add(velocity, Vector3Scale(totalForce, game.deltaTime));
 
     // drag
-    velocity = Vector3Scale(velocity, 0.98f);
+    const float dragCoefficient = config.dragCoefficient();
+    float dragFactor = 1.0f - (dragCoefficient * game.deltaTime);
+    if (dragFactor < 0.0f) dragFactor = 0.0f;
+    velocity = Vector3Scale(velocity, dragFactor);
 
     // weathervaning
-    if (currentSpeed > 5.0f && !isStalling) {
+    if (!isStalling) {
         auto [x, y, z] = Vector3Scale(game.GetForward(), currentSpeed);
         velocity.x = Lerp(velocity.x, x, 2.0f * game.deltaTime);
         velocity.y = Lerp(velocity.y, y, 2.0f * game.deltaTime);
@@ -98,7 +116,7 @@ inline Vector3 UpdatePhysics(GameData &game, AppConfig &config) {
     }
 
     // limit velocity
-    while (Vector3Length(velocity) > 1000.0f) {
+    while (Vector3Length(velocity) > 600.0f) {
         velocity = Vector3Scale(velocity, 0.9f);
     }
     return velocity;

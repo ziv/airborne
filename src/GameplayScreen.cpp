@@ -1,11 +1,13 @@
 #include "GameplayScreen.h"
 #include "primitives/Utils.h"
+#include "views/Floater.h"
+#include "views/Hud.h"
 
 GameplayScreen::GameplayScreen(AppConfig &inputConfig) : GameScreen(inputConfig) {
     game = std::make_unique<GameData>(inputConfig);
     autopilot = std::make_unique<Autopilot>(config.maxBankAngle(), config.maxPullRatio(), config.speedRatio());
 
-    game->GetCamera().position = {0.0f, 20.0f, 0.0f};
+    game->GetCamera().position = {100.0f, 1000.0f, 100.0f};
     game->GetCamera().target = {10.0f, 10.0f, 0.0f};
     game->GetCamera().up = GamePhysics::WorldUp;
 }
@@ -15,6 +17,7 @@ GameplayScreen::~GameplayScreen() {
     // UnloadModel(map);
     // UnloadTexture(cockpit);
     // // UpdateMusicStream(music);
+    UnloadModel(map);
 }
 
 ScreenState GameplayScreen::Update() {
@@ -33,13 +36,17 @@ ScreenState GameplayScreen::Update() {
 
     auto controls = game->ResetControls();
 
+    // faster is better for steering, no speed -> no steer
+    auto const speed = game->Speed();
+    auto const speedEffect = speed == 0 ? 0 :Clamp( 1 - (10 / game->Speed()), 0.0f, 1.0f);
+
     // steering
 
-    if (IsKeyDown(KEY_UP)) controls.Pitch = -config.pitchRatio() * deltaTime;
-    if (IsKeyDown(KEY_DOWN)) controls.Pitch = config.pitchRatio() * deltaTime;
+    if (IsKeyDown(KEY_UP)) controls.Pitch = -config.pitchRatio() * deltaTime * speedEffect;
+    if (IsKeyDown(KEY_DOWN)) controls.Pitch = config.pitchRatio() * deltaTime * speedEffect;
 
-    if (IsKeyDown(KEY_LEFT)) controls.Roll = -config.rollRaio() * deltaTime;
-    if (IsKeyDown(KEY_RIGHT)) controls.Roll = config.rollRaio() * deltaTime;
+    if (IsKeyDown(KEY_LEFT)) controls.Roll = -config.rollRaio() * deltaTime * speedEffect;
+    if (IsKeyDown(KEY_RIGHT)) controls.Roll = config.rollRaio() * deltaTime * speedEffect;
 
     // // todo for debug only, user should not be allow to change YAW directly
     if (IsKeyDown(KEY_Q)) controls.Yaw = config.yawRatio() * deltaTime;
@@ -90,17 +97,18 @@ ScreenState GameplayScreen::Update() {
 
 void GameplayScreen::Draw() {
     ClearBackground(BLUE);
+
     BeginMode3D(game->GetCamera());
+    if (config.showGrid()) DrawGrid(100, 20.0f);
 
-    // if (config.showGrid())
-    DrawGrid(100, 20.0f);
-
+    // DrawModel(map, (Vector3){0.0f, -1200.0f, 0.0f}, 1.0f, WHITE);
     DrawCube({0.0f, 10.0f, 0.0f}, 10.0f, 10.0f, 10.0f, RED);
     DrawCube({300.0f, 10.0f, 0.0f}, 10.0f, 10.0f, 10.0f, RED);
     DrawCube({0.0f, 10.0f, 300.0f}, 10.0f, 10.0f, 10.0f, RED);
     DrawCube({300.0f, 10.0f, 300.0f}, 10.0f, 10.0f, 10.0f, RED);
 
     EndMode3D();
+    DrawTexture(cockpit, -51, 0, WHITE);
     DrawHud(*game);
     DrawFloater(*game);
 
