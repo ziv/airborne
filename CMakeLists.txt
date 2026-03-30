@@ -23,7 +23,7 @@ add_executable(${PROJECT_NAME} src/main.cpp
         src/MainMenuScreen.cpp
         src/MainMenuScreen.h
         src/SplashScreen.h
-        src/Constants.h
+        src/primitives/Constants.h
         src/GameplayScreen.cpp
         src/GameplayScreen.h
         src/primitives/Autopilot.cpp

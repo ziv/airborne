@@ -1,6 +1,6 @@
 #include "GameData.h"
 #include "raymath.h"
-#include "../Constants.h"
+#include "Constants.h"
 
 GameData::GameData(AppConfig &config) : config(config) {
     camera.up = GamePhysics::WorldUp;

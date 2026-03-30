@@ -1,6 +1,6 @@
 #include "Aircraft.h"
 
-#include "../Constants.h"
+#include "../primitives/Constants.h"
 #include "../primitives/GameData.h"
 
 Aircraft::Aircraft(const std::string_view name,
