@@ -10,7 +10,11 @@ GameData::GameData(AppConfig &config) : config(config) {
     recalcVectors();
 }
 
-void GameData::Update() {
+GameData::~GameData() {
+    // nothing to unload yet
+}
+
+void GameData::update() {
     applyState();
     applyForces();
     applyPosition();
@@ -23,28 +27,32 @@ void GameData::recalcVectors() {
     right = Vector3Normalize(Vector3RotateByQuaternion(GamePhysics::WorldRight, rotation));
 }
 
-float GameData::Tick() {
+float GameData::tick() {
     deltaTime = GetFrameTime();
     width = static_cast<float>(GetScreenWidth());
     height = static_cast<float>(GetScreenHeight());
     return deltaTime;
 }
 
-void GameData::ToggleAutopilot() {
+void GameData::toggleAutopilot() {
     autoPiloting = !autoPiloting;
 }
 
-void GameData::ToggleBreaks() {
+void GameData::toggleBreaks() {
     breaks = !breaks;
 }
 
-PilotControls GameData::ResetControls() {
+void GameData::resetControls() {
     controls = {0.0f, 0.0f, 0.0f, 0.0f};
-    return controls;
 }
 
-void GameData::SetPosition(const Vector3 &position) {
+void GameData::setPosition(const Vector3 &position) {
     camera.position = position;
+    if (camera.position.y < config.heightAboveGround()) {
+        camera.position.y = config.heightAboveGround();
+        velocity.y = 0.0f;
+        speed = Vector3Length(velocity);
+    }
 }
 
 bool GameData::isStableLanding() const {
@@ -62,7 +70,7 @@ bool GameData::isStableLanding() const {
 
 void GameData::applyState() {
     constexpr auto aircraftHeightFromGround = 3.0f;
-    if (planeState == Flying && GetPosition().y <= aircraftHeightFromGround) {
+    if (planeState == Flying && getPosition().y <= aircraftHeightFromGround) {
         // in order to land you have to fulfill all those condition
         // note, this condition does not cover what you landed on
         if (gearState == Opened && isStableLanding()) {
@@ -72,17 +80,21 @@ void GameData::applyState() {
         }
     }
     // just leave the fround and the aircraft is flying
-    else if (planeState == Ground && GetPosition().y > aircraftHeightFromGround) {
+    else if (planeState == Ground && getPosition().y > aircraftHeightFromGround) {
         planeState = Flying;
     }
 }
 
 void GameData::applyForces() {
+    throttle += controls.Throttle;
+    throttle = Clamp(throttle, 0.0f, 1.2f);
+
+    const auto currentSpeed = speed;
+    const auto speedRatio = currentSpeed / config.maxSpeed();
+
     // some effects (arcade style)
-    const auto speed = Speed();
-    const auto speedRatio = speed / config.maxSpeed();
-    const auto bankInducedYaw = speed == 0 ? 0.0f : right.y * config.bankInduceYawRatio() * deltaTime;
-    const auto liftLossPitch = speed == 0 ? 0.0f : (1.0f - up.y) * config.liftLossPitchRatio() * deltaTime;
+    const auto bankInducedYaw = currentSpeed == 0 ? 0.0f : right.y * config.bankInduceYawRatio() * deltaTime;
+    const auto liftLossPitch = currentSpeed == 0 ? 0.0f : (1.0f - up.y) * config.liftLossPitchRatio() * deltaTime;
 
     // apply the changes (more speed equals more steering except yaw)
     const auto qPitch = QuaternionFromAxisAngle(right, (controls.Pitch + liftLossPitch) * speedRatio);
@@ -97,10 +109,10 @@ void GameData::applyForces() {
     recalcVectors();
 
     // some "physics"
-    const auto isStalling = speed < config.stallSpeed();
+    const auto isStalling = currentSpeed < config.stallSpeed();
     const auto thrust = throttle * config.engineThrust();
-    auto drag = (speed * speed) * config.dragCoefficient();
-    auto lift = (speed * speed) * config.liftCoefficient();
+    auto drag = (currentSpeed * currentSpeed) * config.dragCoefficient();
+    auto lift = (currentSpeed * currentSpeed) * config.liftCoefficient();
 
     // breaks increase drag by 300%
     // stall reduce lift by 90%
@@ -108,10 +120,10 @@ void GameData::applyForces() {
     if (isStalling) lift *= 0.1;
 
     // forces vectors
-    const auto thrustForce = Vector3Scale(GetForward(), thrust);
+    const auto thrustForce = Vector3Scale(getForward(), thrust);
     const auto weightForce = Vector3Scale(GamePhysics::Gravity, config.weight());
-    const auto liftForce = Vector3Scale(GetUp(), lift);
-    const auto dragForce = Vector3Scale(GetForward(), drag);
+    const auto liftForce = Vector3Scale(getUp(), lift);
+    const auto dragForce = Vector3Scale(getForward(), drag);
 
     const auto total = Vector3Add(Vector3Add(Vector3Add(thrustForce, dragForce), weightForce), liftForce);
 
@@ -121,16 +133,18 @@ void GameData::applyForces() {
     // weathervaning
     // https://en.wikipedia.org/wiki/Weathervane_effect
     if (!isStalling) {
-        auto [x, y, z] = Vector3Scale(GetForward(), speed);
+        auto [x, y, z] = Vector3Scale(getForward(), currentSpeed);
         velocity.x = Lerp(velocity.x, x, 2.0f * deltaTime);
         velocity.y = Lerp(velocity.y, y, 2.0f * deltaTime);
         velocity.z = Lerp(velocity.z, z, 2.0f * deltaTime);
     }
 
     // limit velocity
-    if (speed > config.maxSpeed() && speed != 0.0f) {
-        velocity = Vector3Scale(velocity, config.maxSpeed() / speed);
+    if (currentSpeed > config.maxSpeed() && currentSpeed != 0.0f) {
+        velocity = Vector3Scale(velocity, config.maxSpeed() / currentSpeed);
     }
+
+    speed = Vector3Length(velocity);
 }
 
 void GameData::applyPosition() {
@@ -149,6 +163,7 @@ void GameData::applyPosition() {
     // do not go under the ground
     if (newPosition.y <= 10.0f) {
         velocity.y = 0.0f;
+        speed = Vector3Length(velocity);
         newPosition.y = 10.0f;
     }
 

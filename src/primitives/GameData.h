@@ -1,7 +1,6 @@
 #pragma once
 #include "AppConfig.h"
 #include "raylib.h"
-#include "raymath.h"
 
 enum AircraftState {
     Ground,
@@ -10,10 +9,8 @@ enum AircraftState {
 };
 
 enum GearState {
-    Close,
-    Opening,
-    Opened,
-    Closing
+    Closed,
+    Opened
 };
 
 struct PilotControls {
@@ -24,18 +21,21 @@ struct PilotControls {
 };
 
 class GameData {
+    AppConfig &config;
+
     // the pilot view
     Camera camera = {0};
 
     // the position/direction airplane in 3d space
+    // and the current velocity
     Quaternion rotation = {0.0f, 0.0f, 0.0f, 1.0f};
+    Vector3 velocity = {0.0f, 0.0f, 0.0f};
 
-    // an R3 vectors represent the same data in the rotation quaternion
+    // just another representation of the rotation with R3 vectors
     Vector3 forward{0};
     Vector3 up{0};
     Vector3 right{0};
 
-    AppConfig &config;
 
     void recalcVectors();
 
@@ -49,14 +49,15 @@ class GameData {
 
 public:
     explicit GameData(AppConfig &config);
+    ~GameData();
 
     PilotControls controls = {};
     AircraftState planeState = AircraftState::Ground;
     GearState gearState = GearState::Opened;
 
-    Vector3 velocity = {0.0f, 0.0f, 0.0f};
     float throttle = 0.0f;
     float deltaTime = 0.0f;
+    float speed = 0.0f;
     bool autoPiloting = false;
     bool breaks = false;
     bool gear = true;
@@ -65,24 +66,22 @@ public:
     float width = 0.0f;
     float height = 0.0f;
 
-    void Update();
+    float tick();
 
-    float Tick();
+    void update();
 
-    void ToggleAutopilot();
+    void toggleAutopilot();
 
-    void ToggleBreaks();
+    void toggleBreaks();
 
-    void SetPosition(const Vector3 &position);
+    void resetControls();
 
-    PilotControls ResetControls();
+    void setPosition(const Vector3 &position);
 
-    // todo is the camera by ref....?
-    [[nodiscard]] Quaternion GetRotation() const { return rotation; }
-    [[nodiscard]] Camera GetCamera() const { return camera; }
-    [[nodiscard]] Vector3 GetPosition() const { return camera.position; }
-    [[nodiscard]] Vector3 GetForward() const { return forward; }
-    [[nodiscard]] Vector3 GetUp() const { return up; }
-    [[nodiscard]] Vector3 GetRight() const { return right; }
-    [[nodiscard]] float Speed() const { return Vector3Length(velocity); }
+    [[nodiscard]] Quaternion getRotation() const { return rotation; }
+    [[nodiscard]] Camera getCamera() const { return camera; }
+    [[nodiscard]] Vector3 getPosition() const { return camera.position; }
+    [[nodiscard]] Vector3 getForward() const { return forward; }
+    [[nodiscard]] Vector3 getUp() const { return up; }
+    [[nodiscard]] Vector3 getRight() const { return right; }
 };

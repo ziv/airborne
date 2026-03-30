@@ -8,6 +8,9 @@ class MapView : View {
     float heading = 0.0f;
     float zoom = 1.0;
 
+    Shader glassShader = LoadShader(nullptr, "glass_hud.fs");
+    int timeLoc = GetShaderLocation(glassShader, "time");
+
 public:
     ~MapView() override;
 

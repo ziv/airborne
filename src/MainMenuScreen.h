@@ -4,7 +4,7 @@
 class MainMenuScreen : public GameScreen {
 public:
     using GameScreen::GameScreen;
-    ScreenState Update() override;
+    ScreenState update() override;
 
     void run() override;
 };

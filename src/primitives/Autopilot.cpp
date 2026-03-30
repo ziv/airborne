@@ -16,10 +16,6 @@ bool Autopilot::IsActive() const {
     return currentWaypointIndex < route.size() && active;
 }
 
-PilotControls Autopilot::AutoSteer(GameData &game) {
-    return Steer(game.GetPosition(), game.GetForward(), game.GetRight(), game.GetUp(), game.deltaTime, game.Speed());
-}
-
 PilotControls Autopilot::Steer(const Vector3 &position,
                                const Vector3 &forward,
                                const Vector3 &right,

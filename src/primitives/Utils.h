@@ -37,21 +37,21 @@ inline std::string FormatNumber(const float num) {
     return ss.str();
 }
 
-inline Model TmpLoadModel() {
-    Image textureImage = LoadImage("res/texture-il.jpg");
-    const Texture2D texture = LoadTextureFromImage(textureImage);
-    UnloadImage(textureImage);
-
-    Image heightImage = LoadImage("res/heightmap-il.png");
-    Vector3 size = {2048.0f, 2788.0f, 2048.0f};
-    // Vector3 size = {100000.0f, 20000.0f, 100000.0f};
-    Mesh mesh = GenMeshHeightmap(heightImage, size);
-    UnloadImage(heightImage);
-
-    Model model = LoadModelFromMesh(mesh);
-    model.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = texture;
-    return model;
-}
+// inline Model TmpLoadModel() {
+//     Image textureImage = LoadImage("res/texture-il.jpg");
+//     const Texture2D texture = LoadTextureFromImage(textureImage);
+//     UnloadImage(textureImage);
+//
+//     Image heightImage = LoadImage("res/heightmap-il.png");
+//     Vector3 size = {2048.0f, 2788.0f, 2048.0f};
+//     // Vector3 size = {100000.0f, 20000.0f, 100000.0f};
+//     Mesh mesh = GenMeshHeightmap(heightImage, size);
+//     UnloadImage(heightImage);
+//
+//     Model model = LoadModelFromMesh(mesh);
+//     model.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = texture;
+//     return model;
+// }
 
 
 inline json LoadJson(const std::string &path) {
@@ -66,19 +66,19 @@ inline json LoadJson(const std::string &path) {
     return data;
 }
 
-inline json LoadAppConfig() {
-    std::ifstream file("app.json");
-    if (!file.is_open()) {
-        throw std::runtime_error("Could not open app.json");
-    }
-    json data;
-    file >> data;
-    file.close();
-    TraceLog(LOG_INFO, "app.json loaded");
-    return data;
-}
-
-constexpr float gravity = 9.81f;
+// inline json LoadAppConfig() {
+//     std::ifstream file("app.json");
+//     if (!file.is_open()) {
+//         throw std::runtime_error("Could not open app.json");
+//     }
+//     json data;
+//     file >> data;
+//     file.close();
+//     TraceLog(LOG_INFO, "app.json loaded");
+//     return data;
+// }
+//
+// constexpr float gravity = 9.81f;
 
 // inline Vector3 UpdatePhysics(const GameData &game, AppConfig &config) {
 //     const float engineThrust = game.throttle * config.engineThrust();

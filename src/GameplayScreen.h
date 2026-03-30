@@ -4,7 +4,6 @@
 #include "primitives/Autopilot.h"
 #include "primitives/GameData.h"
 #include "primitives/Utils.h"
-#include "utils/loaders.h"
 #include "views/DebugView.h"
 #include "views/GaugesView.h"
 #include "views/HudView.h"
@@ -24,24 +23,22 @@ class GameplayScreen : public GameScreen {
     GaugesView gaugesView{};
     MapView mapView{};
 
-    Texture2D cockpit = LoadTexture("res/cockpit-l.png");
-    Shader chromaShader = LoadShader(nullptr, "shaders/chromakey.fs");
-    Music engine = LoadMusicStream("res/engine.mp3");
+    // cockpit
+    Texture2D cockpit{};
+    Shader chromaShader{};
 
-    // todo temporary
-    Aircraft aircraft{"MIG-29", "res/mig-29.glb"};
+    // background sound
+    Music engine{};
 
-    // Model cockpitModel = LoadModel("res/mig-23-cockpit.glb");
-    // Shader paintingShader = LoadShader(nullptr, "src/shaders/painting.fs");
-    // RenderTexture2D target = LoadRenderTexture(GetScreenWidth(), GetScreenHeight());
-    const Model map = UtilsLoaders::loadTerrain("res/tx.png", "res/hm.png", {32000.0f, 3200.0f, 32000.0f});
+    // terrain
+    Model map{};
 
 public:
     explicit GameplayScreen(AppConfig &inputConfig);
 
     ~GameplayScreen() override;
 
-    ScreenState Update() override;
+    ScreenState update() override;
 
     void run() override;
 };

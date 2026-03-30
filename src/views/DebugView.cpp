@@ -5,7 +5,7 @@ void DebugView::update(const GameData &game) {
 }
 
 void DebugView::draw(const GameData &game) const {
-    const auto [x, y, z] = game.GetCamera().position;
+    const auto [x, y, z] = game.getCamera().position;
     constexpr auto m = 100.0f;
     DrawRectangle(5, 5, 220, 200, BEIGE);
     DrawText(TextFormat("X: %0.f", x), 20, 10, 15, BLACK);
@@ -15,6 +15,6 @@ void DebugView::draw(const GameData &game) const {
     DrawText(TextFormat("r: %f", game.controls.Roll * m), 20, 90, 15, BLUE);
     DrawText(TextFormat("y: %f", game.controls.Yaw * m), 20, 110, 15, BLUE);
     DrawText(TextFormat("t: %f", game.controls.Throttle * m), 20, 130, 15, BLUE);
-    DrawText(TextFormat("s: %f", std::round(game.Speed())), 20, 150, 15, BLUE);
+    DrawText(TextFormat("s: %f", std::round(game.speed)), 20, 150, 15, BLUE);
     DrawText(TextFormat("T: %f", game.throttle * 100), 20, 170, 15, BLUE);
 }

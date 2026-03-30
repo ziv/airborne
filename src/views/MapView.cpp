@@ -1,4 +1,6 @@
 #include "MapView.h"
+#include "raylib.h"
+#include "raymath.h"
 
 MapView::~MapView() {
     UnloadTexture(map);
@@ -11,7 +13,7 @@ void MapView::update(const GameData &game) {
     if (zoom < 1.0f) zoom = 1.0f;
 
     // player pos
-    const auto pos = game.GetPosition();
+    const auto pos = game.getPosition();
 
     // map pos
     const float mapX = pos.x / 64.0f;
@@ -24,13 +26,18 @@ void MapView::update(const GameData &game) {
     mapCamera.zoom = zoom;
 
     // the heading on the map
-    const Vector3 forward = game.GetForward();
+    const Vector3 forward = game.getForward();
     heading = 180.0f - atan2f(forward.x, forward.z) * RAD2DEG;
 }
 
 void MapView::draw(const GameData &game) const {
+    const auto currentTime = static_cast<float>(GetTime());
+    SetShaderValue(glassShader, timeLoc, &currentTime, SHADER_UNIFORM_FLOAT);
+
     BeginScissorMode(522, 542, 158, 134);
-    ClearBackground(BLACK);
+    // ClearBackground(BLACK);
+    DrawRectangle(522, 542, 158, 134, BLACK);
+    BeginShaderMode(glassShader);
     BeginMode2D(mapCamera);
     DrawTexture(map, 0, 0, WHITE);
 
@@ -48,5 +55,6 @@ void MapView::draw(const GameData &game) const {
     DrawTriangle(v1, v2, v3, GREEN);
     DrawTriangleLines(v1, v2, v3, BLACK);
     EndMode2D();
+    EndShaderMode();
     EndScissorMode();
 }

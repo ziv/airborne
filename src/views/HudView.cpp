@@ -18,10 +18,10 @@ void HudView::draw(const GameData &game) const {
 
     BeginScissorMode(HudX, HudY, HudWidth, HudHeight);
     // ClearBackground(ORANGE);
-    const Camera rayCam = game.GetCamera();
-    const Vector3 camForward = Vector3Normalize(Vector3Subtract(rayCam.target, game.GetPosition()));
-    const Vector3 forward = game.GetForward();
-    const Vector3 up = game.GetUp();
+    const Camera rayCam = game.getCamera();
+    const Vector3 camForward = Vector3Normalize(Vector3Subtract(rayCam.target, game.getPosition()));
+    const Vector3 forward = game.getForward();
+    const Vector3 up = game.getUp();
 
     // --- heading projected to horizontal plane ---
     const Vector3 flatForward = GetFlatForward(forward, up);
@@ -30,7 +30,7 @@ void HudView::draw(const GameData &game) const {
     // --- screen-space sky reference (computed once, valid for all rungs) ---
     const auto width = GetScreenWidth();
     const auto height = GetScreenHeight();
-    const Vector3 refPt = Vector3Add(game.GetPosition(), Vector3Scale(camForward, 10000.0f));
+    const Vector3 refPt = Vector3Add(game.getPosition(), Vector3Scale(camForward, 10000.0f));
     const Vector3 skyPt = Vector3Add(refPt, Vector3Scale(GamePhysics::WorldUp, 500.0f));
     const Vector2 refScr = GetWorldToScreenEx(refPt, rayCam, width, height);
     const Vector2 skyScr = GetWorldToScreenEx(skyPt, rayCam, width, height);
@@ -43,9 +43,9 @@ void HudView::draw(const GameData &game) const {
 
 
     // --- speed & altitude labels (relative to HUD rect) ---
-    DrawText(TextFormat("%0.f", std::round(game.Speed() * 3.6)), HudX + 10, HudY + HudHeight / 2, 15, color);
+    DrawText(TextFormat("%0.f", std::round(game.speed * 3.6)), HudX + 10, HudY + HudHeight / 2, 15, color);
     // DrawText(TextFormat("%0.f", FormatNumber(std::round(game.GetPosition().y)).c_str()), HudX + HudSize - 30, HudY + HudSize / 2, 15, GREEN);
-    DrawText(FormatNumber(std::round(game.GetPosition().y)).c_str(), HudX + HudWidth - 40, HudY + HudHeight / 2, 15,
+    DrawText(FormatNumber(std::round(game.getPosition().y)).c_str(), HudX + HudWidth - 40, HudY + HudHeight / 2, 15,
              color);
 
     // --- pitch ladder ---
@@ -57,7 +57,7 @@ void HudView::draw(const GameData &game) const {
         if (Vector3DotProduct(rungDir, camForward) < 0.1f) continue;
 
         // project rung center AND one offset point to get screen-space direction
-        const Vector3 center3D = Vector3Add(game.GetPosition(), Vector3Scale(rungDir, 10000.0f));
+        const Vector3 center3D = Vector3Add(game.getPosition(), Vector3Scale(rungDir, 10000.0f));
         const Vector3 side3D = Vector3Add(center3D, Vector3Scale(flatRight, 500.0f));
 
         const Vector2 center =

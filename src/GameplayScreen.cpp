@@ -1,5 +1,6 @@
 #include "GameplayScreen.h"
 #include "primitives/Utils.h"
+#include "utils/loaders.h"
 
 constexpr Vector3 l1 = {2400.0f, 200.0f, 2400};
 constexpr Vector3 l2 = {2400.0f, 200.0f, 0.0f};
@@ -9,22 +10,36 @@ constexpr Vector3 a{0.0f, 10.0f, 0.0f};
 
 GameplayScreen::GameplayScreen(AppConfig &inputConfig) : GameScreen(inputConfig) {
     game = std::make_unique<GameData>(inputConfig);
-    autopilot = std::make_unique<Autopilot>(config.maxBankAngle(), config.maxPullRatio(), config.speedRatio());
 
-    // todo create game->SetPosition
-    game->SetPosition((Vector3){0.0f, 10.0f, 0.0f});
+    autopilot = std::make_unique<Autopilot>(
+        config.maxBankAngle(),
+        config.maxPullRatio(),
+        config.speedRatio()
+    );
 
-    // todo temporary
+    map = UtilsLoaders::loadTerrain(
+        config.gameMapTexture().data(),
+        config.gameMapHeightmap().data(),
+        {32000.0f, 3200.0f, 32000.0f}
+    );
+
+    engine = LoadMusicStream(config.gameEngineSound().data());
+
+    // cockpit & shader for the cockpit
+    cockpit = LoadTexture(config.gameCockpitTexture().data());
+    constexpr float thresholdValue = 0.5f;
+    chromaShader = LoadShader(nullptr, config.gameCockpitChroma().data());
+    SetShaderValue(chromaShader, GetShaderLocation(chromaShader, "threshold"), &thresholdValue, SHADER_UNIFORM_FLOAT);
+
+    // todo position should come from the mission data
+    game->setPosition((Vector3){0.0f, config.heightAboveGround(), 0.0f});
+
+    // todo waypoints should come from the mission data
     autopilot->AddWaypoint(Vector3Add(l1, a), 80.0f, 50.0f);
     autopilot->AddWaypoint(Vector3Add(l2, a), 60.0f, 50.0f);
     autopilot->AddWaypoint(Vector3Add(l3, a), 90.0f, 50.0f);
     autopilot->AddWaypoint(Vector3Add(l4, a), 50.0f, 50.0f);
 
-    // shader for the cockpit image
-    constexpr float thresholdValue = 0.5f;
-    SetShaderValue(chromaShader, GetShaderLocation(chromaShader, "threshold"), &thresholdValue, SHADER_UNIFORM_FLOAT);
-
-    // engine sound
     PlayMusicStream(engine);
 }
 
@@ -35,8 +50,8 @@ GameplayScreen::~GameplayScreen() {
     UnloadMusicStream(engine);
 }
 
-ScreenState GameplayScreen::Update() {
-    const float deltaTime = game->Tick();
+ScreenState GameplayScreen::update() {
+    const float deltaTime = game->tick();
     hudView.update(*game);
     mapView.update(*game);
 
@@ -46,21 +61,18 @@ ScreenState GameplayScreen::Update() {
     // fast return, autopilot mode, no need to get other user inputs
     if (autopilot->IsActive()) {
         // get controls from autopilot and update game state
-        // game->controls = autopilot->AutoSteer(*game);
-        game->controls = autopilot->Steer(game->GetPosition(),
-                                          game->GetForward(),
-                                          game->GetRight(),
-                                          game->GetUp(),
+        game->controls = autopilot->Steer(game->getPosition(),
+                                          game->getForward(),
+                                          game->getRight(),
+                                          game->getUp(),
                                           game->deltaTime,
-                                          game->Speed());
-        // autopilot update throttle
-        game->throttle += game->controls.Throttle;
-        game->throttle = Clamp(game->throttle, 0.0f, 1.2f);
-        game->Update();
+                                          game->speed);
+        game->update();
         return ScreenState::GAMEPLAY;
     }
 
-    auto controls = game->ResetControls();
+    game->resetControls();
+    auto controls = game->controls;
 
     // faster is better for steering, no speed -> no steer
     // auto const speed = game->Speed();
@@ -103,10 +115,10 @@ ScreenState GameplayScreen::Update() {
     game->throttle = Clamp(game->throttle, 0.0f, 1.2f);
 
     // todo temporary
-    if (IsKeyPressed(KEY_O)) game->SetPosition((Vector3){ 16000.0f, 1000.0f, 16000.0f });
+    if (IsKeyPressed(KEY_O)) game->setPosition((Vector3){16000.0f, 1000.0f, 16000.0f});
 
     game->controls = controls;
-    game->Update();
+    game->update();
 
     const float targetPitch = 0.8f + (game->throttle * 0.7f);
     const float targetVolume = 0.2f + (game->throttle * 0.9f);
@@ -122,7 +134,7 @@ ScreenState GameplayScreen::Update() {
 void GameplayScreen::run() {
     ClearBackground(BLUE);
 
-    BeginMode3D(game->GetCamera());
+    BeginMode3D(game->getCamera());
     if (config.showGrid()) DrawGrid(100, 20.0f);
 
     DrawModel(map, (Vector3){0.0f, 0.0f, 0.0f}, 1.0f, WHITE);

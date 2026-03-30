@@ -1,26 +1,25 @@
 #version 330
 
-// קלטים מ-Raylib
+// inputs from raylib
 in vec2 fragTexCoord;
 in vec4 fragColor;
 
-// התמונה של ה-Cockpit
 uniform sampler2D texture0;
 
-// הצבע שאנחנו רוצים להסיר (הירוק)
-uniform vec3 keyColor = vec3(0.0, 1.0, 0.0); // ירוק טהור
-uniform float threshold = 0.5; // רמת הדיוק של החיתוך
+// the chroma color we want to remove
+uniform vec3 keyColor = vec3(0.0, 1.0, 0.0);
+uniform float threshold = 0.5;
 
 out vec4 finalColor;
 
 void main() {
-    // קריאת הצבע של הפיקסל הנוכחי בתמונה
+    // the current pixel color
     vec4 texelColor = texture(texture0, fragTexCoord);
 
-    // חישוב המרחק בין צבע הפיקסל לצבע הירוק (Key Color)
+    // the distance to our chroma
     float diff = distance(texelColor.rgb, keyColor);
 
-    // אם הצבע קרוב מספיק לירוק, נהפוך אותו לשקוף (Alpha = 0)
+    // if chroma, transparent
     if (diff < threshold) {
         finalColor = vec4(0.0, 0.0, 0.0, 0.0);
     } else {

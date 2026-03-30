@@ -22,7 +22,7 @@ public:
 
     virtual ~GameScreen() = default;
 
-    virtual ScreenState Update() = 0;
+    virtual ScreenState update() = 0;
 
     virtual void run() = 0;
 };

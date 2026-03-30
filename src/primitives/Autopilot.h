@@ -36,8 +36,7 @@ public:
 
     [[nodiscard]] bool IsActive() const;
 
-    PilotControls AutoSteer(GameData &game);
-
+    // todo convert this list of argument to struct
     PilotControls Steer(const Vector3 &position,
                         const Vector3 &forward,
                         const Vector3 &right,
