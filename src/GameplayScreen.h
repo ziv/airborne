@@ -24,7 +24,7 @@ class GameplayScreen : public GameScreen {
     // Model cockpitModel = LoadModel("res/mig-23-cockpit.glb");
     // Shader paintingShader = LoadShader(nullptr, "src/shaders/painting.fs");
     // RenderTexture2D target = LoadRenderTexture(GetScreenWidth(), GetScreenHeight());
-    // const Model map = UtilsLoaders::loadTerrain("res/texture.jpg", "res/heightmap.png", {10000.0f, 5000.0f, 10000.0f});
+    const Model map = UtilsLoaders::loadTerrain("res/tx.png", "res/hm.png", {-32000.0f, 3200.0f, -32000.0f});
 
 public:
     explicit GameplayScreen(AppConfig &inputConfig);

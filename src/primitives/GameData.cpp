@@ -14,8 +14,8 @@ GameData::GameData(AppConfig &config) : config(config) {
 void GameData::Update() {
     // some effects (arcade style)
     const auto speed = Speed();
-    const float bankInducedYaw = speed == 0 ? 0 : right.y * config.bankInduceYawRatio() * deltaTime;
-    const float liftLossPitch = speed == 0 ? 0 : (1.0f - up.y) * config.liftLossPitchRatio() * deltaTime;
+    const auto bankInducedYaw = speed == 0 ? 0.0f : right.y * config.bankInduceYawRatio() * deltaTime;
+    const auto liftLossPitch = speed == 0 ? 0.0f : (1.0f - up.y) * config.liftLossPitchRatio() * deltaTime;
 
     // apply the changes
     const auto qPitch = QuaternionFromAxisAngle(right, controls.Pitch + liftLossPitch);
@@ -30,9 +30,6 @@ void GameData::Update() {
     recalcVectors();
 
     // some "physics"
-
-    // gravity
-    constexpr Vector3 gravityForce = {0.0f, -gravity, 0.0f};
 
     // thrust
     const auto engineThrust = throttle * config.engineThrust();
@@ -53,12 +50,13 @@ void GameData::Update() {
     const auto dragForce = Vector3Scale(GetForward(), -dragMagnitude);
 
     // combining all forces
-    const auto totalForce = Vector3Add(Vector3Add(Vector3Add(thrustForce, dragForce), gravityForce), liftForce);
+    const auto totalForce = Vector3Add(Vector3Add(Vector3Add(thrustForce, dragForce), GamePhysics::Gravity), liftForce);
 
     // acceleration results
     velocity = Vector3Add(velocity, Vector3Scale(totalForce, deltaTime));
 
     // weathervaning
+    // https://en.wikipedia.org/wiki/Weathervane_effect
     if (!isStalling) {
         auto [x, y, z] = Vector3Scale(GetForward(), speed);
         velocity.x = Lerp(velocity.x, x, 2.0f * deltaTime);

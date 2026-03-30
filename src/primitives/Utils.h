@@ -38,12 +38,12 @@ inline std::string formatNumber(const float num) {
 }
 
 inline Model TmpLoadModel() {
-    Image textureImage = LoadImage("res/texture.jpg");
+    Image textureImage = LoadImage("res/texture-il.jpg");
     const Texture2D texture = LoadTextureFromImage(textureImage);
     UnloadImage(textureImage);
 
-    Image heightImage = LoadImage("res/heightmap.png");
-    Vector3 size = {10000.0f, 5000.0f, 10000.0f};
+    Image heightImage = LoadImage("res/heightmap-il.png");
+    Vector3 size = {2048.0f, 2788.0f, 2048.0f};
     // Vector3 size = {100000.0f, 20000.0f, 100000.0f};
     Mesh mesh = GenMeshHeightmap(heightImage, size);
     UnloadImage(heightImage);

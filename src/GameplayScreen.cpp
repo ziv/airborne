@@ -32,6 +32,7 @@ GameplayScreen::GameplayScreen(AppConfig &inputConfig) : GameScreen(inputConfig)
 }
 
 GameplayScreen::~GameplayScreen() {
+    UnloadModel(map);
     UnloadTexture(cockpit);
     UnloadShader(chromaShader);
     UnloadMusicStream(engine);
@@ -104,6 +105,9 @@ ScreenState GameplayScreen::Update() {
     // limit
     game->throttle = Clamp(game->throttle, 0.0f, 1.2f);
 
+    // todo temporary
+    if (IsKeyPressed(KEY_O)) game->SetPosition((Vector3){ 16000.0f, 1000.0f, 16000.0f });
+
     game->controls = controls;
     game->Update();
 
@@ -124,14 +128,14 @@ void GameplayScreen::Draw() {
     BeginMode3D(game->GetCamera());
     if (config.showGrid()) DrawGrid(100, 20.0f);
 
-    // DrawModel(map, (Vector3){0.0f, -1200.0f, 0.0f}, 1.0f, WHITE);
+    DrawModel(map, (Vector3){0.0f, 0.0f, 0.0f}, 1.0f, WHITE);
     // DrawModel(cockpitModel, Vector3Subtract(game->GetPosition(), {0, 10, -1}), 10.0f, WHITE);
     DrawCube(l1, 10.0f, 10.0f, 10.0f, RED);
     DrawCube(l2, 10.0f, 10.0f, 10.0f, RED);
     DrawCube(l3, 10.0f, 10.0f, 10.0f, RED);
     DrawCube(l4, 10.0f, 10.0f, 10.0f, RED);
 
-    DrawModel(aircraft.model, (Vector3){10.0, 10.0, 10.0}, 1.0f, RED);
+    // DrawModel(aircraft.model, (Vector3){10.0, 10.0, 10.0}, 1.0f, RED);
 
     EndMode3D();
     // DrawTexture(cockpit, -51, 0, WHITE);

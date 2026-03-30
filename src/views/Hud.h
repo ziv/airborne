@@ -53,8 +53,8 @@ inline void DrawHud(const GameData &game) {
         const Vector3 side3D = Vector3Add(center3D, Vector3Scale(flatRight, 500.0f));
 
         const Vector2 center =
-                GetWorldToScreenEx(center3D, rayCam, GameConfig::SCREEN_WIDTH, GameConfig::SCREEN_HEIGHT);
-        const Vector2 side = GetWorldToScreenEx(side3D, rayCam, GameConfig::SCREEN_WIDTH, GameConfig::SCREEN_HEIGHT);
+                GetWorldToScreenEx(center3D, rayCam, GetScreenWidth(), GetScreenHeight());
+        const Vector2 side = GetWorldToScreenEx(side3D, rayCam, GetScreenWidth(), GetScreenHeight());
 
         // screen-space rung direction
         Vector2 rd = {side.x - center.x, side.y - center.y};

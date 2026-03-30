@@ -30,4 +30,3 @@ gameplay I
 got from this magic game, so this project has begun.
 
 ![ia](res/f15-se-ii.png)
-

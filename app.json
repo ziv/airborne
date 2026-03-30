@@ -4,7 +4,7 @@
   "config": {
     "screenWidth": 1200,
     "screenHeight": 720,
-    "clipPlans": 30000,
+    "clipPlans": 50000,
     "splashScreenPath": "res/splash-3.png"
   },
   "splash": {
@@ -12,6 +12,7 @@
     "musicPath": "res/sound1.mp3"
   },
   "airplane": {
+    "mass": 7000,
     "maxSpeed": 500,
     "minSpeed": 0,
     "pitchRatio": 0.5,
