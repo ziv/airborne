@@ -11,6 +11,9 @@ class GaugesView : View {
     void drawPower(const GameData &game) const;
 
 public:
+    explicit GaugesView(AppConfig &inputConfig) : View(inputConfig) {
+    }
+
     ~GaugesView() override;
 
     void update(const GameData &game) override;

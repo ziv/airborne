@@ -45,5 +45,7 @@ add_executable(${PROJECT_NAME} src/main.cpp
         src/views/GaugesView.h
         src/views/MapView.cpp
         src/views/MapView.h
+        src/views/CockpitView.cpp
+        src/views/CockpitView.h
 )
 target_link_libraries(${PROJECT_NAME} PRIVATE raylib)

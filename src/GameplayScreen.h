@@ -12,16 +12,17 @@
 class GameplayScreen : public GameScreen {
     // the object contain all relevant game details for
     // control, change and view
-    std::unique_ptr<GameData> game;
+    // std::unique_ptr<GameData> game;
+    GameData game;
 
     // controllers
-    std::unique_ptr<Autopilot> autopilot;
+    Autopilot autopilot;
 
     // viewers
-    HudView hudView{};
-    DebugView debugView{};
-    GaugesView gaugesView{};
-    MapView mapView{};
+    HudView hudView;
+    DebugView debugView;
+    GaugesView gaugesView;
+    MapView mapView;
 
     // cockpit
     Texture2D cockpit{};
@@ -33,6 +34,8 @@ class GameplayScreen : public GameScreen {
     // terrain
     Model map{};
 
+    void handleInputs();
+    void handleSounds();
 public:
     explicit GameplayScreen(AppConfig &inputConfig);
 

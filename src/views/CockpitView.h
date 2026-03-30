@@ -1,10 +1,12 @@
 #pragma once
 #include "../primitives/View.h"
 
-class DebugView: View {
+
+class CockpitView : View {
 public:
-    explicit DebugView(AppConfig &inputConfig) : View(inputConfig) {
+    explicit CockpitView(AppConfig &inputConfig) : View(inputConfig) {
     }
+
     void update(const GameData &game) override;
 
     void draw(const GameData &game) const override;

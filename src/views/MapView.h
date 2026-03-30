@@ -12,6 +12,9 @@ class MapView : View {
     int timeLoc = GetShaderLocation(glassShader, "time");
 
 public:
+    explicit MapView(AppConfig &inputConfig) : View(inputConfig) {
+    }
+
     ~MapView() override;
 
     void update(const GameData &game) override;

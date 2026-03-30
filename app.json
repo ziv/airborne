@@ -4,22 +4,21 @@
   "config": {
     "screenWidth": 1200,
     "screenHeight": 800,
-    "clipPlans": 50000,
-    "splashScreenPath": "res/splash-3.png"
+    "clipPlans": 50000
   },
   "airplane": {
     "heightAboveGround": 3,
-    "weight": 12,
-    "maxSpeed": 500,
+    "weight": 120000,
+    "maxSpeed": 600,
     "minSpeed": 0,
     "pitchRatio": 0.5,
     "rollRaio": 0.6,
     "yawRatio": 0.5,
     "acceleration": 80,
-    "stallSpeed": 28,
-    "engineThrust": 5000,
-    "liftCoefficient": 0.008,
-    "dragCoefficient": 0.089,
+    "stallSpeed": 65,
+    "engineThrust": 130000,
+    "liftCoefficient": 1.92,
+    "dragCoefficient": 0.36,
     "bankInduceYawRatio": 0.2,
     "liftLossPitchRatio": 0.1
   },

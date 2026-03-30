@@ -69,8 +69,7 @@ bool GameData::isStableLanding() const {
 }
 
 void GameData::applyState() {
-    constexpr auto aircraftHeightFromGround = 3.0f;
-    if (planeState == Flying && getPosition().y <= aircraftHeightFromGround) {
+    if (planeState == Flying && getPosition().y <= config.heightAboveGround()) {
         // in order to land you have to fulfill all those condition
         // note, this condition does not cover what you landed on
         if (gearState == Opened && isStableLanding()) {
@@ -80,7 +79,7 @@ void GameData::applyState() {
         }
     }
     // just leave the fround and the aircraft is flying
-    else if (planeState == Ground && getPosition().y > aircraftHeightFromGround) {
+    else if (planeState == Ground && getPosition().y > config.heightAboveGround()) {
         planeState = Flying;
     }
 }
@@ -119,16 +118,20 @@ void GameData::applyForces() {
     if (breaks) drag *= 3;
     if (isStalling) lift *= 0.1;
 
+    const float gravityMagnitude = 9.81f;
+    const float mass = config.weight() / gravityMagnitude;
+
     // forces vectors
     const auto thrustForce = Vector3Scale(getForward(), thrust);
-    const auto weightForce = Vector3Scale(GamePhysics::Gravity, config.weight());
+    const auto dragForce = Vector3Scale(getForward(), -drag);
     const auto liftForce = Vector3Scale(getUp(), lift);
-    const auto dragForce = Vector3Scale(getForward(), drag);
+    const auto weightForce = Vector3Scale(GamePhysics::Gravity, mass);
 
     const auto total = Vector3Add(Vector3Add(Vector3Add(thrustForce, dragForce), weightForce), liftForce);
+    const auto acceleration = Vector3Scale(total, 1.0f / mass);
 
     // acceleration
-    velocity = Vector3Add(velocity, Vector3Scale(total, deltaTime * deltaTime));
+    velocity = Vector3Add(velocity, Vector3Scale(acceleration, deltaTime));
 
     // weathervaning
     // https://en.wikipedia.org/wiki/Weathervane_effect

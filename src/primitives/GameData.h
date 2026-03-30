@@ -61,6 +61,7 @@ public:
     bool autoPiloting = false;
     bool breaks = false;
     bool gear = true;
+    bool paused = false;
 
     // display
     float width = 0.0f;
