@@ -90,6 +90,7 @@ void GameData::applyForces() {
 
     const auto currentSpeed = speed;
     const auto speedRatio = currentSpeed / config.maxSpeed();
+    const auto canRoll = camera.position.y > 40 ? 1.0f : 0.0f;
 
     // some effects (arcade style)
     const auto bankInducedYaw = currentSpeed == 0 ? 0.0f : right.y * config.bankInduceYawRatio() * deltaTime;
@@ -98,7 +99,7 @@ void GameData::applyForces() {
     // apply the changes (more speed equals more steering except yaw)
     const auto qPitch = QuaternionFromAxisAngle(right, (controls.Pitch + liftLossPitch) * speedRatio);
     const auto qYaw = QuaternionFromAxisAngle(up, controls.Yaw + bankInducedYaw);
-    const auto qRoll = QuaternionFromAxisAngle(forward, controls.Roll * speedRatio);
+    const auto qRoll = QuaternionFromAxisAngle(forward, controls.Roll * speedRatio * canRoll);
 
     // all of them together (the order is important!)
     const auto qDelta = QuaternionMultiply(qYaw, QuaternionMultiply(qPitch, qRoll));
@@ -113,13 +114,15 @@ void GameData::applyForces() {
     auto drag = (currentSpeed * currentSpeed) * config.dragCoefficient();
     auto lift = (currentSpeed * currentSpeed) * config.liftCoefficient();
 
-    // breaks increase drag by 300%
+    // breaks increase drag by 500% (x5) on flying and by 10000% (x100) on ground
+    // in order to avoid implementing ground breaks
+    if (breaks) drag *= 5;
+    if (breaks && canRoll == 0) drag *= 200;
+
     // stall reduce lift by 90%
-    if (breaks) drag *= 3;
     if (isStalling) lift *= 0.1;
 
-    const float gravityMagnitude = 9.81f;
-    const float mass = config.weight() / gravityMagnitude;
+    const float mass = config.weight() / 9.81f;
 
     // forces vectors
     const auto thrustForce = Vector3Scale(getForward(), thrust);
@@ -146,6 +149,10 @@ void GameData::applyForces() {
     if (currentSpeed > config.maxSpeed() && currentSpeed != 0.0f) {
         velocity = Vector3Scale(velocity, config.maxSpeed() / currentSpeed);
     }
+
+    // on ground breaks kill velocity
+    // todo on ground behavior should be different from flying...
+    // if (breaks && canRoll == 0) velocity = Vector3Scale(velocity, 0.9f * deltaTime);
 
     speed = Vector3Length(velocity);
 }

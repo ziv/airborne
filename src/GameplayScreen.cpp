@@ -3,10 +3,10 @@
 #include "utils/loaders.h"
 #include "primitives/AppConfig.h"
 
-constexpr Vector3 l1 = {2400.0f, 200.0f, 2400};
-constexpr Vector3 l2 = {2400.0f, 200.0f, 0.0f};
-constexpr Vector3 l3 = {0.0f, 200.0f, 0.0f};
-constexpr Vector3 l4 = {0.0f, 200.0f, 2400.0f};
+constexpr Vector3 l1 = {5000.0f, 1500.0f, 5000};
+constexpr Vector3 l2 = {9000.0f, 1500.0f, 4000.0f};
+constexpr Vector3 l3 = {10000.0f, 1500.0f, 8000.0f};
+constexpr Vector3 l4 = {5500.0f, 1500.0f, 6500.0f};
 constexpr Vector3 a{0.0f, 10.0f, 0.0f};
 
 
@@ -32,13 +32,13 @@ GameplayScreen::GameplayScreen(AppConfig &inputConfig)
     SetShaderValue(chromaShader, GetShaderLocation(chromaShader, "threshold"), &thresholdValue, SHADER_UNIFORM_FLOAT);
 
     // todo position should come from the mission data
-    game.setPosition((Vector3){6300.0f, config.heightAboveGround(), 19500.0f});
+    game.setPosition((Vector3){6300.0f, config.heightAboveGround(), 19000.0f});
 
     // todo waypoints should come from the mission data
-    autopilot.AddWaypoint(Vector3Add(l1, a), 80.0f, 50.0f);
-    autopilot.AddWaypoint(Vector3Add(l2, a), 60.0f, 50.0f);
-    autopilot.AddWaypoint(Vector3Add(l3, a), 90.0f, 50.0f);
-    autopilot.AddWaypoint(Vector3Add(l4, a), 50.0f, 50.0f);
+    autopilot.AddWaypoint(Vector3Add(l1, a), 200.0f, 50.0f);
+    autopilot.AddWaypoint(Vector3Add(l2, a), 200.0f, 50.0f);
+    autopilot.AddWaypoint(Vector3Add(l3, a), 200.0f, 50.0f);
+    autopilot.AddWaypoint(Vector3Add(l4, a), 200.0f, 50.0f);
 
     PlayMusicStream(engine);
 }

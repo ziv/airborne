@@ -10,7 +10,7 @@ void MapView::update(const GameData &game) {
     if (IsKeyPressed(KEY_Z)) zoom += 0.5f;
     if (IsKeyPressed(KEY_X)) zoom -= 0.5f;
     if (zoom > 4.0f) zoom = 4.0f;
-    if (zoom < 1.0f) zoom = 1.0f;
+    if (zoom < 0.5f) zoom = 0.5f;
 
     // player pos
     const auto pos = game.getPosition();
