@@ -3,7 +3,7 @@
   "name": "airborne",
   "config": {
     "screenWidth": 1200,
-    "screenHeight": 800,
+    "screenHeight": 720,
     "clipPlans": 50000,
     "splashScreenPath": "res/splash-3.png"
   },
@@ -12,17 +12,18 @@
     "musicPath": "res/sound1.mp3"
   },
   "airplane": {
-    "weight": 12,
-    "maxSpeed": 500,
+    "weight": 147000,
+    "maxSpeed": 333,
     "minSpeed": 0,
+    "stallSpeed": 30,
     "pitchRatio": 0.5,
     "rollRaio": 0.6,
     "yawRatio": 0.5,
     "acceleration": 80,
-    "stallSpeed": 28,
-    "engineThrust": 5000,
-    "liftCoefficient": 0.008,
-    "dragCoefficient": 0.089,
+    "engineThrust": 300000,
+    "liftCoefficient": 2.352,
+    "maxLiftCoefficient": 326,
+    "dragCoefficient": 0.32,
     "bankInduceYawRatio": 0.2,
     "liftLossPitchRatio": 0.1
   },

@@ -1,7 +1,10 @@
-#pragma  once
-#include "../primitives/GameData.h"
+#include "DebugView.h"
 
-inline void DrawFloater(const GameData &game) {
+void DebugView::update(const GameData &game) {
+    // nothing to do, yet
+}
+
+void DebugView::draw(const GameData &game) const {
     const auto [x, y, z] = game.GetCamera().position;
     constexpr auto m = 100.0f;
     DrawRectangle(5, 5, 220, 200, BEIGE);

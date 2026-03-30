@@ -1,5 +1,6 @@
 #pragma once
-#include "../json.hpp"
+#include "raylib.h"
+#include "../lib/json.hpp"
 
 using json = nlohmann::json;
 
@@ -32,6 +33,7 @@ public:
     float speedRatio() { return config["autoPilot"]["speedRatio"].get<float>(); }
 
     // airplane
+    float weight() { return config["airplane"]["weight"].get<float>(); }
     float maxSpeed() { return config["airplane"]["maxSpeed"].get<float>(); }
     float minSpeed() { return config["airplane"]["minSpeed"].get<float>(); }
     float pitchRatio() { return config["airplane"]["pitchRatio"].get<float>(); }

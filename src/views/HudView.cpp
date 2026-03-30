@@ -1,14 +1,22 @@
-#pragma once
-#include "../Constants.h"
-#include "../primitives/GameData.h"
+#include "HudView.h"
 
+#include "../primitives/Utils.h"
 
-inline void DrawHud(const GameData &game) {
-    constexpr int HudSize = 280;
-    const int HudX = (GetScreenWidth() - HudSize) / 2;
-    const int HudY = (GetScreenHeight() - HudSize) / 2 - 200;
+void HudView::update(const GameData &game) {
+    if (IsKeyDown(KEY_LEFT_ALT) && IsKeyPressed(KEY_H)) {
+        current++;
+        if (current > 2) current = 0;
+    }
+}
 
-    BeginScissorMode(HudX, HudY, HudSize, HudSize);
+void HudView::draw(const GameData &game) const {
+    const Color color = colrs[current];
+    constexpr int HudWidth = 300;
+    constexpr int HudHeight = 230;
+    const int HudX = (GetScreenWidth() - HudWidth) / 2;
+    const int HudY = (GetScreenHeight() - HudHeight) / 2 - 170;
+
+    BeginScissorMode(HudX, HudY, HudWidth, HudHeight);
     // ClearBackground(ORANGE);
     const Camera rayCam = game.GetCamera();
     const Vector3 camForward = Vector3Normalize(Vector3Subtract(rayCam.target, game.GetPosition()));
@@ -35,10 +43,10 @@ inline void DrawHud(const GameData &game) {
 
 
     // --- speed & altitude labels (relative to HUD rect) ---
-    DrawText(TextFormat("%0.f", std::round(game.Speed() * 3.6)), HudX + 10, HudY + HudSize / 2, 15, GREEN);
-    // DrawText(TextFormat("%0.f", formatNumber(std::round(game.GetPosition().y)).c_str()), HudX + HudSize - 30, HudY + HudSize / 2, 15, GREEN);
-    DrawText(formatNumber(std::round(game.GetPosition().y)).c_str(), HudX + HudSize - 40, HudY + HudSize / 2, 15,
-             GREEN);
+    DrawText(TextFormat("%0.f", std::round(game.Speed() * 3.6)), HudX + 10, HudY + HudHeight / 2, 15, color);
+    // DrawText(TextFormat("%0.f", FormatNumber(std::round(game.GetPosition().y)).c_str()), HudX + HudSize - 30, HudY + HudSize / 2, 15, GREEN);
+    DrawText(FormatNumber(std::round(game.GetPosition().y)).c_str(), HudX + HudWidth - 40, HudY + HudHeight / 2, 15,
+             color);
 
     // --- pitch ladder ---
     for (int angle = -80; angle <= 80; angle += 20) {
@@ -94,34 +102,34 @@ inline void DrawHud(const GameData &game) {
         };
 
         // the two halves of the rung (gap in the middle)
-        DrawLineEx(start, gapL, thick, GREEN);
-        DrawLineEx(gapR, end, thick, GREEN);
+        DrawLineEx(start, gapL, thick, color);
+        DrawLineEx(gapR, end, thick, color);
 
         if (angle == 0) {
             // horizon line — ticks point down (toward ground)
             DrawLineEx(start, {
                            start.x - perp.x * tick,
                            start.y - perp.y * tick
-                       }, thick, GREEN);
+                       }, thick, color);
             DrawLineEx(end, {
                            end.x - perp.x * tick,
                            end.y - perp.y * tick
-                       }, thick, GREEN);
+                       }, thick, color);
         } else {
             // ticks always point toward the horizon (0°)
             const float sign = (angle > 0) ? -1.0f : 1.0f;
             DrawLineEx(start, {
                            start.x + perp.x * sign * tick,
                            start.y + perp.y * sign * tick
-                       }, thick, GREEN);
+                       }, thick, color);
             DrawLineEx(end, {
                            end.x + perp.x * sign * tick,
                            end.y + perp.y * sign * tick
-                       }, thick, GREEN);
+                       }, thick, color);
 
             DrawText(TextFormat("%d", angle),
                      static_cast<int>(start.x) - 20,
-                     static_cast<int>(start.y) - 5, 10, GREEN);
+                     static_cast<int>(start.y) - 5, 10, color);
         }
     }
     EndScissorMode();

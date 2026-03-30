@@ -3,12 +3,9 @@
 #include "raylib.h"
 #include "raymath.h"
 
-enum PlaneState {
+enum AircraftState {
     Ground,
-    Takeoff,
     Flying,
-    Landing,
-    Crushing,
     Crushed
 };
 
@@ -33,6 +30,7 @@ class GameData {
     // the position/direction airplane in 3d space
     Quaternion rotation = {0.0f, 0.0f, 0.0f, 1.0f};
 
+    // an R3 vectors represent the same data in the rotation quaternion
     Vector3 forward{0};
     Vector3 up{0};
     Vector3 right{0};
@@ -41,11 +39,19 @@ class GameData {
 
     void recalcVectors();
 
+    void applyState();
+
+    void applyForces();
+
+    void applyPosition();
+
+    [[nodiscard]] bool isStableLanding() const;
+
 public:
     explicit GameData(AppConfig &config);
 
     PilotControls controls = {};
-    PlaneState planeState = PlaneState::Ground;
+    AircraftState planeState = AircraftState::Ground;
     GearState gearState = GearState::Opened;
 
     Vector3 velocity = {0.0f, 0.0f, 0.0f};
@@ -53,6 +59,11 @@ public:
     float deltaTime = 0.0f;
     bool autoPiloting = false;
     bool breaks = false;
+    bool gear = true;
+
+    // display
+    float width = 0.0f;
+    float height = 0.0f;
 
     void Update();
 

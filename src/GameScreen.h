@@ -1,5 +1,5 @@
 #pragma once
-#include "json.hpp"
+#include "lib/json.hpp"
 #include "primitives/AppConfig.h"
 
 using json = nlohmann::json;
@@ -24,5 +24,5 @@ public:
 
     virtual ScreenState Update() = 0;
 
-    virtual void Draw() = 0;
+    virtual void run() = 0;
 };

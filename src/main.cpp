@@ -11,7 +11,7 @@
 
 int main() {
     SetTraceLogLevel(LOG_INFO);
-    SetConfigFlags(FLAG_WINDOW_RESIZABLE | FLAG_VSYNC_HINT);
+    SetConfigFlags(FLAG_VSYNC_HINT);
 
     const auto config = std::make_unique<AppConfig>();
 
@@ -24,12 +24,14 @@ int main() {
 
     SetTargetFPS(60);
     // set how far we can see in 3d mode
-    // todo move to the gameplay screen?!
     rlSetClipPlanes(1.0f, config->clipPlans());
 
     // load first screen
-    std::unique_ptr<GameScreen> currentScreen = std::make_unique<SplashScreen>(*config);
-    auto currentState = ScreenState::SPLASH;
+    // std::unique_ptr<GameScreen> currentScreen = std::make_unique<SplashScreen>(*config);
+    // auto currentState = ScreenState::SPLASH;
+    std::unique_ptr<GameScreen> currentScreen = std::make_unique<GameplayScreen>(*config);
+    auto currentState = ScreenState::GAMEPLAY;
+
 
     while (!WindowShouldClose()) {
         // screens state machine
@@ -50,7 +52,7 @@ int main() {
 
         BeginDrawing();
         ClearBackground(BLACK);
-        currentScreen->Draw();
+        currentScreen->run();
         EndDrawing();
     }
 

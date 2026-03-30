@@ -55,7 +55,7 @@ Let's take F15 numbers (more or less) as an example.
 
 - Weight $15,000Kg$ ($147,000N$)
 - Cruise speed $900km/h$ ($250m/s$)
-- Thrust $~20,000N$ (estimation)
+- Thrust $20,000N$ (estimation)
 
 In cruise speed, acceleration is $0$ so:
 
@@ -73,6 +73,8 @@ $C_D = 20,000/(250^2) = 0.32$
 ---
 
 more calculations for later
+
+- Max thrust $100kN$
 
 $a_y = \frac{L - W}{m}$
 

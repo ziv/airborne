@@ -1,8 +1,5 @@
 #include "GameplayScreen.h"
 #include "primitives/Utils.h"
-#include "views/Floater.h"
-#include "views/Hud.h"
-#include "views/PowerGauge.h"
 
 constexpr Vector3 l1 = {2400.0f, 200.0f, 2400};
 constexpr Vector3 l2 = {2400.0f, 200.0f, 0.0f};
@@ -40,6 +37,8 @@ GameplayScreen::~GameplayScreen() {
 
 ScreenState GameplayScreen::Update() {
     const float deltaTime = game->Tick();
+    hudView.update(*game);
+    mapView.update(*game);
 
     // should be first to allow disengaged autopilot
     if (IsKeyPressed(KEY_P)) autopilot->Toggle();
@@ -82,23 +81,21 @@ ScreenState GameplayScreen::Update() {
     // throttling
 
     // set throttle directly
-    constexpr float minThrust = 0.01f;
-    constexpr float stepThrust = 0.12375f; // the step size required to get from 0.1 to 10 using 1-9
     if (IsKeyDown(KEY_A)) game->throttle = 1.2f; // after burners
     if (IsKeyDown(KEY_ZERO)) game->throttle = 0.0f;
-    if (IsKeyDown(KEY_ONE)) game->throttle = minThrust;
-    if (IsKeyDown(KEY_TWO)) game->throttle = minThrust + stepThrust;
-    if (IsKeyDown(KEY_THREE)) game->throttle = minThrust + stepThrust * 2;
-    if (IsKeyDown(KEY_FOUR)) game->throttle = minThrust + stepThrust * 3;
-    if (IsKeyDown(KEY_FIVE)) game->throttle = minThrust + stepThrust * 4;
-    if (IsKeyDown(KEY_SIX)) game->throttle = minThrust + stepThrust * 5;
-    if (IsKeyDown(KEY_SEVEN)) game->throttle = minThrust + stepThrust * 6;
-    if (IsKeyDown(KEY_EIGHT)) game->throttle = minThrust + stepThrust * 7;
-    if (IsKeyDown(KEY_NINE)) game->throttle = minThrust + stepThrust * 8;
+    if (IsKeyDown(KEY_ONE)) game->throttle = 0.1f;
+    if (IsKeyDown(KEY_TWO)) game->throttle = 0.2f;
+    if (IsKeyDown(KEY_THREE)) game->throttle = 0.3f;
+    if (IsKeyDown(KEY_FOUR)) game->throttle = 0.4f;
+    if (IsKeyDown(KEY_FIVE)) game->throttle = 0.5f;
+    if (IsKeyDown(KEY_SIX)) game->throttle = 0.6f;
+    if (IsKeyDown(KEY_SEVEN)) game->throttle = 0.7f;
+    if (IsKeyDown(KEY_EIGHT)) game->throttle = 0.8f;
+    if (IsKeyDown(KEY_NINE)) game->throttle = 0.9f;
 
     // increase/decrease throttle
-    if (IsKeyDown(KEY_MINUS)) game->throttle -= 0.005f;
-    if (IsKeyDown(KEY_EQUAL)) game->throttle += 0.005f;
+    if (IsKeyDown(KEY_MINUS)) game->throttle -= 0.05f * deltaTime;
+    if (IsKeyDown(KEY_EQUAL)) game->throttle += 0.05f * deltaTime;
 
     if (IsKeyPressed(KEY_B)) game->breaks = !game->breaks;
 
@@ -122,7 +119,7 @@ ScreenState GameplayScreen::Update() {
     return ScreenState::GAMEPLAY;
 }
 
-void GameplayScreen::Draw() {
+void GameplayScreen::run() {
     ClearBackground(BLUE);
 
     BeginMode3D(game->GetCamera());
@@ -142,11 +139,14 @@ void GameplayScreen::Draw() {
     BeginShaderMode(chromaShader);
     // מציירים את התמונה על כל המסך
     // DrawTextureEx(cockpit, {-60, 10}, 0, 1.0f, WHITE);
-    DrawTextureEx(cockpit, {-40, 0}, 0, 1.0f, WHITE);
+    DrawTextureEx(cockpit, {0.0f, -270.0f}, 0, 1.0f, WHITE);
     EndShaderMode();
-    DrawPowerGauge(*game);
-    DrawHud(*game);
-    DrawFloater(*game);
+    // DrawPowerGauge(*game);
+    // DrawHud(*game);
+    hudView.draw(*game);
+    debugView.draw(*game);
+    gaugesView.draw(*game);
+    mapView.draw(*game);
 
     // DrawLegend();
     //

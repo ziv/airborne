@@ -29,7 +29,11 @@ public:
         return ScreenState::SPLASH;
     }
 
-    void Draw() override {
+    void run() override {
+        // Rectangle src = {0.0f, 0.0f, static_cast<float>(texture.width), static_cast<float>(texture.height)};
+        // Rectangle dst = {0.0f, 0.0f, static_cast<float>(GetScreenWidth()), static_cast<float>(GetScreenHeight())};
+        // DrawTexturePro(texture, src, dst, (Vector2){0.0f, 0.0f}, 0.0f, WHITE);
         DrawTexture(texture, 0, 0, WHITE);
+        // DrawTextureEx(texture, {0.0f, 0.0f}, 0.0f, 1.0f, WHITE);
     }
 };

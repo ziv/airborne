@@ -8,7 +8,7 @@
 #include "raylib.h"
 #include "raymath.h"
 #include "../Constants.h"
-#include "../json.hpp"
+#include "../lib/json.hpp"
 
 using json = nlohmann::json;
 
@@ -25,7 +25,7 @@ inline Vector3 GetFlatRight(const Vector3 &currentForward, const Vector3 &curren
     return Vector3Normalize(Vector3CrossProduct(currentForward, currentUp));
 }
 
-inline std::string formatNumber(const float num) {
+inline std::string FormatNumber(const float num) {
     std::stringstream ss;
     if (num >= 1000000) {
         ss << std::fixed << std::setprecision(2) << (num / 1000000.0) << "M";
@@ -51,6 +51,19 @@ inline Model TmpLoadModel() {
     Model model = LoadModelFromMesh(mesh);
     model.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = texture;
     return model;
+}
+
+
+inline json LoadJson(const std::string &path) {
+    std::ifstream file(path);
+    if (!file.is_open()) {
+        throw std::runtime_error("[LoadJson] Could not open app.json");
+    }
+    json data;
+    file >> data;
+    file.close();
+    TraceLog(LOG_INFO, TextFormat("[LoadJson] file %s loaded", path.c_str()));
+    return data;
 }
 
 inline json LoadAppConfig() {

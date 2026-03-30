@@ -15,7 +15,7 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(raylib)
 
 add_executable(${PROJECT_NAME} src/main.cpp
-        src/json.hpp
+        src/lib/json.hpp
         src/utils/loaders.h
         src/primitives/AppConfig.h
         src/primitives/AppConfig.cpp
@@ -35,8 +35,15 @@ add_executable(${PROJECT_NAME} src/main.cpp
         src/items/Structure.h
         src/items/Aircraft.cpp
         src/items/Aircraft.h
-        src/views/Floater.h
-        src/views/Hud.h
-        src/views/PowerGauge.h
+        src/views/HudView.cpp
+        src/views/HudView.h
+        src/views/DebugView.cpp
+        src/views/DebugView.h
+        src/primitives/View.h
+        src/primitives/gui_impl.cpp
+        src/views/GaugesView.cpp
+        src/views/GaugesView.h
+        src/views/MapView.cpp
+        src/views/MapView.h
 )
 target_link_libraries(${PROJECT_NAME} PRIVATE raylib)

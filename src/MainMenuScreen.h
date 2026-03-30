@@ -6,5 +6,5 @@ public:
     using GameScreen::GameScreen;
     ScreenState Update() override;
 
-    void Draw() override;
+    void run() override;
 };
