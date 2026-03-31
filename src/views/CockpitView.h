@@ -2,7 +2,7 @@
 #include "../primitives/View.h"
 
 
-class CockpitView : View {
+class CockpitView : public View {
 public:
     explicit CockpitView(AppConfig &inputConfig) : View(inputConfig) {
     }

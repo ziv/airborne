@@ -30,3 +30,9 @@ gameplay I
 got from this magic game, so this project has begun.
 
 ![ia](res/f15-se-ii.png)
+
+### Image processing
+
+$64.82m/px = 281,985m^2$
+
+$531,005.44m$ per axis.

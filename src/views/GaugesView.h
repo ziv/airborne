@@ -2,7 +2,8 @@
 #include "raylib.h"
 #include "../primitives/View.h"
 
-class GaugesView : View {
+class GaugesView : public View {
+    Texture2D sprites;
     Texture2D off = LoadTexture("res/power-gauge-off.png");
     Texture2D green = LoadTexture("res/power-gauge-green.png");
     Texture2D yellow = LoadTexture("res/power-gauge-yellow.png");
@@ -11,8 +12,7 @@ class GaugesView : View {
     void drawPower(const GameData &game) const;
 
 public:
-    explicit GaugesView(AppConfig &inputConfig) : View(inputConfig) {
-    }
+    explicit GaugesView(AppConfig &inputConfig);
 
     ~GaugesView() override;
 

@@ -40,7 +40,7 @@ add_executable(${PROJECT_NAME} src/main.cpp
         src/views/DebugView.cpp
         src/views/DebugView.h
         src/primitives/View.h
-        src/primitives/gui_impl.cpp
+        src/lib/gui_impl.cpp
         src/views/GaugesView.cpp
         src/views/GaugesView.h
         src/views/MapView.cpp

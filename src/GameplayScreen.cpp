@@ -14,10 +14,6 @@ GameplayScreen::GameplayScreen(AppConfig &inputConfig)
     : GameScreen(inputConfig),
       game(inputConfig),
       autopilot(inputConfig.maxBankAngle(), inputConfig.maxPullRatio(), inputConfig.speedRatio()),
-      hudView(inputConfig),
-      debugView(inputConfig),
-      gaugesView(inputConfig),
-      mapView(inputConfig),
       cockpit(LoadTexture(inputConfig.gameCockpitTexture().data())),
       chromaShader(LoadShader(nullptr, inputConfig.gameCockpitChroma().data())),
       engine(LoadMusicStream(inputConfig.gameEngineSound().data())),
@@ -26,13 +22,19 @@ GameplayScreen::GameplayScreen(AppConfig &inputConfig)
           inputConfig.gameMapHeightmap().data(),
           {inputConfig.gameMapSizeX(), inputConfig.gameMapSizeY(), inputConfig.gameMapSizeZ()}
       )) {
+    views.push_back(std::make_unique<MapView>(inputConfig));
+    views.push_back(std::make_unique<HudView>(inputConfig));
+    views.push_back(std::make_unique<GaugesView>(inputConfig));
+    views.push_back(std::make_unique<DebugView>(inputConfig));
+
+
     // constructor updates
     constexpr float thresholdValue = 0.5f;
     // chromaShader = LoadShader(nullptr, config.gameCockpitChroma().data());
     SetShaderValue(chromaShader, GetShaderLocation(chromaShader, "threshold"), &thresholdValue, SHADER_UNIFORM_FLOAT);
 
     // todo position should come from the mission data
-    game.setPosition((Vector3){6300.0f, config.heightAboveGround(), 19000.0f});
+    game.setPosition((Vector3){6450.0f, config.heightAboveGround(), 19100.0f});
 
     // todo waypoints should come from the mission data
     autopilot.AddWaypoint(Vector3Add(l1, a), 200.0f, 50.0f);
@@ -83,7 +85,7 @@ void GameplayScreen::handleInputs() {
     if (IsKeyPressed(KEY_B)) game.breaks = !game.breaks;
 }
 
-void GameplayScreen::handleSounds() {
+void GameplayScreen::handleSounds() const {
     const float targetPitch = 0.8f + (game.throttle * 0.7f);
     const float targetVolume = 0.2f + (game.throttle * 0.9f);
     SetMusicPitch(engine, targetPitch);
@@ -101,8 +103,9 @@ ScreenState GameplayScreen::update() {
     handleSounds();
 
     // update views
-    hudView.update(game);
-    mapView.update(game);
+    for (const auto &view: views) {
+        view->update(game);
+    }
 
     // autopilot
     // fast return, autopilot mode, no need to get other user inputs
@@ -123,7 +126,6 @@ ScreenState GameplayScreen::update() {
     game.resetControls();
     handleInputs();
     game.update();
-
     return ScreenState::GAMEPLAY;
 }
 
@@ -138,7 +140,10 @@ void GameplayScreen::run() {
         DrawCube(l2, 10.0f, 10.0f, 10.0f, RED);
         DrawCube(l3, 10.0f, 10.0f, 10.0f, RED);
         DrawCube(l4, 10.0f, 10.0f, 10.0f, RED);
+
+
         DrawModel(map, (Vector3){0.0f, 0.0f, 0.0f}, 1.0f, WHITE);
+        DrawModel(futuristicCity, (Vector3){6400.0f, 0.0f, 19800.0f}, 0.005f, WHITE);
         // DrawModel(aircraft.model, (Vector3){10.0, 10.0, 10.0}, 1.0f, RED);
     EndMode3D();
 
@@ -146,10 +151,9 @@ void GameplayScreen::run() {
         DrawTextureEx(cockpit, {0.0f, -270.0f}, 0, 1.0f, WHITE);
     EndShaderMode();
 
-    hudView.draw(game);
-    debugView.draw(game);
-    gaugesView.draw(game);
-    mapView.draw(game);
+    for (const auto& view : views) {
+        view->draw(game);
+    }
 
     if (autopilot.IsActive()) {
         DrawText("AUTOPILOT ENGAGED", static_cast<int>(game.width) / 2 - 100, 20, 20, RED);

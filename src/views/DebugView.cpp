@@ -7,7 +7,7 @@ void DebugView::update(const GameData &game) {
 void DebugView::draw(const GameData &game) const {
     const auto [x, y, z] = game.getCamera().position;
     constexpr auto m = 100.0f;
-    DrawRectangle(5, 5, 220, 200, BEIGE);
+    DrawRectangle(5, 5, 150, 200, BEIGE);
     DrawText(TextFormat("X: %0.f", x), 20, 10, 15, BLACK);
     DrawText(TextFormat("Z: %0.f", z), 20, 30, 15, BLACK);
     DrawText(TextFormat("Y: %0.f", y), 20, 50, 15, BLACK);

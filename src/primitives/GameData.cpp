@@ -91,6 +91,7 @@ void GameData::applyForces() {
     const auto currentSpeed = speed;
     const auto speedRatio = currentSpeed / config.maxSpeed();
     const auto canRoll = camera.position.y > 40 ? 1.0f : 0.0f;
+    const bool touchGround = camera.position.y < 10;
 
     // some effects (arcade style)
     const auto bankInducedYaw = currentSpeed == 0 ? 0.0f : right.y * config.bankInduceYawRatio() * deltaTime;
@@ -117,7 +118,7 @@ void GameData::applyForces() {
     // breaks increase drag by 500% (x5) on flying and by 10000% (x100) on ground
     // in order to avoid implementing ground breaks
     if (breaks) drag *= 5;
-    if (breaks && canRoll == 0) drag *= 200;
+    if (breaks && touchGround == 0) drag *= 200;
 
     // stall reduce lift by 90%
     if (isStalling) lift *= 0.1;

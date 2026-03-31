@@ -1,5 +1,8 @@
 #include "GaugesView.h"
 
+GaugesView::GaugesView(AppConfig &inputConfig) : View(inputConfig),
+                                                 sprites(LoadTexture("res/sprites.png")) {
+}
 
 void GaugesView::update(const GameData &game) {
     // nothing to do, yet
@@ -66,4 +69,5 @@ GaugesView::~GaugesView() {
     UnloadTexture(red);
     UnloadTexture(green);
     UnloadTexture(yellow);
+    UnloadTexture(sprites);
 }

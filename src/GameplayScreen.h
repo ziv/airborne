@@ -18,11 +18,8 @@ class GameplayScreen : public GameScreen {
     // controllers
     Autopilot autopilot;
 
-    // viewers
-    HudView hudView;
-    DebugView debugView;
-    GaugesView gaugesView;
-    MapView mapView;
+    // views
+    std::vector<std::unique_ptr<View>> views;
 
     // cockpit
     Texture2D cockpit{};
@@ -34,8 +31,9 @@ class GameplayScreen : public GameScreen {
     // terrain
     Model map{};
 
+    Model futuristicCity = LoadModel("res/futuristic_city.glb");
     void handleInputs();
-    void handleSounds();
+    void handleSounds() const;
 public:
     explicit GameplayScreen(AppConfig &inputConfig);
 

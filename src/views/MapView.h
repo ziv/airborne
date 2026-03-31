@@ -2,7 +2,7 @@
 #include "../primitives/View.h"
 
 
-class MapView : View {
+class MapView : public View {
     Camera2D mapCamera = {0};
     Texture2D map = LoadTexture("res/map.png");
     float heading = 0.0f;

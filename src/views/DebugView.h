@@ -1,7 +1,7 @@
 #pragma once
 #include "../primitives/View.h"
 
-class DebugView: View {
+class DebugView: public View {
 public:
     explicit DebugView(AppConfig &inputConfig) : View(inputConfig) {
     }

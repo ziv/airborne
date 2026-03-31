@@ -4,7 +4,7 @@
 #include "../primitives/View.h"
 #include "../primitives/GameData.h"
 
-class HudView : View {
+class HudView : public View {
     char current = 0;
     std::pmr::vector<Color> colrs = {GREEN, WHITE, BLACK};
 
