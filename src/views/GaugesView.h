@@ -1,15 +1,18 @@
 #pragma once
 #include "raylib.h"
 #include "../primitives/View.h"
+#include "../lib/json.hpp"
+
+using json = nlohmann::json;
 
 class GaugesView : public View {
+    json config;
     Texture2D sprites;
-    Texture2D off = LoadTexture("res/power-gauge-off.png");
-    Texture2D green = LoadTexture("res/power-gauge-green.png");
-    Texture2D yellow = LoadTexture("res/power-gauge-yellow.png");
-    Texture2D red = LoadTexture("res/power-gauge-red.png");
+    std::unordered_map<std::string, Rectangle> map;
 
-    void drawPower(const GameData &game) const;
+    void drawSprite(const std::string &name, Vector2 position);
+    void drawPower(const GameData &game);
+    void drawBreaks(const GameData &game);
 
 public:
     explicit GaugesView(AppConfig &inputConfig);
@@ -18,5 +21,5 @@ public:
 
     void update(const GameData &game) override;
 
-    void draw(const GameData &game) const override;
+    void draw(const GameData &game) override;
 };

@@ -7,5 +7,5 @@ public:
     }
     void update(const GameData &game) override;
 
-    void draw(const GameData &game) const override;
+    void draw(const GameData &game) override;
 };

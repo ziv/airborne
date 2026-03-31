@@ -9,7 +9,7 @@ void HudView::update(const GameData &game) {
     }
 }
 
-void HudView::draw(const GameData &game) const {
+void HudView::draw(const GameData &game) {
     const Color color = colrs[current];
     constexpr int HudWidth = 300;
     constexpr int HudHeight = 230;

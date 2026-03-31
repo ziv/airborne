@@ -30,7 +30,7 @@ void MapView::update(const GameData &game) {
     heading = 180.0f - atan2f(forward.x, forward.z) * RAD2DEG;
 }
 
-void MapView::draw(const GameData &game) const {
+void MapView::draw(const GameData &game) {
     const auto currentTime = static_cast<float>(GetTime());
     SetShaderValue(glassShader, timeLoc, &currentTime, SHADER_UNIFORM_FLOAT);
 

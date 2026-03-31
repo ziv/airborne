@@ -4,7 +4,7 @@ void DebugView::update(const GameData &game) {
     // nothing to do, yet
 }
 
-void DebugView::draw(const GameData &game) const {
+void DebugView::draw(const GameData &game) {
     const auto [x, y, z] = game.getCamera().position;
     constexpr auto m = 100.0f;
     DrawRectangle(5, 5, 150, 200, BEIGE);

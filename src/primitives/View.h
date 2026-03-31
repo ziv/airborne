@@ -16,5 +16,5 @@ public:
 
     virtual void update(const GameData &game) = 0;
 
-    virtual void draw(const GameData &game) const = 0;
+    virtual void draw(const GameData &game) = 0;
 };
