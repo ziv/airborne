@@ -47,6 +47,6 @@ AppConfig::AppConfig() {
 
     showGrid = config["development"]["showGrid"].get<bool>();
 
-    gaugeSprite = config["view"]["gaugeSprite"].get<std::string>();
-    gaugeSprite = config["view"]["gaugeSpriteJson"].get<std::string>();
+    gaugeSprite = config["views"]["gaugeSprite"].get<std::string>();
+    gaugeSprite = config["views"]["gaugeSpriteJson"].get<std::string>();
 }
