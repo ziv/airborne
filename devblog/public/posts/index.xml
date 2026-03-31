@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Posts on My New Hugo Project</title>
+    <link>https://example.org/posts/</link>
+    <description>Recent content in Posts on My New Hugo Project</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Tue, 31 Mar 2026 12:00:40 +0300</lastBuildDate><atom:link href="https://example.org/posts/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Getting Started</title>
+      <link>https://example.org/posts/getting-started/</link>
+      <pubDate>Tue, 31 Mar 2026 12:00:40 +0300</pubDate>
+      
+      <guid>https://example.org/posts/getting-started/</guid>
+      <description>&lt;p&gt;A development or more precisely, a remake of the 1989 F-15 II flight simulator by MicroProse.&lt;/p&gt;
+&lt;p&gt;The purpose of this blog is to accompany the project’s development, document the decisions made along the way, and
+capture lessons learned, among other things.&lt;/p&gt;
+&lt;p&gt;I began the project by selecting a technology stack and researching modern workflows with OpenGL.&lt;/p&gt;
+&lt;p&gt;For this project, I chose a language I was once familiar with, C++, and one I’m excited to dive back into. I’m also
+using
+the &amp;ldquo;raylib&amp;rdquo; library, which provides a solid foundation and saves me from reinventing a lot from scratch.&lt;/p&gt;</description>
+      <content>&lt;p&gt;A development or more precisely, a remake of the 1989 F-15 II flight simulator by MicroProse.&lt;/p&gt;
+&lt;p&gt;The purpose of this blog is to accompany the project’s development, document the decisions made along the way, and
+capture lessons learned, among other things.&lt;/p&gt;
+&lt;p&gt;I began the project by selecting a technology stack and researching modern workflows with OpenGL.&lt;/p&gt;
+&lt;p&gt;For this project, I chose a language I was once familiar with, C++, and one I’m excited to dive back into. I’m also
+using
+the &amp;ldquo;raylib&amp;rdquo; library, which provides a solid foundation and saves me from reinventing a lot from scratch.&lt;/p&gt;
+&lt;p&gt;Let’s get started.&lt;/p&gt;
+</content>
+    </item>
+    
+  </channel>
+</rss>
