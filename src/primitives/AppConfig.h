@@ -1,8 +1,6 @@
 #pragma once
-#include "raylib.h"
-#include "../lib/json.hpp"
-
-using json = nlohmann::json;
+#include <string>
+#include "Types.h"
 
 class AppConfig {
 public:
@@ -28,8 +26,8 @@ public:
     float gameMapSizeZ;
 
     // pilot
-    float pilotFov;
-    float pilotTilt;
+    Degree pilotFov;
+    Degree pilotTilt;
 
     // autopilot
     float maxBankAngle;
@@ -37,17 +35,17 @@ public:
     float speedRatio;
 
     // aircraft
-    float heightAboveGround;
-    float weight;
-    float maxSpeed;
-    float minSpeed;
-    float vleSpeed;
-    float pitchRatio;
-    float rollRatio;
-    float yawRatio;
+    Meter heightAboveGround;
+    Newton weight;
+    Newton engineThrust;
+    MeterPerSecond maxSpeed;
+    MeterPerSecond minSpeed;
+    MeterPerSecond vleSpeed;
+    MeterPerSecond stallSpeed;
+    NoUint pitchRatio;
+    NoUint rollRatio;
+    NoUint yawRatio;
     float acceleration;
-    float stallSpeed;
-    float engineThrust;
     float liftCoefficient;
     float dragCoefficient;
     float bankInduceYawRatio;
