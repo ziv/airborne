@@ -1,9 +1,9 @@
-baseURL = "https://example.org/"
+baseURL = "https://ziv.github.io/airborne/"
 locale = "en-us"
-title = "My New Hugo Project"
+title = "Airborne"
 theme = "re-terminal"
 
 
 [author]
-    name = "Your Name"
-    email = "your.email@example.com"
+    name = "Ziv Perry"
+    email = "ziv.perry@gmail.com"
