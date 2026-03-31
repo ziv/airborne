@@ -2,9 +2,8 @@
 #include "../primitives/Utils.h"
 #include "../lib/json.hpp"
 
-GaugesView::GaugesView(AppConfig &inputConfig) : View(inputConfig),
-                                                 sprites(LoadTexture("res/sprites.png")) {
-    const json localConfig = UtilsLoaders::LoadJson("res/sprites.json");
+GaugesView::GaugesView(const AppConfig &config) : sprites(LoadTexture(config.gaugeSprite.c_str())) {
+    const json localConfig = UtilsLoaders::LoadJson(config.gaugeSpriteJson);
     for (auto &[name, coords]: localConfig.items()) {
         map[name] = {
             coords[0].get<float>(), // x

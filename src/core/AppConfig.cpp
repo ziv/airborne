@@ -46,4 +46,7 @@ AppConfig::AppConfig() {
     liftLossPitchRatio = config["airplane"]["liftLossPitchRatio"].get<float>();
 
     showGrid = config["development"]["showGrid"].get<bool>();
+
+    gaugeSprite = config["view"]["gaugeSprite"].get<std::string>();
+    gaugeSprite = config["view"]["gaugeSpriteJson"].get<std::string>();
 }

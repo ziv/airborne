@@ -46,6 +46,10 @@
     "mapSizeZ": 32000,
     "mapSizeY": 3200
   },
+  "views": {
+    "gaugeSprite": "res/sprites.png",
+    "gaugeSpriteJson": "res/sprites.json"
+  },
   "development": {
     "showGrid": true
   }

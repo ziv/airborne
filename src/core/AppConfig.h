@@ -54,5 +54,9 @@ public:
     // development
     bool showGrid = true;
 
+    // views
+    std::string gaugeSprite;
+    std::string gaugeSpriteJson;
+
     AppConfig();
 };
