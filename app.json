@@ -13,7 +13,7 @@
     "minSpeed": 0,
     "vleSpeed": 150,
     "pitchRatio": 0.5,
-    "rollRaio": 0.6,
+    "rollRatio": 0.6,
     "yawRatio": 0.5,
     "acceleration": 80,
     "stallSpeed": 65,
@@ -32,21 +32,19 @@
     "pullRatio": 0.8,
     "speedRatio": 0.1
   },
-  "screens": {
-    "splash": {
-      "bgPath": "res/splash.png",
-      "musicPath": "res/sound0.mp3"
-    },
-    "game": {
-      "cockpitTexture": "res/cockpit-l.png",
-      "cockpitChroma": "shaders/chromakey.fs",
-      "engineSound": "res/engine.mp3",
-      "mapTexture": "res/tx.png",
-      "mapHeightmap": "res/hm.png",
-      "mapSizeX": 32000,
-      "mapSizeZ": 32000,
-      "mapSizeY": 3200
-    }
+  "splash": {
+    "bgPath": "res/splash.png",
+    "musicPath": "res/sound0.mp3"
+  },
+  "game": {
+    "cockpitTexture": "res/cockpit-l.png",
+    "cockpitChroma": "shaders/chromakey.fs",
+    "engineSound": "res/engine.mp3",
+    "mapTexture": "res/tx.png",
+    "mapHeightmap": "res/hm.png",
+    "mapSizeX": 32000,
+    "mapSizeZ": 32000,
+    "mapSizeY": 3200
   },
   "development": {
     "showGrid": true

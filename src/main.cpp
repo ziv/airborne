@@ -17,14 +17,14 @@ int main() {
 
     InitAudioDevice();
     InitWindow(
-        config->screenWidth(),
-        config->screenHeight(),
-        config->name().data()
+        config->screenWidth,
+        config->screenHeight,
+        config->name.c_str()
     );
 
     SetTargetFPS(60);
     // set how far we can see in 3d mode
-    rlSetClipPlanes(1.0f, config->clipPlans());
+    rlSetClipPlanes(1.0f, config->clipPlans);
 
     // load first screen
     std::unique_ptr<GameScreen> currentScreen = std::make_unique<SplashScreen>(*config);

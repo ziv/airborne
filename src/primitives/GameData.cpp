@@ -4,7 +4,7 @@
 
 GameData::GameData(AppConfig &config) : config(config) {
     camera.up = GamePhysics::WorldUp;
-    camera.fovy = config.pilotFov();
+    camera.fovy = config.pilotFov;
     camera.projection = CAMERA_PERSPECTIVE;
 
     recalcVectors();
@@ -48,8 +48,8 @@ void GameData::resetControls() {
 
 void GameData::setPosition(const Vector3 &position) {
     camera.position = position;
-    if (camera.position.y < config.heightAboveGround()) {
-        camera.position.y = config.heightAboveGround();
+    if (camera.position.y < config.heightAboveGround) {
+        camera.position.y = config.heightAboveGround;
         velocity.y = 0.0f;
         speed = Vector3Length(velocity);
     }
@@ -72,7 +72,7 @@ void GameData::applyState() {
     throttle += controls.Throttle;
     throttle = Clamp(throttle, 0.0f, 1.2f);
 
-    if (planeState == Flying && getPosition().y <= config.heightAboveGround()) {
+    if (planeState == Flying && getPosition().y <= config.heightAboveGround) {
         // in order to land you have to fulfill all those condition
         // note, this condition does not cover what you landed on
         if (gearState == Opened && isStableLanding()) {
@@ -82,7 +82,7 @@ void GameData::applyState() {
         }
     }
     // just leave the fround and the aircraft is flying
-    else if (planeState == Ground && getPosition().y > config.heightAboveGround()) {
+    else if (planeState == Ground && getPosition().y > config.heightAboveGround) {
         planeState = Flying;
     }
 }
@@ -93,11 +93,11 @@ void GameData::applyForces() {
     // method that check landing status
     // if the aircraft pass the stall barrier it become
     // airborne even if its on the ground
-    if (camera.position.y <= 10 && speed < config.stallSpeed()) applyGroundPhysics();
+    if (camera.position.y <= 10 && speed < config.stallSpeed) applyGroundPhysics();
     else applyFlightPhysics();
 
     // const auto currentSpeed = speed;
-    const float mass = config.weight() / 9.81f;
+    const float mass = config.weight / 9.81f;
 
     // forces vectors
     const auto thrustForce = Vector3Scale(getForward(), thrust);
@@ -113,14 +113,14 @@ void GameData::applyForces() {
     speed = Vector3Length(velocity);
 
     // limit velocity
-    if (speed > config.maxSpeed() && speed != 0.0f) {
-        velocity = Vector3Scale(velocity, config.maxSpeed() / speed);
+    if (speed > config.maxSpeed && speed != 0.0f) {
+        velocity = Vector3Scale(velocity, config.maxSpeed / speed);
         speed = Vector3Length(velocity);
     }
 }
 
 void GameData::applyGroundPhysics() {
-    const auto speedRatio = speed / config.maxSpeed();
+    const auto speedRatio = speed / config.maxSpeed;
 
     // apply the changes (more speed equals more steering except yaw)
     const auto p = controls.Pitch > 0.0f ? controls.Pitch : 0.0f;
@@ -135,9 +135,9 @@ void GameData::applyGroundPhysics() {
     recalcVectors();
 
     // some "physics"
-    thrust = throttle * config.engineThrust();
-    drag = (speed * speed) * config.dragCoefficient();
-    lift = (speed * speed) * config.liftCoefficient();
+    thrust = throttle * config.engineThrust;
+    drag = (speed * speed) * config.dragCoefficient;
+    lift = (speed * speed) * config.liftCoefficient;
 
     // on ground drag is also the wheels break
     if (breaks) drag *= 1000;
@@ -149,11 +149,11 @@ void GameData::applyGroundPhysics() {
 
 void GameData::applyFlightPhysics() {
     const auto currentSpeed = speed;
-    const auto speedRatio = currentSpeed / config.maxSpeed();
+    const auto speedRatio = currentSpeed / config.maxSpeed;
 
     // some effects (arcade style)
-    const auto bankInducedYaw = currentSpeed == 0 ? 0.0f : right.y * config.bankInduceYawRatio() * deltaTime;
-    const auto liftLossPitch = currentSpeed == 0 ? 0.0f : (1.0f - up.y) * config.liftLossPitchRatio() * deltaTime;
+    const auto bankInducedYaw = currentSpeed == 0 ? 0.0f : right.y * config.bankInduceYawRatio * deltaTime;
+    const auto liftLossPitch = currentSpeed == 0 ? 0.0f : (1.0f - up.y) * config.liftLossPitchRatio * deltaTime;
 
     // apply the changes (more speed equals more steering except yaw)
     const auto qPitch = QuaternionFromAxisAngle(right, (controls.Pitch + liftLossPitch) * speedRatio);
@@ -162,8 +162,8 @@ void GameData::applyFlightPhysics() {
 
     // create turbulence when above VLE speed and gear is open
     auto qTurbulence = QuaternionIdentity();
-    if (gear && currentSpeed > config.vleSpeed()) {
-        const float overSpeed = currentSpeed - config.vleSpeed();
+    if (gear && currentSpeed > config.vleSpeed) {
+        const float overSpeed = currentSpeed - config.vleSpeed;
         const float turbulenceIntensity = Clamp((overSpeed * overSpeed) * 0.0001f * deltaTime, 0.0f, 0.03f);
 
         const float noisePitch = (static_cast<float>(GetRandomValue(-100, 100)) / 100.0f) * turbulenceIntensity;
@@ -186,7 +186,7 @@ void GameData::applyFlightPhysics() {
     recalcVectors();
 
     // some "physics"
-    const auto isStalling = currentSpeed < config.stallSpeed();
+    const auto isStalling = currentSpeed < config.stallSpeed;
 
     // weathervaning
     // https://en.wikipedia.org/wiki/Weathervane_effect
@@ -197,9 +197,9 @@ void GameData::applyFlightPhysics() {
         velocity.z = Lerp(velocity.z, z, 2.0f * deltaTime);
     }
 
-    thrust = throttle * config.engineThrust();
-    drag = (currentSpeed * currentSpeed) * config.dragCoefficient();
-    lift = (currentSpeed * currentSpeed) * config.liftCoefficient();
+    thrust = throttle * config.engineThrust;
+    drag = (currentSpeed * currentSpeed) * config.dragCoefficient;
+    lift = (currentSpeed * currentSpeed) * config.liftCoefficient;
 
     // breaks increase drag by 600%
     if (breaks) drag *= 6.0;
@@ -221,7 +221,7 @@ void GameData::applyPosition() {
     }
 
     // pilot look a little bit down
-    const Quaternion qTilt = QuaternionFromAxisAngle(right, -config.pilotTilt());
+    const Quaternion qTilt = QuaternionFromAxisAngle(right, -config.pilotTilt);
 
     // position the pilot
     camera.position = newPosition;

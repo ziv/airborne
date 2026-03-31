@@ -1,12 +1,8 @@
 #pragma once
 #include "raylib.h"
 #include "../primitives/View.h"
-#include "../lib/json.hpp"
-
-using json = nlohmann::json;
 
 class GaugesView : public View {
-    json config;
     Texture2D sprites;
     std::unordered_map<std::string, Rectangle> map;
 

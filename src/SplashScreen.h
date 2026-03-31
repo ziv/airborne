@@ -11,8 +11,8 @@ public:
     using GameScreen::GameScreen;
 
     explicit SplashScreen(AppConfig &inputConfig) : GameScreen(inputConfig) {
-        music = LoadMusicStream(config.splashMusicPath().data());
-        texture = LoadTexture(config.splashBgPath().data());
+        music = LoadMusicStream(config.splashMusicPath.data());
+        texture = LoadTexture(config.splashBgPath.data());
         PlayMusicStream(music);
     }
 

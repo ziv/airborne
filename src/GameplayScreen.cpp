@@ -12,14 +12,14 @@ constexpr Vector3 a{0.0f, 10.0f, 0.0f};
 GameplayScreen::GameplayScreen(AppConfig &inputConfig)
     : GameScreen(inputConfig),
       game(inputConfig),
-      autopilot(inputConfig.maxBankAngle(), inputConfig.maxPullRatio(), inputConfig.speedRatio()),
-      cockpit(LoadTexture(inputConfig.gameCockpitTexture().data())),
-      chromaShader(LoadShader(nullptr, inputConfig.gameCockpitChroma().data())),
-      engine(LoadMusicStream(inputConfig.gameEngineSound().data())),
+      autopilot(inputConfig.maxBankAngle, inputConfig.maxPullRatio, inputConfig.speedRatio),
+      cockpit(LoadTexture(inputConfig.gameCockpitTexture.data())),
+      chromaShader(LoadShader(nullptr, inputConfig.gameCockpitChroma.data())),
+      engine(LoadMusicStream(inputConfig.gameEngineSound.data())),
       map(UtilsLoaders::loadTerrain(
-          inputConfig.gameMapTexture().data(),
-          inputConfig.gameMapHeightmap().data(),
-          {inputConfig.gameMapSizeX(), inputConfig.gameMapSizeY(), inputConfig.gameMapSizeZ()}
+          inputConfig.gameMapTexture,
+          inputConfig.gameMapHeightmap,
+          {inputConfig.gameMapSizeX, inputConfig.gameMapSizeY, inputConfig.gameMapSizeZ}
       )) {
     views.push_back(std::make_unique<MapView>(inputConfig));
     views.push_back(std::make_unique<HudView>(inputConfig));
@@ -29,11 +29,11 @@ GameplayScreen::GameplayScreen(AppConfig &inputConfig)
 
     // constructor updates
     constexpr float thresholdValue = 0.5f;
-    // chromaShader = LoadShader(nullptr, config.gameCockpitChroma().data());
+    // chromaShader = LoadShader(nullptr, config.gameCockpitChroma.data());
     SetShaderValue(chromaShader, GetShaderLocation(chromaShader, "threshold"), &thresholdValue, SHADER_UNIFORM_FLOAT);
 
     // todo position should come from the mission data
-    game.setPosition((Vector3){6450.0f, config.heightAboveGround(), 19100.0f});
+    game.setPosition((Vector3){6450.0f, config.heightAboveGround, 19100.0f});
 
     // todo waypoints should come from the mission data
     autopilot.AddWaypoint(Vector3Add(l1, a), 200.0f, 50.0f);
@@ -53,15 +53,15 @@ GameplayScreen::~GameplayScreen() {
 
 void GameplayScreen::handleInputs() {
     // steering
-    if (IsKeyDown(KEY_UP)) game.controls.Pitch = -config.pitchRatio() * game.deltaTime;
-    if (IsKeyDown(KEY_DOWN)) game.controls.Pitch = config.pitchRatio() * game.deltaTime;
+    if (IsKeyDown(KEY_UP)) game.controls.Pitch = -config.pitchRatio * game.deltaTime;
+    if (IsKeyDown(KEY_DOWN)) game.controls.Pitch = config.pitchRatio * game.deltaTime;
 
-    if (IsKeyDown(KEY_LEFT)) game.controls.Roll = -config.rollRaio() * game.deltaTime;
-    if (IsKeyDown(KEY_RIGHT)) game.controls.Roll = config.rollRaio() * game.deltaTime;
+    if (IsKeyDown(KEY_LEFT)) game.controls.Roll = -config.rollRatio * game.deltaTime;
+    if (IsKeyDown(KEY_RIGHT)) game.controls.Roll = config.rollRatio * game.deltaTime;
 
     // // todo for debug only, user should not be allow to change YAW directly
-    if (IsKeyDown(KEY_Q)) game.controls.Yaw = config.yawRatio() * game.deltaTime;
-    if (IsKeyDown(KEY_E)) game.controls.Yaw = -config.yawRatio() * game.deltaTime;
+    if (IsKeyDown(KEY_Q)) game.controls.Yaw = config.yawRatio * game.deltaTime;
+    if (IsKeyDown(KEY_E)) game.controls.Yaw = -config.yawRatio * game.deltaTime;
 
     // throttling
     if (IsKeyDown(KEY_ZERO)) game.throttle = 0.0f;
@@ -134,7 +134,7 @@ void GameplayScreen::run() {
     ClearBackground(BLUE);
 
     BeginMode3D(game.getCamera());
-        if (config.showGrid()) DrawGrid(100, 20.0f);
+        if (config.showGrid) DrawGrid(100, 20.0f);
 
         DrawCube(l1, 10.0f, 10.0f, 10.0f, RED);
         DrawCube(l2, 10.0f, 10.0f, 10.0f, RED);
