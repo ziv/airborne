@@ -2,7 +2,7 @@
 #include <vector>
 #include "raylib.h"
 #include "../primitives/View.h"
-#include "../primitives/GameData.h"
+#include "../core/GameData.h"
 
 class HudView : public View {
     char current = 0;

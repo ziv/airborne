@@ -16,8 +16,8 @@ FetchContent_MakeAvailable(raylib)
 
 add_executable(${PROJECT_NAME} src/main.cpp
         src/lib/json.hpp
-        src/primitives/AppConfig.h
-        src/primitives/AppConfig.cpp
+        src/core/AppConfig.h
+        src/core/AppConfig.cpp
         src/GameScreen.h
         src/MainMenuScreen.cpp
         src/MainMenuScreen.h
@@ -25,27 +25,30 @@ add_executable(${PROJECT_NAME} src/main.cpp
         src/primitives/Constants.h
         src/GameplayScreen.cpp
         src/GameplayScreen.h
-        src/primitives/Autopilot.cpp
-        src/primitives/Autopilot.h
+        src/core/Autopilot.cpp
+        src/core/Autopilot.h
         src/primitives/Utils.h
-        src/primitives/GameData.cpp
-        src/primitives/GameData.h
+        src/core/GameData.cpp
+        src/core/GameData.h
         src/items/Structure.cpp
         src/items/Structure.h
         src/items/Aircraft.cpp
         src/items/Aircraft.h
-        src/views/HudView.cpp
-        src/views/HudView.h
-        src/views/DebugView.cpp
-        src/views/DebugView.h
         src/primitives/View.h
         src/lib/gui_impl.cpp
-        src/views/GaugesView.cpp
-        src/views/GaugesView.h
-        src/views/MapView.cpp
-        src/views/MapView.h
         src/views/CockpitView.cpp
         src/views/CockpitView.h
+        src/views/DebugView.cpp
+        src/views/DebugView.h
         src/primitives/Types.h
+        src/core/AircraftTransformation.cpp
+        src/core/AircraftTransformation.h
+        src/core/AircraftPhysics.cpp
+        src/core/AircraftPhysics.h
+        src/core/AircraftControls.cpp
+        src/core/AircraftControls.h
+        src/core/AircraftCamera.cpp
+        src/core/AircraftCamera.h
+        src/primitives/Resource.h
 )
 target_link_libraries(${PROJECT_NAME} PRIVATE raylib)

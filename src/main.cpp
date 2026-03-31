@@ -7,7 +7,7 @@
 #include "MainMenuScreen.h"
 #include "SplashScreen.h"
 #include "GameplayScreen.h"
-#include "primitives/AppConfig.h"
+#include "core/AppConfig.h"
 
 int main() {
     SetTraceLogLevel(LOG_INFO);

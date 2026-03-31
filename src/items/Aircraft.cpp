@@ -1,7 +1,7 @@
 #include "Aircraft.h"
 
 #include "../primitives/Constants.h"
-#include "../primitives/GameData.h"
+#include "../core/GameData.h"
 
 Aircraft::Aircraft(const std::string_view name,
                    const std::string_view modelPath) : name(name),

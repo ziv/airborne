@@ -1,13 +1,13 @@
 #pragma once
-#include "../primitives/View.h"
+#include "../core/AppConfig.h"
+#include "../primitives/Resource.h"
 
+class CockpitView {
+    TextureHandle cockpitTexture;
+    ShaderHandle cockpitShader;
 
-class CockpitView : public View {
 public:
-    explicit CockpitView(AppConfig &inputConfig) : View(inputConfig) {
-    }
+    explicit CockpitView(const AppConfig &config);
 
-    void update(const GameData &game) override;
-
-    void draw(const GameData &game) override;
+    void draw() const;
 };

@@ -1,11 +1,8 @@
 #pragma once
-#include "../primitives/View.h"
+#include "raylib.h"
+#include "../core/AircraftControls.h"
 
-class DebugView: public View {
+class DebugView {
 public:
-    explicit DebugView(AppConfig &inputConfig) : View(inputConfig) {
-    }
-    void update(const GameData &game) override;
-
-    void draw(const GameData &game) override;
+    void draw(const Vector3 &position, const PilotControls &controls, float speed);
 };

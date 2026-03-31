@@ -1,4 +1,7 @@
 #pragma once
+#include "AircraftCamera.h"
+#include "AircraftControls.h"
+#include "AircraftPhysics.h"
 #include "AppConfig.h"
 #include "raylib.h"
 
@@ -13,15 +16,17 @@ enum GearState {
     Opened
 };
 
-struct PilotControls {
-    float Pitch = 0.0f;
-    float Yaw = 0.0f;
-    float Roll = 0.0f;
-    float Throttle = 0.0f;
-};
+// struct PilotControls {
+//     float Pitch = 0.0f;
+//     float Yaw = 0.0f;
+//     float Roll = 0.0f;
+//     float Throttle = 0.0f;
+// };
 
 class GameData {
     AppConfig &config;
+
+
 
     // the pilot view
     Camera camera = {0};
@@ -42,6 +47,8 @@ class GameData {
     float lift = 0.0f;
     // float weight = 0.0f;
 
+    void tmp();
+
     void recalcVectors();
 
     void applyState();
@@ -57,6 +64,11 @@ class GameData {
     [[nodiscard]] bool isStableLanding() const;
 
 public:
+    AircraftControls aircraftControls;
+    AircraftPhysics aircraftPhysics;
+    AircraftTransformation aircraftTransformation;
+    AircraftCamera aircraftCamera;
+
     explicit GameData(AppConfig &config);
     ~GameData();
 

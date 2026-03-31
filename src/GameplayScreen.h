@@ -1,29 +1,31 @@
 #pragma once
 #include "GameScreen.h"
-#include "items/Aircraft.h"
-#include "primitives/Autopilot.h"
-#include "primitives/GameData.h"
-#include "primitives/Utils.h"
+#include "core/Autopilot.h"
+#include "core/GameData.h"
+#include "views/CockpitView.h"
 #include "views/DebugView.h"
-#include "views/GaugesView.h"
-#include "views/HudView.h"
-#include "views/MapView.h"
 
 class GameplayScreen : public GameScreen {
+
+
     // the object contain all relevant game details for
     // control, change and view
     // std::unique_ptr<GameData> game;
     GameData game;
 
+    // views
+    CockpitView cockpitView;
+    DebugView debugView;
+
     // controllers
-    Autopilot autopilot;
+    // Autopilot autopilot;
 
     // views
-    std::vector<std::unique_ptr<View>> views;
+    // std::vector<std::unique_ptr<View>> views;
 
     // cockpit
-    Texture2D cockpit{};
-    Shader chromaShader{};
+    // Texture2D cockpit{};
+    // Shader chromaShader{};
 
     // background sound
     Music engine{};

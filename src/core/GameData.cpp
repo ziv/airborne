@@ -1,8 +1,12 @@
 #include "GameData.h"
 #include "raymath.h"
-#include "Constants.h"
+#include "../primitives/Constants.h"
 
-GameData::GameData(AppConfig &config) : config(config) {
+GameData::GameData(AppConfig &config) : config(config),
+                                        aircraftControls(config),
+                                        aircraftPhysics(config),
+                                        aircraftTransformation(config),
+                                        aircraftCamera(config) {
     camera.up = GamePhysics::WorldUp;
     camera.fovy = config.pilotFov;
     camera.projection = CAMERA_PERSPECTIVE;
@@ -14,10 +18,56 @@ GameData::~GameData() {
     // nothing to unload yet
 }
 
+void GameData::tmp() {
+    const auto dt = GetFrameTime();
+    // todo this is a naive solution, improve it
+    const auto flying = getPosition().y > config.heightAboveGround || speed > config.stallSpeed;
+
+    // first, read controls state
+    aircraftControls.update(dt);
+
+    // change the aircraft orientation
+    aircraftTransformation.update(dt, flying, aircraftControls.getControls(), aircraftPhysics.getSpeed());
+
+    // let the physics shine on the aircraft
+    aircraftPhysics.update(dt, flying, aircraftControls.getControls(), aircraftTransformation.getDirections());
+}
+
 void GameData::update() {
-    applyState();
-    applyForces();
-    applyPosition();
+    const auto dt = GetFrameTime();
+
+    // todo this is a naive solution, improve it
+    // todo check for crashing
+    const auto flying = getPosition().y > config.heightAboveGround || speed > config.stallSpeed;
+
+    // first, read controls state
+    aircraftControls.update(dt);
+
+    // change the aircraft orientation
+    aircraftTransformation.update(dt, flying, aircraftControls.getControls(), aircraftPhysics.getSpeed());
+
+    // let the physics shine on the aircraft
+    aircraftPhysics.update(dt, flying, aircraftControls.getControls(), aircraftTransformation.getDirections());
+
+    // update its location
+    aircraftCamera.update(dt, aircraftTransformation.getDirections(), aircraftPhysics.getVelocity());
+
+
+
+
+    // todo how to use the controllers?
+    // do not go under the ground
+    // if (newPosition.y <= 10.0f) {
+    //     velocity.y = 0.0f;
+    //     speed = Vector3Length(velocity);
+    //     newPosition.y = 10.0f;
+    // }
+
+    // pilot look a little bit down
+
+    // applyState();
+    // applyForces();
+    // applyPosition();
     // check colision/landing
 }
 
@@ -69,7 +119,7 @@ bool GameData::isStableLanding() const {
 }
 
 void GameData::applyState() {
-    throttle += controls.Throttle;
+    throttle += controls.throttle;
     throttle = Clamp(throttle, 0.0f, 1.2f);
 
     if (planeState == Flying && getPosition().y <= config.heightAboveGround) {
@@ -123,9 +173,9 @@ void GameData::applyGroundPhysics() {
     const auto speedRatio = speed / config.maxSpeed;
 
     // apply the changes (more speed equals more steering except yaw)
-    const auto p = controls.Pitch > 0.0f ? controls.Pitch : 0.0f;
+    const auto p = controls.pitch > 0.0f ? controls.pitch : 0.0f;
     const auto qPitch = QuaternionFromAxisAngle(right, p * speedRatio);
-    const auto qYaw = QuaternionFromAxisAngle(up, controls.Yaw);
+    const auto qYaw = QuaternionFromAxisAngle(up, controls.yaw);
     const auto qRoll = QuaternionFromAxisAngle(forward, 0);
 
     // update the quaternion and normalize, then recalculate vectors
@@ -156,9 +206,9 @@ void GameData::applyFlightPhysics() {
     const auto liftLossPitch = currentSpeed == 0 ? 0.0f : (1.0f - up.y) * config.liftLossPitchRatio * deltaTime;
 
     // apply the changes (more speed equals more steering except yaw)
-    const auto qPitch = QuaternionFromAxisAngle(right, (controls.Pitch + liftLossPitch) * speedRatio);
-    const auto qYaw = QuaternionFromAxisAngle(up, controls.Yaw + bankInducedYaw);
-    const auto qRoll = QuaternionFromAxisAngle(forward, controls.Roll * speedRatio);
+    const auto qPitch = QuaternionFromAxisAngle(right, (controls.pitch + liftLossPitch) * speedRatio);
+    const auto qYaw = QuaternionFromAxisAngle(up, controls.yaw + bankInducedYaw);
+    const auto qRoll = QuaternionFromAxisAngle(forward, controls.roll * speedRatio);
 
     // create turbulence when above VLE speed and gear is open
     auto qTurbulence = QuaternionIdentity();

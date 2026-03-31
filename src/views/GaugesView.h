@@ -1,23 +1,23 @@
 #pragma once
 #include <unordered_map>
 #include "raylib.h"
-#include "../primitives/View.h"
+#include "../core/AppConfig.h"
 
-class GaugesView : public View {
+class GaugesView{
     Texture2D sprites;
     std::unordered_map<std::string, Rectangle> map;
 
-    void drawSprite(const std::string &name, Vector2 position);
-    void drawPower(const GameData &game);
-    void drawBreaks(const GameData &game);
-    void drawGear(const GameData &game);
+    // void drawSprite(const std::string &name, Vector2 position);
+    // void drawPower(const GameData &game);
+    // void drawBreaks(const GameData &game);
+    // void drawGear(const GameData &game);
 
 public:
     explicit GaugesView(AppConfig &inputConfig);
 
-    ~GaugesView() override;
+    // ~GaugesView() override;
 
-    void update(const GameData &game) override;
+    // void update(const GameData &game) override;
 
-    void draw(const GameData &game) override;
+    // void draw(const GameData &game) override;
 };

@@ -24,8 +24,8 @@ void main() {
     vec4 texelColor = texture(texture0, uv);
 
     // shine
-    // float glare = smoothstep(0.4, 0.5, sin(fragTexCoord.x + fragTexCoord.y + time * 0.5) * 0.5 + 0.5);
-    // vec3 glareColor = vec3(1.0, 1.0, 1.0) * glare * 0.15;
+    float glare = smoothstep(0.4, 0.5, sin(fragTexCoord.x + fragTexCoord.y + time * 0.5) * 0.5 + 0.5);
+    vec3 glareColor = vec3(1.0, 1.0, 1.0) * glare * 0.15;
 
     // a little bit army green
     vec3 glassTint = vec3(0.9, 1.0, 0.9);

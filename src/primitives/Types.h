@@ -27,5 +27,5 @@ constexpr Newton operator""_ntn(const long double val) {
 using Degree = float;
 
 constexpr Degree operator""_deg(const long double val) {
-    return static_cast<Newton>(val);
+    return static_cast<Degree>(val);
 }

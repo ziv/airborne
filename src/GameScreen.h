@@ -1,6 +1,6 @@
 #pragma once
 #include "lib/json.hpp"
-#include "primitives/AppConfig.h"
+#include "core/AppConfig.h"
 
 using json = nlohmann::json;
 

@@ -1,6 +1,6 @@
 #include "GameplayScreen.h"
 #include "primitives/Utils.h"
-#include "primitives/AppConfig.h"
+#include "core/AppConfig.h"
 
 constexpr Vector3 l1 = {5000.0f, 1500.0f, 5000};
 constexpr Vector3 l2 = {9000.0f, 1500.0f, 4000.0f};
@@ -12,56 +12,58 @@ constexpr Vector3 a{0.0f, 10.0f, 0.0f};
 GameplayScreen::GameplayScreen(AppConfig &inputConfig)
     : GameScreen(inputConfig),
       game(inputConfig),
-      autopilot(inputConfig.maxBankAngle, inputConfig.maxPullRatio, inputConfig.speedRatio),
-      cockpit(LoadTexture(inputConfig.gameCockpitTexture.data())),
-      chromaShader(LoadShader(nullptr, inputConfig.gameCockpitChroma.data())),
+      cockpitView(inputConfig),
+      // autopilot(inputConfig.maxBankAngle, inputConfig.maxPullRatio, inputConfig.speedRatio),
+      // cockpit(LoadTexture(inputConfig.gameCockpitTexture.data())),
+      // chromaShader(LoadShader(nullptr, inputConfig.gameCockpitChroma.data())),
       engine(LoadMusicStream(inputConfig.gameEngineSound.data())),
       map(UtilsLoaders::loadTerrain(
           inputConfig.gameMapTexture,
           inputConfig.gameMapHeightmap,
           {inputConfig.gameMapSizeX, inputConfig.gameMapSizeY, inputConfig.gameMapSizeZ}
       )) {
-    views.push_back(std::make_unique<MapView>(inputConfig));
-    views.push_back(std::make_unique<HudView>(inputConfig));
-    views.push_back(std::make_unique<GaugesView>(inputConfig));
-    views.push_back(std::make_unique<DebugView>(inputConfig));
+    // views.push_back(std::make_unique<MapView>(inputConfig));
+    // views.push_back(std::make_unique<HudView>(inputConfig));
+    // views.push_back(std::make_unique<GaugesView>(inputConfig));
+    // views.push_back(std::make_unique<DebugView>(inputConfig));
 
 
     // constructor updates
-    constexpr float thresholdValue = 0.5f;
+    // constexpr float thresholdValue = 0.5f;
     // chromaShader = LoadShader(nullptr, config.gameCockpitChroma.data());
-    SetShaderValue(chromaShader, GetShaderLocation(chromaShader, "threshold"), &thresholdValue, SHADER_UNIFORM_FLOAT);
+    // SetShaderValue(chromaShader, GetShaderLocation(chromaShader, "threshold"), &thresholdValue, SHADER_UNIFORM_FLOAT);
 
     // todo position should come from the mission data
-    game.setPosition((Vector3){6450.0f, config.heightAboveGround, 19100.0f});
+    game.aircraftCamera.setPosition((Vector3){6450.0f, config.heightAboveGround, 19100.0f});
+    // game.setPosition((Vector3){6450.0f, config.heightAboveGround, 19100.0f});
 
     // todo waypoints should come from the mission data
-    autopilot.AddWaypoint(Vector3Add(l1, a), 200.0f, 50.0f);
-    autopilot.AddWaypoint(Vector3Add(l2, a), 200.0f, 50.0f);
-    autopilot.AddWaypoint(Vector3Add(l3, a), 200.0f, 50.0f);
-    autopilot.AddWaypoint(Vector3Add(l4, a), 200.0f, 50.0f);
+    // autopilot.AddWaypoint(Vector3Add(l1, a), 200.0f, 50.0f);
+    // autopilot.AddWaypoint(Vector3Add(l2, a), 200.0f, 50.0f);
+    // autopilot.AddWaypoint(Vector3Add(l3, a), 200.0f, 50.0f);
+    // autopilot.AddWaypoint(Vector3Add(l4, a), 200.0f, 50.0f);
 
     PlayMusicStream(engine);
 }
 
 GameplayScreen::~GameplayScreen() {
     UnloadModel(map);
-    UnloadTexture(cockpit);
-    UnloadShader(chromaShader);
+    // UnloadTexture(cockpit);
+    // UnloadShader(chromaShader);
     UnloadMusicStream(engine);
 }
 
 void GameplayScreen::handleInputs() {
     // steering
-    if (IsKeyDown(KEY_UP)) game.controls.Pitch = -config.pitchRatio * game.deltaTime;
-    if (IsKeyDown(KEY_DOWN)) game.controls.Pitch = config.pitchRatio * game.deltaTime;
+    if (IsKeyDown(KEY_UP)) game.controls.pitch = -config.pitchRatio * game.deltaTime;
+    if (IsKeyDown(KEY_DOWN)) game.controls.pitch = config.pitchRatio * game.deltaTime;
 
-    if (IsKeyDown(KEY_LEFT)) game.controls.Roll = -config.rollRatio * game.deltaTime;
-    if (IsKeyDown(KEY_RIGHT)) game.controls.Roll = config.rollRatio * game.deltaTime;
+    if (IsKeyDown(KEY_LEFT)) game.controls.roll = -config.rollRatio * game.deltaTime;
+    if (IsKeyDown(KEY_RIGHT)) game.controls.roll = config.rollRatio * game.deltaTime;
 
     // // todo for debug only, user should not be allow to change YAW directly
-    if (IsKeyDown(KEY_Q)) game.controls.Yaw = config.yawRatio * game.deltaTime;
-    if (IsKeyDown(KEY_E)) game.controls.Yaw = -config.yawRatio * game.deltaTime;
+    if (IsKeyDown(KEY_Q)) game.controls.yaw = config.yawRatio * game.deltaTime;
+    if (IsKeyDown(KEY_E)) game.controls.yaw = -config.yawRatio * game.deltaTime;
 
     // throttling
     if (IsKeyDown(KEY_ZERO)) game.throttle = 0.0f;
@@ -103,28 +105,28 @@ ScreenState GameplayScreen::update() {
     handleSounds();
 
     // update views
-    for (const auto &view: views) {
-        view->update(game);
-    }
+    // for (const auto &view: views) {
+    //     view->update(game);
+    // }
 
     // autopilot
     // fast return, autopilot mode, no need to get other user inputs
-    if (IsKeyPressed(KEY_P)) autopilot.Toggle();
-    if (autopilot.IsActive()) {
-        // get controls from autopilot and update game state
-        game.controls = autopilot.Steer(game.getPosition(),
-                                        game.getForward(),
-                                        game.getRight(),
-                                        game.getUp(),
-                                        game.deltaTime,
-                                        game.speed);
-        game.update();
-        return ScreenState::GAMEPLAY;
-    }
+    // if (IsKeyPressed(KEY_P)) autopilot.Toggle();
+    // if (autopilot.IsActive()) {
+    //     // get controls from autopilot and update game state
+    //     game.controls = autopilot.Steer(game.getPosition(),
+    //                                     game.getForward(),
+    //                                     game.getRight(),
+    //                                     game.getUp(),
+    //                                     game.deltaTime,
+    //                                     game.speed);
+    //     game.update();
+    //     return ScreenState::GAMEPLAY;
+    // }
 
     // user inputs
-    game.resetControls();
-    handleInputs();
+    // game.resetControls();
+    // handleInputs();
     game.update();
     return ScreenState::GAMEPLAY;
 }
@@ -147,16 +149,21 @@ void GameplayScreen::run() {
         // DrawModel(aircraft.model, (Vector3){10.0, 10.0, 10.0}, 1.0f, RED);
     EndMode3D();
 
-    BeginShaderMode(chromaShader);
-        DrawTextureEx(cockpit, {0.0f, -270.0f}, 0, 1.0f, WHITE);
-    EndShaderMode();
+    cockpitView.draw();
+    const auto position = game.aircraftCamera.getCamera().position;
+    const auto controls = game.aircraftControls.getControls();
+    const auto speed = game.aircraftPhysics.getSpeed();
+    debugView.draw(position, controls, speed);
+    // BeginShaderMode(chromaShader);
+    //     DrawTextureEx(cockpit, {0.0f, -270.0f}, 0, 1.0f, WHITE);
+    // EndShaderMode();
 
-    for (const auto& view : views) {
-        view->draw(game);
-    }
+    // for (const auto& view : views) {
+    //     view->draw(game);
+    // }
 
-    if (autopilot.IsActive()) {
-        DrawText("AUTOPILOT ENGAGED", static_cast<int>(game.width) / 2 - 100, 20, 20, RED);
-    }
+    // if (autopilot.IsActive()) {
+        // DrawText("AUTOPILOT ENGAGED", static_cast<int>(game.width) / 2 - 100, 20, 20, RED);
+    // }
     // @formatter:on
 }

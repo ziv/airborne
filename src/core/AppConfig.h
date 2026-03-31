@@ -1,6 +1,6 @@
 #pragma once
 #include <string>
-#include "Types.h"
+#include "../primitives/Types.h"
 
 class AppConfig {
 public:
@@ -52,7 +52,7 @@ public:
     float liftLossPitchRatio;
 
     // development
-    float showGrid = true;
+    bool showGrid = true;
 
     AppConfig();
 };

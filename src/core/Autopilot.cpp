@@ -1,5 +1,5 @@
 #include "Autopilot.h"
-#include "Utils.h"
+#include "../primitives/Utils.h"
 
 Autopilot::Autopilot(const float maxBankAngle,
                      const float maxPullRatio,
@@ -72,7 +72,7 @@ PilotControls Autopilot::Steer(const Vector3 &position,
     while (rollError < -PI) rollError += 2.0f * PI;
 
     // todo why 2.0?
-    input.Roll = rollError * 2.0f * deltaTime;
+    input.roll = rollError * 2.0f * deltaTime;
 
     // vertical distance
     const Vector2 sourcePosXZ = {position.x, position.z};
@@ -96,13 +96,13 @@ PilotControls Autopilot::Steer(const Vector3 &position,
     const float desiredPitchInput = pitchError + turnPull;
 
     // limiting the result to not "break" the stick
-    input.Pitch = Clamp(desiredPitchInput, -1.0f, 1.0f) * deltaTime;
+    input.pitch = Clamp(desiredPitchInput, -1.0f, 1.0f) * deltaTime;
 
     // update throttle direction
-    if (speed < target.TargetSpeed) input.Throttle = speedRatio * deltaTime;
-    else if (speed > target.TargetSpeed) input.Throttle = -speedRatio * deltaTime;
+    if (speed < target.TargetSpeed) input.throttle = speedRatio * deltaTime;
+    else if (speed > target.TargetSpeed) input.throttle = -speedRatio * deltaTime;
 
-    input.Yaw = 0.0f;
+    input.yaw = 0.0f;
 
     return input;
 }

@@ -1,168 +1,362 @@
-# Code Review — Airborne (Flight Simulator)
+# Code Review — Airborne
 
-> Reviewed: 2026-03-29 | Stage: Early development  
-> Stack: C++17, raylib 5.5, CMake, nlohmann/json
-
----
-
-## Overall Impression
-
-Solid foundation for an early-stage project. The architecture is clean — screen state machine,
-quaternion-based flight model, data-driven config via JSON, and a good separation into
-primitives / items / views / utils / shaders. The flight physics (thrust, lift, drag, gravity,
-weathervaning) are a compelling arcade-sim blend, exactly matching the stated goal.
-
-The items below are ordered roughly by severity.
+> Reviewed: all source under `src/`, `CMakeLists.txt`, `app.json`, and `shaders/`.
+> The project is early-stage; this review focuses on what's already written, not on missing features.
 
 ---
 
 ## 🐛 Bugs
 
-## ⚠️ Design & Architecture Issues
-
-### 5. Dual source of truth: `Constants.h` vs `app.json`
-
-`Constants.h` defines `SCREEN_WIDTH`, `MAX_SPEED`, `PITCH_RATIO`, etc. as compile-time constants.
-`app.json` (loaded by `AppConfig`) defines the same values at runtime. Code uses both —
-`Hud.h` reads from `Constants.h`, while `GameplayScreen` reads from `AppConfig`.
-Pick one authoritative source; `app.json` is the better choice since it's already data-driven.
-
-### 6. `AppConfig` copied into `GameData` by value
+### 1. `Types.h` — `operator""_deg` returns `Newton` instead of `Degree`
 
 ```cpp
-// GameData.h:40
-AppConfig config;   // value — copies entire JSON blob
-```
-
-`GameScreen` already holds `AppConfig&` by reference. `GameData` should do the same to avoid
-copying and stay in sync.
-
-### 7. Fragile resource loading in member initializers (`GameplayScreen.h:17-19`)
-
-```cpp
-Texture2D cockpit = LoadTexture("res/cockpit-g1-cut.png");
-Shader chromaShader = LoadShader(nullptr, "src/shaders/chromakey.fs");
-Music engine = LoadMusicStream("res/engine.mp3");
-```
-
-These call raylib before the constructor body runs. They work today only because the screen is
-constructed after `InitWindow`, but this is implicit and fragile. Move them into the constructor
-body.
-
-### 8. No copy/move guards on resource-owning classes
-
-`SplashScreen`, `GameplayScreen`, `Aircraft` all own raylib resources (textures, models, music)
-that are freed in destructors. An accidental copy would cause double-free. Add:
-```cpp
-SplashScreen(const SplashScreen&) = delete;
-SplashScreen& operator=(const SplashScreen&) = delete;
-```
-
-### 9. Velocity clamping loop (`GameData.cpp:72-74`)
-
-```cpp
-while (Vector3Length(velocity) > config.maxSpeed()) {
-    velocity = Vector3Scale(velocity, 0.9f);
+// line 30
+constexpr Degree operator""_deg(const long double val) {
+    return static_cast<Newton>(val);  // ← should be static_cast<Degree>(val)
 }
 ```
 
-This is O(n) with potentially many iterations. Replace with a single normalization:
+### 2. `AppConfig.h` — `showGrid` declared as `float`, should be `bool`
+
 ```cpp
-float speed = Vector3Length(velocity);
-if (speed > config.maxSpeed()) {
-    velocity = Vector3Scale(velocity, config.maxSpeed() / speed);
+// line 55
+float showGrid = true;  // ← should be: bool showGrid = true;
+```
+
+### 3. `shaders/map.fs` — won't compile
+
+- `texelColor` is declared twice (lines 12 and 24).
+- `glareColor` is referenced (line 33) but the declaration is commented out.
+
+### 4. `GameplayScreen.h` — `futuristicCity` loaded at member-init time
+
+```cpp
+Model futuristicCity = LoadModel("res/futuristic_city.glb");
+```
+
+`LoadModel` calls into OpenGL. When a `GameplayScreen` is constructed, raylib's window already exists
+so it *happens* to work, but:
+
+- It bypasses the config-driven path pattern used everywhere else — the path is hardcoded.
+- It's **never unloaded** in the destructor (memory/GPU leak).
+
+### 5. `MapView.h` — same member-init-time loading issue
+
+```cpp
+Texture2D map = LoadTexture("res/map.png");
+Shader glassShader = LoadShader(nullptr, "glass_hud.fs");
+int timeLoc = GetShaderLocation(glassShader, "time");
+```
+
+Hardcoded paths, and the shader/texture are never loaded through `AppConfig`. The shader path
+`"glass_hud.fs"` doesn't match any file in `shaders/` (the actual file is `shaders/map.fs`).
+
+### 6. `GameData` — hardcoded ground altitude `10` / `10.0f` in multiple places
+
+- `applyForces()` line 96: `if (camera.position.y <= 10 && …)` — should be `config.heightAboveGround`.
+- `applyPosition()` line 217–220: `if (newPosition.y <= 10.0f) … newPosition.y = 10.0f;` — same.
+
+`config.heightAboveGround` is `3` in `app.json`, so these checks are inconsistent with each other
+and with the rest of the code that uses the config value.
+
+### 7. `AppConfig` — `gameMapMinimap` declared but never loaded
+
+The field exists in the header but is never assigned in the constructor.
+
+### 8. Dual autopilot state
+
+`GameData` has its own `bool autoPiloting` field, while `Autopilot` has a separate `bool active`.
+`GameData::toggleAutopilot()` toggles one; `Autopilot::Toggle()` toggles the other.
+`GameplayScreen` only uses the `Autopilot` one. The `GameData` flag is dead code waiting to cause a
+bug.
+
+---
+
+## 🏗️ Architecture & Design
+
+### 9. `GameData` is a god object
+
+`GameData` currently owns the camera, the physics, the rotation state, the velocity, the controls,
+and the display dimensions. As the project grows, consider splitting it:
+
+| Concern | Potential class |
+|---------|----------------|
+| Aircraft state (position, rotation, velocity) | `AircraftState` / `Transform` |
+| Physics simulation | `PhysicsEngine` |
+| Camera management | `CameraController` |
+| Player input / controls | `ControlState` |
+| Game-level bookkeeping (pause, delta, screen size) | Keep in `GameData` |
+
+This also makes unit-testing physics in isolation trivial.
+
+### 10. `View` base class — `config` is private
+
+```cpp
+class View {
+    AppConfig &config;  // ← private, derived classes can't access it
+```
+
+Derived views (`HudView`, `GaugesView`, etc.) never use `config` through the base class because
+they can't. Either make it `protected` or remove it and pass config where needed.
+
+### 11. `GameScreen` includes `json.hpp` for no reason
+
+`GameScreen.h` includes `lib/json.hpp` and has `using json = nlohmann::json;`. Neither the base
+class nor most derived classes need JSON. This adds ~25K lines to every translation unit that
+includes `GameScreen.h`. Move the JSON include to the `.cpp` files that actually need it.
+
+### 12. Screen state machine doesn't handle `EXIT`
+
+The `ScreenState` enum has an `EXIT` value, but the `switch` in `main.cpp` never handles it — the
+`default` case creates a new `SplashScreen`. A screen returning `EXIT` should break the game loop.
+
+### 13. Unscoped enums
+
+`AircraftState` and `GearState` are plain `enum`, not `enum class`. Values like `Ground`, `Opened`,
+`Closed` pollute the enclosing namespace and risk name collisions.
+
+```cpp
+// Prefer:
+enum class AircraftState { Ground, Flying, Crashed };
+enum class GearState     { Retracted, Extended };
+```
+
+(Also: `Crushed` → `Crashed` — typo.)
+
+---
+
+## 📖 Readability
+
+### 14. Inconsistent naming convention
+
+| Location | Style | Example |
+|----------|-------|---------|
+| `Autopilot` methods | PascalCase | `Toggle()`, `AddWaypoint()`, `Steer()` |
+| `GameData` methods | camelCase | `applyForces()`, `recalcVectors()` |
+| `PilotControls` fields | PascalCase | `Pitch`, `Roll`, `Yaw` |
+| `GameData` fields | camelCase | `throttle`, `speed` |
+
+Pick one convention and stick with it. For C++ game code, `camelCase` for methods and `camelCase`
+for fields is most common; the Unreal convention is `PascalCase` everywhere. Either is fine —
+just be consistent.
+
+### 15. Cryptic variable names in `GameplayScreen.cpp`
+
+```cpp
+constexpr Vector3 l1 = {5000.0f, 1500.0f, 5000};
+constexpr Vector3 l2 = {9000.0f, 1500.0f, 4000.0f};
+constexpr Vector3 l3 = {10000.0f, 1500.0f, 8000.0f};
+constexpr Vector3 l4 = {5500.0f, 1500.0f, 6500.0f};
+constexpr Vector3 a{0.0f, 10.0f, 0.0f};
+```
+
+These are waypoint locations with an altitude offset. Names like `waypointBase1` (or put them in an
+array) and `altitudeOffset` would be self-documenting.
+
+### 16. Magic numbers scattered throughout
+
+A non-exhaustive list:
+
+| File | Line(s) | Magic number |
+|------|---------|-------------|
+| `GaugesView.cpp` | 36–37, 83–84 | `370`, `460`, `406`, `64`, `30` (pixel positions) |
+| `MapView.cpp` | 19–20 | `64.0f` (meters-per-pixel) |
+| `MapView.cpp` | 24 | `522.0f + 79.0f`, `542.0f + 67.0f` |
+| `MapView.cpp` | 37 | `522, 542, 158, 134` |
+| `GameData.cpp` | 144 | `1000` (brake multiplier), `0.9f` |
+| `GameData.cpp` | 147 | `0.1` (ground lift factor) |
+| `GameData.cpp` | 205 | `6.0` (air-brake drag multiplier) |
+| `GameData.cpp` | 208 | `1.8f` (gear drag multiplier) |
+| `GameData.cpp` | 211 | `0.1` (stall lift factor) |
+| `Autopilot.cpp` | 64 | `1.5f` (heading error gain) |
+| `Autopilot.cpp` | 75 | `2.0f` (roll gain) |
+
+Consider putting physics constants in the config JSON or as named `constexpr` values.
+
+### 17. Spelling
+
+- `breaks` → `brakes` (throughout the codebase)
+- `Crushed` → `Crashed` (`GameData.h`)
+- `clipPlans` → `clipPlanes` (`AppConfig.h`)
+- `fround` → `ground` (comment in `GameData.cpp:84`)
+- `colision` → `collision` (comment in `GameData.cpp:22`)
+
+---
+
+## ⚡ Performance
+
+### 18. `GaugesView::drawPower()` — excessive repetition
+
+The entire function is ~50 lines of nearly identical if/else blocks. This can be reduced to a
+small loop:
+
+```cpp
+void GaugesView::drawPower(const GameData &game) {
+    constexpr int x = 370, y = 460;
+    struct GaugeStep { float threshold; const char* color; };
+    constexpr GaugeStep steps[] = {
+        {1.0f, "power-gauge-red"},
+        {0.8f, "power-gauge-yellow"},
+        {0.6f, "power-gauge-yellow"},
+        {0.4f, "power-gauge-green"},
+        {0.2f, "power-gauge-green"},
+    };
+    for (int i = 0; i < 5; i++) {
+        const char* sprite = (game.throttle >= steps[i].threshold)
+            ? steps[i].color : "power-gauge-off";
+        drawSprite(sprite, {(float)x, (float)(y - i * 15)});
+    }
+    // ... label
 }
 ```
 
-### 10. `SplashScreen` skips the main menu
-
-`SplashScreen::Update()` transitions straight to `GAMEPLAY`. `MainMenuScreen` is unreachable
-in the current flow. Intentional? If so, the main menu code is dead weight.
-
----
-
-## 🧹 Code Hygiene
-
-### 11. Spelling errors in identifiers
-
-| Current | Should be |
-|---------|-----------|
-| `breaks` (GameData.h, GameplayScreen.cpp) | `brakes` |
-| `Crushing` / `Crushed` (PlaneState enum) | `Crashing` / `Crashed` |
-| `rollRaio` (app.json + AppConfig.h) | `rollRatio` |
-| `clipPlans` (app.json + AppConfig.h) | `clipPlanes` |
-| `"BANK NAD ROLL"` (Autopilot.cpp:46 comment) | `"BANK AND ROLL"` |
-
-### 12. Excessive commented-out code
-
-`GameplayScreen.cpp`, `Utils.h`, `Aircraft.cpp`, `Constants.h`, and `main.cpp` all carry large
-blocks of dead commented code. This should be removed — git history preserves it if needed.
-
-### 13. Non-English comments
-
-`PowerGauge.h` and `chromakey.fs` contain Hebrew comments. For a shareable codebase, translate to English.
-
-### 14. Duplicate utility functions
-
-`Utils.h` contains `LoadAppConfig()` which duplicates `AppConfig::AppConfig()`.
-`TmpLoadModel()` duplicates `UtilsLoaders::loadTerrain()`. Remove the dead copies.
-
-### 15. `GetFlatForward` doesn't normalize its output (`Utils.h:15-22`)
-
-The Y component is zeroed but the result isn't normalized, so callers receive a non-unit vector.
-This affects heading calculations in the autopilot.
-
-### 16. `gravity` lives in `Utils.h` (line 68)
-
-A physics constant hiding in a utility header. Move to `Constants.h` or a `Physics.h`.
-
-### 17. Magic literal `10.0f` for ground level
-
-`GameData.cpp:80-82` and `GameplayScreen.cpp:18` both hardcode the ground altitude as `10.0f`.
-Extract to a named constant.
-
-### 18. Missing `<vector>` include in `Autopilot.h`
-
-The class uses `std::vector<Waypoint>` but never directly includes `<vector>`. It compiles
-through transitive includes, which is fragile.
-
-### 19. `Aircraft::model` is public
+### 19. `GaugesView::drawSprite()` — string-keyed map lookup every frame
 
 ```cpp
-class Aircraft {
-    std::string_view name;   // private
-public:
-    Model model;             // exposed — breaks encapsulation
+void GaugesView::drawSprite(const std::string &name, …) {
+    if (const auto it = map.find(name); …)
 ```
 
-Also, storing the name as `string_view` is dangerous if the source string is a temporary.
+Every call constructs a `std::string` from the literal and hashes it. For a small fixed set of
+sprites, use an `enum` key or `std::string_view`-compatible lookup
+(`std::unordered_map` doesn't support heterogeneous lookup, but a sorted `std::vector<pair>` with
+binary search on `string_view` would, or switch to a flat array indexed by enum).
 
-### 20. Empty `Structure` class
+### 20. `FormatNumber()` allocates every call via `std::stringstream`
 
-`Structure.h/.cpp` is a skeleton with an empty `Draw()`. Either implement or remove.
+`FormatNumber()` is called every frame (HUD). `std::stringstream` allocates on the heap.
+Use `snprintf` into a small stack buffer or raylib's `TextFormat` instead:
 
-### 21. `game.json` is unused
+```cpp
+inline const char* FormatNumber(float num) {
+    if (num >= 1000000.0f) return TextFormat("%.2fM", num / 1000000.0f);
+    if (num >= 1000.0f)    return TextFormat("%.2fK", num / 1000.0f);
+    return TextFormat("%.0f", num);
+}
+```
 
-Contains only `{ "version": "0.0.0" }` — no code reads it.
+(Note: `TextFormat` uses a static buffer — fine for immediate-mode drawing.)
 
-### 22. Hardcoded resource paths
+### 21. `HudView::draw()` — repeated `GetScreenWidth()` / `GetScreenHeight()` calls
 
-`GameplayScreen.h` hardcodes `"res/cockpit-g1-cut.png"`, `"src/shaders/chromakey.fs"`,
-`"res/engine.mp3"`, `"res/mig-29.glb"`. These should come from `app.json` for consistency.
+The function calls these multiple times per frame. Cache them at the top:
+
+```cpp
+const int screenW = GetScreenWidth();
+const int screenH = GetScreenHeight();
+```
+
+### 22. `using json = nlohmann::json;` in headers
+
+Declared in `GameScreen.h` and `Utils.h`. This forces the full `json.hpp` (~25K lines) into every
+translation unit that includes these headers, slowing compilation. Move the alias and include into
+`.cpp` files only.
+
+### 23. `Vector3Add` chain in `GameData::applyForces()`
+
+```cpp
+const auto total = Vector3Add(Vector3Add(Vector3Add(thrustForce, dragForce), weightForce), liftForce);
+```
+
+This creates 2 temporary `Vector3` values. A helper or manual addition avoids them:
+
+```cpp
+const Vector3 total = {
+    thrustForce.x + dragForce.x + weightForce.x + liftForce.x,
+    thrustForce.y + dragForce.y + weightForce.y + liftForce.y,
+    thrustForce.z + dragForce.z + weightForce.z + liftForce.z,
+};
+```
+
+Minor at 60 fps, but good practice for inner-loop math.
 
 ---
 
-## 💡 Suggestions (Non-blocking)
+## ✅ Best Practices
 
-- **Ground collision handling**: Currently the plane just clamps to `y=10`. As the sim grows,
-  consider a proper state transition to `Crashing`/`Crashed`.
-- **Engine sound on autopilot**: The engine pitch/volume update only runs in manual mode.
-  The autopilot path (`GameplayScreen::Update()` line 60) returns early before updating audio.
-- **Screen resolution for HUD**: Consider a virtual resolution / scaling system so HUD
-  elements stay proportional regardless of window size.
-- **Build instructions**: The README says `cmake --build cmake-build-debug` but doesn't show
-  the initial `cmake -B cmake-build-debug` configure step.
+### 24. No RAII wrapper for raylib resources
+
+Every screen manually calls `UnloadTexture`, `UnloadShader`, etc. in destructors. If a constructor
+throws (or you forget an unload — as with `futuristicCity`), you leak GPU resources. Consider a
+small RAII wrapper:
+
+```cpp
+struct TextureHandle {
+    Texture2D tex;
+    TextureHandle(const char* path) : tex(LoadTexture(path)) {}
+    ~TextureHandle() { UnloadTexture(tex); }
+    TextureHandle(const TextureHandle&) = delete;
+    TextureHandle& operator=(const TextureHandle&) = delete;
+    operator Texture2D() const { return tex; }
+};
+```
+
+### 25. `SplashScreen` — fully implemented in the header
+
+`SplashScreen.h` contains the full constructor, destructor, `update()`, and `run()` bodies.
+This means every file that includes it recompiles when any implementation detail changes. Move
+the bodies to a `.cpp` file.
+
+### 26. Pass `const AppConfig&` where mutation isn't needed
+
+`GameScreen`, `View`, and most derived classes take `AppConfig&` (non-const reference), but none
+of them modify the config. Use `const AppConfig&` to express intent and prevent accidental
+mutation.
+
+### 27. Clamp throttle in one place
+
+Throttle is clamped in `GameData::applyState()` to `[0, 1.2]`, but it's also directly set in
+`GameplayScreen::handleInputs()` (where `KEY_A` sets it to `1.2f` and `KEY_ZERO` to `0.0f`).
+The increment/decrement path (`KEY_MINUS`/`KEY_EQUAL`) doesn't clamp at all — you can hold `+`
+and exceed `1.2` for one frame before `applyState` corrects it. Apply the clamp immediately after
+any assignment.
+
+### 28. `GameScreen` — missing copy/move protection
+
+`GameScreen` has a virtual destructor, which is correct, but lacks deleted copy/move operations.
+Screens hold GPU resources — accidental copies would double-free them.
+
+```cpp
+GameScreen(const GameScreen&) = delete;
+GameScreen& operator=(const GameScreen&) = delete;
+```
+
+### 29. CMake — source files listed manually
+
+Every new `.cpp`/`.h` requires editing `CMakeLists.txt`. For a small project this is fine, but
+you could use `file(GLOB_RECURSE …)` during development (not recommended for production builds)
+or at least group with comments for maintainability.
+
+### 30. `HudView` uses `std::pmr::vector`
+
+```cpp
+std::pmr::vector<Color> colrs = {GREEN, WHITE, BLACK};
+```
+
+This uses polymorphic memory resources — almost certainly unintentional. Use `std::vector<Color>`.
+
+### 31. Consider `const` on methods
+
+`GameplayScreen::handleSounds()` is correctly `const` — but `handleInputs()`, and several view
+`draw()` methods could also be `const` if they don't modify state. This helps the compiler and
+documents intent.
 
 ---
 
-*Nice project — the MicroProse spirit is alive. Happy flying 🛩️*
+## 📋 Summary
+
+| Category | Count |
+|----------|-------|
+| Bugs | 8 |
+| Architecture | 5 |
+| Readability | 4 |
+| Performance | 6 |
+| Best practices | 8 |
+
+**Overall impression:** The project has a clean, well-organized structure — the screen state
+machine, the view system, and the physics/autopilot separation show good architectural thinking.
+The main areas to improve are: fix the handful of real bugs (especially the shader and the
+hardcoded ground-altitude values), tighten up naming consistency, and consider splitting `GameData`
+before it grows further. The physics code itself is solid and well-commented.
+
+Good luck with the project — looking forward to flying that F-15! ✈️
