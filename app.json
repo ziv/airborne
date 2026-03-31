@@ -11,6 +11,7 @@
     "weight": 120000,
     "maxSpeed": 600,
     "minSpeed": 0,
+    "vleSpeed": 200,
     "pitchRatio": 0.5,
     "rollRaio": 0.6,
     "yawRatio": 0.5,

@@ -22,6 +22,7 @@ void GaugesView::update(const GameData &game) {
 void GaugesView::draw(const GameData &game) {
     drawPower(game);
     drawBreaks(game);
+    drawGear(game);
 }
 
 
@@ -86,6 +87,11 @@ void GaugesView::drawPower(const GameData &game) {
 void GaugesView::drawBreaks(const GameData &game) {
     if (game.breaks) drawSprite("breaks-on", Vector2{952, 761});
     else drawSprite("breaks-off", Vector2{952, 761});
+}
+
+void GaugesView::drawGear(const GameData &game) {
+    if (game.gear) drawSprite("gear-on", Vector2{1011, 765});
+    else drawSprite("gear-off", Vector2{1011, 765});
 }
 
 GaugesView::~GaugesView() {

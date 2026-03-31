@@ -48,6 +48,7 @@ public:
     float weight() { return config["airplane"]["weight"].get<float>(); }
     float maxSpeed() { return config["airplane"]["maxSpeed"].get<float>(); }
     float minSpeed() { return config["airplane"]["minSpeed"].get<float>(); }
+    float vleSpeed() { return config["airplane"]["vleSpeed"].get<float>(); }
     float pitchRatio() { return config["airplane"]["pitchRatio"].get<float>(); }
     float rollRaio() { return config["airplane"]["rollRaio"].get<float>(); }
     float yawRatio() { return config["airplane"]["yawRatio"].get<float>(); }

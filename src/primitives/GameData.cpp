@@ -102,8 +102,26 @@ void GameData::applyForces() {
     const auto qYaw = QuaternionFromAxisAngle(up, controls.Yaw + bankInducedYaw);
     const auto qRoll = QuaternionFromAxisAngle(forward, controls.Roll * speedRatio * canRoll);
 
+    // create turbulence when above VLE speed and gear is open
+    auto qTurbulence = QuaternionIdentity();
+    if (gear && currentSpeed > config.vleSpeed()) {
+        const float overSpeed = currentSpeed - config.vleSpeed();
+        const float turbulenceIntensity = Clamp((overSpeed * overSpeed) * 0.0001f * deltaTime, 0.0f, 0.03f);
+
+        const float noisePitch = (static_cast<float>(GetRandomValue(-100, 100)) / 100.0f) * turbulenceIntensity;
+        const float noiseYaw = (static_cast<float>(GetRandomValue(-100, 100)) / 100.0f) * turbulenceIntensity;
+        const float noiseRoll = (static_cast<float>(GetRandomValue(-100, 100)) / 100.0f) * turbulenceIntensity * 0.5f;
+
+        const auto qTPitch = QuaternionFromAxisAngle(right, noisePitch);
+        const auto qTYaw = QuaternionFromAxisAngle(up, noiseYaw);
+        const auto qTRoll = QuaternionFromAxisAngle(forward, noiseRoll);
+
+        qTurbulence = QuaternionMultiply(qTYaw, QuaternionMultiply(qTPitch, qTRoll));
+    }
+
     // all of them together (the order is important!)
-    const auto qDelta = QuaternionMultiply(qYaw, QuaternionMultiply(qPitch, qRoll));
+    // adding the turbulence last
+    const auto qDelta = QuaternionMultiply(qTurbulence, QuaternionMultiply(qYaw, QuaternionMultiply(qPitch, qRoll)));
 
     // update the quaternion and normalize, then recalculate vectors
     rotation = QuaternionNormalize(QuaternionMultiply(qDelta, rotation));
@@ -115,11 +133,14 @@ void GameData::applyForces() {
     auto drag = (currentSpeed * currentSpeed) * config.dragCoefficient();
     auto lift = (currentSpeed * currentSpeed) * config.liftCoefficient();
 
-    // breaks increase drag by 400% (x4) on flying and by 10000% (x100) on ground
+    // breaks increase drag by 400% on flying and by 4000% on ground
     // in order to avoid implementing ground breaks
-    if (breaks) drag *= 4;
-    if (breaks && touchGround) drag *= 250;
-    if (breaks && touchGround && speed < 10) velocity = Vector3Scale(velocity, 0);
+    if (breaks) drag *= 4.0;
+    if (breaks && touchGround) drag *= 100.0f;
+    if (breaks && touchGround && speed < 10) velocity = Vector3Scale(velocity, 0.9);
+
+    // gear generate drag
+    if (gear) drag *= 1.8f;
 
     // stall reduce lift by 90%
     if (isStalling) lift *= 0.1;

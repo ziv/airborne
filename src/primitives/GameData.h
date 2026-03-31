@@ -59,7 +59,7 @@ public:
     float deltaTime = 0.0f;
     float speed = 0.0f;
     bool autoPiloting = false;
-    bool breaks = false;
+    bool breaks = true;
     bool gear = true;
     bool paused = false;
 

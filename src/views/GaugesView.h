@@ -13,6 +13,7 @@ class GaugesView : public View {
     void drawSprite(const std::string &name, Vector2 position);
     void drawPower(const GameData &game);
     void drawBreaks(const GameData &game);
+    void drawGear(const GameData &game);
 
 public:
     explicit GaugesView(AppConfig &inputConfig);
