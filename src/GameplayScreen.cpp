@@ -83,6 +83,7 @@ void GameplayScreen::handleInputs() {
 
     // breaks
     if (IsKeyPressed(KEY_B)) game.breaks = !game.breaks;
+    if (IsKeyPressed(KEY_G)) game.gear = !game.gear;
 }
 
 void GameplayScreen::handleSounds() const {
