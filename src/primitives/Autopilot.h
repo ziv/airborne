@@ -1,4 +1,5 @@
 #pragma once
+#include <vector>
 #include "GameData.h"
 #include "raylib.h"
 

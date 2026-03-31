@@ -16,7 +16,6 @@ FetchContent_MakeAvailable(raylib)
 
 add_executable(${PROJECT_NAME} src/main.cpp
         src/lib/json.hpp
-        src/utils/loaders.h
         src/primitives/AppConfig.h
         src/primitives/AppConfig.cpp
         src/GameScreen.h
