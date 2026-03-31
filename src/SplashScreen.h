@@ -31,5 +31,6 @@ public:
 
     void run() override {
         DrawTexture(texture, 0, 0, WHITE);
+        DrawText("Created by Ziv Perry", 960, 750, 20, GREEN);
     }
 };

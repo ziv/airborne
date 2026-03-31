@@ -69,6 +69,9 @@ bool GameData::isStableLanding() const {
 }
 
 void GameData::applyState() {
+    throttle += controls.Throttle;
+    throttle = Clamp(throttle, 0.0f, 1.2f);
+
     if (planeState == Flying && getPosition().y <= config.heightAboveGround()) {
         // in order to land you have to fulfill all those condition
         // note, this condition does not cover what you landed on
@@ -85,13 +88,68 @@ void GameData::applyState() {
 }
 
 void GameData::applyForces() {
-    throttle += controls.Throttle;
-    throttle = Clamp(throttle, 0.0f, 1.2f);
+    // todo should take the real height from map
+    // and should be replace in more complicated
+    // method that check landing status
+    // if the aircraft pass the stall barrier it become
+    // airborne even if its on the ground
+    if (camera.position.y <= 10 && speed < config.stallSpeed()) applyGroundPhysics();
+    else applyFlightPhysics();
 
+    // const auto currentSpeed = speed;
+    const float mass = config.weight() / 9.81f;
+
+    // forces vectors
+    const auto thrustForce = Vector3Scale(getForward(), thrust);
+    const auto dragForce = Vector3Scale(getForward(), -drag);
+    const auto liftForce = Vector3Scale(getUp(), lift);
+    const auto weightForce = Vector3Scale(GamePhysics::Gravity, mass);
+
+    const auto total = Vector3Add(Vector3Add(Vector3Add(thrustForce, dragForce), weightForce), liftForce);
+    const auto acceleration = Vector3Scale(total, 1.0f / mass);
+
+    // acceleration
+    velocity = Vector3Add(velocity, Vector3Scale(acceleration, deltaTime));
+    speed = Vector3Length(velocity);
+
+    // limit velocity
+    if (speed > config.maxSpeed() && speed != 0.0f) {
+        velocity = Vector3Scale(velocity, config.maxSpeed() / speed);
+        speed = Vector3Length(velocity);
+    }
+}
+
+void GameData::applyGroundPhysics() {
+    const auto speedRatio = speed / config.maxSpeed();
+
+    // apply the changes (more speed equals more steering except yaw)
+    const auto p = controls.Pitch > 0.0f ? controls.Pitch : 0.0f;
+    const auto qPitch = QuaternionFromAxisAngle(right, p * speedRatio);
+    const auto qYaw = QuaternionFromAxisAngle(up, controls.Yaw);
+    const auto qRoll = QuaternionFromAxisAngle(forward, 0);
+
+    // update the quaternion and normalize, then recalculate vectors
+    const auto qDelta = QuaternionMultiply(qYaw, QuaternionMultiply(qPitch, qRoll));
+
+    rotation = QuaternionNormalize(QuaternionMultiply(qDelta, rotation));
+    recalcVectors();
+
+    // some "physics"
+    thrust = throttle * config.engineThrust();
+    drag = (speed * speed) * config.dragCoefficient();
+    lift = (speed * speed) * config.liftCoefficient();
+
+    // on ground drag is also the wheels break
+    if (breaks) drag *= 1000;
+    if (breaks && speed < 10) velocity = Vector3Scale(velocity, 0.9f);
+
+    // ground is always stall...
+    lift *= 0.1;
+}
+
+void GameData::applyFlightPhysics() {
     const auto currentSpeed = speed;
     const auto speedRatio = currentSpeed / config.maxSpeed();
-    const auto canRoll = camera.position.y > 40 ? 1.0f : 0.0f;
-    const bool touchGround = camera.position.y <= 10; // todo should take the real height from map
 
     // some effects (arcade style)
     const auto bankInducedYaw = currentSpeed == 0 ? 0.0f : right.y * config.bankInduceYawRatio() * deltaTime;
@@ -100,7 +158,7 @@ void GameData::applyForces() {
     // apply the changes (more speed equals more steering except yaw)
     const auto qPitch = QuaternionFromAxisAngle(right, (controls.Pitch + liftLossPitch) * speedRatio);
     const auto qYaw = QuaternionFromAxisAngle(up, controls.Yaw + bankInducedYaw);
-    const auto qRoll = QuaternionFromAxisAngle(forward, controls.Roll * speedRatio * canRoll);
+    const auto qRoll = QuaternionFromAxisAngle(forward, controls.Roll * speedRatio);
 
     // create turbulence when above VLE speed and gear is open
     auto qTurbulence = QuaternionIdentity();
@@ -129,35 +187,6 @@ void GameData::applyForces() {
 
     // some "physics"
     const auto isStalling = currentSpeed < config.stallSpeed();
-    const auto thrust = throttle * config.engineThrust();
-    auto drag = (currentSpeed * currentSpeed) * config.dragCoefficient();
-    auto lift = (currentSpeed * currentSpeed) * config.liftCoefficient();
-
-    // breaks increase drag by 400% on flying and by 4000% on ground
-    // in order to avoid implementing ground breaks
-    if (breaks) drag *= 4.0;
-    if (breaks && touchGround) drag *= 100.0f;
-    if (breaks && touchGround && speed < 10) velocity = Vector3Scale(velocity, 0.9);
-
-    // gear generate drag
-    if (gear) drag *= 1.8f;
-
-    // stall reduce lift by 90%
-    if (isStalling) lift *= 0.1;
-
-    const float mass = config.weight() / 9.81f;
-
-    // forces vectors
-    const auto thrustForce = Vector3Scale(getForward(), thrust);
-    const auto dragForce = Vector3Scale(getForward(), -drag);
-    const auto liftForce = Vector3Scale(getUp(), lift);
-    const auto weightForce = Vector3Scale(GamePhysics::Gravity, mass);
-
-    const auto total = Vector3Add(Vector3Add(Vector3Add(thrustForce, dragForce), weightForce), liftForce);
-    const auto acceleration = Vector3Scale(total, 1.0f / mass);
-
-    // acceleration
-    velocity = Vector3Add(velocity, Vector3Scale(acceleration, deltaTime));
 
     // weathervaning
     // https://en.wikipedia.org/wiki/Weathervane_effect
@@ -168,31 +197,22 @@ void GameData::applyForces() {
         velocity.z = Lerp(velocity.z, z, 2.0f * deltaTime);
     }
 
-    // limit velocity
-    if (currentSpeed > config.maxSpeed() && currentSpeed != 0.0f) {
-        velocity = Vector3Scale(velocity, config.maxSpeed() / currentSpeed);
-    }
+    thrust = throttle * config.engineThrust();
+    drag = (currentSpeed * currentSpeed) * config.dragCoefficient();
+    lift = (currentSpeed * currentSpeed) * config.liftCoefficient();
 
-    // on ground breaks kill velocity
-    // todo on ground behavior should be different from flying...
-    // if (breaks && canRoll == 0) velocity = Vector3Scale(velocity, 0.9f * deltaTime);
+    // breaks increase drag by 600%
+    if (breaks) drag *= 6.0;
 
-    speed = Vector3Length(velocity);
+    // gear generate drag
+    if (gear) drag *= 1.8f;
+
+    // stall reduce lift by 90%
+    if (isStalling) lift *= 0.1;
 }
 
 void GameData::applyPosition() {
     auto newPosition = Vector3Add(camera.position, Vector3Scale(velocity, deltaTime));
-
-    // without gear this is not a landing but crushing...
-    // if (gear && isStableLanding() && newPosition.y <= 10.0f) {
-    // }
-    // if (!gear && newPosition.y < 3.0f) {
-    //     crashed = true;
-    // }
-    // if (gear && newPosition.y < 10.0f && isStableLanding()) {
-    //
-    // }
-
     // do not go under the ground
     if (newPosition.y <= 10.0f) {
         velocity.y = 0.0f;

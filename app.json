@@ -11,7 +11,7 @@
     "weight": 120000,
     "maxSpeed": 600,
     "minSpeed": 0,
-    "vleSpeed": 200,
+    "vleSpeed": 150,
     "pitchRatio": 0.5,
     "rollRaio": 0.6,
     "yawRatio": 0.5,
@@ -35,7 +35,7 @@
   "screens": {
     "splash": {
       "bgPath": "res/splash.png",
-      "musicPath": "res/sound1.mp3"
+      "musicPath": "res/sound0.mp3"
     },
     "game": {
       "cockpitTexture": "res/cockpit-l.png",

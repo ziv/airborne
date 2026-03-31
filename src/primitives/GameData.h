@@ -36,12 +36,21 @@ class GameData {
     Vector3 up{0};
     Vector3 right{0};
 
+    // changes by the physics methods
+    float thrust = 0.0f;
+    float drag = 0.0f;
+    float lift = 0.0f;
+    // float weight = 0.0f;
 
     void recalcVectors();
 
     void applyState();
 
     void applyForces();
+
+    void applyGroundPhysics();
+
+    void applyFlightPhysics();
 
     void applyPosition();
 

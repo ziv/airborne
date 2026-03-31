@@ -1,6 +1,6 @@
 #include "GaugesView.h"
 
-#include "../utils/loaders.h"
+#include "../primitives/Utils.h"
 
 GaugesView::GaugesView(AppConfig &inputConfig) : View(inputConfig),
                                                  config(UtilsLoaders::LoadJson("res/sprites.json")),

@@ -1,6 +1,5 @@
 #include "GameplayScreen.h"
 #include "primitives/Utils.h"
-#include "utils/loaders.h"
 #include "primitives/AppConfig.h"
 
 constexpr Vector3 l1 = {5000.0f, 1500.0f, 5000};

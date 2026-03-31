@@ -1,5 +1,5 @@
 #include "AppConfig.h"
-#include "../utils/loaders.h"
+#include "../primitives/Utils.h"
 
 AppConfig::AppConfig() {
     config = UtilsLoaders::LoadJson("app.json");
