@@ -50,5 +50,9 @@ add_executable(${PROJECT_NAME} src/main.cpp
         src/core/AircraftCamera.cpp
         src/core/AircraftCamera.h
         src/primitives/Resource.h
+        src/views/MinihudView.cpp
+        src/views/MinihudView.h
+        src/views/WorldView.cpp
+        src/views/WorldView.h
 )
 target_link_libraries(${PROJECT_NAME} PRIVATE raylib)

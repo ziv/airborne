@@ -1,11 +1,12 @@
 #pragma once
 #include "AircraftControls.h"
 #include "raylib.h"
+#include "../primitives/Constants.h"
 
 struct Directions {
     Vector3 forward;
-    Vector3 right;
     Vector3 up;
+    Vector3 right;
 };
 
 /**
@@ -21,9 +22,9 @@ class AircraftTransformation {
 
     // internal state
     Quaternion rotation = {0.0f, 0.0f, 0.0f, 1.0f};
-    Vector3 forward{0};
-    Vector3 up{0};
-    Vector3 right{0};
+    Vector3 forward = GamePhysics::WorldForward;
+    Vector3 up = GamePhysics::WorldUp;
+    Vector3 right = GamePhysics::WorldRight;
 
     void flyingOrientation(float dt, MeterPerSecond speed, const PilotControls &controls);
 

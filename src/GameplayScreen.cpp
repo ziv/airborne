@@ -34,7 +34,8 @@ GameplayScreen::GameplayScreen(AppConfig &inputConfig)
     // SetShaderValue(chromaShader, GetShaderLocation(chromaShader, "threshold"), &thresholdValue, SHADER_UNIFORM_FLOAT);
 
     // todo position should come from the mission data
-    game.aircraftCamera.setPosition((Vector3){6450.0f, config.heightAboveGround, 19100.0f});
+    game.aircraftCamera.setPosition((Vector3){0.0f, config.heightAboveGround, 0.0f});
+    // game.aircraftCamera.setPosition((Vector3){6450.0f, config.heightAboveGround, 19100.0f});
     // game.setPosition((Vector3){6450.0f, config.heightAboveGround, 19100.0f});
 
     // todo waypoints should come from the mission data
@@ -55,44 +56,44 @@ GameplayScreen::~GameplayScreen() {
 
 void GameplayScreen::handleInputs() {
     // steering
-    if (IsKeyDown(KEY_UP)) game.controls.pitch = -config.pitchRatio * game.deltaTime;
-    if (IsKeyDown(KEY_DOWN)) game.controls.pitch = config.pitchRatio * game.deltaTime;
-
-    if (IsKeyDown(KEY_LEFT)) game.controls.roll = -config.rollRatio * game.deltaTime;
-    if (IsKeyDown(KEY_RIGHT)) game.controls.roll = config.rollRatio * game.deltaTime;
-
-    // // todo for debug only, user should not be allow to change YAW directly
-    if (IsKeyDown(KEY_Q)) game.controls.yaw = config.yawRatio * game.deltaTime;
-    if (IsKeyDown(KEY_E)) game.controls.yaw = -config.yawRatio * game.deltaTime;
-
-    // throttling
-    if (IsKeyDown(KEY_ZERO)) game.throttle = 0.0f;
-    if (IsKeyDown(KEY_ONE)) game.throttle = 0.1f;
-    if (IsKeyDown(KEY_TWO)) game.throttle = 0.2f;
-    if (IsKeyDown(KEY_THREE)) game.throttle = 0.3f;
-    if (IsKeyDown(KEY_FOUR)) game.throttle = 0.4f;
-    if (IsKeyDown(KEY_FIVE)) game.throttle = 0.5f;
-    if (IsKeyDown(KEY_SIX)) game.throttle = 0.6f;
-    if (IsKeyDown(KEY_SEVEN)) game.throttle = 0.7f;
-    if (IsKeyDown(KEY_EIGHT)) game.throttle = 0.8f;
-    if (IsKeyDown(KEY_NINE)) game.throttle = 0.9f;
-    if (IsKeyDown(KEY_A)) game.throttle = 1.2f; // after burners
-
-    // increase/decrease throttle
-    if (IsKeyDown(KEY_MINUS)) game.throttle -= 0.05f * game.deltaTime;
-    if (IsKeyDown(KEY_EQUAL)) game.throttle += 0.05f * game.deltaTime;
-
-    // breaks
-    if (IsKeyPressed(KEY_B)) game.breaks = !game.breaks;
-    if (IsKeyPressed(KEY_G)) game.gear = !game.gear;
+    // if (IsKeyDown(KEY_UP)) game.controls.pitch = -config.pitchRatio * game.deltaTime;
+    // if (IsKeyDown(KEY_DOWN)) game.controls.pitch = config.pitchRatio * game.deltaTime;
+    //
+    // if (IsKeyDown(KEY_LEFT)) game.controls.roll = -config.rollRatio * game.deltaTime;
+    // if (IsKeyDown(KEY_RIGHT)) game.controls.roll = config.rollRatio * game.deltaTime;
+    //
+    // // // todo for debug only, user should not be allow to change YAW directly
+    // if (IsKeyDown(KEY_Q)) game.controls.yaw = config.yawRatio * game.deltaTime;
+    // if (IsKeyDown(KEY_E)) game.controls.yaw = -config.yawRatio * game.deltaTime;
+    //
+    // // throttling
+    // if (IsKeyDown(KEY_ZERO)) game.throttle = 0.0f;
+    // if (IsKeyDown(KEY_ONE)) game.throttle = 0.1f;
+    // if (IsKeyDown(KEY_TWO)) game.throttle = 0.2f;
+    // if (IsKeyDown(KEY_THREE)) game.throttle = 0.3f;
+    // if (IsKeyDown(KEY_FOUR)) game.throttle = 0.4f;
+    // if (IsKeyDown(KEY_FIVE)) game.throttle = 0.5f;
+    // if (IsKeyDown(KEY_SIX)) game.throttle = 0.6f;
+    // if (IsKeyDown(KEY_SEVEN)) game.throttle = 0.7f;
+    // if (IsKeyDown(KEY_EIGHT)) game.throttle = 0.8f;
+    // if (IsKeyDown(KEY_NINE)) game.throttle = 0.9f;
+    // if (IsKeyDown(KEY_A)) game.throttle = 1.2f; // after burners
+    //
+    // // increase/decrease throttle
+    // if (IsKeyDown(KEY_MINUS)) game.throttle -= 0.05f * game.deltaTime;
+    // if (IsKeyDown(KEY_EQUAL)) game.throttle += 0.05f * game.deltaTime;
+    //
+    // // breaks
+    // if (IsKeyPressed(KEY_B)) game.breaks = !game.breaks;
+    // if (IsKeyPressed(KEY_G)) game.gear = !game.gear;
 }
 
 void GameplayScreen::handleSounds() const {
-    const float targetPitch = 0.8f + (game.throttle * 0.7f);
-    const float targetVolume = 0.2f + (game.throttle * 0.9f);
-    SetMusicPitch(engine, targetPitch);
-    SetMusicVolume(engine, targetVolume);
-    UpdateMusicStream(engine);
+    // const float targetPitch = 0.8f + (game.throttle * 0.7f);
+    // const float targetVolume = 0.2f + (game.throttle * 0.9f);
+    // SetMusicPitch(engine, targetPitch);
+    // SetMusicVolume(engine, targetVolume);
+    // UpdateMusicStream(engine);
 }
 
 ScreenState GameplayScreen::update() {
@@ -102,7 +103,7 @@ ScreenState GameplayScreen::update() {
 
     // start update
     game.tick();
-    handleSounds();
+    // handleSounds();
 
     // update views
     // for (const auto &view: views) {
@@ -135,21 +136,21 @@ void GameplayScreen::run() {
     // @formatter:off
     ClearBackground(BLUE);
 
-    BeginMode3D(game.getCamera());
-        if (config.showGrid) DrawGrid(100, 20.0f);
-
-        DrawCube(l1, 10.0f, 10.0f, 10.0f, RED);
-        DrawCube(l2, 10.0f, 10.0f, 10.0f, RED);
-        DrawCube(l3, 10.0f, 10.0f, 10.0f, RED);
-        DrawCube(l4, 10.0f, 10.0f, 10.0f, RED);
-
-
-        DrawModel(map, (Vector3){0.0f, 0.0f, 0.0f}, 1.0f, WHITE);
-        DrawModel(futuristicCity, (Vector3){6400.0f, 0.0f, 19800.0f}, 0.005f, WHITE);
-        // DrawModel(aircraft.model, (Vector3){10.0, 10.0, 10.0}, 1.0f, RED);
+    BeginMode3D(game.aircraftCamera.getCamera());
+        DrawGrid(100, 20.0f);
+    //
+    //     DrawCube(l1, 10.0f, 10.0f, 10.0f, RED);
+    //     DrawCube(l2, 10.0f, 10.0f, 10.0f, RED);
+    //     DrawCube(l3, 10.0f, 10.0f, 10.0f, RED);
+    //     DrawCube(l4, 10.0f, 10.0f, 10.0f, RED);
+    //
+    //
+    //     // DrawModel(map, (Vector3){0.0f, 0.0f, 0.0f}, 1.0f, WHITE);
+    //     // DrawModel(futuristicCity, (Vector3){6400.0f, 0.0f, 19800.0f}, 0.005f, WHITE);
+    //     // DrawModel(aircraft.model, (Vector3){10.0, 10.0, 10.0}, 1.0f, RED);
     EndMode3D();
 
-    cockpitView.draw();
+    // cockpitView.draw();
     const auto position = game.aircraftCamera.getCamera().position;
     const auto controls = game.aircraftControls.getControls();
     const auto speed = game.aircraftPhysics.getSpeed();

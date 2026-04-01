@@ -1,7 +1,7 @@
 #include "CockpitView.h"
 
 CockpitView::CockpitView(const AppConfig &config) : cockpitTexture(LoadTexture(config.gameCockpitTexture.c_str())),
-                                                         cockpitShader(LoadShader(nullptr, config.gameCockpitChroma.c_str())) {
+                                                    cockpitShader(LoadShader(nullptr, config.gameCockpitChroma.c_str())) {
     constexpr float thresholdValue = 0.5f;
     SetShaderValue(cockpitShader, GetShaderLocation(cockpitShader, "threshold"), &thresholdValue, SHADER_UNIFORM_FLOAT);
 }

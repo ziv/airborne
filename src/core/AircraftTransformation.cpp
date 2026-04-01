@@ -72,7 +72,6 @@ void AircraftTransformation::groundOrientation(const MeterPerSecond speed, const
 
     // update the quaternion and normalize, then recalculate vectors
     const auto qDelta = QuaternionMultiply(qYaw, QuaternionMultiply(qPitch, qRoll));
-
     rotation = QuaternionNormalize(QuaternionMultiply(qDelta, rotation));
     recalculateDirectionVectors();
 }
