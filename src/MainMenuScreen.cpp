@@ -1,6 +1,5 @@
 #include "MainMenuScreen.h"
 #include "raylib.h"
-#include "lib/raygui.h"
 
 ScreenState MainMenuScreen::update() {
     if (IsKeyPressed(KEY_ENTER) || IsKeyPressed(KEY_SPACE)) {
@@ -19,7 +18,4 @@ void MainMenuScreen::run() {
     DrawText("[+/-] - Increase/Decrease thrust", 50, 250, 20, GREEN);
     DrawText("[ESC] - Exit", 50, 280, 20, GREEN);
     DrawText("Press [SPACE/ENTER] to start the game", 50, 330, 20, PURPLE);
-
-
-    // GuiButton((Rectangle){50, 100, 120, 30}, "#190#Exit");
 }
