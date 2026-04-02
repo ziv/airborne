@@ -8,23 +8,29 @@
 #include "SplashScreen.h"
 #include "GameplayScreen.h"
 #include "core/AppConfig.h"
+#include "primitives/Logger.h"
 
 int main() {
-    SetTraceLogLevel(LOG_INFO);
+    SetTraceLogCallback(CustomLogCallback);
+    SetTraceLogLevel(LOG_DEBUG);
     SetConfigFlags(FLAG_VSYNC_HINT);
+
+    // todo make a check before changing the directory to avoid the warning
+    ChangeDirectory(TextFormat("%s../Resources", GetApplicationDirectory()));
+    TraceLog(LOG_DEBUG, "Working directory is: %s", GetWorkingDirectory());
 
     const auto config = std::make_unique<AppConfig>();
 
     InitAudioDevice();
     InitWindow(
-        config->screenWidth,
-        config->screenHeight,
-        config->name.c_str()
+        config->get<int>("/config/screenWidth"),
+        config->get<int>("/config/screenHeight"),
+        config->get<std::string_view>("/name").data()
     );
 
     SetTargetFPS(60);
     // set how far we can see in 3d mode
-    rlSetClipPlanes(1.0f, config->clipPlans);
+    rlSetClipPlanes(config->get<float>("/config/nearPlane"), config->get<float>("/config/farPlane"));
 
     // load first screen
     std::unique_ptr<GameScreen> currentScreen = std::make_unique<SplashScreen>(*config);
@@ -54,7 +60,7 @@ int main() {
         EndDrawing();
     }
 
-    CloseAudioDevice();
     CloseWindow();
+    CloseAudioDevice();
     return 0;
 }

@@ -1,18 +1,16 @@
 #pragma once
 #include <vector>
 #include "raylib.h"
-#include "../primitives/View.h"
 #include "../core/GameData.h"
 
-class HudView : public View {
+class HudView {
     char current = 0;
     std::pmr::vector<Color> colrs = {GREEN, WHITE, BLACK};
 
 public:
-    explicit HudView(AppConfig &inputConfig) : View(inputConfig) {
-    }
+    explicit HudView(AppConfig &inputConfig);
 
-    void update(const GameData &game) override;
+    void update(const GameData &game);
 
-    void draw(const GameData &game) override;
+    void draw(const GameData &game);
 };

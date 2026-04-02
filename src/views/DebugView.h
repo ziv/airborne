@@ -1,8 +1,15 @@
 #pragma once
-#include "raylib.h"
-#include "../core/AircraftControls.h"
+#include "../core/GameData.h"
 
 class DebugView {
+    GameData &game;
+
+    bool display = true;
+
 public:
-    void draw(const Vector3 &position, const PilotControls &controls, float speed);
+    explicit DebugView(GameData &game);
+
+    void update();
+
+    void draw() const;
 };

@@ -23,6 +23,7 @@ void GameData::tmp() {
     // todo this is a naive solution, improve it
     const auto flying = getPosition().y > config.heightAboveGround || speed > config.stallSpeed;
 
+
     // first, read controls state
     aircraftControls.update(dt);
 
@@ -38,8 +39,9 @@ void GameData::update() {
 
     // todo this is a naive solution, improve it
     // todo check for crashing
-    const auto flying = getPosition().y > config.heightAboveGround || speed > config.stallSpeed;
+    const auto flying = aircraftCamera.getCamera().position.y > config.heightAboveGround || speed > config.stallSpeed;
 
+    // TraceLog(LOG_INFO, "f=%i", flying);
     // first, read controls state
     aircraftControls.update(dt);
 

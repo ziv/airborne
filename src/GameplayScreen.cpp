@@ -1,4 +1,6 @@
 #include "GameplayScreen.h"
+
+#include "rlgl.h"
 #include "primitives/Utils.h"
 #include "core/AppConfig.h"
 
@@ -13,6 +15,8 @@ GameplayScreen::GameplayScreen(AppConfig &inputConfig)
     : GameScreen(inputConfig),
       game(inputConfig),
       cockpitView(inputConfig),
+      debugView(game),
+      navballView(inputConfig),
       // autopilot(inputConfig.maxBankAngle, inputConfig.maxPullRatio, inputConfig.speedRatio),
       // cockpit(LoadTexture(inputConfig.gameCockpitTexture.data())),
       // chromaShader(LoadShader(nullptr, inputConfig.gameCockpitChroma.data())),
@@ -54,53 +58,56 @@ GameplayScreen::~GameplayScreen() {
     UnloadMusicStream(engine);
 }
 
-void GameplayScreen::handleInputs() {
-    // steering
-    // if (IsKeyDown(KEY_UP)) game.controls.pitch = -config.pitchRatio * game.deltaTime;
-    // if (IsKeyDown(KEY_DOWN)) game.controls.pitch = config.pitchRatio * game.deltaTime;
-    //
-    // if (IsKeyDown(KEY_LEFT)) game.controls.roll = -config.rollRatio * game.deltaTime;
-    // if (IsKeyDown(KEY_RIGHT)) game.controls.roll = config.rollRatio * game.deltaTime;
-    //
-    // // // todo for debug only, user should not be allow to change YAW directly
-    // if (IsKeyDown(KEY_Q)) game.controls.yaw = config.yawRatio * game.deltaTime;
-    // if (IsKeyDown(KEY_E)) game.controls.yaw = -config.yawRatio * game.deltaTime;
-    //
-    // // throttling
-    // if (IsKeyDown(KEY_ZERO)) game.throttle = 0.0f;
-    // if (IsKeyDown(KEY_ONE)) game.throttle = 0.1f;
-    // if (IsKeyDown(KEY_TWO)) game.throttle = 0.2f;
-    // if (IsKeyDown(KEY_THREE)) game.throttle = 0.3f;
-    // if (IsKeyDown(KEY_FOUR)) game.throttle = 0.4f;
-    // if (IsKeyDown(KEY_FIVE)) game.throttle = 0.5f;
-    // if (IsKeyDown(KEY_SIX)) game.throttle = 0.6f;
-    // if (IsKeyDown(KEY_SEVEN)) game.throttle = 0.7f;
-    // if (IsKeyDown(KEY_EIGHT)) game.throttle = 0.8f;
-    // if (IsKeyDown(KEY_NINE)) game.throttle = 0.9f;
-    // if (IsKeyDown(KEY_A)) game.throttle = 1.2f; // after burners
-    //
-    // // increase/decrease throttle
-    // if (IsKeyDown(KEY_MINUS)) game.throttle -= 0.05f * game.deltaTime;
-    // if (IsKeyDown(KEY_EQUAL)) game.throttle += 0.05f * game.deltaTime;
-    //
-    // // breaks
-    // if (IsKeyPressed(KEY_B)) game.breaks = !game.breaks;
-    // if (IsKeyPressed(KEY_G)) game.gear = !game.gear;
-}
-
-void GameplayScreen::handleSounds() const {
-    // const float targetPitch = 0.8f + (game.throttle * 0.7f);
-    // const float targetVolume = 0.2f + (game.throttle * 0.9f);
-    // SetMusicPitch(engine, targetPitch);
-    // SetMusicVolume(engine, targetVolume);
-    // UpdateMusicStream(engine);
-}
+// void GameplayScreen::handleInputs() {
+// steering
+// if (IsKeyDown(KEY_UP)) game.controls.pitch = -config.pitchRatio * game.deltaTime;
+// if (IsKeyDown(KEY_DOWN)) game.controls.pitch = config.pitchRatio * game.deltaTime;
+//
+// if (IsKeyDown(KEY_LEFT)) game.controls.roll = -config.rollRatio * game.deltaTime;
+// if (IsKeyDown(KEY_RIGHT)) game.controls.roll = config.rollRatio * game.deltaTime;
+//
+// // // todo for debug only, user should not be allow to change YAW directly
+// if (IsKeyDown(KEY_Q)) game.controls.yaw = config.yawRatio * game.deltaTime;
+// if (IsKeyDown(KEY_E)) game.controls.yaw = -config.yawRatio * game.deltaTime;
+//
+// // throttling
+// if (IsKeyDown(KEY_ZERO)) game.throttle = 0.0f;
+// if (IsKeyDown(KEY_ONE)) game.throttle = 0.1f;
+// if (IsKeyDown(KEY_TWO)) game.throttle = 0.2f;
+// if (IsKeyDown(KEY_THREE)) game.throttle = 0.3f;
+// if (IsKeyDown(KEY_FOUR)) game.throttle = 0.4f;
+// if (IsKeyDown(KEY_FIVE)) game.throttle = 0.5f;
+// if (IsKeyDown(KEY_SIX)) game.throttle = 0.6f;
+// if (IsKeyDown(KEY_SEVEN)) game.throttle = 0.7f;
+// if (IsKeyDown(KEY_EIGHT)) game.throttle = 0.8f;
+// if (IsKeyDown(KEY_NINE)) game.throttle = 0.9f;
+// if (IsKeyDown(KEY_A)) game.throttle = 1.2f; // after burners
+//
+// // increase/decrease throttle
+// if (IsKeyDown(KEY_MINUS)) game.throttle -= 0.05f * game.deltaTime;
+// if (IsKeyDown(KEY_EQUAL)) game.throttle += 0.05f * game.deltaTime;
+//
+// // breaks
+// if (IsKeyPressed(KEY_B)) game.breaks = !game.breaks;
+// if (IsKeyPressed(KEY_G)) game.gear = !game.gear;
+// }
+//
+// void GameplayScreen::handleSounds() const {
+//     // const float targetPitch = 0.8f + (game.throttle * 0.7f);
+//     // const float targetVolume = 0.2f + (game.throttle * 0.9f);
+//     // SetMusicPitch(engine, targetPitch);
+//     // SetMusicVolume(engine, targetVolume);
+//     // UpdateMusicStream(engine);
+// }
 
 ScreenState GameplayScreen::update() {
     // pause game
     if (IsKeyPressed(KEY_L)) game.paused = !game.paused;
     if (game.paused) return ScreenState::GAMEPLAY;
 
+    if (IsKeyPressed(KEY_M)) {
+        game.aircraftCamera.getCamera().position = (Vector3){0.0f, 3.0f, 0.0f};
+    }
     // start update
     game.tick();
     // handleSounds();
@@ -136,8 +143,23 @@ void GameplayScreen::run() {
     // @formatter:off
     ClearBackground(BLUE);
 
+    const auto camera = game.aircraftCamera.getCamera();
+    const auto controls = game.aircraftControls.getControls();
+    const auto speed = game.aircraftPhysics.getSpeed();
+    const auto directions = game.aircraftTransformation.getDirections();
+
+    Vector3 center = Vector3Add(camera.position, Vector3Scale(directions.forward, 5.0f));
+    Vector3 x = Vector3Add(center, Vector3Scale(GamePhysics::WorldRight, 10.0f));
+    Vector3 y = Vector3Add(center, Vector3Scale(GamePhysics::WorldRight, -10.0f));
+
+    const auto c = GetWorldToScreen(center, camera);
+    const auto cx = GetWorldToScreen(x, camera);
+    const auto cy = GetWorldToScreen(y, camera);
+
+
     BeginMode3D(game.aircraftCamera.getCamera());
         DrawGrid(100, 20.0f);
+
     //
     //     DrawCube(l1, 10.0f, 10.0f, 10.0f, RED);
     //     DrawCube(l2, 10.0f, 10.0f, 10.0f, RED);
@@ -148,13 +170,20 @@ void GameplayScreen::run() {
     //     // DrawModel(map, (Vector3){0.0f, 0.0f, 0.0f}, 1.0f, WHITE);
     //     // DrawModel(futuristicCity, (Vector3){6400.0f, 0.0f, 19800.0f}, 0.005f, WHITE);
     //     // DrawModel(aircraft.model, (Vector3){10.0, 10.0, 10.0}, 1.0f, RED);
+    // rlDisableDepthTest();
+    // minihudView.draw(game.aircraftCamera.getCamera(), game.aircraftTransformation.getDirections(), game.aircraftTransformation.getRotation());
+    // rlEnableDepthTest();
+
     EndMode3D();
 
-    // cockpitView.draw();
-    const auto position = game.aircraftCamera.getCamera().position;
-    const auto controls = game.aircraftControls.getControls();
-    const auto speed = game.aircraftPhysics.getSpeed();
-    debugView.draw(position, controls, speed);
+    cockpitView.draw();
+
+    BeginMode3D(game.aircraftCamera.getCamera());
+        navballView.draw(camera.position, directions);
+    EndMode3D();
+    DrawLineEx(c, cx, 3, BLACK);
+    DrawLineEx(c, cy, 3, WHITE);
+    debugView.draw();
     // BeginShaderMode(chromaShader);
     //     DrawTextureEx(cockpit, {0.0f, -270.0f}, 0, 1.0f, WHITE);
     // EndShaderMode();

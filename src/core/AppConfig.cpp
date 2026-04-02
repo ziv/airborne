@@ -1,14 +1,26 @@
 #include "AppConfig.h"
 #include "../primitives/Utils.h"
 
-AppConfig::AppConfig() {
-    const json config = UtilsLoaders::LoadJson("app.json");
+const nlohmann::json &AppConfig::getNode(const std::string &path) const {
+    try {
+        return config.at(nlohmann::json::json_pointer(path));
+    } catch (const nlohmann::json::exception &e) {
+        std::cerr << "[Config Error] Missing or invalid path: "
+                << path
+                << "\n"
+                << "Reason: "
+                << e.what()
+                << "\n";
+        throw std::runtime_error("Config path not found: " + path);
+    }
+}
 
+AppConfig::AppConfig() : config(UtilsLoaders::LoadJson("config/app.jsonc")) {
     name = config["name"].get<std::string>();
 
     screenWidth = config["config"]["screenWidth"].get<int>();
     screenHeight = config["config"]["screenHeight"].get<int>();
-    clipPlans = config["config"]["clipPlans"].get<int>();
+    // clipPlans = config["config"]["clipPlans"].get<int>();
 
     splashBgPath = config["splash"]["bgPath"].get<std::string>();
     splashMusicPath = config["splash"]["musicPath"].get<std::string>();
@@ -49,4 +61,20 @@ AppConfig::AppConfig() {
 
     gaugeSprite = config["views"]["gaugeSprite"].get<std::string>();
     gaugeSprite = config["views"]["gaugeSpriteJson"].get<std::string>();
+}
+
+std::string_view AppConfig::s(const std::string &path) const {
+    return getNode(path).get<std::string_view>();
+}
+
+const char *AppConfig::c(const std::string &path) const {
+    return getNode(path).get<std::string_view>().data();
+}
+
+int AppConfig::i(const std::string &path) const {
+    return getNode(path).get<int>();
+}
+
+float AppConfig::f(const std::string &path) const {
+    return getNode(path).get<float>();
 }

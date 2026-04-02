@@ -48,7 +48,10 @@
   },
   "views": {
     "gaugeSprite": "res/sprites.png",
-    "gaugeSpriteJson": "res/sprites.json"
+    "gaugeSpriteJson": "res/sprites.json",
+    "navballTexture": "res/navballs/j.png",
+    "navballRadius": 0.3,
+    "navballRings": 32
   },
   "development": {
     "showGrid": true

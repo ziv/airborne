@@ -5,28 +5,30 @@
 template<typename T, void (*Unloader)(T)>
 class RaylibResource {
     T res;
+    bool has_ownership;
 
 public:
-    explicit RaylibResource(T loadedResource) : res(loadedResource) {
+    explicit RaylibResource(T loadedResource) : res(loadedResource), has_ownership(true) {
     }
 
     ~RaylibResource() {
-        if (res.id != 0) {
+        if (has_ownership) {
             Unloader(res);
         }
     }
 
-    // move constructor mark resource for deletion
-    RaylibResource(RaylibResource &&other) noexcept : res(other.res) {
-        other.res.id = 0;
+    /// @brief move constructor mark remove the ownership from the source
+    RaylibResource(RaylibResource &&other) noexcept : res(other.res), has_ownership(other.has_ownership) {
+        other.has_ownership = false;
     }
 
     // move assignment make sure to unload current
     RaylibResource &operator=(RaylibResource &&other) noexcept {
         if (this != &other) {
-            if (res.id != 0) Unloader(res);
+            if (has_ownership) Unloader(res);
             res = other.res;
-            other.res.id = 0;
+            has_ownership = other.has_ownership;
+            other.has_ownership = false;
         }
         return *this;
     }
@@ -47,3 +49,6 @@ public:
 using TextureHandle = RaylibResource<Texture2D, UnloadTexture>;
 using ShaderHandle = RaylibResource<Shader, UnloadShader>;
 using ModelHandle = RaylibResource<Model, UnloadModel>;
+using MusicHandle = RaylibResource<Music, UnloadMusicStream>;
+using SoundHandle = RaylibResource<Sound, UnloadSound>;
+using FontHandle = RaylibResource<Font, UnloadFont>;

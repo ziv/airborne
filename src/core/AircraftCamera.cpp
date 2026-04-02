@@ -14,6 +14,7 @@ void AircraftCamera::update(const float dt, const Directions &directions, const 
 
     // todo temporary solution to not go under ground
     // todo should we use "flying" param?
+    // todo the crash/landing system should solve this
     if (camera.position.y <= heightAboveGround) {
         camera.position.y = heightAboveGround;
     }

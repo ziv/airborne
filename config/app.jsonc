@@ -1,0 +1,69 @@
+{
+  "version": "0.0.0",
+  "name": "airborne",
+  "config": {
+    "screenWidth": 1200,
+    "screenHeight": 800,
+    // rClipPlane: how far we see the world in 3d mode
+    "nearPlane": 1,
+    "farPlane": 30000
+  },
+  "airplane": {
+    // where the pilot sit
+    "heightAboveGround": 3,
+    // N
+    "weight": 120000,
+    "engineThrust": 130000,
+    // m/s
+    "maxSpeed": 600,
+    "minSpeed": 0,
+    "vleSpeed": 150,
+    "stallSpeed": 65,
+    // @see https://ziv.github.io/airborne/posts/numbers/
+    "liftCoefficient": 1.92,
+    "dragCoefficient": 0.36,
+    // effects
+    "bankInduceYawRatio": 0.2,
+    "liftLossPitchRatio": 0.1,
+    // the feel of the stick
+    "pitchRatio": 0.5,
+    "rollRatio": 0.6,
+    "yawRatio": 0.5,
+    "acceleration": 80
+  },
+  "pilot": {
+    // field of view a little bit wider than the human FOV for wider sight
+    "fov": 85,
+    // look down a little bit (I used 0.45 for better view)
+    "tilt": 0
+  },
+  "autoPilot": {
+    "maxBankAngle": 60,
+    "pullRatio": 0.8,
+    "speedRatio": 0.1
+  },
+  "splash": {
+    "bgPath": "res/splash.png",
+    "musicPath": "res/sound0.mp3"
+  },
+  "game": {
+    "cockpitTexture": "res/cockpit-m.png",
+    "cockpitChroma": "shaders/chromakey.fs",
+    "engineSound": "res/engine.mp3",
+    "mapTexture": "res/tx.png",
+    "mapHeightmap": "res/hm.png",
+    "mapSizeX": 32000,
+    "mapSizeZ": 32000,
+    "mapSizeY": 3200
+  },
+  "views": {
+    "gaugeSprite": "res/sprites.png",
+    "gaugeSpriteJson": "res/sprites.json",
+    "navballTexture": "res/navballs/j.png",
+    "navballRadius": 0.3,
+    "navballRings": 32
+  },
+  "development": {
+    "showGrid": true
+  }
+}

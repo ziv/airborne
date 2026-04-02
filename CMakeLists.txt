@@ -34,7 +34,6 @@ add_executable(${PROJECT_NAME} src/main.cpp
         src/items/Structure.h
         src/items/Aircraft.cpp
         src/items/Aircraft.h
-        src/primitives/View.h
         src/lib/gui_impl.cpp
         src/views/CockpitView.cpp
         src/views/CockpitView.h
@@ -54,5 +53,9 @@ add_executable(${PROJECT_NAME} src/main.cpp
         src/views/MinihudView.h
         src/views/WorldView.cpp
         src/views/WorldView.h
+        src/views/NavballView.cpp
+        src/views/NavballView.h
+        src/primitives/Logger.h
+        src/SplashScreen.cpp
 )
 target_link_libraries(${PROJECT_NAME} PRIVATE raylib)

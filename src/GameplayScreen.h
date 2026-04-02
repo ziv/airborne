@@ -4,6 +4,8 @@
 #include "core/GameData.h"
 #include "views/CockpitView.h"
 #include "views/DebugView.h"
+#include "views/MinihudView.h"
+#include "views/NavballView.h"
 
 class GameplayScreen : public GameScreen {
 
@@ -16,6 +18,8 @@ class GameplayScreen : public GameScreen {
     // views
     CockpitView cockpitView;
     DebugView debugView;
+    MinihudView minihudView;
+    NavballView navballView;
 
     // controllers
     // Autopilot autopilot;
@@ -34,8 +38,8 @@ class GameplayScreen : public GameScreen {
     Model map{};
 
     Model futuristicCity = LoadModel("res/futuristic_city.glb");
-    void handleInputs();
-    void handleSounds() const;
+    // void handleInputs();
+    // void handleSounds() const;
 public:
     explicit GameplayScreen(AppConfig &inputConfig);
 

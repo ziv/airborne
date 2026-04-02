@@ -1,4 +1,5 @@
 #pragma once
+// todo clean all irelevant include
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -25,6 +26,7 @@ inline Vector3 GetFlatRight(const Vector3 &currentForward, const Vector3 &curren
     return Vector3Normalize(Vector3CrossProduct(currentForward, currentUp));
 }
 
+// todo replace with somthing better
 inline std::string FormatNumber(const float num) {
     std::stringstream ss;
     if (num >= 1000000) {
@@ -39,8 +41,7 @@ inline std::string FormatNumber(const float num) {
 
 
 namespace UtilsLoaders {
-    inline Model loadTerrain(std::string_view texturePath, std::string_view heightmapPath, const Vector3 size)
-    {
+    inline Model loadTerrain(std::string_view texturePath, std::string_view heightmapPath, const Vector3 size) {
         const Image textureImage = LoadImage(texturePath.data());
         const Texture2D texture = LoadTextureFromImage(textureImage);
         UnloadImage(textureImage);
@@ -59,10 +60,10 @@ namespace UtilsLoaders {
     inline json LoadJson(const std::string &path) {
         std::ifstream file(path);
         if (!file.is_open()) {
-            throw std::runtime_error("[LoadJson] Could not open app.json");
+            TraceLog(LOG_ERROR, TextFormat("[LoadJson] unable to open file: %s", path.c_str()));
+            throw std::runtime_error("[LoadJson] unable to open file");
         }
-        json data;
-        file >> data;
+        json data = json::parse(file, nullptr, true, true);
         file.close();
         TraceLog(LOG_INFO, TextFormat("[LoadJson] file %s loaded", path.c_str()));
         return data;
