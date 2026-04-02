@@ -1,30 +1,25 @@
 #pragma once
-#include "AircraftControls.h"
+#include "AppConfig.h"
 #include "raylib.h"
+#include "AircraftStructs.h"
 #include "../primitives/Constants.h"
+#include "../primitives/Types.h"
 
-struct Directions {
-    Vector3 forward;
-    Vector3 up;
-    Vector3 right;
-};
 
 /**
- * Holds the direction of the aircraft in 3d space
+ * Holds the direction/orientation of the aircraft in 3d space
  */
 class AircraftTransformation {
     // configuration
     MeterPerSecond maxSpeed;
     MeterPerSecond vleSpeed;
     MeterPerSecond stallSpeed;
-    float bankInduceYawRatio;
-    float liftLossPitchRatio;
+    Ratio bankInduceYawRatio;
+    Ratio liftLossPitchRatio;
 
     // internal state
     Quaternion rotation = {0.0f, 0.0f, 0.0f, 1.0f};
-    Vector3 forward = GamePhysics::WorldForward;
-    Vector3 up = GamePhysics::WorldUp;
-    Vector3 right = GamePhysics::WorldRight;
+    Directions dir = {GamePhysics::WorldForward, GamePhysics::WorldUp, GamePhysics::WorldRight};
 
     void flyingOrientation(float dt, MeterPerSecond speed, const PilotControls &controls);
 
@@ -35,9 +30,9 @@ class AircraftTransformation {
 public:
     explicit AircraftTransformation(const AppConfig &config);
 
-    void update(float dt, bool flying, const PilotControls &controls, MeterPerSecond speed);
+    void update(float dt, bool flying, const PilotControls &controls, const ForcesState &forces);
 
-    [[nodiscard]] Quaternion getRotation() const;
+    [[nodiscard]] Quaternion &getRotation();
 
-    [[nodiscard]] Directions getDirections() const;
+    [[nodiscard]] Directions &getDirections();
 };

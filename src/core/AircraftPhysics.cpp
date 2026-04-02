@@ -2,68 +2,66 @@
 #include "../primitives/Constants.h"
 #include "raymath.h"
 
-AircraftPhysics::AircraftPhysics(const AppConfig &config) : weight(config.weight),
-                                                            engineThrust(config.engineThrust),
-                                                            maxSpeed(config.maxSpeed),
-                                                            stallSpeed(config.stallSpeed),
-                                                            dragCoefficient(config.dragCoefficient),
-                                                            liftCoefficient(config.liftCoefficient) {
+AircraftPhysics::AircraftPhysics(const AppConfig &config) : weight(config.get<float>("/airplane/weight")),
+                                                            engineThrust(config.get<float>("/airplane/engineThrust")),
+                                                            maxSpeed(config.get<float>("/airplane/maxSpeed")),
+                                                            stallSpeed(config.get<float>("/airplane/stallSpeed")),
+                                                            groundBrakesSpeed(config.get<float>("/airplane/groundBrakesSpeed")),
+                                                            dragCoefficient(config.get<float>("/airplane/dragCoefficient")),
+                                                            liftCoefficient(config.get<float>("/airplane/liftCoefficient")),
+                                                            flyingBrakesDragRatio(config.get<float>("/airplane/flyingBrakesDragRatio")),
+                                                            flyingGearDragRatio(config.get<float>("/airplane/flyingGearDragRatio")),
+                                                            groundBrakesDragRatio(config.get<float>("/airplane/groundBrakesDragRatio")),
+                                                            stallLiftRatio(config.get<float>("/airplane/stallLiftRatio")) {
 }
 
 void AircraftPhysics::update(const float dt,
                              const bool flying,
                              const PilotControls &controls,
                              const Directions &dir) {
-    thrust = controls.throttle * engineThrust;
-    drag = (speed * speed) * dragCoefficient;
-    lift = (speed * speed) * liftCoefficient;
+    forces.thrust = controls.throttle * engineThrust;
+    forces.drag = (forces.speed * forces.speed) * dragCoefficient;
+    forces.lift = (forces.speed * forces.speed) * liftCoefficient;
 
+    // the aircraft behavior flying vs driving
     if (flying) {
-        // breaks increase drag by 600%
-        if (controls.brakes) drag *= 6.0f;
-        // gear generate drag
-        if (controls.gear) drag *= 1.8f;
-        // stall reduce lift by 90%
-        if (speed < stallSpeed) lift *= 0.1f;
+        if (controls.brakes) forces.drag *= flyingBrakesDragRatio; // breaks increase drag by 600%
+        if (controls.gear) forces.drag *= flyingGearDragRatio; // gear generate drag
+        if (forces.speed < stallSpeed) forces.lift *= stallLiftRatio; // stall reduce lift by 90%
     } else {
-        // on ground, drag mimic the wheels brakes
-        if (controls.brakes) drag *= 1000.0f;
-        // drag alone is not enough, when we reach the limit, we reduce the speed by force
-        if (controls.brakes && speed < 10.0f) velocity = Vector3Scale(velocity, 0.9f);
-        // always stall
-        lift *= 0.1f;
-        // on ground there is no more velocity down
-        if (velocity.y < 0.0f) velocity.y = 0.0f;
+        if (controls.brakes) forces.drag *= groundBrakesDragRatio; // on ground, drag mimic the wheels brakes
+        if (controls.brakes && forces.speed < groundBrakesSpeed) forces.velocity = Vector3Scale(forces.velocity, 0.9f);
+        forces.lift *= stallLiftRatio; // always stall
+        if (forces.velocity.y < 0.0f) forces.velocity.y = 0.0f; // on ground there is no more velocity down
     }
-
 
     const float mass = weight / 9.81f;
 
     // forces vectors
-    const auto thrustForce = Vector3Scale(dir.forward, thrust);
-    const auto dragForce = Vector3Scale(dir.forward, -drag);
-    const auto liftForce = Vector3Scale(dir.up, lift);
+    const auto thrustForce = Vector3Scale(dir.forward, forces.thrust);
+    const auto dragForce = Vector3Scale(dir.forward, -forces.drag);
+    const auto liftForce = Vector3Scale(dir.up, forces.lift);
     const auto weightForce = Vector3Scale(GamePhysics::Gravity, mass);
 
     const auto total = Vector3Add(Vector3Add(Vector3Add(thrustForce, dragForce), weightForce), liftForce);
     const auto acceleration = Vector3Scale(total, 1.0f / mass);
 
     // acceleration
-    velocity = Vector3Add(velocity, Vector3Scale(acceleration, dt));
-    speed = Vector3Length(velocity);
+    forces.velocity = Vector3Add(forces.velocity, Vector3Scale(acceleration, dt));
+    forces.speed = Vector3Length(forces.velocity);
 
     // limit velocity
-    if (speed > maxSpeed && speed != 0.0f) {
-        velocity = Vector3Scale(velocity, maxSpeed / speed);
-        speed = Vector3Length(velocity);
+    if (forces.speed > maxSpeed && forces.speed != 0.0f) {
+        forces.velocity = Vector3Scale(forces.velocity, maxSpeed / forces.speed);
+        forces.speed = Vector3Length(forces.velocity);
     }
 
     // weathervaning
     // https://en.wikipedia.org/wiki/Weathervane_effect
-    if (speed > stallSpeed) {
-        auto [x, y, z] = Vector3Scale(dir.forward, speed);
-        velocity.x = Lerp(velocity.x, x, 2.0f * dt);
-        velocity.y = Lerp(velocity.y, y, 2.0f * dt);
-        velocity.z = Lerp(velocity.z, z, 2.0f * dt);
+    if (forces.speed > stallSpeed) {
+        auto [x, y, z] = Vector3Scale(dir.forward, forces.speed);
+        forces.velocity.x = Lerp(forces.velocity.x, x, 2.0f * dt);
+        forces.velocity.y = Lerp(forces.velocity.y, y, 2.0f * dt);
+        forces.velocity.z = Lerp(forces.velocity.z, z, 2.0f * dt);
     }
 }

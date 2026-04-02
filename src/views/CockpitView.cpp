@@ -9,6 +9,5 @@ CockpitView::CockpitView(const AppConfig &config) : cockpitTexture(LoadTexture(c
 void CockpitView::draw() const {
     BeginShaderMode(cockpitShader);
     DrawTexture(cockpitTexture, 0.0f, 0.0f, WHITE);
-    // DrawTextureEx(cockpitTexture, {0.0f, 0.0f}, 0, 1.0f, WHITE);
     EndShaderMode();
 }

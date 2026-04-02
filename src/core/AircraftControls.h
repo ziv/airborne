@@ -1,32 +1,20 @@
 #pragma once
 #include "AppConfig.h"
-
-struct PilotControls {
-    float pitch;
-    float yaw;
-    float roll;
-    float throttle;
-    bool brakes;
-    bool gear;
-};
+#include "AircraftStructs.h"
 
 class AircraftControls {
+    // configuration
     float pitchRatio;
     float rollRatio;
     float yawRatio;
 
-    float pitch = 0.0f;
-    float yaw = 0.0f;
-    float roll = 0.0f;
-    float throttle = 0.0f;
-
-    bool brakes = true;
-    bool gear = true;
+    // state
+    PilotControls controls = {0.0f, 0.0f, 0.0f, 0.0f, true, true};
 
 public:
     explicit AircraftControls(const AppConfig &config);
 
-    [[nodiscard]] PilotControls getControls() const;
+    [[nodiscard]] PilotControls &getControls();
 
     void update(float dt);
 };

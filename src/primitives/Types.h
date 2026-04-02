@@ -29,3 +29,9 @@ using Degree = float;
 constexpr Degree operator""_deg(const long double val) {
     return static_cast<Degree>(val);
 }
+
+using Ratio = float;
+
+constexpr Ratio operator""_rto(const long double val) {
+    return static_cast<Ratio>(val);
+}

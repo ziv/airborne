@@ -8,8 +8,6 @@
 #include "views/NavballView.h"
 
 class GameplayScreen : public GameScreen {
-
-
     // the object contain all relevant game details for
     // control, change and view
     // std::unique_ptr<GameData> game;
@@ -32,18 +30,17 @@ class GameplayScreen : public GameScreen {
     // Shader chromaShader{};
 
     // background sound
-    Music engine{};
+    // Music engine{};
+    MusicHandle engine;
 
     // terrain
-    Model map{};
+    ModelHandle map;
 
     Model futuristicCity = LoadModel("res/futuristic_city.glb");
     // void handleInputs();
     // void handleSounds() const;
 public:
-    explicit GameplayScreen(AppConfig &inputConfig);
-
-    ~GameplayScreen() override;
+    explicit GameplayScreen(AppConfig &config);
 
     ScreenState update() override;
 

@@ -14,7 +14,7 @@ class AircraftCamera {
 public:
     explicit AircraftCamera(const AppConfig &config);
 
-    void update(float dt, const Directions &directions, const Vector3 &velocity);
+    void update(float dt, const Directions &directions, const ForcesState &forces);
 
     void setPosition(const Vector3 &position);
 

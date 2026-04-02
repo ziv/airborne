@@ -19,9 +19,15 @@
     "minSpeed": 0,
     "vleSpeed": 150,
     "stallSpeed": 65,
+    "groundBrakesSpeed": 10,
     // @see https://ziv.github.io/airborne/posts/numbers/
     "liftCoefficient": 1.92,
     "dragCoefficient": 0.36,
+    // multiply (n*100%)
+    "flyingBrakesDragRatio": 6,
+    "groundBrakesDragRatio": 1000,
+    "flyingGearDragRatio": 1.8,
+    "stallLiftRatio": 0.1,
     // effects
     "bankInduceYawRatio": 0.2,
     "liftLossPitchRatio": 0.1,
@@ -35,7 +41,7 @@
     // field of view a little bit wider than the human FOV for wider sight
     "fov": 85,
     // look down a little bit (I used 0.45 for better view)
-    "tilt": 0
+    "tilt": 0.3
   },
   "autoPilot": {
     "maxBankAngle": 60,
@@ -47,7 +53,7 @@
     "musicPath": "res/sound0.mp3"
   },
   "game": {
-    "cockpitTexture": "res/cockpit-m.png",
+    "cockpitTexture": "res/cockpit-z.png",
     "cockpitChroma": "shaders/chromakey.fs",
     "engineSound": "res/engine.mp3",
     "mapTexture": "res/tx.png",
@@ -61,7 +67,8 @@
     "gaugeSpriteJson": "res/sprites.json",
     "navballTexture": "res/navballs/j.png",
     "navballRadius": 0.3,
-    "navballRings": 32
+    "navballRings": 32,
+    "mapViewTexture": ""
   },
   "development": {
     "showGrid": true

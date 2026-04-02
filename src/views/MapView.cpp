@@ -2,8 +2,12 @@
 #include "raylib.h"
 #include "raymath.h"
 
+MapView::MapView(const AppConfig &config) : tex(LoadTexture(config.get<std::string_view>("/views/mapViewTexture").data())),
+                                            glass(LoadShader(nullptr, config.get<std::string_view>("/view/glassShader").data())) {
+}
+
 MapView::~MapView() {
-    UnloadTexture(map);
+    // UnloadTexture(map);
 }
 
 void MapView::update(const GameData &game) {
@@ -43,7 +47,7 @@ void MapView::draw(const GameData &game) {
 
     const Vector2 planeMapPos = mapCamera.target;
     const float width = 5.0f / zoom;
-    const float height = 12.0f /zoom;
+    const float height = 12.0f / zoom;
     Vector2 v1 = {0.0f, -height / 2.0f};
     Vector2 v2 = {-width / 2.0f, height / 2.0f};
     Vector2 v3 = {width / 2.0f, height / 2.0f};
