@@ -6,7 +6,7 @@
     "screenHeight": 800,
     // rClipPlane: how far we see the world in 3d mode
     "nearPlane": 1,
-    "farPlane": 30000
+    "farPlane": 50000
   },
   "airplane": {
     // where the pilot sit
@@ -58,9 +58,9 @@
     "engineSound": "res/engine.mp3",
     "mapTexture": "res/tx.png",
     "mapHeightmap": "res/hm.png",
-    "mapSizeX": 32000,
-    "mapSizeZ": 32000,
-    "mapSizeY": 3200
+    "mapSizeX": 128000,
+    "mapSizeZ": 128000,
+    "mapSizeY": 32000
   },
   "views": {
     "gaugeSprite": "res/sprites.png",

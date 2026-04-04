@@ -96,7 +96,7 @@ void GameplayScreen::run() {
 
     BeginMode3D(game.aircraftCamera.getCamera());
         DrawGrid(100, 20.0f);
-
+        scene.draw();
     //
     //     DrawCube(l1, 10.0f, 10.0f, 10.0f, RED);
     //     DrawCube(l2, 10.0f, 10.0f, 10.0f, RED);
@@ -104,7 +104,7 @@ void GameplayScreen::run() {
     //     DrawCube(l4, 10.0f, 10.0f, 10.0f, RED);
     //
     //
-            DrawModel(map, (Vector3){0.0f, 0.0f, 0.0f}, 1.0f, WHITE);
+
     //     // DrawModel(futuristicCity, (Vector3){6400.0f, 0.0f, 19800.0f}, 0.005f, WHITE);
     //     // DrawModel(aircraft.model, (Vector3){10.0, 10.0, 10.0}, 1.0f, RED);
     // rlDisableDepthTest();

@@ -2,9 +2,10 @@
 #include "raylib.h"
 #include "raymath.h"
 
-MapView::MapView(const AppConfig &config) : tex(LoadTexture(config.get<std::string_view>("/views/mapViewTexture").data())),
-                                            glass(LoadShader(nullptr, config.get<std::string_view>("/views/glassShader").data())),
-                                            timeLoc(GetShaderLocation(glass, "time")) {
+MapView::MapView(const AppConfig &config) : tex(LoadTexture(config.get<std::string_view>("/views/mapViewTexture").data())) {
+    // todo removed until better shader for glass
+    // glass(LoadShader(nullptr, config.get<std::string_view>("/views/glassShader").data())),
+    // timeLoc(GetShaderLocation(glass, "time"))
 }
 
 void MapView::update(const AircraftState &state) {
@@ -16,8 +17,8 @@ void MapView::update(const AircraftState &state) {
 
     // todo find the ratio between the scene and the map...
     // map pos
-    const float mapX = state.position.x / 64.0f;
-    const float mapZ = state.position.z / 64.0f;
+    const float mapX = state.position.x / 256.0f;
+    const float mapZ = state.position.z / 256.0f;
 
     // camera look at the player on the map
     mapCamera.target = (Vector2){mapX, mapZ};
@@ -31,13 +32,13 @@ void MapView::update(const AircraftState &state) {
 }
 
 void MapView::draw() {
-    const auto currentTime = static_cast<float>(GetTime());
-    SetShaderValue(glass, timeLoc, &currentTime, SHADER_UNIFORM_FLOAT);
+    // const auto currentTime = static_cast<float>(GetTime());
+    // SetShaderValue(glass, timeLoc, &currentTime, SHADER_UNIFORM_FLOAT);
 
     BeginScissorMode(522, 622, 160, 134);
     // ClearBackground(BLACK);
     DrawRectangle(522, 622, 160, 134, GRAY);
-    BeginShaderMode(glass);
+    // BeginShaderMode(glass);
     BeginMode2D(mapCamera);
     DrawTexture(tex, 0, 0, WHITE);
 
@@ -55,6 +56,6 @@ void MapView::draw() {
     DrawTriangle(v1, v2, v3, GREEN);
     DrawTriangleLines(v1, v2, v3, BLACK);
     EndMode2D();
-    EndShaderMode();
+    // EndShaderMode();
     EndScissorMode();
 }

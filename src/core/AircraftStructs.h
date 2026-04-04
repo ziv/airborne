@@ -54,5 +54,6 @@ struct AircraftState {
         0.0f,
         0.0f
     };
+    float groundHeight = 0;
     bool flying = false;
 };

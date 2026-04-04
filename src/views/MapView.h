@@ -8,8 +8,8 @@
 class MapView {
     // configuration
     TextureHandle tex;
-    ShaderHandle glass;
-    int timeLoc;
+    // ShaderHandle glass;
+    // int timeLoc;
 
     // state
     Camera2D mapCamera = {0};
