@@ -51,8 +51,6 @@ add_executable(${PROJECT_NAME} src/main.cpp
         src/views/MinihudView.h
         src/views/HudView.cpp
         src/views/HudView.h
-        src/views/WorldView.cpp
-        src/views/WorldView.h
         src/views/NavballView.cpp
         src/views/NavballView.h
         src/primitives/Logger.h
@@ -60,12 +58,5 @@ add_executable(${PROJECT_NAME} src/main.cpp
         src/core/AircraftStructs.h
         src/core/SceneManager.cpp
         src/core/SceneManager.h
-        src/units/Aircraft.cpp
-        src/units/Aircraft.h
-        src/physics-engine/PhysicsEngine.cpp
-        src/physics-engine/PhysicsEngine.h
-        src/physics-engine/Utils.h
-        src/physics-engine/Primitives.h
-        src/views/MapView.cpp
 )
 target_link_libraries(${PROJECT_NAME} PRIVATE raylib)

@@ -3,12 +3,11 @@
 #include "AircraftControls.h"
 #include "AircraftPhysics.h"
 #include "../primitives/AppConfig.h"
-#include "../physics-engine/PhysicsEngine.h"
 
 class GameData {
     Meter heightAboveGround;
     MeterPerSecond stallSpeed;
-    PhysicsEngine pysicsEngine;
+    // PhysicsEngine pysicsEngine;
 
     [[nodiscard]] bool isStableLanding();
 public:

@@ -1,11 +1,7 @@
 #include "GameData.h"
 
-#include "raymath.h"
-#include "../physics-engine/Utils.h"
-
 GameData::GameData(const AppConfig &config) : heightAboveGround(config.get<float>("/airplane/heightAboveGround")),
                                               stallSpeed(config.get<float>("/airplane/stallSpeed")),
-                                              pysicsEngine(extractProperties(config.config["airplane"])),
                                               aircraftControls(config),
                                               aircraftPhysics(config),
                                               aircraftTransformation(config),
