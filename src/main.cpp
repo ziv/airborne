@@ -7,7 +7,7 @@
 #include "MainMenuScreen.h"
 #include "SplashScreen.h"
 #include "GameplayScreen.h"
-#include "core/AppConfig.h"
+#include "primitives/AppConfig.h"
 #include "primitives/Logger.h"
 
 int main() {

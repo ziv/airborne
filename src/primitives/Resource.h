@@ -47,6 +47,7 @@ public:
 };
 
 using TextureHandle = RaylibResource<Texture2D, UnloadTexture>;
+using RenderTextureHandle = RaylibResource<RenderTexture2D, UnloadRenderTexture>;
 using ShaderHandle = RaylibResource<Shader, UnloadShader>;
 using ModelHandle = RaylibResource<Model, UnloadModel>;
 using MusicHandle = RaylibResource<Music, UnloadMusicStream>;

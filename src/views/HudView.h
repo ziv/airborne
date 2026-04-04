@@ -4,13 +4,13 @@
 #include "../core/GameData.h"
 
 class HudView {
-    char current = 0;
-    std::pmr::vector<Color> colrs = {GREEN, WHITE, BLACK};
+    char color = 0;
+    std::pmr::vector<Color> colors = {GREEN, WHITE, BLACK};
 
 public:
-    explicit HudView(AppConfig &inputConfig);
+    explicit HudView(AppConfig &config);
 
     void update(const GameData &game);
 
-    void draw(const GameData &game);
+    void draw(const Camera &camera, const AircraftState &state);
 };

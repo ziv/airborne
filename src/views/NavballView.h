@@ -1,7 +1,7 @@
 #pragma once
 #include "raylib.h"
 #include "../core/AircraftTransformation.h"
-#include "../core/AppConfig.h"
+#include "../primitives/AppConfig.h"
 #include "../primitives/Resource.h"
 
 class NavballView {
@@ -9,8 +9,13 @@ class NavballView {
     Mesh sphere;
     Model navball;
 
+    // virtual studio
+    // RenderTextureHandle vtex;
+    RenderTexture2D vtex;
+    Camera vcam = {0};
+
 public:
     explicit NavballView(const AppConfig &config);
 
-    void draw(const Vector3 &position, const Directions &directions);
+    void draw(const AircraftState &state);
 };

@@ -1,7 +1,7 @@
 #pragma once
 #include <unordered_map>
 #include "raylib.h"
-#include "../core/AppConfig.h"
+#include "../primitives/AppConfig.h"
 #include "../primitives/Resource.h"
 
 class GaugesView{

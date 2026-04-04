@@ -2,7 +2,7 @@
 
 #include "rlgl.h"
 #include "primitives/Utils.h"
-#include "core/AppConfig.h"
+#include "primitives/AppConfig.h"
 
 constexpr Vector3 l1 = {5000.0f, 1500.0f, 5000};
 constexpr Vector3 l2 = {9000.0f, 1500.0f, 4000.0f};
@@ -14,12 +14,13 @@ constexpr Vector3 a{0.0f, 10.0f, 0.0f};
 GameplayScreen::GameplayScreen(AppConfig &config)
     : GameScreen(config),
       game(config),
+      scene(config),
       cockpitView(config),
       debugView(game),
+      minihudView(config),
       navballView(config),
-      // autopilot(inputConfig.maxBankAngle, inputConfig.maxPullRatio, inputConfig.speedRatio),
-      // cockpit(LoadTexture(inputConfig.gameCockpitTexture.data())),
-      // chromaShader(LoadShader(nullptr, inputConfig.gameCockpitChroma.data())),
+      hudView(config),
+      mapView(config),
       engine(LoadMusicStream(config.get<std::string_view>("/game/engineSound").data())),
       map(UtilsLoaders::loadTerrain(
           config.get<std::string_view>("/game/mapTexture").data(),
@@ -30,34 +31,10 @@ GameplayScreen::GameplayScreen(AppConfig &config)
               config.get<float>("/game/mapSizeZ")
           }
       )) {
-    // views.push_back(std::make_unique<MapView>(inputConfig));
-    // views.push_back(std::make_unique<HudView>(inputConfig));
-    // views.push_back(std::make_unique<GaugesView>(inputConfig));
-    // views.push_back(std::make_unique<DebugView>(inputConfig));
-
-
-    // constructor updates
-    // constexpr float thresholdValue = 0.5f;
-    // chromaShader = LoadShader(nullptr, config.gameCockpitChroma.data());
-    // SetShaderValue(chromaShader, GetShaderLocation(chromaShader, "threshold"), &thresholdValue, SHADER_UNIFORM_FLOAT);
-
     // todo position should come from the mission data
     game.aircraftCamera.setPosition((Vector3){0.0f, config.get<float>("/airplane/heightAboveGround"), 0.0f});
-
-    // todo waypoints should come from the mission data
-    // autopilot.AddWaypoint(Vector3Add(l1, a), 200.0f, 50.0f);
-    // autopilot.AddWaypoint(Vector3Add(l2, a), 200.0f, 50.0f);
-    // autopilot.AddWaypoint(Vector3Add(l3, a), 200.0f, 50.0f);
-    // autopilot.AddWaypoint(Vector3Add(l4, a), 200.0f, 50.0f);
-
     PlayMusicStream(engine);
 }
-
-// GameplayScreen::~GameplayScreen() {
-//     // UnloadTexture(cockpit);
-//     // UnloadShader(chromaShader);
-//     // UnloadMusicStream(engine);
-// }
 
 ScreenState GameplayScreen::update() {
     // pause game
@@ -67,14 +44,6 @@ ScreenState GameplayScreen::update() {
     if (IsKeyPressed(KEY_M)) {
         game.aircraftCamera.getCamera().position = (Vector3){0.0f, 3.0f, 0.0f};
     }
-    // start update
-    // game.tick();
-    // handleSounds();
-
-    // update views
-    // for (const auto &view: views) {
-    //     view->update(game);
-    // }
 
     // autopilot
     // fast return, autopilot mode, no need to get other user inputs
@@ -90,8 +59,20 @@ ScreenState GameplayScreen::update() {
     //     game.update();
     //     return ScreenState::GAMEPLAY;
     // }
+    const auto dt = GetFrameTime();
+    game.update(dt);
+    scene.update(game.state, dt);
+    minihudView.update();
+    mapView.update(game.state);
 
-    game.update();
+    // bg sound
+    const auto throttle = game.state.controls.throttle;
+    const float targetPitch = 0.8f + (throttle * 0.7f);
+    const float targetVolume = 0.2f + (throttle * 0.9f);
+    SetMusicPitch(engine, targetPitch);
+    SetMusicVolume(engine, targetVolume);
+    UpdateMusicStream(engine);
+
     return ScreenState::GAMEPLAY;
 }
 
@@ -99,18 +80,18 @@ void GameplayScreen::run() {
     // @formatter:off
     ClearBackground(BLUE);
 
-    const auto camera = game.aircraftCamera.getCamera();
-    const auto controls = game.aircraftControls.getControls();
-    const auto speed = game.aircraftPhysics.getForces().speed;
-    const auto directions = game.aircraftTransformation.getDirections();
+    // const auto camera = game.aircraftCamera.getCamera();
+    // const auto controls = game.aircraftControls.getControls();
+    // const auto speed = game.aircraftPhysics.getForces().speed;
+    // const auto directions = game.aircraftTransformation.getDirections();
 
-    Vector3 center = Vector3Add(camera.position, Vector3Scale(directions.forward, 5.0f));
-    Vector3 x = Vector3Add(center, Vector3Scale(GamePhysics::WorldRight, 10.0f));
-    Vector3 y = Vector3Add(center, Vector3Scale(GamePhysics::WorldRight, -10.0f));
-
-    const auto c = GetWorldToScreen(center, camera);
-    const auto cx = GetWorldToScreen(x, camera);
-    const auto cy = GetWorldToScreen(y, camera);
+    // Vector3 center = Vector3Add(camera.position, Vector3Scale(directions.forward, 5.0f));
+    // Vector3 x = Vector3Add(center, Vector3Scale(GamePhysics::WorldRight, 10.0f));
+    // Vector3 y = Vector3Add(center, Vector3Scale(GamePhysics::WorldRight, -10.0f));
+    //
+    // const auto c = GetWorldToScreen(center, camera);
+    // const auto cx = GetWorldToScreen(x, camera);
+    // const auto cy = GetWorldToScreen(y, camera);
 
 
     BeginMode3D(game.aircraftCamera.getCamera());
@@ -131,15 +112,24 @@ void GameplayScreen::run() {
     // rlEnableDepthTest();
 
     EndMode3D();
+    // minihudView.draw(game.aircraftTransformation.getRotation(),
+    //     game.aircraftTransformation.getDirections(),
+    //     game.aircraftCamera.getCamera());
 
     cockpitView.draw();
+    mapView.draw();
+    // hudView.draw(game.aircraftCamera.getCamera(), game.state);
+    minihudView.draw(game.state);
 
-    BeginMode3D(game.aircraftCamera.getCamera());
-        navballView.draw(camera.position, directions);
-    EndMode3D();
-    DrawLineEx(c, cx, 3, BLACK);
-    DrawLineEx(c, cy, 3, WHITE);
+
+    navballView.draw(game.state);
+    // BeginMode3D(game.aircraftCamera.getCamera());
+    //
+    // EndMode3D();
+    // DrawLineEx(c, cx, 3, BLACK);
+    // DrawLineEx(c, cy, 3, WHITE);
     debugView.draw();
+
     // BeginShaderMode(chromaShader);
     //     DrawTextureEx(cockpit, {0.0f, -270.0f}, 0, 1.0f, WHITE);
     // EndShaderMode();

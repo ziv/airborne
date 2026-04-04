@@ -9,7 +9,7 @@ void DebugView::update() {
 
 void DebugView::draw() const {
     const auto p = game.aircraftCamera.getCamera().position;
-    const auto c = game.aircraftControls.getControls();
+    const auto c = game.state.controls;
     constexpr auto m = 100.0f;
     DrawRectangle(5, 5, 150, 220, BEIGE);
     DrawText(TextFormat("X: %0.f", p.x), 20, 10, 15, BLACK);
@@ -19,7 +19,7 @@ void DebugView::draw() const {
     DrawText(TextFormat("r: %f", c.roll * m), 20, 90, 15, BLUE);
     DrawText(TextFormat("y: %f", c.yaw * m), 20, 110, 15, BLUE);
     DrawText(TextFormat("t: %f", c.throttle), 20, 130, 15, BLUE);
-    DrawText(TextFormat("s: %f", std::round(game.aircraftPhysics.getForces().speed)), 20, 150, 15, BLUE);
+    DrawText(TextFormat("s: %f", std::round(game.state.forces.speed)), 20, 150, 15, BLUE);
     DrawText(TextFormat("G: %d", c.gear), 20, 170, 15, BLUE);
     DrawText(TextFormat("B: %d", c.brakes), 20, 190, 15, BLUE);
 }

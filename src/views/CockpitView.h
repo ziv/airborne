@@ -1,5 +1,5 @@
 #pragma once
-#include "../core/AppConfig.h"
+#include "../primitives/AppConfig.h"
 #include "../primitives/Resource.h"
 
 class CockpitView {

@@ -1,36 +1,41 @@
 #include "HudView.h"
-
+#include "raylib.h"
 #include "../primitives/Utils.h"
+
+HudView::HudView(AppConfig &config) {
+}
 
 void HudView::update(const GameData &game) {
     if (IsKeyDown(KEY_LEFT_ALT) && IsKeyPressed(KEY_H)) {
-        current++;
-        if (current > 2) current = 0;
+        color++;
+        if (color > 2) color = 0;
     }
 }
 
-void HudView::draw(const GameData &game) {
-    const Color color = colrs[current];
-    constexpr int HudWidth = 300;
-    constexpr int HudHeight = 230;
-    const int HudX = (GetScreenWidth() - HudWidth) / 2;
-    const int HudY = (GetScreenHeight() - HudHeight) / 2 - 170;
+void HudView::draw(const Camera &camera, const AircraftState &state) {
+    const Color c = colors[color];
+    constexpr int hudWidth = 300;
+    constexpr int hudHeight = 230;
+    const auto width = GetScreenWidth();
+    const auto height = GetScreenHeight();
+    const int hudX = (width - hudWidth) / 2;
+    const int hudY = (height - hudHeight) / 2 - 80;
 
-    BeginScissorMode(HudX, HudY, HudWidth, HudHeight);
+    BeginScissorMode(hudX, hudY, hudWidth, hudHeight);
+
+
     // ClearBackground(ORANGE);
-    const Camera rayCam = game.getCamera();
-    const Vector3 camForward = Vector3Normalize(Vector3Subtract(rayCam.target, game.getPosition()));
-    const Vector3 forward = game.getForward();
-    const Vector3 up = game.getUp();
+    auto rayCam = camera;
+    const Vector3 camForward = Vector3Normalize(Vector3Subtract(rayCam.target, rayCam.position));
+    // const Vector3 forward = directions.forward;
+    // const Vector3 up = directions.up;
 
     // --- heading projected to horizontal plane ---
-    const Vector3 flatForward = GetFlatForward(forward, up);
+    const Vector3 flatForward = GetFlatForward(state.orientation.forward, state.orientation.up);
     const Vector3 flatRight = GetFlatRight(flatForward);
 
     // --- screen-space sky reference (computed once, valid for all rungs) ---
-    const auto width = GetScreenWidth();
-    const auto height = GetScreenHeight();
-    const Vector3 refPt = Vector3Add(game.getPosition(), Vector3Scale(camForward, 10000.0f));
+    const Vector3 refPt = Vector3Add(rayCam.position, Vector3Scale(camForward, 10000.0f));
     const Vector3 skyPt = Vector3Add(refPt, Vector3Scale(GamePhysics::WorldUp, 500.0f));
     const Vector2 refScr = GetWorldToScreenEx(refPt, rayCam, width, height);
     const Vector2 skyScr = GetWorldToScreenEx(skyPt, rayCam, width, height);
@@ -43,10 +48,9 @@ void HudView::draw(const GameData &game) {
 
 
     // --- speed & altitude labels (relative to HUD rect) ---
-    DrawText(TextFormat("%0.f", std::round(game.speed * 3.6)), HudX + 10, HudY + HudHeight / 2, 15, color);
+    DrawText(TextFormat("%0.f", std::round(state.forces.speed * 3.6)), hudX + 10, hudY + hudHeight / 2, 15, c);
     // DrawText(TextFormat("%0.f", FormatNumber(std::round(game.GetPosition().y)).c_str()), HudX + HudSize - 30, HudY + HudSize / 2, 15, GREEN);
-    DrawText(FormatNumber(std::round(game.getPosition().y)).c_str(), HudX + HudWidth - 40, HudY + HudHeight / 2, 15,
-             color);
+    DrawText(FormatNumber(std::round(camera.position.y)).c_str(), hudX + hudWidth - 40, hudY + hudHeight / 2, 15, c);
 
     // --- pitch ladder ---
     for (int angle = -80; angle <= 80; angle += 20) {
@@ -57,7 +61,7 @@ void HudView::draw(const GameData &game) {
         if (Vector3DotProduct(rungDir, camForward) < 0.1f) continue;
 
         // project rung center AND one offset point to get screen-space direction
-        const Vector3 center3D = Vector3Add(game.getPosition(), Vector3Scale(rungDir, 10000.0f));
+        const Vector3 center3D = Vector3Add(camera.position, Vector3Scale(rungDir, 10000.0f));
         const Vector3 side3D = Vector3Add(center3D, Vector3Scale(flatRight, 500.0f));
 
         const Vector2 center =
@@ -102,34 +106,34 @@ void HudView::draw(const GameData &game) {
         };
 
         // the two halves of the rung (gap in the middle)
-        DrawLineEx(start, gapL, thick, color);
-        DrawLineEx(gapR, end, thick, color);
+        DrawLineEx(start, gapL, thick, c);
+        DrawLineEx(gapR, end, thick, c);
 
         if (angle == 0) {
             // horizon line — ticks point down (toward ground)
             DrawLineEx(start, {
                            start.x - perp.x * tick,
                            start.y - perp.y * tick
-                       }, thick, color);
+                       }, thick, c);
             DrawLineEx(end, {
                            end.x - perp.x * tick,
                            end.y - perp.y * tick
-                       }, thick, color);
+                       }, thick, c);
         } else {
             // ticks always point toward the horizon (0°)
             const float sign = (angle > 0) ? -1.0f : 1.0f;
             DrawLineEx(start, {
                            start.x + perp.x * sign * tick,
                            start.y + perp.y * sign * tick
-                       }, thick, color);
+                       }, thick, c);
             DrawLineEx(end, {
                            end.x + perp.x * sign * tick,
                            end.y + perp.y * sign * tick
-                       }, thick, color);
+                       }, thick, c);
 
             DrawText(TextFormat("%d", angle),
                      static_cast<int>(start.x) - 20,
-                     static_cast<int>(start.y) - 5, 10, color);
+                     static_cast<int>(start.y) - 5, 10, c);
         }
     }
     EndScissorMode();

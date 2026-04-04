@@ -2,14 +2,18 @@
 #include "AircraftCamera.h"
 #include "AircraftControls.h"
 #include "AircraftPhysics.h"
-#include "AppConfig.h"
+#include "../primitives/AppConfig.h"
+#include "../physics-engine/PhysicsEngine.h"
 
 class GameData {
     Meter heightAboveGround;
     MeterPerSecond stallSpeed;
+    PhysicsEngine pysicsEngine;
 
+    [[nodiscard]] bool isStableLanding();
 public:
     bool paused = false;
+    AircraftState state;
 
     // aircraft controllers
     AircraftControls aircraftControls;
@@ -19,5 +23,5 @@ public:
 
     explicit GameData(const AppConfig &config);
 
-    void update();
+    void update(float dt);
 };

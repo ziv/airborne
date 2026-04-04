@@ -1,6 +1,6 @@
 #pragma once
 #include "AircraftTransformation.h"
-#include "AppConfig.h"
+#include "../primitives/AppConfig.h"
 #include "raylib.h"
 
 class AircraftCamera {
@@ -14,7 +14,7 @@ class AircraftCamera {
 public:
     explicit AircraftCamera(const AppConfig &config);
 
-    void update(float dt, const Directions &directions, const ForcesState &forces);
+    void update(AircraftState &state, float dt);
 
     void setPosition(const Vector3 &position);
 

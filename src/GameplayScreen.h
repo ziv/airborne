@@ -2,8 +2,11 @@
 #include "GameScreen.h"
 #include "core/Autopilot.h"
 #include "core/GameData.h"
+#include "core/SceneManager.h"
 #include "views/CockpitView.h"
 #include "views/DebugView.h"
+#include "views/HudView.h"
+#include "views/MapView.h"
 #include "views/MinihudView.h"
 #include "views/NavballView.h"
 
@@ -12,31 +15,21 @@ class GameplayScreen : public GameScreen {
     // control, change and view
     // std::unique_ptr<GameData> game;
     GameData game;
+    SceneManager scene;
 
     // views
     CockpitView cockpitView;
     DebugView debugView;
     MinihudView minihudView;
     NavballView navballView;
+    HudView hudView;
+    MapView mapView;
 
-    // controllers
-    // Autopilot autopilot;
-
-    // views
-    // std::vector<std::unique_ptr<View>> views;
-
-    // cockpit
-    // Texture2D cockpit{};
-    // Shader chromaShader{};
-
-    // background sound
-    // Music engine{};
     MusicHandle engine;
-
-    // terrain
     ModelHandle map;
 
-    Model futuristicCity = LoadModel("res/futuristic_city.glb");
+
+    // Model futuristicCity = LoadModel("res/futuristic_city.glb");
     // void handleInputs();
     // void handleSounds() const;
 public:

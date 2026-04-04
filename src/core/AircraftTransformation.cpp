@@ -9,45 +9,45 @@ AircraftTransformation::AircraftTransformation(const AppConfig &config) : maxSpe
                                                                           liftLossPitchRatio(config.get<float>("/airplane/liftLossPitchRatio")) {
 }
 
-void AircraftTransformation::update(const float dt, const bool flying, const PilotControls &controls, const ForcesState &forces) {
-    if (flying) flyingOrientation(dt, forces.speed, controls);
-    else groundOrientation(forces.speed, controls);
+void AircraftTransformation::update(AircraftState &state, const float dt) const {
+    if (state.flying) flyingOrientation(state, dt);
+    else groundOrientation(state, dt);
 }
 
-void AircraftTransformation::flyingOrientation(const float dt, const MeterPerSecond speed, const PilotControls &controls) {
-    const auto speedRatio = speed / maxSpeed;
+void AircraftTransformation::flyingOrientation(AircraftState &state, const float dt) const {
+    const auto speedRatio = state.forces.speed / maxSpeed;
 
     // some effects (arcade style)
 
     // https://en.wikipedia.org/wiki/Adverse_yaw
-    const auto bankInducedYaw = speed == 0 ? 0.0f : dir.right.y * bankInduceYawRatio * dt;
+    const auto bankInducedYaw = state.forces.speed == 0 ? 0.0f : state.orientation.right.y * bankInduceYawRatio * dt;
     // https://en.wikipedia.org/wiki/Stall_(fluid_dynamics)
-    const auto liftLossPitch = speed == 0 ? 0.0f : (1.0f - dir.up.y) * liftLossPitchRatio * dt;
+    const auto liftLossPitch = state.forces.speed == 0 ? 0.0f : (1.0f - state.orientation.up.y) * liftLossPitchRatio * dt;
 
     // more speed equals more steering except yaw
-    const auto totalPitch = (controls.pitch + liftLossPitch) * speedRatio;
-    const auto totalYaw = controls.yaw + bankInducedYaw;
-    const auto totalRoll = controls.roll * speedRatio;
+    const auto totalPitch = (state.controls.pitch + liftLossPitch) * speedRatio;
+    const auto totalYaw = state.controls.yaw + bankInducedYaw;
+    const auto totalRoll = state.controls.roll * speedRatio;
 
     // apply the changes
-    const auto qPitch = QuaternionFromAxisAngle(dir.right, totalPitch);
-    const auto qYaw = QuaternionFromAxisAngle(dir.up, totalYaw);
-    const auto qRoll = QuaternionFromAxisAngle(dir.forward, totalRoll);
+    const auto qPitch = QuaternionFromAxisAngle(state.orientation.right, totalPitch);
+    const auto qYaw = QuaternionFromAxisAngle(state.orientation.up, totalYaw);
+    const auto qRoll = QuaternionFromAxisAngle(state.orientation.forward, totalRoll);
 
     // create turbulence when above VLE speed and gear is open
     // https://en.wikipedia.org/wiki/V_speeds#VLE
     auto qTurbulence = QuaternionIdentity();
-    if (controls.gear && speed > vleSpeed) {
-        const float overSpeed = speed - vleSpeed;
+    if (state.controls.gear && state.forces.speed > vleSpeed) {
+        const float overSpeed = state.forces.speed - vleSpeed;
         const float turbulenceIntensity = Clamp((overSpeed * overSpeed) * 0.0001f * dt, 0.0f, 0.03f);
 
         const float noisePitch = (static_cast<float>(GetRandomValue(-100, 100)) / 100.0f) * turbulenceIntensity;
         const float noiseYaw = (static_cast<float>(GetRandomValue(-100, 100)) / 100.0f) * turbulenceIntensity;
         const float noiseRoll = (static_cast<float>(GetRandomValue(-100, 100)) / 100.0f) * turbulenceIntensity * 0.5f;
 
-        const auto qTPitch = QuaternionFromAxisAngle(dir.right, noisePitch);
-        const auto qTYaw = QuaternionFromAxisAngle(dir.up, noiseYaw);
-        const auto qTRoll = QuaternionFromAxisAngle(dir.forward, noiseRoll);
+        const auto qTPitch = QuaternionFromAxisAngle(state.orientation.right, noisePitch);
+        const auto qTYaw = QuaternionFromAxisAngle(state.orientation.up, noiseYaw);
+        const auto qTRoll = QuaternionFromAxisAngle(state.orientation.forward, noiseRoll);
 
         qTurbulence = QuaternionMultiply(qTYaw, QuaternionMultiply(qTPitch, qTRoll));
     }
@@ -56,36 +56,26 @@ void AircraftTransformation::flyingOrientation(const float dt, const MeterPerSec
     const auto qDelta = QuaternionMultiply(qTurbulence, QuaternionMultiply(qYaw, QuaternionMultiply(qPitch, qRoll)));
 
     // update the quaternion and normalize, then recalculate vectors
-    rotation = QuaternionNormalize(QuaternionMultiply(qDelta, rotation));
-    recalculateDirectionVectors();
+    state.orientation.rotation = QuaternionNormalize(QuaternionMultiply(qDelta, state.orientation.rotation));
+    state.orientation.forward = Vector3Normalize(Vector3RotateByQuaternion(GamePhysics::WorldForward, state.orientation.rotation));
+    state.orientation.up = Vector3Normalize(Vector3RotateByQuaternion(GamePhysics::WorldUp, state.orientation.rotation));
+    state.orientation.right = Vector3Normalize(Vector3RotateByQuaternion(GamePhysics::WorldRight, state.orientation.rotation));
 }
 
-void AircraftTransformation::groundOrientation(const MeterPerSecond speed, const PilotControls &controls) {
-    const auto speedRatio = speed / maxSpeed;
+void AircraftTransformation::groundOrientation(AircraftState &state, const float dt) const {
+    const auto speedRatio = state.forces.speed / maxSpeed;
 
     // apply the changes (more speed equals more steering except yaw)
     // on ground pitch can be positive only
-    const auto pitch = controls.pitch > 0.0f ? controls.pitch : 0.0f;
-    const auto qPitch = QuaternionFromAxisAngle(dir.right, pitch * speedRatio);
-    const auto qYaw = QuaternionFromAxisAngle(dir.up, controls.yaw);
-    const auto qRoll = QuaternionFromAxisAngle(dir.forward, 0);
+    const auto pitch = state.controls.pitch > 0.0f ? state.controls.pitch : 0.0f;
+    const auto qPitch = QuaternionFromAxisAngle(state.orientation.right, pitch * speedRatio);
+    const auto qYaw = QuaternionFromAxisAngle(state.orientation.up, state.controls.yaw);
+    const auto qRoll = QuaternionFromAxisAngle(state.orientation.forward, 0);
 
     // update the quaternion and normalize, then recalculate vectors
     const auto qDelta = QuaternionMultiply(qYaw, QuaternionMultiply(qPitch, qRoll));
-    rotation = QuaternionNormalize(QuaternionMultiply(qDelta, rotation));
-    recalculateDirectionVectors();
-}
-
-void AircraftTransformation::recalculateDirectionVectors() {
-    dir.forward = Vector3Normalize(Vector3RotateByQuaternion(GamePhysics::WorldForward, rotation));
-    dir.up = Vector3Normalize(Vector3RotateByQuaternion(GamePhysics::WorldUp, rotation));
-    dir.right = Vector3Normalize(Vector3RotateByQuaternion(GamePhysics::WorldRight, rotation));
-}
-
-Quaternion &AircraftTransformation::getRotation() {
-    return rotation;
-}
-
-Directions &AircraftTransformation::getDirections() {
-    return dir;
+    state.orientation.rotation = QuaternionNormalize(QuaternionMultiply(qDelta, state.orientation.rotation));
+    state.orientation.forward = Vector3Normalize(Vector3RotateByQuaternion(GamePhysics::WorldForward, state.orientation.rotation));
+    state.orientation.up = Vector3Normalize(Vector3RotateByQuaternion(GamePhysics::WorldUp, state.orientation.rotation));
+    state.orientation.right = Vector3Normalize(Vector3RotateByQuaternion(GamePhysics::WorldRight, state.orientation.rotation));
 }

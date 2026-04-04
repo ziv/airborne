@@ -1,5 +1,5 @@
 #pragma once
-#include "AppConfig.h"
+#include "../primitives/AppConfig.h"
 #include "AircraftStructs.h"
 
 class AircraftControls {
@@ -8,13 +8,9 @@ class AircraftControls {
     float rollRatio;
     float yawRatio;
 
-    // state
-    PilotControls controls = {0.0f, 0.0f, 0.0f, 0.0f, true, true};
-
 public:
     explicit AircraftControls(const AppConfig &config);
 
-    [[nodiscard]] PilotControls &getControls();
-
-    void update(float dt);
+    /// @brief set controllers state
+    void update(AircraftState &state, float dt) const;
 };

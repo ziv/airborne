@@ -1,46 +1,42 @@
 #include "GameData.h"
 
+#include "raymath.h"
+#include "../physics-engine/Utils.h"
+
 GameData::GameData(const AppConfig &config) : heightAboveGround(config.get<float>("/airplane/heightAboveGround")),
                                               stallSpeed(config.get<float>("/airplane/stallSpeed")),
+                                              pysicsEngine(extractProperties(config.config["airplane"])),
                                               aircraftControls(config),
                                               aircraftPhysics(config),
                                               aircraftTransformation(config),
                                               aircraftCamera(config) {
 }
 
-void GameData::update() {
-    const auto dt = GetFrameTime();
-    const auto position = aircraftCamera.getCamera().position;
-    const auto forces = aircraftPhysics.getForces();
-    const auto controls = aircraftControls.getControls();
-    const auto directions = aircraftTransformation.getDirections();
+void GameData::update(const float dt) {
+    aircraftControls.update(state, dt);
+    aircraftPhysics.update(state, dt);
+    aircraftTransformation.update(state, dt);
+    aircraftCamera.update(state, dt);
 
-    // todo this is a naive solution, improve it
-    // todo check for crashing
-    const auto flying = position.y > heightAboveGround || forces.speed > stallSpeed;
+    // is flying?
+    state.flying =  state.position.y > heightAboveGround;
 
-    // first, read controls state
-    aircraftControls.update(dt);
-
-    // change the aircraft orientation
-    aircraftTransformation.update(dt, flying, controls, forces);
-
-    // let the physics shine on the aircraft
-    aircraftPhysics.update(dt, flying, controls, directions);
-
-    // update its location
-    aircraftCamera.update(dt, directions, forces);
+    // todo is landed? is crashed?
 }
 
-// bool GameData::isStableLanding() const {
-//     const Vector3 angles = QuaternionToEuler(rotation);
-//     const float pitch = angles.x * RAD2DEG;
-//     const float roll = angles.z * RAD2DEG;
-//
-//     constexpr float tolerance = 5.0f;
-//
-//     const bool wingsLevel = fabsf(roll) < tolerance;
-//     const bool noseUp = pitch > 0.0f && pitch < 10.0f;
-//
-//     return wingsLevel && noseUp;
-// }
+bool GameData::isStableLanding() {
+    // const auto position = aircraftCamera.getCamera().position;
+    //
+    // // todo numbers should come from config
+    // const Vector3 angles = QuaternionToEuler(aircraftTransformation.getRotation());
+    // const float pitch = angles.x * RAD2DEG;
+    // const float roll = angles.z * RAD2DEG;
+    //
+    // constexpr float tolerance = 5.0f;
+    //
+    // const bool wingsLevel = fabsf(roll) < tolerance;
+    // const bool noseUp = pitch > 0.0f && pitch < 10.0f;
+    //
+    // return wingsLevel && noseUp;
+    return true;
+}

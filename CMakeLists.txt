@@ -16,8 +16,8 @@ FetchContent_MakeAvailable(raylib)
 
 add_executable(${PROJECT_NAME} src/main.cpp
         src/lib/json.hpp
-        src/core/AppConfig.h
-        src/core/AppConfig.cpp
+        src/primitives/AppConfig.h
+        src/primitives/AppConfig.cpp
         src/GameScreen.h
         src/MainMenuScreen.cpp
         src/MainMenuScreen.h
@@ -30,15 +30,13 @@ add_executable(${PROJECT_NAME} src/main.cpp
         src/primitives/Utils.h
         src/core/GameData.cpp
         src/core/GameData.h
-        src/items/Structure.cpp
-        src/items/Structure.h
-        src/items/Aircraft.cpp
-        src/items/Aircraft.h
         src/lib/gui_impl.cpp
         src/views/CockpitView.cpp
         src/views/CockpitView.h
         src/views/DebugView.cpp
         src/views/DebugView.h
+        src/views/MapView.cpp
+        src/views/MapView.h
         src/primitives/Types.h
         src/core/AircraftTransformation.cpp
         src/core/AircraftTransformation.h
@@ -51,6 +49,8 @@ add_executable(${PROJECT_NAME} src/main.cpp
         src/primitives/Resource.h
         src/views/MinihudView.cpp
         src/views/MinihudView.h
+        src/views/HudView.cpp
+        src/views/HudView.h
         src/views/WorldView.cpp
         src/views/WorldView.h
         src/views/NavballView.cpp
@@ -58,5 +58,14 @@ add_executable(${PROJECT_NAME} src/main.cpp
         src/primitives/Logger.h
         src/SplashScreen.cpp
         src/core/AircraftStructs.h
+        src/core/SceneManager.cpp
+        src/core/SceneManager.h
+        src/units/Aircraft.cpp
+        src/units/Aircraft.h
+        src/physics-engine/PhysicsEngine.cpp
+        src/physics-engine/PhysicsEngine.h
+        src/physics-engine/Utils.h
+        src/physics-engine/Primitives.h
+        src/views/MapView.cpp
 )
 target_link_libraries(${PROJECT_NAME} PRIVATE raylib)

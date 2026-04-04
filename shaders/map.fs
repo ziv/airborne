@@ -21,7 +21,7 @@ void main() {
     uv -= 0.5;
     uv *= 1.0 + dot(uv, uv) * 0.1;
     uv += 0.5;
-    vec4 texelColor = texture(texture0, uv);
+    texelColor = texture(texture0, uv);
 
     // shine
     float glare = smoothstep(0.4, 0.5, sin(fragTexCoord.x + fragTexCoord.y + time * 0.5) * 0.5 + 0.5);

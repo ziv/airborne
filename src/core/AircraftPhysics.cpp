@@ -15,53 +15,54 @@ AircraftPhysics::AircraftPhysics(const AppConfig &config) : weight(config.get<fl
                                                             stallLiftRatio(config.get<float>("/airplane/stallLiftRatio")) {
 }
 
-void AircraftPhysics::update(const float dt,
-                             const bool flying,
-                             const PilotControls &controls,
-                             const Directions &dir) {
-    forces.thrust = controls.throttle * engineThrust;
-    forces.drag = (forces.speed * forces.speed) * dragCoefficient;
-    forces.lift = (forces.speed * forces.speed) * liftCoefficient;
+void AircraftPhysics::update(AircraftState &state, const float dt) const {
+    // auto forces = state.forces;
+    // const auto controls = state.controls;
+    // const auto dir = state.orientation;
+    state.forces.thrust = state.controls.throttle * engineThrust;
+    state.forces.drag = (state.forces.speed * state.forces.speed) * dragCoefficient;
+    state.forces.lift = (state.forces.speed * state.forces.speed) * liftCoefficient;
 
     // the aircraft behavior flying vs driving
-    if (flying) {
-        if (controls.brakes) forces.drag *= flyingBrakesDragRatio; // breaks increase drag by 600%
-        if (controls.gear) forces.drag *= flyingGearDragRatio; // gear generate drag
-        if (forces.speed < stallSpeed) forces.lift *= stallLiftRatio; // stall reduce lift by 90%
+    // todo move out?
+    if (state.flying) {
+        if (state.controls.brakes) state.forces.drag *= flyingBrakesDragRatio; // breaks increase drag by 600%
+        if (state.controls.gear) state.forces.drag *= flyingGearDragRatio; // gear generate drag
+        if (state.forces.speed < stallSpeed) state.forces.lift *= stallLiftRatio; // stall reduce lift by 90%
     } else {
-        if (controls.brakes) forces.drag *= groundBrakesDragRatio; // on ground, drag mimic the wheels brakes
-        if (controls.brakes && forces.speed < groundBrakesSpeed) forces.velocity = Vector3Scale(forces.velocity, 0.9f);
-        forces.lift *= stallLiftRatio; // always stall
-        if (forces.velocity.y < 0.0f) forces.velocity.y = 0.0f; // on ground there is no more velocity down
+        if (state.controls.brakes) state.forces.drag *= groundBrakesDragRatio; // on ground, drag mimic the wheels brakes
+        if (state.controls.brakes && state.forces.speed < groundBrakesSpeed) state.forces.velocity = Vector3Scale(state.forces.velocity, 0.9f);
+        state.forces.lift *= stallLiftRatio; // always stall
+        if (state.forces.velocity.y < 0.0f) state.forces.velocity.y = 0.0f; // on ground there is no more velocity down
     }
 
     const float mass = weight / 9.81f;
 
     // forces vectors
-    const auto thrustForce = Vector3Scale(dir.forward, forces.thrust);
-    const auto dragForce = Vector3Scale(dir.forward, -forces.drag);
-    const auto liftForce = Vector3Scale(dir.up, forces.lift);
+    const auto thrustForce = Vector3Scale(state.orientation.forward, state.forces.thrust);
+    const auto dragForce = Vector3Scale(state.orientation.forward, -state.forces.drag);
+    const auto liftForce = Vector3Scale(state.orientation.up, state.forces.lift);
     const auto weightForce = Vector3Scale(GamePhysics::Gravity, mass);
 
     const auto total = Vector3Add(Vector3Add(Vector3Add(thrustForce, dragForce), weightForce), liftForce);
     const auto acceleration = Vector3Scale(total, 1.0f / mass);
 
     // acceleration
-    forces.velocity = Vector3Add(forces.velocity, Vector3Scale(acceleration, dt));
-    forces.speed = Vector3Length(forces.velocity);
+    state.forces.velocity = Vector3Add(state.forces.velocity, Vector3Scale(acceleration, dt));
+    state.forces.speed = Vector3Length(state.forces.velocity);
 
     // limit velocity
-    if (forces.speed > maxSpeed && forces.speed != 0.0f) {
-        forces.velocity = Vector3Scale(forces.velocity, maxSpeed / forces.speed);
-        forces.speed = Vector3Length(forces.velocity);
+    if (state.forces.speed > maxSpeed && state.forces.speed != 0.0f) {
+        state.forces.velocity = Vector3Scale(state.forces.velocity, maxSpeed / state.forces.speed);
+        state.forces.speed = Vector3Length(state.forces.velocity);
     }
 
     // weathervaning
     // https://en.wikipedia.org/wiki/Weathervane_effect
-    if (forces.speed > stallSpeed) {
-        auto [x, y, z] = Vector3Scale(dir.forward, forces.speed);
-        forces.velocity.x = Lerp(forces.velocity.x, x, 2.0f * dt);
-        forces.velocity.y = Lerp(forces.velocity.y, y, 2.0f * dt);
-        forces.velocity.z = Lerp(forces.velocity.z, z, 2.0f * dt);
+    if (state.forces.speed > stallSpeed) {
+        auto [x, y, z] = Vector3Scale(state.orientation.forward, state.forces.speed);
+        state.forces.velocity.x = Lerp(state.forces.velocity.x, x, 2.0f * dt);
+        state.forces.velocity.y = Lerp(state.forces.velocity.y, y, 2.0f * dt);
+        state.forces.velocity.z = Lerp(state.forces.velocity.z, z, 2.0f * dt);
     }
 }
