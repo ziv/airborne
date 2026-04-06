@@ -28,7 +28,7 @@ void GameData::update(const float dt) {
     // todo is landed? is crashed?
 }
 
-bool GameData::isStableLanding() const {
+bool GameData::isStableLanding() {
     // todo numbers should come from config
     const Vector3 angles = QuaternionToEuler(state.orientation.rotation);
     const float pitch = angles.x * RAD2DEG;
