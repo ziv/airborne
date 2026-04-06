@@ -14,8 +14,7 @@ SceneManager::SceneManager(const AppConfig &config) : engineSound(LoadMusicStrea
                                                               config.get<float>("/game/mapSizeZ")
                                                           }
                                                       )),
-                                                      relativeHeight(config.get<float>("/game/mapSizeY")),
-                                                      mig(LoadModel("res/models/mig-23/scene.gltf")) {
+                                                      relativeHeight(config.get<float>("/game/mapSizeY")) {
     // fogShader = LoadShader("shaders/fog.vs", "shaders/fog.fs");
     // camPosLoc = GetShaderLocation(fogShader, "cameraPos");
     // fogColorLoc = GetShaderLocation(fogShader, "fogColor");
@@ -31,9 +30,9 @@ SceneManager::SceneManager(const AppConfig &config) : engineSound(LoadMusicStrea
     PlayMusicStream(engineSound);
 }
 
-SceneManager::~SceneManager() {
-    UnloadModel(mig);
-}
+// SceneManager::~SceneManager() {
+//     // UnloadModel(mig);
+// }
 
 void SceneManager::update(AircraftState &state, float dt) {
     // bg sound

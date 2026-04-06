@@ -22,12 +22,12 @@ class SceneManager {
     ModelHandle map;
     float relativeHeight;
 
-    Model mig;
+    // Model mig;
 
 public:
     explicit SceneManager(const AppConfig &config);
 
-    ~SceneManager();
+    // ~SceneManager();
 
     void update(AircraftState &state, float dt);
 
