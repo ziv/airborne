@@ -47,10 +47,23 @@ void MinihudView::draw(const AircraftState &state) const {
         auto to = i > 0 ? lineY + 10 : lineY - 10;
         DrawLineEx({100, lineY}, {110, to}, 1, colors[color]);
         DrawLineEx({-100, lineY}, {-110, to}, 1, colors[color]);
+        DrawText(TextFormat("%d", i), -130, lineY - 5, 10, colors[color]);
+        DrawText(TextFormat("%d", i), 115, lineY - 5, 10, colors[color]);
     }
     rlPopMatrix();
     EndScissorMode();
+
+    // speed indicator
+    DrawText(TextFormat("%d", static_cast<int>(state.forces.speed)), 430, 310, 15, colors[color]);
+    // height indicator
+    DrawText(TextFormat("%d", static_cast<int>(state.position.y - state.groundHeight)), 750, 310, 15, colors[color]);
+
     // DrawLine(centerX - 30, centerY - 120, centerX - 10, centerY - 120, RED);
     // DrawLine(centerX + 10, centerY - 120, centerX + 30, centerY - 120, RED);
     // DrawCircle(centerX, centerY - 120, 3, RED);
+
+    if (state.controls.throttle > 1.0f) {
+        // מדפיסים אזהרת מבער אחורי מהבהבת או בצבע שונה
+        DrawText("A/B ON", 50, 470, 20, ORANGE);
+    }
 }

@@ -58,5 +58,9 @@ add_executable(${PROJECT_NAME} src/main.cpp
         src/core/AircraftStructs.h
         src/core/SceneManager.cpp
         src/core/SceneManager.h
+        src/views/Aircraft.cpp
+        src/views/Aircraft.h
+        src/views/RadarView.cpp
+        src/views/RadarView.h
 )
 target_link_libraries(${PROJECT_NAME} PRIVATE raylib)

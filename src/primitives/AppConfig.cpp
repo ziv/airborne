@@ -1,7 +1,7 @@
 #include "AppConfig.h"
 #include "Utils.h"
 
-AppConfig::AppConfig() : config(UtilsLoaders::LoadJson("config/app.jsonc")) {
+AppConfig::AppConfig() : config(UtilsLoaders::LoadJson("res/config/app.jsonc")) {
 }
 
 const nlohmann::json &AppConfig::getNode(const std::string &path) const {
@@ -12,4 +12,3 @@ const nlohmann::json &AppConfig::getNode(const std::string &path) const {
         throw std::runtime_error("Config path not found: " + path);
     }
 }
-

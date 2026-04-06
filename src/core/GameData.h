@@ -9,7 +9,7 @@ class GameData {
     MeterPerSecond stallSpeed;
     // PhysicsEngine pysicsEngine;
 
-    [[nodiscard]] bool isStableLanding();
+    [[nodiscard]] bool isStableLanding() const;
 public:
     bool paused = false;
     AircraftState state;

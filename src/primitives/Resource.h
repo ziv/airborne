@@ -42,6 +42,10 @@ public:
     // assignment operator
     operator T() const { return res; }
 
+    // smart pointer access (allows accessing underlying struct members)
+    T *operator->() { return &res; }
+    const T *operator->() const { return &res; }
+
     // pointer access (will be uncommented if necessary, too dangerous)
     // T *operator&() { return &res; }
 };

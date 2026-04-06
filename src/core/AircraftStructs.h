@@ -56,4 +56,6 @@ struct AircraftState {
     };
     float groundHeight = 0;
     bool flying = false;
+    bool crushed = false;
+    float fuel = 3500;
 };

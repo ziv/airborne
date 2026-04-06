@@ -7,13 +7,13 @@ HudView::HudView(AppConfig &config) {
 
 void HudView::update(const GameData &game) {
     if (IsKeyDown(KEY_LEFT_ALT) && IsKeyPressed(KEY_H)) {
-        color++;
-        if (color > 2) color = 0;
+        colorIndex++;
+        if (colorIndex > 2) colorIndex = 0;
     }
 }
 
 void HudView::draw(const Camera &camera, const AircraftState &state) {
-    const Color c = colors[color];
+    const Color c = colors[colorIndex];
     constexpr int hudWidth = 300;
     constexpr int hudHeight = 230;
     const auto width = GetScreenWidth();

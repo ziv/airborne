@@ -8,6 +8,7 @@ void DebugView::update() {
 }
 
 void DebugView::draw() const {
+    if (!display) return;
     const auto p = game.aircraftCamera.getCamera().position;
     const auto c = game.state.controls;
     constexpr auto m = 100.0f;

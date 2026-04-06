@@ -16,7 +16,7 @@ int main() {
     SetConfigFlags(FLAG_VSYNC_HINT);
 
     // todo make a check before changing the directory to avoid the warning
-    ChangeDirectory(TextFormat("%s../Resources", GetApplicationDirectory()));
+    // ChangeDirectory(TextFormat("%s../Resources", GetApplicationDirectory()));
     TraceLog(LOG_DEBUG, "Working directory is: %s", GetWorkingDirectory());
 
     const auto config = std::make_unique<AppConfig>();

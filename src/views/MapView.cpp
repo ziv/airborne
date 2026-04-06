@@ -9,16 +9,16 @@ MapView::MapView(const AppConfig &config) : tex(LoadTexture(config.get<std::stri
 }
 
 void MapView::update(const AircraftState &state) {
-    if (IsKeyPressed(KEY_Z)) zoom += 0.5f;
-    if (IsKeyPressed(KEY_X)) zoom -= 0.5f;
-    if (zoom > 4.0f) zoom = 4.0f;
-    if (zoom < 0.5f) zoom = 0.5f;
+    if (IsKeyPressed(KEY_Z)) zoom += 0.25f;
+    if (IsKeyPressed(KEY_X)) zoom -= 0.25f;
+    if (zoom > 5.0f) zoom = 5.0f;
+    if (zoom < 0.25f) zoom = 0.25f;
     // zoom = Clamp(zoom, 0.5f, 4.0f);
 
     // todo find the ratio between the scene and the map...
     // map pos
-    const float mapX = state.position.x / 256.0f;
-    const float mapZ = state.position.z / 256.0f;
+    const float mapX = state.position.x / 62.5f;
+    const float mapZ = state.position.z / 62.5f;
 
     // camera look at the player on the map
     mapCamera.target = (Vector2){mapX, mapZ};

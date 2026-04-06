@@ -36,8 +36,8 @@ void AircraftControls::update(AircraftState &state, const float dt) const {
     if (IsKeyDown(KEY_A)) state.controls.throttle = 1.2f; // after burners
 
     // increase/decrease throttle
-    if (IsKeyDown(KEY_MINUS)) state.controls.throttle -= 0.05f * dt;
-    if (IsKeyDown(KEY_EQUAL)) state.controls.throttle += 0.05f * dt;
+    if (IsKeyDown(KEY_MINUS)) state.controls.throttle -= 0.2f * dt;
+    if (IsKeyDown(KEY_EQUAL)) state.controls.throttle += 0.2f * dt;
 
     state.controls.throttle = Clamp(state.controls.throttle, 0.0f, 1.2f);
 

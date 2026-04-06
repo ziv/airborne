@@ -20,9 +20,10 @@ void AircraftTransformation::flyingOrientation(AircraftState &state, const float
     // some effects (arcade style)
 
     // https://en.wikipedia.org/wiki/Adverse_yaw
-    const auto bankInducedYaw = state.forces.speed == 0 ? 0.0f : state.orientation.right.y * bankInduceYawRatio * dt;
+    const auto bankInducedYaw = state.forces.speed < 0.001f ? 0.0f : state.orientation.right.y * bankInduceYawRatio * dt;
+
     // https://en.wikipedia.org/wiki/Stall_(fluid_dynamics)
-    const auto liftLossPitch = state.forces.speed == 0 ? 0.0f : (1.0f - state.orientation.up.y) * liftLossPitchRatio * dt;
+    const auto liftLossPitch = state.forces.speed < 0.001f ? 0.0f : (1.0f - state.orientation.up.y) * liftLossPitchRatio * dt;
 
     // more speed equals more steering except yaw
     const auto totalPitch = (state.controls.pitch + liftLossPitch) * speedRatio;

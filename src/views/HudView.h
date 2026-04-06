@@ -4,8 +4,8 @@
 #include "../core/GameData.h"
 
 class HudView {
-    char color = 0;
-    std::pmr::vector<Color> colors = {GREEN, WHITE, BLACK};
+    int colorIndex = 0;
+    std::array<Color, 3> colors = {GREEN, WHITE, BLACK};
 
 public:
     explicit HudView(AppConfig &config);

@@ -3,12 +3,14 @@
 #include "core/Autopilot.h"
 #include "core/GameData.h"
 #include "core/SceneManager.h"
+#include "views/Aircraft.h"
 #include "views/CockpitView.h"
 #include "views/DebugView.h"
 #include "views/HudView.h"
 #include "views/MapView.h"
 #include "views/MinihudView.h"
 #include "views/NavballView.h"
+#include "views/RadarView.h"
 
 class GameplayScreen : public GameScreen {
     // the object contain all relevant game details for
@@ -24,9 +26,12 @@ class GameplayScreen : public GameScreen {
     NavballView navballView;
     HudView hudView;
     MapView mapView;
+    RadarView radarView;
 
-    MusicHandle engine;
-    ModelHandle map;
+    Aircraft aircraft{};
+
+    // MusicHandle engine;
+    // ModelHandle map;
 
 
     // Model futuristicCity = LoadModel("res/futuristic_city.glb");

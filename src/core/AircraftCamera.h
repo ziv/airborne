@@ -6,7 +6,6 @@
 class AircraftCamera {
     // configuration
     float pilotTilt;
-    float heightAboveGround;
 
     // state
     Camera camera = {0};
@@ -14,9 +13,8 @@ class AircraftCamera {
 public:
     explicit AircraftCamera(const AppConfig &config);
 
-    void update(AircraftState &state, float dt);
-
-    void setPosition(const Vector3 &position);
+    /// @brief update camera position and target
+    void update(const AircraftState &state, float dt);
 
     Camera &getCamera() { return camera; }
 };
