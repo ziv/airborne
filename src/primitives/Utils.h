@@ -1,5 +1,5 @@
 #pragma once
-// todo clean all irelevant include
+// todo clean all irrelevant include
 #include <iostream>
 #include <fstream>
 #include <string>

@@ -39,7 +39,7 @@ $$D = v^2 \cdot C_D$$
 
 ## Lift - Gravity's Enemy
 
-Here again, list definition contain some variables $\rho$ and $S$ that will be treated as constant to make the equation
+Here again, lift definition contain some variables $\rho$ and $S$ that will be treated as constant to make the equation
 simpler.
 
 $$L = \frac{1}{2} \cdot \rho \cdot v^2 \cdot C_L \cdot S$$
@@ -64,7 +64,7 @@ $$\frac{F}{m}=G$$
 
 OK, we fooled around with some equations but what about the numbers?
 
-Let's take somthing like F16...
+Let's take somthing like F16 (Falcon/Viper)...
 
 | Property     | Value     | Unit  |
 |--------------|-----------|-------|
@@ -89,4 +89,32 @@ In a cruise speed ($250m/s$) lift should be equal to weight.
 $$\vec{L}+\vec{W}=0$$
 
 $$120,000=250^2 \cdot C_L \rightarrow C_L=1.92$$
+
+## Implementation
+
+All the user aircraft physics is implemented in
+a [single place](https://github.com/ziv/airborne/blob/main/src/core/AircraftPhysics.cpp).
+The reason I wrote "user aircraft" is the other aircraft get a simpler version.
+
+Mutating the state to get the actual forces sizes:
+
+```c++
+state.forces.thrust = state.controls.throttle * engineThrust;
+state.forces.drag = (state.forces.speed * state.forces.speed) * dragCoefficient;
+state.forces.lift = (state.forces.speed * state.forces.speed) * liftCoefficient;
+```
+
+Applying the forces and get the result as an acceleration vector (all orientation vectors are normalized):
+
+```c++
+const float mass = weight / 9.81f;
+
+const auto thrustForce = Vector3Scale(state.orientation.forward, state.forces.thrust);
+const auto dragForce = Vector3Scale(state.orientation.forward, -state.forces.drag);
+const auto liftForce = Vector3Scale(state.orientation.up, state.forces.lift);
+const auto weightForce = Vector3Scale(GamePhysics::Gravity, mass);
+
+const auto total = Vector3Add(Vector3Add(Vector3Add(thrustForce, dragForce), weightForce), liftForce);
+const auto acceleration = Vector3Scale(total, 1.0f / mass);
+```
 
