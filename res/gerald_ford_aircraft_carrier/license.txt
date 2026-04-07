@@ -1,0 +1,11 @@
+Model Information:
+* title:	Gerald Ford Aircraft Carrier
+* source:	https://sketchfab.com/3d-models/gerald-ford-aircraft-carrier-324120997379466caad30917911bcd8b
+* author:	Uxman (https://sketchfab.com/Usman1684)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Gerald Ford Aircraft Carrier" (https://sketchfab.com/3d-models/gerald-ford-aircraft-carrier-324120997379466caad30917911bcd8b) by Uxman (https://sketchfab.com/Usman1684) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

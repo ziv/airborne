@@ -1,6 +1,8 @@
 #include "MinihudView.h"
 #include "raymath.h"
 #include "rlgl.h"
+#include "../primitives/Utils.h"
+
 
 MinihudView::MinihudView(const AppConfig &config) : ladderX(config.get<int>("/views/hudLadderX")),
                                                     ladderY(config.get<int>("/views/hudLadderY")),
@@ -9,7 +11,7 @@ MinihudView::MinihudView(const AppConfig &config) : ladderX(config.get<int>("/vi
                                                     fov(config.get<float>("/pilot/fov")),
                                                     width(config.get<int>("/config/screenWidth")),
                                                     height(config.get<int>("/config/screenHeight")),
-                                                    ladderOffset(config.get<int>("/views/hudLadderOffset")) {
+                                                    ladderOffset(config.get<float>("/views/hudLadderOffset")) {
 }
 
 void MinihudView::update() {
@@ -19,44 +21,41 @@ void MinihudView::update() {
     }
 }
 
+/**
+ * HUD structure
+ *
+ * +---------------------------------------------------+
+ * | A                     B                         C |
+ * |                                                   |
+ * | D                     E                         F |
+ * |                                                   |
+ * | G                     H                         I |
+ * +---------------------------------------------------+
+ *
+ * D - Speed (knots)
+ * E - Artificial horizon ladder
+ * F - Height (feet), Height above ground in border (feet), RoC indicator
+ * G - After burner alert
+ */
+
+///
 void MinihudView::draw(const AircraftState &state) const {
-    BeginScissorMode(ladderX, ladderY, ladderWidth, ladderHeight);
-
-    const auto fy = state.orientation.forward.y;
-    const auto uy = state.orientation.up.y;
-    const auto [x, y, z] = state.orientation.right;
-
-    const float pitch = asinf(fy) * RAD2DEG;
-    const float roll = (fabsf(fy) < 0.999f ? atan2f(-y, uy) : atan2f(z, x)) * RAD2DEG;
-
-    const auto centerX = width / 2;
-    const auto centerY = height / 2;
-
-    const float pixelsPerDegree = height / fov;
-
-    rlPushMatrix();
-    rlTranslatef(static_cast<float>(centerX), static_cast<float>(centerY) - ladderOffset, 0);
-    rlRotatef(-roll, 0, 0, 1);
-    rlTranslatef(0, pitch * pixelsPerDegree, 0);
-
-    DrawLineEx({-100, 0}, {100, 0}, 2, colors[color]);
-    for (int i = -180; i <= 180; i += 15) {
-        if (i == 0) continue;
-        const auto lineY = -static_cast<float>(i) * pixelsPerDegree;
-        DrawLineEx({-100, lineY}, {100, lineY}, 1, colors[color]);
-        auto to = i > 0 ? lineY + 10 : lineY - 10;
-        DrawLineEx({100, lineY}, {110, to}, 1, colors[color]);
-        DrawLineEx({-100, lineY}, {-110, to}, 1, colors[color]);
-        DrawText(TextFormat("%d", i), -130, lineY - 5, 10, colors[color]);
-        DrawText(TextFormat("%d", i), 115, lineY - 5, 10, colors[color]);
-    }
-    rlPopMatrix();
-    EndScissorMode();
+    drawLadder(state);
+    drawRateOfClimb(state);
 
     // speed indicator
-    DrawText(TextFormat("%d", static_cast<int>(state.forces.speed)), 430, 310, 15, colors[color]);
+    const auto speed = state.forces.speed * GamePhysics::MS_TO_KNOTS;
+    DrawText(TextFormat("%s", FormatNumberSuffix(speed)), 430, 310, 15, colors[color]);
+
     // height indicator
-    DrawText(TextFormat("%d", static_cast<int>(state.position.y - state.groundHeight)), 750, 310, 15, colors[color]);
+    const auto heightAbsolute = state.position.y * GamePhysics::METERS_TO_FEET;
+    const auto heightRelative = (state.position.y - state.groundHeight) * GamePhysics::METERS_TO_FEET;
+    DrawText(TextFormat("%s", FormatNumberSuffix(heightAbsolute)), 750, 310, 15, colors[color]);
+    DrawText(TextFormat("%s", FormatNumberSuffix(heightRelative)), 750, 330, 10, colors[color]);
+    DrawRectangleLines(745, 328, 30, 14, colors[color]);
+
+    // Rate of Climb (RoC)
+
 
     // DrawLine(centerX - 30, centerY - 120, centerX - 10, centerY - 120, RED);
     // DrawLine(centerX + 10, centerY - 120, centerX + 30, centerY - 120, RED);
@@ -64,6 +63,84 @@ void MinihudView::draw(const AircraftState &state) const {
 
     if (state.controls.throttle > 1.0f) {
         // מדפיסים אזהרת מבער אחורי מהבהבת או בצבע שונה
-        DrawText("A/B ON", 50, 470, 20, ORANGE);
+        DrawText("A/B ON", 450, 390, 12, ORANGE);
+    }
+}
+
+
+void MinihudView::drawLadder(const AircraftState &state) const {
+    BeginScissorMode(ladderX, ladderY, ladderWidth, ladderHeight);
+
+    const auto fy = state.orientation.forward.y;
+    const auto uy = state.orientation.up.y;
+    const auto [x, y, z] = state.orientation.right;
+
+    const auto pitch = asinf(fy) * RAD2DEG;
+    const auto roll = (fabsf(fy) < 0.999f ? atan2f(-y, uy) : atan2f(z, x)) * RAD2DEG;
+
+    const auto centerX = width / 2;
+    const auto centerY = height / 2;
+
+    const auto pixelsPerDegree = static_cast<float>(height) / fov;
+
+    DrawCircleLines(centerX, centerY - static_cast<int>(ladderOffset), 5.0f, colors[color]);
+
+    // freeze state
+    rlPushMatrix();
+
+    // take us to the center
+    rlTranslatef(static_cast<float>(centerX), static_cast<float>(centerY) - ladderOffset, 0);
+
+    // pitch & roll
+    rlRotatef(-roll, 0, 0, 1);
+    rlTranslatef(0, pitch * pixelsPerDegree, 0);
+
+    // draw on the center
+
+    // main line
+    DrawLineEx({-100, 0}, {-20, 0}, 2, colors[color]);
+    DrawLineEx({20, 0}, {100, 0}, 2, colors[color]);
+
+
+    for (int i = -180; i <= 180; i += 15) {
+        if (i == 0) continue;
+        const auto lineY = -static_cast<float>(i) * pixelsPerDegree;
+        // main line
+        DrawLineEx({-100, lineY}, {-20, lineY}, 1, colors[color]);
+        DrawLineEx({20, lineY}, {100, lineY}, 1, colors[color]);
+
+        const auto to = i > 0 ? lineY + 10 : lineY - 10;
+        DrawLineEx({100, lineY}, {110, to}, 1, colors[color]);
+        DrawLineEx({-100, lineY}, {-110, to}, 1, colors[color]);
+        DrawText(TextFormat("%d", i), -130, static_cast<int>(lineY) - 5, 10, colors[color]);
+        DrawText(TextFormat("%d", i), 115, static_cast<int>(lineY) - 5, 10, colors[color]);
+    }
+
+    // resume from freeze
+    rlPopMatrix();
+    EndScissorMode();
+}
+
+void MinihudView::drawRateOfClimb(const AircraftState &state) const {
+    const auto verticalSpeedFPM = state.forces.velocity.y * GamePhysics::MS_TO_FPM;
+    constexpr float MAX_CLIMB_RATE_FPM = 50000.0f;
+    const float MAX_BAR_PIXELS = (static_cast<float>(ladderHeight) / 2.0f) - 20.0f;
+
+    float vsRatio = verticalSpeedFPM / MAX_CLIMB_RATE_FPM;
+    if (vsRatio > 1.0f) vsRatio = 1.0f;
+    if (vsRatio < -1.0f) vsRatio = -1.0f;
+
+    const int currentBarHeight = static_cast<int>(vsRatio * MAX_BAR_PIXELS);
+    const int maxBarPixels = static_cast<int>(MAX_BAR_PIXELS);
+
+    constexpr int centerX = 740; // see speed location
+    constexpr int centerY = 318;
+    DrawLine(centerX, centerY - maxBarPixels, centerX, centerY + maxBarPixels, Fade(colors[color], 0.3f));
+    DrawLine(centerX - 5, centerY, centerX + 5, centerY, colors[color]);
+
+    if (currentBarHeight > 0) {
+        DrawRectangle(centerX - 2, centerY - currentBarHeight, 4, currentBarHeight, colors[color]);
+    } else {
+        DrawRectangle(centerX - 2, centerY, 4, -currentBarHeight, colors[color]);
     }
 }

@@ -1,43 +1,37 @@
 #version 330
 
-// משתנים שמגיעים מה-Vertex Shader
-in vec3 fragPosition;
+// נתונים שמגיעים מה-Vertex Shader
 in vec2 fragTexCoord;
 in vec4 fragColor;
+in float fragDistance;
 
-// טקסטורת הבסיס של המודל
+// טקסטורת הבסיס של השטח
 uniform sampler2D texture0;
 
-// משתני ערפל (אנחנו נשלח אותם מ-C++)
-uniform vec3 cameraPos;    // מיקום המצלמה הנוכחי
-uniform vec4 fogColor;     // צבע הערפל (למשל אפור-כחול)
-uniform float fogDensity;  // כמה הערפל סמיך (0.0 עד 1.0)
+// משתנים (Uniforms) שאנחנו נעדכן מהקוד ב-C++
+uniform vec3 skyColor;      // צבע השמיים (כחול-אפור)
+uniform float fogNear;      // מאיזה מרחק הערפל מתחיל (למשל 5000)
+uniform float fogFar;       // באיזה מרחק השטח נעלם לגמרי (למשל 30000)
 
-// משתנה יציאה (הצבע הסופי של הפיקסל על המסך)
+// הצבע הסופי של הפיקסל שיצויר על המסך
 out vec4 finalColor;
 
 void main()
 {
-    // 1. מקבלים את הצבע המקורי של הטקסטורה בנקודה זו
+    // קבלת הצבע המקורי מהטקסטורה
     vec4 texelColor = texture(texture0, fragTexCoord);
+
+    // שילוב צבע הטקסטורה עם צבע הקודקוד (למשל תאורה)
     vec4 baseColor = texelColor * fragColor;
 
-    // 2. חישוב המרחק של הפיקסל מהמצלמה (רק על מישור הקרקע XZ, בלי גובה)
-    vec2 distVec = fragPosition.xz - cameraPos.xz;
-    float distance = length(distVec);
+    // חישוב פקטור הערפל (מספר בין 0.0 ל-1.0)
+    // 0.0 = קרוב (אין ערפל), 1.0 = רחוק (ערפל מלא)
+    // הפונקציה smoothstep יוצרת מעבר חלק
+    float fogFactor = smoothstep(fogNear, fogFar, fragDistance);
 
-    // 3. נוסחת ערפל אקספוננציאלית (Exp2 נותן מראה טבעי יותר מלינארי)
-    // ככל שהמרחק או הסמיכות גדלים, fogFactor קטן לכיוון 0.0
-    float fogFactor = 1.0 / exp(pow(distance * fogDensity, 2.0));
+    // "ערבוב" (Linear Interpolation) בין הצבע המקורי לצבע השמיים
+    finalColor = mix(baseColor, vec4(skyColor, 1.0), fogFactor);
 
-    // הגבלה של ה-Factor בין 0 ל-1 ליתר ביטחון
-    fogFactor = clamp(fogFactor, 0.0, 1.0);
-
-    // 4. ערבוב (Mix): הצבע הסופי הוא שילוב של צבע הקרקע וצבע הערפל
-    // אם fogFactor=1 (קרוב מאוד), נראה רק קרקע.
-    // אם fogFactor=0 (רחוק מאוד), נראה רק ערפל.
-    finalColor = mix(fogColor, baseColor, fogFactor);
-
-    // מוודאים שהאלפא נשארת מלאה
+    // שמירה על השקיפות המקורית (בדרך כלל 1.0 בשטח)
     finalColor.a = baseColor.a;
 }

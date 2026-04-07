@@ -13,12 +13,14 @@ class MinihudView {
     float fov;
     int width;
     int height;
-    int ladderOffset;
+    float ladderOffset;
 
     // hud colors
     char color = 0;
     std::pmr::vector<Color> colors = {GREEN, WHITE, BLACK};
 
+    void drawLadder(const AircraftState &state) const;
+    void drawRateOfClimb(const AircraftState &state) const;
 public:
     explicit MinihudView(const AppConfig &config);
 

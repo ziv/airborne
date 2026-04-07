@@ -14,6 +14,11 @@ struct PendingChunk {
     std::future<AsyncChunkResult> futureData; // הבטחה לקבל Mesh בעתיד
 };
 
+struct CloudInfo {
+    Vector3 position;
+    float size;
+};
+
 class SceneManager {
     std::string txTemplate = "res/tx16k/tx-%i-%i.png";
     std::string hmTemplate = "res/hm1616k/hm-%i-%i.png";
@@ -21,8 +26,15 @@ class SceneManager {
     ImageHandle height;
     ModelHandle map;
     float relativeHeight;
+    ModelHandle carrier;
+    ShaderHandle fog;
 
+
+    // TextureHandle cloud;
+    // std::vector<CloudInfo> clouds;
     // Model mig;
+    ModelHandle cloudModel;
+    TextureHandle cloudTexture;
 
 public:
     explicit SceneManager(const AppConfig &config);
@@ -31,5 +43,5 @@ public:
 
     void update(AircraftState &state, float dt);
 
-    void draw(const AircraftState &state);
+    void draw(const AircraftState &state, const Camera &camera);
 };

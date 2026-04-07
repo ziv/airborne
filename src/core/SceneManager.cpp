@@ -1,5 +1,33 @@
 #include "SceneManager.h"
+
+#include "rlgl.h"
 #include "../primitives/Utils.h"
+
+inline Texture2D initClouds() {
+    // noise
+    Image noiseImage = GenImagePerlinNoise(1024, 1024, 100, 100, 4.0f);
+
+    // allow opacity
+    ImageFormat(&noiseImage, PIXELFORMAT_UNCOMPRESSED_R8G8B8A8);
+
+    // part of the pixels become clear and part ones become clouds (edit pixels in place)
+    auto *pixels = static_cast<Color *>(noiseImage.data);
+
+    for (int i = 0; i < noiseImage.width * noiseImage.height; i++) {
+        if (const unsigned char intensity = pixels[i].r; intensity < 120) {
+            // clear sky
+            pixels[i] = {255, 255, 255, 0}; // לבן, אבל שקוף לחלוטין
+        } else {
+            // clouds
+            const auto alpha = static_cast<unsigned char>((static_cast<float>(intensity) - 120) * 1.8f);
+            pixels[i] = {255, 255, 255, alpha};
+        }
+    }
+
+    const auto cloudTexture = LoadTextureFromImage(noiseImage);
+    UnloadImage(noiseImage);
+    return cloudTexture;
+}
 
 SceneManager::SceneManager(const AppConfig &config) : engineSound(LoadMusicStream(config.get<std::string_view>("/game/engineSound").data())),
                                                       // load as image (RAM/CPU) for height check
@@ -14,25 +42,32 @@ SceneManager::SceneManager(const AppConfig &config) : engineSound(LoadMusicStrea
                                                               config.get<float>("/game/mapSizeZ")
                                                           }
                                                       )),
-                                                      relativeHeight(config.get<float>("/game/mapSizeY")) {
-    // fogShader = LoadShader("shaders/fog.vs", "shaders/fog.fs");
-    // camPosLoc = GetShaderLocation(fogShader, "cameraPos");
-    // fogColorLoc = GetShaderLocation(fogShader, "fogColor");
-    // fogDensityLoc = GetShaderLocation(fogShader, "fogDensity");
-    // float fogColorNormalized[4] = {
-    //     CurrentFogColor.r / 255.0f,
-    //     CurrentFogColor.g / 255.0f,
-    //     CurrentFogColor.b / 255.0f,
-    //     CurrentFogColor.a / 255.0f
-    // };
-    // SetShaderValue(fogShader, fogColorLoc, fogColorNormalized, SHADER_UNIFORM_VEC4);
-    // SetShaderValue(fogShader, fogDensityLoc, &CurrentFogDensity, SHADER_UNIFORM_FLOAT);
-    PlayMusicStream(engineSound);
-}
+                                                      relativeHeight(config.get<float>("/game/mapSizeY")),
+                                                      carrier(LoadModel("res/gerald_ford_aircraft_carrier.glb")),
+                                                      fog(LoadShader(config.get<std::string_view>("/game/fogShaderVs").data(),
+                                                                     config.get<std::string_view>("/game/fogShaderFs").data())),
+                                                      cloudModel(LoadModelFromMesh(GenMeshPlane(200000, 200000, 10, 10))),
+                                                      cloudTexture(initClouds()) {
+    const int skyColorLoc = GetShaderLocation(fog, "skyColor");
+    const int fogNearLoc = GetShaderLocation(fog, "fogNear");
+    const int fogFarLoc = GetShaderLocation(fog, "fogFar");
 
-// SceneManager::~SceneManager() {
-//     // UnloadModel(mig);
-// }
+    constexpr float fogNearValue = 45000.0f; // start at
+    constexpr float fogFarValue = 80000.0f; // full fogs
+    constexpr Vector3 skyColorVec = {BLUE.r / 255.0f, BLUE.g / 255.0f, BLUE.b / 255.0f};
+
+    SetShaderValue(fog, skyColorLoc, &skyColorVec, SHADER_UNIFORM_VEC3);
+    SetShaderValue(fog, fogNearLoc, &fogNearValue, SHADER_UNIFORM_FLOAT);
+    SetShaderValue(fog, fogFarLoc, &fogFarValue, SHADER_UNIFORM_FLOAT);
+    map->materials[0].shader = fog;
+
+    PlayMusicStream(engineSound);
+
+    // cloud
+    SetTextureWrap(cloudTexture, TEXTURE_WRAP_REPEAT);
+    cloudModel->materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = cloudTexture;
+    cloudModel->materials[0].shader = fog;
+}
 
 void SceneManager::update(AircraftState &state, float dt) {
     // bg sound
@@ -44,8 +79,10 @@ void SceneManager::update(AircraftState &state, float dt) {
     UpdateMusicStream(engineSound);
 
     // update ground height
-    const auto x = static_cast<int>(state.position.x / 15.625f);
-    const auto z = static_cast<int>(state.position.z / 15.625f);
+    // todo should come from configuration
+    // world size 128,000. map size 1,024. 128,000/1,024=125.0f
+    const auto x = static_cast<int>((state.position.x - state.mapOffset.x) / 125.0f);
+    const auto z = static_cast<int>((state.position.z - state.mapOffset.y) / 125.0f);
     if (x < 0 || z < 0 || x >= height->width || z >= height->height) {
         state.groundHeight = 0.0;
     } else {
@@ -53,17 +90,29 @@ void SceneManager::update(AircraftState &state, float dt) {
         state.groundHeight = relativeHeight * r / 255.0f;
     }
     // tiles.update(state.position);
+    cloudModel->materials[0].maps[MATERIAL_MAP_DIFFUSE].color.r += 0.01f * GetFrameTime();
 }
 
 
-void SceneManager::draw(const AircraftState &state) {
-    // tiles.draw();
-    Vector3 drawPosition = {
+void SceneManager::draw(const AircraftState &state, const Camera &camera) {
+    const Vector3 drawPosition = {
         state.mapOffset.x,
         0.0f,
         state.mapOffset.y,
     };
-    // DrawModel(map, (Vector3){0.0f, 0.0f, 0.0f}, 1.0f, WHITE);
     DrawModel(map, drawPosition, 1.0f, WHITE);
-    // DrawModel(mig, (Vector3){550.0f, 100.0f, 450.0f}, 50.0f, WHITE);
+
+    if (const auto carrierPosition = (Vector3){2000.0f + state.mapOffset.x, 0.0f, 3000.0f + state.mapOffset.y}; !state.tooFar2Draw(carrierPosition)) {
+        DrawModel(carrier, carrierPosition, 1.0f, WHITE);
+    }
+
+    // clouds
+    const Vector3 cloudPosition = {
+        state.mapOffset.x,
+        10000.0f,
+        state.mapOffset.y
+    };
+    rlDisableBackfaceCulling();
+    DrawModel(cloudModel, cloudPosition, 1.0f, WHITE);
+    rlEnableBackfaceCulling();
 }

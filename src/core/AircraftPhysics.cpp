@@ -90,6 +90,15 @@ void AircraftPhysics::update(AircraftState &state, const float dt) const {
     if (state.position.y < heightAboveGround) {
         state.position.y = heightAboveGround;
     }
+    // todo currently for the carrier
+    if (fabs(state.position.x + state.mapOffset.x - 2000.0f) < 1600.0f && fabs(state.position.z + state.mapOffset.y - 3000.0f) < 1600.0f) {
+        // it is on the carrier
+        if (state.position.y < 200) {
+            state.position.y = 200;
+            state.forces.velocity.y = 0;
+        }
+    }
+
 
     // keep the center less than SHIFT_THRESHOLD to keep the
     // calculations accurate (large floats issue)

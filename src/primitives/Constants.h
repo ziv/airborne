@@ -12,4 +12,8 @@ namespace GamePhysics {
 
     // the one and only
     constexpr Vector3 Gravity = {0.0f, -9.81f, 0.0f};
+
+    constexpr float MS_TO_KNOTS = 1.94384f;
+    constexpr float MS_TO_FPM = 196.8504f; // meter/seconds for feet/minutes
+    constexpr float METERS_TO_FEET = 3.28084f;
 }

@@ -39,6 +39,16 @@ inline std::string FormatNumber(const float num) {
     return ss.str();
 }
 
+inline const char *FormatNumberSuffix(const float number) {
+    if (number >= 1000000.0f) {
+        return TextFormat("%.1fM", number / 1000000.0f);
+    }
+    if (number >= 1000.0f) {
+        return TextFormat("%.1fk", number / 1000.0f);
+    }
+    return TextFormat("%.0f", number);
+}
+
 
 namespace UtilsLoaders {
     inline Model loadTerrain(std::string_view texturePath, std::string_view heightmapPath, const Vector3 size) {

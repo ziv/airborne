@@ -6,7 +6,7 @@
     "screenHeight": 800,
     // rClipPlane: how far we see the world in 3d mode
     "nearPlane": 1,
-    "farPlane": 50000
+    "farPlane": 150000
   },
   "airplane": {
     // where the pilot sit
@@ -33,7 +33,7 @@
     "liftLossPitchRatio": 0.1,
     // the feel of the stick
     "pitchRatio": 0.7,
-    "rollRatio": 0.8,
+    "rollRatio": 0.9,
     "yawRatio": 0.5,
     "acceleration": 80
   },
@@ -55,9 +55,12 @@
   "game": {
     "cockpitTexture": "res/cockpit-z.png",
     "cockpitChroma": "res/shaders/chromakey.fs",
+    "cockpitSprites": "res/sprites.png",
     "engineSound": "res/engine.mp3",
     "mapTexture": "res/north-tx-2048.jpg",
     "mapHeightmap": "res/north-hm.png",
+    "fogShaderVs": "res/shaders/fog.vs",
+    "fogShaderFs": "res/shaders/fog.fs",
     "mapSizeX": 128000,
     "mapSizeZ": 128000,
     "mapSizeY": 5000
