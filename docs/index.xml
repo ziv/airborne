@@ -51,7 +51,7 @@
 &lt;p&gt;In my simpler version, $C_D$ is my drag coefficient:&lt;/p&gt;
 &lt;p&gt;$$D = v^2 \cdot C_D$$&lt;/p&gt;
 &lt;h2 id=&#34;lift---gravitys-enemy&#34;&gt;Lift - Gravity&amp;rsquo;s Enemy&lt;/h2&gt;
-&lt;p&gt;Here again, list definition contain some variables $\rho$ and $S$ that will be treated as constant to make the equation
+&lt;p&gt;Here again, lift definition contain some variables $\rho$ and $S$ that will be treated as constant to make the equation
 simpler.&lt;/p&gt;
 &lt;p&gt;$$L = \frac{1}{2} \cdot \rho \cdot v^2 \cdot C_L \cdot S$$&lt;/p&gt;
 &lt;p&gt;And again, in my simpler version, $C_L$ is my lift coefficient:&lt;/p&gt;
@@ -64,7 +64,7 @@ simpler.&lt;/p&gt;
 &lt;hr&gt;
 &lt;h1 id=&#34;numbers&#34;&gt;Numbers?!&lt;/h1&gt;
 &lt;p&gt;OK, we fooled around with some equations but what about the numbers?&lt;/p&gt;
-&lt;p&gt;Let&amp;rsquo;s take somthing like F16&amp;hellip;&lt;/p&gt;
+&lt;p&gt;Let&amp;rsquo;s take somthing like F16 (Falcon/Viper)&amp;hellip;&lt;/p&gt;
 &lt;table&gt;
   &lt;thead&gt;
       &lt;tr&gt;
@@ -109,7 +109,25 @@ simpler.&lt;/p&gt;
 &lt;p&gt;In a cruise speed ($250m/s$) lift should be equal to weight.&lt;/p&gt;
 &lt;p&gt;$$\vec{L}+\vec{W}=0$$&lt;/p&gt;
 &lt;p&gt;$$120,000=250^2 \cdot C_L \rightarrow C_L=1.92$$&lt;/p&gt;
-</content>
+&lt;h2 id=&#34;implementation&#34;&gt;Implementation&lt;/h2&gt;
+&lt;p&gt;All the user aircraft physics is implemented in
+a &lt;a href=&#34;https://github.com/ziv/airborne/blob/main/src/core/AircraftPhysics.cpp&#34;&gt;single place&lt;/a&gt;.
+The reason I wrote &amp;ldquo;user aircraft&amp;rdquo; is the other aircraft get a simpler version.&lt;/p&gt;
+&lt;p&gt;Mutating the state to get the actual forces sizes:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-c++&#34; data-lang=&#34;c++&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;state.forces.thrust &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; state.controls.throttle &lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt; engineThrust;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;state.forces.drag &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; (state.forces.speed &lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt; state.forces.speed) &lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt; dragCoefficient;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;state.forces.lift &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; (state.forces.speed &lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt; state.forces.speed) &lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt; liftCoefficient;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Applying the forces and get the result as an acceleration vector (all orientation vectors are normalized):&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-c++&#34; data-lang=&#34;c++&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;const&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;float&lt;/span&gt; mass &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; weight &lt;span style=&#34;color:#f92672&#34;&gt;/&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;9.81f&lt;/span&gt;;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;const&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;auto&lt;/span&gt; thrustForce &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; Vector3Scale(state.orientation.forward, state.forces.thrust);
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;const&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;auto&lt;/span&gt; dragForce &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; Vector3Scale(state.orientation.forward, &lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt;state.forces.drag);
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;const&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;auto&lt;/span&gt; liftForce &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; Vector3Scale(state.orientation.up, state.forces.lift);
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;const&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;auto&lt;/span&gt; weightForce &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; Vector3Scale(GamePhysics&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;Gravity, mass);
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;const&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;auto&lt;/span&gt; total &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; Vector3Add(Vector3Add(Vector3Add(thrustForce, dragForce), weightForce), liftForce);
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;const&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;auto&lt;/span&gt; acceleration &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; Vector3Scale(total, &lt;span style=&#34;color:#ae81ff&#34;&gt;1.0f&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;/&lt;/span&gt; mass);
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;</content>
     </item>
     
     <item>
@@ -134,6 +152,16 @@ using
 the &amp;ldquo;raylib&amp;rdquo; library, which provides a solid foundation and saves me from reinventing a lot from scratch.&lt;/p&gt;
 &lt;p&gt;Let’s get started.&lt;/p&gt;
 </content>
+    </item>
+    
+    <item>
+      <title>Getting Started</title>
+      <link>https://ziv.github.io/airborne/posts/nights-of-war/</link>
+      <pubDate>Tue, 31 Mar 2026 12:00:40 +0300</pubDate>
+      
+      <guid>https://ziv.github.io/airborne/posts/nights-of-war/</guid>
+      <description></description>
+      <content></content>
     </item>
     
   </channel>
