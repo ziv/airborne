@@ -24,32 +24,33 @@ struct AircraftSteer {
 
 class Aircraft {
 private:
+    ModelHandle aircraft;
     // limit the roll
-    float maxBankAngle = 45.0f;
-
-    // limit the pitch
-    float maxPullRatio = 1.0f;
-
-    // limit the throttle
-    float speedRatio = 1.0f;
-    float maxTurnRate = 0.5f;
-
-
-    MeterPerSecond speed = 10.0;
-    Vector3 forward = {-1.0f, 0.0f, 0.0f};
+    // float maxBankAngle = 45.0f;
+    //
+    // // limit the pitch
+    // float maxPullRatio = 1.0f;
+    //
+    // // limit the throttle
+    // float speedRatio = 1.0f;
+    // float maxTurnRate = 0.5f;
+    //
+    //
+    // MeterPerSecond speed = 10.0;
+    // Vector3 forward = {-1.0f, 0.0f, 0.0f};
 
     // ModelHandle model;
 
-    std::pmr::vector<AircraftWaypoint> waypoints;
-    size_t currentWaypointIndex = 0;
+    // std::pmr::vector<AircraftWaypoint> waypoints;
+    // size_t currentWaypointIndex = 0;
 
-    void steer(float dt);
+    // void steer(float dt);
 
 public:
-    Vector3 position = {500.0f, 1000.0f, 500.0f};
+    // Vector3 position = {500.0f, 1000.0f, 500.0f};
     Aircraft();
 
-    void update(const AircraftState &state, float dt);
+    // void update(const AircraftState &state, float dt);
 
-    void draw();
+    void draw(const AircraftState &state);
 };

@@ -13,7 +13,11 @@
 #include "views/NavballView.h"
 #include "views/RadarView.h"
 
+
+
 class GameplayScreen : public GameScreen {
+    int rightPane = 0;
+    int leftPane = 0;
     GameData game;
     SceneManager scene;
 
@@ -25,6 +29,7 @@ class GameplayScreen : public GameScreen {
     HudView hudView;
     MapView mapView;
     RadarView radarView;
+    Aircraft aircraft;
 
     /// Seconds elapsed since crash — used for the crash overlay delay.
     float crashTimer = 0.0f;

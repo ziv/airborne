@@ -53,14 +53,13 @@ void AircraftTransformation::flyingOrientation(AircraftState &state, const float
         qTurbulence = QuaternionMultiply(qTYaw, QuaternionMultiply(qTPitch, qTRoll));
     }
 
+    // todo missing: on stall speed nose should goes down
+
     // all of them together (the order is important!) adding the turbulence last
     const auto qDelta = QuaternionMultiply(qTurbulence, QuaternionMultiply(qYaw, QuaternionMultiply(qPitch, qRoll)));
 
     // update the quaternion and normalize, then recalculate vectors
-    state.orientation.rotation = QuaternionNormalize(QuaternionMultiply(qDelta, state.orientation.rotation));
-    state.orientation.forward = Vector3Normalize(Vector3RotateByQuaternion(GamePhysics::WorldForward, state.orientation.rotation));
-    state.orientation.up = Vector3Normalize(Vector3RotateByQuaternion(GamePhysics::WorldUp, state.orientation.rotation));
-    state.orientation.right = Vector3Normalize(Vector3RotateByQuaternion(GamePhysics::WorldRight, state.orientation.rotation));
+    updateOrientation(state, qDelta);
 }
 
 void AircraftTransformation::groundOrientation(AircraftState &state, const float dt) const {
@@ -68,6 +67,7 @@ void AircraftTransformation::groundOrientation(AircraftState &state, const float
 
     // apply the changes (more speed equals more steering except yaw)
     // on ground pitch can be positive only
+    // todo this is a bug, I can do negative pitch (lower my nose), but I can not lower it more than the ground...
     const auto pitch = state.controls.pitch > 0.0f ? state.controls.pitch : 0.0f;
     const auto qPitch = QuaternionFromAxisAngle(state.orientation.right, pitch * speedRatio);
     const auto qYaw = QuaternionFromAxisAngle(state.orientation.up, state.controls.yaw);
@@ -75,6 +75,10 @@ void AircraftTransformation::groundOrientation(AircraftState &state, const float
 
     // update the quaternion and normalize, then recalculate vectors
     const auto qDelta = QuaternionMultiply(qYaw, QuaternionMultiply(qPitch, qRoll));
+    updateOrientation(state, qDelta);
+}
+
+void AircraftTransformation::updateOrientation(AircraftState &state, const Quaternion &qDelta) {
     state.orientation.rotation = QuaternionNormalize(QuaternionMultiply(qDelta, state.orientation.rotation));
     state.orientation.forward = Vector3Normalize(Vector3RotateByQuaternion(GamePhysics::WorldForward, state.orientation.rotation));
     state.orientation.up = Vector3Normalize(Vector3RotateByQuaternion(GamePhysics::WorldUp, state.orientation.rotation));

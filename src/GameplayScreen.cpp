@@ -12,14 +12,16 @@ GameplayScreen::GameplayScreen(AppConfig &config, const Scenario &scenario)
       minihudView(config),
       navballView(config),
       hudView(config),
-      mapView(config)
-{
+      mapView(config) {
 }
 
 ScreenState GameplayScreen::update() {
     // pause game
     if (IsKeyPressed(KEY_L)) game.paused = !game.paused;
     if (game.paused) return ScreenState::GAMEPLAY;
+
+    if (IsKeyPressed(KEY_LEFT_BRACKET)) leftPane = (leftPane + 1) % 3;
+    if (IsKeyPressed(KEY_RIGHT_BRACKET)) rightPane = (rightPane + 1) % 3;
 
     // --- crash state: freeze gameplay, wait for SPACE or timeout → main menu ---
     if (game.state.crashed) {
@@ -45,10 +47,13 @@ void GameplayScreen::run() {
     // @formatter:off
     ClearBackground(BLUE);
     BeginMode3D(game.aircraftCamera.getCamera());
-        DrawGrid(100, 20.0f);
+        // DrawGrid(100, 20.0f);
         scene.draw(game.state, game.aircraftCamera.getCamera());
         game.entities.draw(game.state);
+        if (IsKeyDown(KEY_F1)) aircraft.draw(game.state);
     EndMode3D();
+
+    if (IsKeyDown(KEY_F1)) return;
 
     cockpitView.draw(game.state);
     mapView.draw();
@@ -66,9 +71,15 @@ void GameplayScreen::run() {
         }
         contacts.push_back({e.position, color});
     });
-    radarView.draw(game.state, contacts);
+    // draw on the right
+    switch (leftPane) {
+        case 0:
+            radarView.draw(game.state, contacts, (Vector2){377.0f, 666.0f});
+            break;
+        default:
+            break;
+    }
     // DrawFPS(1000, 10);
-
     // --- crash overlay (drawn on top of everything) ---
     if (game.state.crashed) {
         const int sw = GetScreenWidth();
@@ -84,5 +95,6 @@ void GameplayScreen::run() {
         const int hintW = MeasureText(hint, 20);
         DrawText(hint, sw / 2 - hintW / 2, sh / 2 + 20, 20, WHITE);
     }
+
     // @formatter:on
 }

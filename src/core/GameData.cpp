@@ -100,8 +100,9 @@ LandingZoneInfo GameData::checkLandingZones() const {
         const bool isCarrier = (e->subtype == "carrier");
 
         // half-extents: short side (width) across heading, long side along heading
-        const float halfWidth  = isCarrier ? 100.0f : 250.0f;   // 200/2  or 500/2
-        const float halfLength = isCarrier ? 250.0f : 1000.0f;   // 500/2  or 2000/2
+        // todo see EntityRegistry draw, GameData consts
+        const float halfWidth  = isCarrier ? 400.0f : 800.0f;   // 200/2  or 500/2
+        const float halfLength = isCarrier ? 2000.0f : 4000.0f;   // 500/2  or 2000/2
         const float surfaceY   = isCarrier ? 150.0f : 0.0f;
 
         // convert entity world position into the aircraft's local coordinate frame

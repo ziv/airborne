@@ -17,6 +17,8 @@ class AircraftTransformation {
 
     void groundOrientation(AircraftState &state, float dt) const;
 
+    static void updateOrientation(AircraftState &state, const Quaternion &qDelta) ;
+
 public:
     explicit AircraftTransformation(const AppConfig &config);
 

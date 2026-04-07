@@ -12,7 +12,7 @@ class GameData {
     MeterPerSecond stallSpeed;
 
     /// Landing zone box height above surface (how tall the 3D box is).
-    static constexpr float LANDING_BOX_HEIGHT = 50.0f;
+    static constexpr float LANDING_BOX_HEIGHT = 150.0f;
 
     /// Maximum landing speed — anything faster causes a crash on touchdown.
     static constexpr float MAX_LANDING_SPEED_RATIO = 2.0f;
@@ -21,12 +21,12 @@ class GameData {
     static constexpr float MAX_LANDING_ROLL = 10.0f;
 
     /// Pitch must be between these bounds (degrees) for a safe landing.
-    static constexpr float MIN_LANDING_PITCH = -2.0f;
-    static constexpr float MAX_LANDING_PITCH = 14.0f;
+    static constexpr float MIN_LANDING_PITCH = -5.0f;
+    static constexpr float MAX_LANDING_PITCH = 15.0f;
 
     /// Check if the aircraft is inside any friendly AIRBASE landing zone.
     /// Populates LandingZoneInfo with zone details if found.
-    LandingZoneInfo checkLandingZones() const;
+    [[nodiscard]] LandingZoneInfo checkLandingZones() const;
 
     /// Returns true when orientation and speed allow a safe touchdown.
     [[nodiscard]] bool isGoodLanding() const;

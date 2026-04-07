@@ -8,7 +8,7 @@ void RadarView::update() {
     }
 }
 
-void RadarView::drawScope() const {
+void RadarView::drawScope(const Vector2 &center) const {
     const auto x = static_cast<int>(center.x);
     const auto y = static_cast<int>(center.y);
     const auto r = static_cast<int>(displayRadius);
@@ -24,16 +24,10 @@ void RadarView::drawScope() const {
     DrawText(TextFormat("%.0f NM", rangeNm), x - r, y + r + 4, 10, DARKGREEN);
 }
 
-// void RadarView::drawContact(Vector2 blipPos, const RadarContact &contact) const {
-//     DrawRectangle(blipPos.x - 3, blipPos.y - 3, 6, 6, contact.color);
-//
-//     int altFeet = static_cast<int>(contact.worldPosition.y * GamePhysics::METERS_TO_FEET);
-//     DrawText(TextFormat("%d", altFeet), blipPos.x + 5, blipPos.y - 5, 10, contact.color);
-// }
-
 void RadarView::draw(const AircraftState &state,
-                     const std::vector<RadarContact> &contacts) const {
-    drawScope();
+                     const std::vector<RadarContact> &contacts,
+                     const Vector2 &center) const {
+    drawScope(center);
 
     const Meter range = RANGES[rangeIndex];
     const float pixelsPerMeter = displayRadius / range;
@@ -43,14 +37,8 @@ void RadarView::draw(const AircraftState &state,
     const float playerZ = state.position.z + state.mapOffset.y;
 
     // project orientation onto XZ plane for top-down radar
-    const Vector2 fwd = Vector2Normalize({
-        state.orientation.forward.x,
-        state.orientation.forward.z
-    });
-    const Vector2 right = Vector2Normalize({
-        state.orientation.right.x,
-        state.orientation.right.z
-    });
+    const Vector2 fwd = Vector2Normalize({state.orientation.forward.x, state.orientation.forward.z});
+    const Vector2 right = Vector2Normalize({state.orientation.right.x, state.orientation.right.z});
 
     for (const auto &contact: contacts) {
         const float dx = contact.worldPosition.x - playerX;
@@ -60,13 +48,11 @@ void RadarView::draw(const AircraftState &state,
         const float alongFwd = dx * fwd.x + dz * fwd.y;
         const float alongRight = dx * right.x + dz * right.y;
 
+        // too far?
         if (alongFwd * alongFwd + alongRight * alongRight > range * range) continue;
 
         // forward → up on screen (−Y), right → +X on screen
-        Vector2 blipPos = {
-            center.x + alongRight * pixelsPerMeter,
-            center.y - alongFwd * pixelsPerMeter
-        };
+        Vector2 blipPos = {center.x + alongRight * pixelsPerMeter, center.y - alongFwd * pixelsPerMeter};
 
         if (Vector2Distance(blipPos, center) > displayRadius) continue;
 
@@ -74,7 +60,7 @@ void RadarView::draw(const AircraftState &state,
         const auto bpy = static_cast<int>(blipPos.y);
 
         // drawContact(blipPos, contact);
-        DrawRectangle(bpx - 3, bpy - 3, 6, 6, contact.color);
+        DrawRectangle(bpx - 2, bpy - 2, 4, 4, contact.color);
 
         const int altFeet = static_cast<int>(contact.worldPosition.y * GamePhysics::METERS_TO_FEET);
         DrawText(TextFormat("%d", altFeet), bpx + 5, bpy - 5, 10, WHITE);

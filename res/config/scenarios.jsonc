@@ -15,7 +15,7 @@
       "theater": "north",
 
       "start": {
-        "position": [2000, 150, 3000],   // placeholder — carrier deck
+        "position": [30000, 150, 60000],   // placeholder — carrier deck
         "heading": 90,
         "speed": 0,
         "altitude": 100,
@@ -54,7 +54,7 @@
           "id": "home-base",
           "type": "airbase",
           "subtype": "carrier",
-          "position": [2000, 0, 3000],    // placeholder
+          "position": [30000, 0, 60000],    // placeholder
           "heading": 90,
           "faction": "friendly",
           "model": "res/gerald_ford_aircraft_carrier.glb"
@@ -63,10 +63,10 @@
           "id": "abother-home-base",
           "type": "airbase",
           "subtype": "international-airport",
-          "position": [38200, 20, 74000],    // placeholder
+          "position": [41000, 0, 74000],    // placeholder
           "heading": 90,
           "faction": "friendly",
-          "model": "res/mig23.glb"
+          "model": "res/airbase.glb"
         },
         {
           "id": "radar-station",
