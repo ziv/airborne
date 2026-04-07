@@ -28,7 +28,7 @@ int main() {
         config->get<std::string_view>("/name").data()
     );
 
-    SetTargetFPS(60);
+    // SetTargetFPS(60);
     // set how far we can see in 3d mode
     rlSetClipPlanes(config->get<float>("/config/nearPlane"), config->get<float>("/config/farPlane"));
 

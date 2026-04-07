@@ -28,6 +28,10 @@ struct Orientation {
 };
 
 struct AircraftState {
+    // to keep floating point precision to work in great distances
+    Vector3 worldOffset = {0.0f, 0.0f, 0.0f};
+    const float SHIFT_THRESHOLD = 5000.0f;
+
     PilotControls controls = {
         0.0f,
         0.0f,
@@ -54,6 +58,12 @@ struct AircraftState {
         0.0f,
         0.0f
     };
+    Vector2 mapOffset = { 0.0f, 0.0f };
+    // Vector3 localPosition = {
+    //     0.0f,
+    //     0.0f,
+    //     0.0f
+    // };
     float groundHeight = 0;
     bool flying = false;
     bool crushed = false;

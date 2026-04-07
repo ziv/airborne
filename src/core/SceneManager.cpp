@@ -56,8 +56,14 @@ void SceneManager::update(AircraftState &state, float dt) {
 }
 
 
-void SceneManager::draw() {
+void SceneManager::draw(const AircraftState &state) {
     // tiles.draw();
-    DrawModel(map, (Vector3){0.0f, 0.0f, 0.0f}, 1.0f, WHITE);
+    Vector3 drawPosition = {
+        state.mapOffset.x,
+        0.0f,
+        state.mapOffset.y,
+    };
+    // DrawModel(map, (Vector3){0.0f, 0.0f, 0.0f}, 1.0f, WHITE);
+    DrawModel(map, drawPosition, 1.0f, WHITE);
     // DrawModel(mig, (Vector3){550.0f, 100.0f, 450.0f}, 50.0f, WHITE);
 }

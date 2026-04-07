@@ -31,5 +31,5 @@ public:
 
     void update(AircraftState &state, float dt);
 
-    void draw();
+    void draw(const AircraftState &state);
 };

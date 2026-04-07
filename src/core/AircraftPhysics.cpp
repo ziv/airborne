@@ -90,4 +90,23 @@ void AircraftPhysics::update(AircraftState &state, const float dt) const {
     if (state.position.y < heightAboveGround) {
         state.position.y = heightAboveGround;
     }
+
+    // keep the center less than SHIFT_THRESHOLD to keep the
+    // calculations accurate (large floats issue)
+    const auto ST = state.SHIFT_THRESHOLD;
+    if (state.position.x > ST) {
+        state.position.x -= ST;
+        state.mapOffset.x -= ST;
+    } else if (state.position.x < -ST) {
+        state.position.x += ST;
+        state.mapOffset.x += ST;
+    }
+
+    if (state.position.z > ST) {
+        state.position.z -= ST;
+        state.mapOffset.y -= ST;
+    } else if (state.position.z < -ST) {
+        state.position.z += ST;
+        state.mapOffset.y += ST;
+    }
 }

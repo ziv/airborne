@@ -14,7 +14,7 @@ GameplayScreen::GameplayScreen(AppConfig &config)
       mapView(config)
 {
     // todo position should come from the mission data
-    game.state.position = (Vector3){35000.0f, config.get<float>("/airplane/heightAboveGround"), 35000.0f};
+    game.state.position = (Vector3){10.0f, config.get<float>("/airplane/heightAboveGround"), 10.0f};
 }
 
 ScreenState GameplayScreen::update() {
@@ -53,7 +53,7 @@ void GameplayScreen::run() {
     ClearBackground(BLUE);
     BeginMode3D(game.aircraftCamera.getCamera());
         DrawGrid(100, 20.0f);
-        scene.draw();
+        scene.draw(game.state);
         aircraft.draw();
     EndMode3D();
 
@@ -64,5 +64,6 @@ void GameplayScreen::run() {
     // navballView.draw(game.state);
     debugView.draw();
     radarView.draw(game.state, aircraft.position);
+    DrawFPS(1000, 10);
     // @formatter:on
 }
