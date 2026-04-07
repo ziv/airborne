@@ -93,8 +93,8 @@ void AircraftPhysics::update(AircraftState &state, const float dt) const {
     // todo currently for the carrier
     if (fabs(state.position.x + state.mapOffset.x - 2000.0f) < 1600.0f && fabs(state.position.z + state.mapOffset.y - 3000.0f) < 1600.0f) {
         // it is on the carrier
-        if (state.position.y < 200) {
-            state.position.y = 200;
+        if (state.position.y < 150) {
+            state.position.y = 150;
             state.forces.velocity.y = 0;
         }
     }

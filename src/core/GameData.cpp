@@ -10,6 +10,33 @@ GameData::GameData(const AppConfig &config) : heightAboveGround(config.get<float
                                               aircraftCamera(config) {
 }
 
+GameData::GameData(const AppConfig &config, const Scenario &scenario)
+    : heightAboveGround(config.get<float>("/airplane/heightAboveGround")),
+      stallSpeed(config.get<float>("/airplane/stallSpeed")),
+      scenario(scenario),
+      aircraftControls(config),
+      aircraftPhysics(config),
+      aircraftTransformation(config),
+      aircraftCamera(config) {
+    state.position = scenario.start.position;
+    state.fuel = scenario.start.fuel;
+    spawnInitialEntities();
+}
+
+void GameData::spawnInitialEntities() {
+    for (const auto &def : scenario.entityDefinitions) {
+        if (def.type == EntityType::STRUCTURE) {
+            auto gt = std::make_unique<GroundTarget>();
+            static_cast<EntityBase &>(*gt) = def;
+            gt->strategicTarget = true;
+            entities.spawn(std::move(gt));
+        } else {
+            auto e = std::make_unique<EntityBase>(def);
+            entities.spawn(std::move(e));
+        }
+    }
+}
+
 void GameData::update(const float dt) {
     const auto actualHeight = state.position.y - state.groundHeight;
     state.flying = actualHeight > heightAboveGround;;
@@ -24,8 +51,7 @@ void GameData::update(const float dt) {
     aircraftPhysics.update(state, dt);
     aircraftTransformation.update(state, dt);
     aircraftCamera.update(state, dt);
-
-    // todo is landed? is crashed?
+    entities.update(state, dt);
 }
 
 bool GameData::isStableLanding() {

@@ -7,8 +7,10 @@
 #include "MainMenuScreen.h"
 #include "SplashScreen.h"
 #include "GameplayScreen.h"
+#include "BriefingScreen.h"
 #include "primitives/AppConfig.h"
 #include "primitives/Logger.h"
+#include "scenario/Scenario.h"
 
 int main() {
     SetTraceLogCallback(CustomLogCallback);
@@ -27,10 +29,13 @@ int main() {
         config->get<int>("/config/screenHeight"),
         config->get<std::string_view>("/name").data()
     );
+    SetExitKey(KEY_BACKSPACE);
 
     // SetTargetFPS(60);
     // set how far we can see in 3d mode
     rlSetClipPlanes(config->get<float>("/config/nearPlane"), config->get<float>("/config/farPlane"));
+
+    Scenario activeScenario;
 
     // load first screen
     std::unique_ptr<GameScreen> currentScreen = std::make_unique<SplashScreen>(*config);
@@ -42,10 +47,17 @@ int main() {
         if (const ScreenState nextState = currentScreen->update(); nextState != currentState) {
             switch (nextState) {
                 case ScreenState::MAIN_MENU:
-                    currentScreen = std::make_unique<MainMenuScreen>(*config);
+                    currentScreen = std::make_unique<MainMenuScreen>(*config, activeScenario);
+                    break;
+                case ScreenState::BRIEFING:
+                    currentScreen = std::make_unique<BriefingScreen>(*config, activeScenario);
                     break;
                 case ScreenState::GAMEPLAY:
-                    currentScreen = std::make_unique<GameplayScreen>(*config);
+                    if (!activeScenario.id.empty()) {
+                        currentScreen = std::make_unique<GameplayScreen>(*config, activeScenario);
+                    } else {
+                        currentScreen = std::make_unique<GameplayScreen>(*config);
+                    }
                     break;
                 default:
                     currentScreen = std::make_unique<SplashScreen>(*config);

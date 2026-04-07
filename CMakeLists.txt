@@ -62,5 +62,18 @@ add_executable(${PROJECT_NAME} src/main.cpp
         src/views/Aircraft.h
         src/views/RadarView.cpp
         src/views/RadarView.h
+        # scenario system
+        src/entities/Entity.h
+        src/entities/EntityRegistry.h
+        src/entities/EntityRegistry.cpp
+        src/entities/GroundTarget.h
+        src/entities/GroundTarget.cpp
+        src/scenario/Objective.h
+        src/scenario/Trigger.h
+        src/scenario/Scenario.h
+        src/scenario/ScenarioLoader.h
+        src/scenario/ScenarioLoader.cpp
+        src/BriefingScreen.h
+        src/BriefingScreen.cpp
 )
 target_link_libraries(${PROJECT_NAME} PRIVATE raylib)

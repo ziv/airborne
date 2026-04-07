@@ -14,9 +14,6 @@
 #include "views/RadarView.h"
 
 class GameplayScreen : public GameScreen {
-    // the object contain all relevant game details for
-    // control, change and view
-    // std::unique_ptr<GameData> game;
     GameData game;
     SceneManager scene;
 
@@ -29,17 +26,11 @@ class GameplayScreen : public GameScreen {
     MapView mapView;
     RadarView radarView;
 
-    Aircraft aircraft{};
+    // Aircraft aircraft{};
 
-    // MusicHandle engine;
-    // ModelHandle map;
-
-
-    // Model futuristicCity = LoadModel("res/futuristic_city.glb");
-    // void handleInputs();
-    // void handleSounds() const;
 public:
     explicit GameplayScreen(AppConfig &config);
+    GameplayScreen(AppConfig &config, const Scenario &scenario);
 
     ScreenState update() override;
 

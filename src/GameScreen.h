@@ -8,7 +8,9 @@ using json = nlohmann::json;
 enum class ScreenState {
     SPLASH,
     MAIN_MENU,
+    BRIEFING,
     GAMEPLAY,
+    DEBRIEF,
     EXIT
 };
 
