@@ -1,48 +1,82 @@
 #include "RadarView.h"
 #include "raymath.h"
+#include "../primitives/Constants.h"
 
 void RadarView::update() {
     if (IsKeyPressed(KEY_R)) {
-        TraceLog(LOG_ERROR, "RRRR");
-        if (1000 == currentRadarRange) {
-            currentRadarRange = 10000;
-            return;
-        }
-        if (10000 == currentRadarRange) {
-            currentRadarRange = 100000;
-            return;
-        }
-        if (100000 == currentRadarRange) {
-            currentRadarRange = 1000;
-            return;
-        }
+        rangeIndex = (rangeIndex + 1) % RANGE_COUNT;
     }
 }
 
-void RadarView::draw(const AircraftState &state, Vector3 enemy) {
-    // DrawRectangle(303, 600, 148, 148, BLACK);
+void RadarView::drawScope() const {
+    const auto x = static_cast<int>(center.x);
+    const auto y = static_cast<int>(center.y);
+    const auto r = static_cast<int>(displayRadius);
 
-    // DrawCircle(377, 684, 20, GREEN);
-    DrawCircleLines(377, 684, 30, DARKGREEN);
-    DrawCircleLines(377, 684, 60, DARKGREEN);
-    DrawText(TextFormat("RADAR %f.", currentRadarRange), 305, 602, 10, DARKGREEN);
+    DrawCircleLines(x, y, displayRadius / 3.0f, DARKGREEN);
+    DrawCircleLines(x, y, displayRadius * 2.0f / 3.0f, DARKGREEN);
+    DrawCircleLines(x, y, displayRadius, DARKGREEN);
 
-    const Vector3 relPos = Vector3Subtract(enemy, state.position);
-    Vector3 playerRight = {-state.orientation.forward.z, 0.0f, state.orientation.forward.x};
+    // nose line
+    DrawLine(x, y, x, y - r, {0, 100, 0, 255});
 
-    const float radarY = (relPos.x * state.orientation.forward.x) + (relPos.z * state.orientation.forward.z);
-    const float radarX = (relPos.x * playerRight.x) + (relPos.z * playerRight.z);
+    const float rangeNm = RANGES[rangeIndex] * GamePhysics::METERS_TO_NM;
+    DrawText(TextFormat("%.0f NM", rangeNm), x - r, y + r + 4, 10, DARKGREEN);
+}
 
-    float distanceToEnemy = sqrtf(radarX * radarX + radarY * radarY);
-    if (distanceToEnemy < currentRadarRange) {
-        float radarRadiusPixels = 74.0f; //  (148x148)
-        float pixelsPerMeter = radarRadiusPixels / currentRadarRange;
+// void RadarView::drawContact(Vector2 blipPos, const RadarContact &contact) const {
+//     DrawRectangle(blipPos.x - 3, blipPos.y - 3, 6, 6, contact.color);
+//
+//     int altFeet = static_cast<int>(contact.worldPosition.y * GamePhysics::METERS_TO_FEET);
+//     DrawText(TextFormat("%d", altFeet), blipPos.x + 5, blipPos.y - 5, 10, contact.color);
+// }
 
-        float finalScreenX = radarCenter.x - (radarX * pixelsPerMeter);
-        float finalScreenY = radarCenter.y + (radarY * pixelsPerMeter);
+void RadarView::draw(const AircraftState &state,
+                     const std::vector<RadarContact> &contacts) const {
+    drawScope();
 
-        DrawRectangle((int) finalScreenX - 3, (int) finalScreenY - 3, 6, 6, RED);
-        int enemyAltFeet = (int) (enemy.y * 3.28084f);
-        DrawText(TextFormat("%d", enemyAltFeet), (int) finalScreenX + 5, (int) finalScreenY - 5, 10, WHITE);
+    const Meter range = RANGES[rangeIndex];
+    const float pixelsPerMeter = displayRadius / range;
+
+    // player absolute world position (accounting for large-world offset)
+    const float playerX = state.position.x + state.mapOffset.x;
+    const float playerZ = state.position.z + state.mapOffset.y;
+
+    // project orientation onto XZ plane for top-down radar
+    const Vector2 fwd = Vector2Normalize({
+        state.orientation.forward.x,
+        state.orientation.forward.z
+    });
+    const Vector2 right = Vector2Normalize({
+        state.orientation.right.x,
+        state.orientation.right.z
+    });
+
+    for (const auto &contact: contacts) {
+        const float dx = contact.worldPosition.x - playerX;
+        const float dz = contact.worldPosition.z - playerZ;
+
+        // project onto player-relative heading frame
+        const float alongFwd = dx * fwd.x + dz * fwd.y;
+        const float alongRight = dx * right.x + dz * right.y;
+
+        if (alongFwd * alongFwd + alongRight * alongRight > range * range) continue;
+
+        // forward → up on screen (−Y), right → +X on screen
+        Vector2 blipPos = {
+            center.x + alongRight * pixelsPerMeter,
+            center.y - alongFwd * pixelsPerMeter
+        };
+
+        if (Vector2Distance(blipPos, center) > displayRadius) continue;
+
+        const auto bpx = static_cast<int>(blipPos.x);
+        const auto bpy = static_cast<int>(blipPos.y);
+
+        // drawContact(blipPos, contact);
+        DrawRectangle(bpx - 3, bpy - 3, 6, 6, contact.color);
+
+        const int altFeet = static_cast<int>(contact.worldPosition.y * GamePhysics::METERS_TO_FEET);
+        DrawText(TextFormat("%d", altFeet), bpx + 5, bpy - 5, 10, WHITE);
     }
 }

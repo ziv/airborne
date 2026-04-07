@@ -16,4 +16,5 @@ namespace GamePhysics {
     constexpr float MS_TO_KNOTS = 1.94384f;
     constexpr float MS_TO_FPM = 196.8504f; // meter/seconds for feet/minutes
     constexpr float METERS_TO_FEET = 3.28084f;
+    constexpr float METERS_TO_NM = 0.000539957f;
 }

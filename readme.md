@@ -30,3 +30,10 @@ gameplay I
 got from this magic game, so this project has begun.
 
 ![ia](res/f15-se-ii.png)
+
+## Credits
+
+Only items currently in use in the compiled code:
+
+- Aircraft carrier model by [Uxxman](https://sketchfab.com/Uxxman).
+

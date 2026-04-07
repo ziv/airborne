@@ -64,7 +64,8 @@ void GameplayScreen::run() {
     minihudView.draw(game.state);
     // navballView.draw(game.state);
     debugView.draw();
-    radarView.draw(game.state, aircraft.position);
+    const std::vector<RadarContact> contacts = {{aircraft.position, RED}};
+    radarView.draw(game.state, contacts);
     DrawFPS(1000, 10);
     // @formatter:on
 }

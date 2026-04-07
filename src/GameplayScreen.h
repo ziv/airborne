@@ -1,4 +1,5 @@
 #pragma once
+#include <vector>
 #include "GameScreen.h"
 #include "core/Autopilot.h"
 #include "core/GameData.h"
