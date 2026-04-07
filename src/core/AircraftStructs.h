@@ -28,6 +28,14 @@ struct Orientation {
     Vector3 right;
 };
 
+/// Describes the landing zone the aircraft is currently over (if any).
+/// Updated each frame by GameData before physics runs.
+struct LandingZoneInfo {
+    bool active = false;         // true when over a valid landing strip
+    bool isCarrier = false;      // carrier deck vs ground airstrip
+    float surfaceHeight = 0.0f;  // deck height (150m carrier, 0m ground)
+};
+
 struct AircraftState {
     // to keep floating point precision to work in great distances
     Vector3 worldOffset = {0.0f, 0.0f, 0.0f};
@@ -60,16 +68,18 @@ struct AircraftState {
         0.0f
     };
     Vector2 mapOffset = {0.0f, 0.0f};
-    // Vector3 localPosition = {
-    //     0.0f,
-    //     0.0f,
-    //     0.0f
-    // };
+
     float groundHeight = 0;
     bool flying = false;
-    bool crushed = false;
+    bool crashed = false;
     float fuel = 3500;
 
+    /// The minimum Y the aircraft can be at (surface + wheel clearance).
+    /// Set each frame by GameData before physics runs.
+    float effectiveFloorHeight = 0.0f;
+
+    /// Landing zone info for the current frame (set by GameData).
+    LandingZoneInfo landingZone;
 
     // we draw only items in 50,000m radius
     [[nodiscard]] bool tooFar2Draw(const Vector3 &pos) const {

@@ -1,5 +1,6 @@
 #include "EntityRegistry.h"
 #include "raymath.h"
+#include "rlgl.h"
 #include <cstdio>
 
 EntityRegistry::~EntityRegistry() {
@@ -104,6 +105,7 @@ void EntityRegistry::draw(const AircraftState& playerState) const {
     for (const auto& e : entities) {
         if (!e->isAlive()) continue;
 
+        // convert entity world position into the camera's local coordinate frame
         const Vector3 drawPos = {
             e->position.x + playerState.mapOffset.x,
             e->position.y,
@@ -112,11 +114,12 @@ void EntityRegistry::draw(const AircraftState& playerState) const {
 
         if (playerState.tooFar2Draw(drawPos)) continue;
 
+        // --- draw the entity model (or fallback cube) ---
         auto it = modelCache.find(e->modelId);
         if (it != modelCache.end()) {
             DrawModelEx(it->second, drawPos, {0, 1, 0}, e->heading, {1.0f, 1.0f, 1.0f}, WHITE);
 
-            // todo draw wire (remove later)
+            // debug wireframe outline
             Color color;
             float size;
             switch (e->faction) {
@@ -129,7 +132,7 @@ void EntityRegistry::draw(const AircraftState& playerState) const {
                 case EntityType::AIRBASE:   size = 100.0f; break;
                 default:                    size = 30.0f;  break;
             }
-            // DrawCube(drawPos, size, size, size, color);
+            DrawCube(drawPos, size, size, size, color);
             DrawCubeWires(drawPos, size, size, size, BLACK);
 
         } else {
@@ -148,6 +151,32 @@ void EntityRegistry::draw(const AircraftState& playerState) const {
             }
             DrawCube(drawPos, size, size, size, color);
             DrawCubeWires(drawPos, size, size, size, BLACK);
+        }
+
+        // --- draw 3D landing-zone box for AIRBASE entities ---
+        // A semi-transparent wireframe cuboid marks the valid approach volume.
+        // Entering this box with gear down, level wings, and low speed = safe landing.
+        if (e->type == EntityType::AIRBASE) {
+            const bool isCarrier = (e->subtype == "carrier");
+
+            // dimensions: short side (width) across the heading, long side along it
+            const float stripWidth  = isCarrier ? 300.0f : 700.0f;
+            const float stripLength = isCarrier ? 1000.0f : 3000.0f;
+            const float boxHeight   = 250.0f;   // must match GameData::LANDING_BOX_HEIGHT
+
+            // box sits on the landing surface
+            const float surfaceY = isCarrier ? 150.0f : 0.0f;
+            // center the box vertically: bottom at surfaceY, top at surfaceY + boxHeight
+            const float boxCenterY = surfaceY + boxHeight * 0.5f;
+
+            // apply heading rotation, then draw a thin cuboid
+            rlPushMatrix();
+            rlTranslatef(drawPos.x, boxCenterY, drawPos.z);
+            rlRotatef(e->heading, 0, 1, 0);
+            // X = width (across heading), Y = box height, Z = length (along heading)
+            DrawCube({0, 0, 0}, stripWidth, boxHeight, stripLength, Fade(GREEN, 0.08f));
+            DrawCubeWires({0, 0, 0}, stripWidth, boxHeight, stripLength, GREEN);
+            rlPopMatrix();
         }
     }
 }

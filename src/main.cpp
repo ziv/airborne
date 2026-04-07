@@ -53,11 +53,7 @@ int main() {
                     currentScreen = std::make_unique<BriefingScreen>(*config, activeScenario);
                     break;
                 case ScreenState::GAMEPLAY:
-                    if (!activeScenario.id.empty()) {
-                        currentScreen = std::make_unique<GameplayScreen>(*config, activeScenario);
-                    } else {
-                        currentScreen = std::make_unique<GameplayScreen>(*config);
-                    }
+                    currentScreen = std::make_unique<GameplayScreen>(*config, activeScenario);
                     break;
                 default:
                     currentScreen = std::make_unique<SplashScreen>(*config);

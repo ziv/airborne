@@ -43,7 +43,6 @@ SceneManager::SceneManager(const AppConfig &config) : engineSound(LoadMusicStrea
                                                           }
                                                       )),
                                                       relativeHeight(config.get<float>("/game/mapSizeY")),
-                                                      carrier(LoadModel("res/gerald_ford_aircraft_carrier.glb")),
                                                       fog(LoadShader(config.get<std::string_view>("/game/fogShaderVs").data(),
                                                                      config.get<std::string_view>("/game/fogShaderFs").data())),
                                                       cloudModel(LoadModelFromMesh(GenMeshPlane(200000, 200000, 10, 10))),
@@ -101,10 +100,6 @@ void SceneManager::draw(const AircraftState &state, const Camera &camera) {
         state.mapOffset.y,
     };
     DrawModel(map, drawPosition, 1.0f, WHITE);
-
-    if (const auto carrierPosition = (Vector3){2000.0f + state.mapOffset.x, 0.0f, 3000.0f + state.mapOffset.y}; !state.tooFar2Draw(carrierPosition)) {
-        DrawModel(carrier, carrierPosition, 1.0f, WHITE);
-    }
 
     // clouds
     const Vector3 cloudPosition = {

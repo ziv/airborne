@@ -26,10 +26,11 @@ class GameplayScreen : public GameScreen {
     MapView mapView;
     RadarView radarView;
 
-    // Aircraft aircraft{};
+    /// Seconds elapsed since crash — used for the crash overlay delay.
+    float crashTimer = 0.0f;
 
 public:
-    explicit GameplayScreen(AppConfig &config);
+    /// Every mission requires a scenario (no free-flight mode).
     GameplayScreen(AppConfig &config, const Scenario &scenario);
 
     ScreenState update() override;

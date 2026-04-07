@@ -43,5 +43,17 @@ void AircraftControls::update(AircraftState &state, const float dt) const {
 
     // brakes & gear
     if (IsKeyPressed(KEY_B)) state.controls.brakes = !state.controls.brakes;
-    if (IsKeyPressed(KEY_G)) state.controls.gear = !state.controls.gear;
+
+    // gear toggle: deploying is always allowed, but retracting is blocked
+    // while still on the ground (state.flying == false) to prevent
+    // collapsing the landing gear during taxi / takeoff roll.
+    if (IsKeyPressed(KEY_G)) {
+        if (state.controls.gear) {
+            // trying to retract — only permitted once airborne
+            if (state.flying) state.controls.gear = false;
+        } else {
+            // deploying gear — always allowed
+            state.controls.gear = true;
+        }
+    }
 }

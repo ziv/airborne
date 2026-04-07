@@ -12,8 +12,7 @@ AircraftPhysics::AircraftPhysics(const AppConfig &config) : weight(config.get<fl
                                                             flyingBrakesDragRatio(config.get<float>("/airplane/flyingBrakesDragRatio")),
                                                             flyingGearDragRatio(config.get<float>("/airplane/flyingGearDragRatio")),
                                                             groundBrakesDragRatio(config.get<float>("/airplane/groundBrakesDragRatio")),
-                                                            stallLiftRatio(config.get<float>("/airplane/stallLiftRatio")),
-                                                            heightAboveGround(config.get<float>("/airplane/heightAboveGround")) {
+                                                            stallLiftRatio(config.get<float>("/airplane/stallLiftRatio")) {
 }
 
 void AircraftPhysics::update(AircraftState &state, const float dt) const {
@@ -84,19 +83,14 @@ void AircraftPhysics::update(AircraftState &state, const float dt) const {
     // update position
     state.position = Vector3Add(state.position, Vector3Scale(state.forces.velocity, dt));
 
-    // todo temporary solution to not go under ground
-    // todo should we use "flying" param?
-    // todo the crash/landing system should solve this
-    if (state.position.y < heightAboveGround) {
-        state.position.y = heightAboveGround;
-    }
-    // todo currently for the carrier
-    if (fabs(state.position.x + state.mapOffset.x - 2000.0f) < 1600.0f && fabs(state.position.z + state.mapOffset.y - 3000.0f) < 1600.0f) {
-        // it is on the carrier
-        if (state.position.y < 150) {
-            state.position.y = 150;
-            state.forces.velocity.y = 0;
-        }
+    // --- ground / surface clamping ---
+    // effectiveFloorHeight is set by GameData each frame:
+    //   - over a landing zone → max(terrain, deck) + wheel clearance
+    //   - elsewhere           → terrain height + wheel clearance
+    if (state.position.y < state.effectiveFloorHeight) {
+        state.position.y = state.effectiveFloorHeight;
+        // cancel any remaining downward velocity so the aircraft rests on the surface
+        if (state.forces.velocity.y < 0.0f) state.forces.velocity.y = 0.0f;
     }
 
 

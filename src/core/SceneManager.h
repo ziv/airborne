@@ -26,13 +26,9 @@ class SceneManager {
     ImageHandle height;
     ModelHandle map;
     float relativeHeight;
-    ModelHandle carrier;
     ShaderHandle fog;
 
-
-    // TextureHandle cloud;
-    // std::vector<CloudInfo> clouds;
-    // Model mig;
+    // cloud layer
     ModelHandle cloudModel;
     TextureHandle cloudTexture;
 

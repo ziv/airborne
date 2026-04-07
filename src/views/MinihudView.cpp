@@ -54,16 +54,23 @@ void MinihudView::draw(const AircraftState &state) const {
     DrawText(TextFormat("%s", FormatNumberSuffix(heightRelative)), 750, 330, 10, colors[color]);
     DrawRectangleLines(745, 328, 30, 14, colors[color]);
 
-    // Rate of Climb (RoC)
-
-
-    // DrawLine(centerX - 30, centerY - 120, centerX - 10, centerY - 120, RED);
-    // DrawLine(centerX + 10, centerY - 120, centerX + 30, centerY - 120, RED);
-    // DrawCircle(centerX, centerY - 120, 3, RED);
-
+    // -- after burner warning --
     if (state.controls.throttle > 1.0f) {
-        // מדפיסים אזהרת מבער אחורי מהבהבת או בצבע שונה
         DrawText("A/B ON", 450, 390, 12, ORANGE);
+    }
+
+    // --- low-altitude gear warning ---
+    // If flying below 500 m AGL with gear retracted, flash a red GEAR alert
+    // to remind the pilot to deploy gear before attempting to land.
+    if (state.flying && !state.controls.gear) {
+        const float agl = state.position.y - state.groundHeight;
+        if (agl < 500.0f) {
+            // blink at 4 Hz so it catches the pilot's eye
+            if (static_cast<int>(GetTime() * 4) % 2 == 0) {
+                const int textWidth = MeasureText("GEAR", 20);
+                DrawText("GEAR", width / 2 - textWidth / 2, height / 2 + 20, 15, RED);
+            }
+        }
     }
 }
 

@@ -20,9 +20,8 @@ void DebugView::draw() const {
     DrawText(TextFormat("Yr: %0.f", p.y), 20, 50, 15, BLACK);
 
     DrawText(TextFormat("Xa: %0.f", p.x - o.x), 20, 70, 15, BLUE);
-    DrawText(TextFormat("Za: %0.f", p.z), 20, 90, 15, BLUE);
-    DrawText(TextFormat("Ya: %0.f", p.y - o.y), 20, 110, 15, BLUE);
-
+    DrawText(TextFormat("Za: %0.f", p.z - o.y), 20, 90, 15, BLUE);
+    DrawText(TextFormat("Ya: %0.f", p.y), 20, 110, 15, BLUE);
 
 
     // DrawText(TextFormat("Yr:%f", game.state.groundHeight), 20, 70, 15, BLACK);

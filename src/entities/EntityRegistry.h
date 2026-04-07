@@ -32,6 +32,9 @@ public:
     std::vector<EntityBase*> getByFaction(Faction faction);
     std::vector<EntityBase*> getInRadius(Vector3 center, float radius);
 
+    /// Read-only access to the full entity list (for iteration without mutation).
+    [[nodiscard]] const std::vector<std::unique_ptr<EntityBase>>& allEntities() const { return entities; }
+
     void forEach(const std::function<void(EntityBase&)>& fn);
     void forEachAlive(const std::function<void(EntityBase&)>& fn);
 

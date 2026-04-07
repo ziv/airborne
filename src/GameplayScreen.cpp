@@ -3,20 +3,6 @@
 #include "primitives/AppConfig.h"
 #include "entities/Entity.h"
 
-GameplayScreen::GameplayScreen(AppConfig &config)
-    : GameScreen(config),
-      game(config),
-      scene(config),
-      cockpitView(config),
-      debugView(game),
-      minihudView(config),
-      navballView(config),
-      hudView(config),
-      mapView(config)
-{
-    game.state.position = (Vector3){2000.0f, 100.0f, 1500.0f};
-}
-
 GameplayScreen::GameplayScreen(AppConfig &config, const Scenario &scenario)
     : GameScreen(config),
       game(config, scenario),
@@ -35,27 +21,21 @@ ScreenState GameplayScreen::update() {
     if (IsKeyPressed(KEY_L)) game.paused = !game.paused;
     if (game.paused) return ScreenState::GAMEPLAY;
 
-    // autopilot
-    // fast return, autopilot mode, no need to get other user inputs
-    // if (IsKeyPressed(KEY_P)) autopilot.Toggle();
-    // if (autopilot.IsActive()) {
-    //     // get controls from autopilot and update game state
-    //     game.controls = autopilot.Steer(game.getPosition(),
-    //                                     game.getForward(),
-    //                                     game.getRight(),
-    //                                     game.getUp(),
-    //                                     game.deltaTime,
-    //                                     game.speed);
-    //     game.update();
-    //     return ScreenState::GAMEPLAY;
-    // }
+    // --- crash state: freeze gameplay, wait for SPACE or timeout → main menu ---
+    if (game.state.crashed) {
+        crashTimer += GetFrameTime();
+        if (crashTimer > 50.0f || IsKeyPressed(KEY_SPACE)) {
+            return ScreenState::MAIN_MENU;
+        }
+        return ScreenState::GAMEPLAY;
+    }
+
     const auto dt = GetFrameTime();
     game.update(dt);
     scene.update(game.state, dt);
     minihudView.update();
     debugView.update();
     mapView.update(game.state);
-    // aircraft.update(game.state, dt);
     radarView.update();
 
     return ScreenState::GAMEPLAY;
@@ -67,15 +47,12 @@ void GameplayScreen::run() {
     BeginMode3D(game.aircraftCamera.getCamera());
         DrawGrid(100, 20.0f);
         scene.draw(game.state, game.aircraftCamera.getCamera());
-        // aircraft.draw();
         game.entities.draw(game.state);
     EndMode3D();
 
     cockpitView.draw(game.state);
     mapView.draw();
-    // hudView.draw(game.aircraftCamera.getCamera(), game.state);
     minihudView.draw(game.state);
-    // navballView.draw(game.state);
     debugView.draw();
 
     // build radar contacts from all alive entities
@@ -90,6 +67,22 @@ void GameplayScreen::run() {
         contacts.push_back({e.position, color});
     });
     radarView.draw(game.state, contacts);
-    DrawFPS(1000, 10);
+    // DrawFPS(1000, 10);
+
+    // --- crash overlay (drawn on top of everything) ---
+    if (game.state.crashed) {
+        const int sw = GetScreenWidth();
+        const int sh = GetScreenHeight();
+        // dim the screen
+        DrawRectangle(0, 0, sw, sh, Fade(BLACK, 0.5f));
+        // main message
+        const char *msg = "CRASHED";
+        const int msgW = MeasureText(msg, 40);
+        DrawText(msg, sw / 2 - msgW / 2, sh / 2 - 30, 40, RED);
+        // hint
+        const char *hint = "Press SPACE to continue";
+        const int hintW = MeasureText(hint, 20);
+        DrawText(hint, sw / 2 - hintW / 2, sh / 2 + 20, 20, WHITE);
+    }
     // @formatter:on
 }

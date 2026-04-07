@@ -16,7 +16,6 @@ class AircraftPhysics {
     Ratio flyingGearDragRatio;
     Ratio groundBrakesDragRatio;
     Ratio stallLiftRatio;
-    Meter heightAboveGround;
 
 public:
     explicit AircraftPhysics(const AppConfig &config);

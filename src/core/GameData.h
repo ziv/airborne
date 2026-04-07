@@ -11,7 +11,27 @@ class GameData {
     Meter heightAboveGround;
     MeterPerSecond stallSpeed;
 
-    [[nodiscard]] bool isStableLanding();
+    /// Landing zone box height above surface (how tall the 3D box is).
+    static constexpr float LANDING_BOX_HEIGHT = 50.0f;
+
+    /// Maximum landing speed — anything faster causes a crash on touchdown.
+    static constexpr float MAX_LANDING_SPEED_RATIO = 2.0f;
+
+    /// Maximum roll angle (degrees) for a safe landing.
+    static constexpr float MAX_LANDING_ROLL = 10.0f;
+
+    /// Pitch must be between these bounds (degrees) for a safe landing.
+    static constexpr float MIN_LANDING_PITCH = -2.0f;
+    static constexpr float MAX_LANDING_PITCH = 14.0f;
+
+    /// Check if the aircraft is inside any friendly AIRBASE landing zone.
+    /// Populates LandingZoneInfo with zone details if found.
+    LandingZoneInfo checkLandingZones() const;
+
+    /// Returns true when orientation and speed allow a safe touchdown.
+    [[nodiscard]] bool isGoodLanding() const;
+
+    /// Spawns all entities defined in the current scenario.
     void spawnInitialEntities();
 
 public:
@@ -26,7 +46,7 @@ public:
     AircraftTransformation aircraftTransformation;
     AircraftCamera aircraftCamera;
 
-    explicit GameData(const AppConfig &config);
+    /// Construct with a scenario — every mission starts on the ground.
     GameData(const AppConfig &config, const Scenario &scenario);
 
     void update(float dt);
