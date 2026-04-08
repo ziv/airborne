@@ -7,3 +7,14 @@ theme = "re-terminal"
 [author]
     name = "Ziv Perry"
     email = "ziv.perry@gmail.com"
+
+[languages]
+    [languages.en.params]
+        languageName = "English"
+            title = "AIRBORNE"
+            subtitle = "Development blog"
+
+
+        [languages.en.params.logo]
+            logoText = "AIRBORNE"
+            logoHomeLink = "/"
