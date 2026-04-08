@@ -37,3 +37,20 @@ Only items currently in use in the compiled code:
 
 - Aircraft carrier model by [Uxxman](https://sketchfab.com/Uxxman).
 
+## Keyboard Controls
+
+- `ARROW UP` - Pitch down
+- `ARROW DOWN` - Pitch up
+- `ARROW LEFT` - Roll left
+- `ARROW RIGHT` - Roll right
+- `+` - Increase throttle
+- `-` - Decrease throttle
+- `1-9` - Throttle presets (10% to 90%)
+- `A` - Afterburner
+- `B` - Toggle brakes
+- `G` - Toggle landing gear
+
+## Display Controls
+
+- `OPTION/ALT` + `H` - Toggle HUD colors (green/white/black)
+- `F1` - Display aircraft from outside

@@ -68,7 +68,7 @@
   "views": {
     "gaugeSprite": "res/sprites.png",
     "gaugeSpriteJson": "res/sprites.json",
-    "navballTexture": "res/navballs/i.png",
+    "navballTexture": "res/i.png",
     "navballRadius": 0.3,
     "navballRings": 32,
     "mapViewTexture": "res/north-map.jpg",

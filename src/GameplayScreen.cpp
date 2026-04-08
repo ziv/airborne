@@ -20,19 +20,21 @@ ScreenState GameplayScreen::update() {
     if (IsKeyPressed(KEY_L)) game.paused = !game.paused;
     if (game.paused) return ScreenState::GAMEPLAY;
 
+    // replace the content of each pane (left and right screens)
     if (IsKeyPressed(KEY_LEFT_BRACKET)) leftPane = (leftPane + 1) % 3;
     if (IsKeyPressed(KEY_RIGHT_BRACKET)) rightPane = (rightPane + 1) % 3;
 
-    // --- crash state: freeze gameplay, wait for SPACE or timeout → main menu ---
     if (game.state.crashed) {
-        crashTimer += GetFrameTime();
-        if (crashTimer > 50.0f || IsKeyPressed(KEY_SPACE)) {
-            return ScreenState::MAIN_MENU;
-        }
+        // crashTimer += GetFrameTime();
+        // if (crashTimer > 50.0f || IsKeyPressed(KEY_SPACE)) {
+        //     return ScreenState::MAIN_MENU;
+        // }
         return ScreenState::GAMEPLAY;
     }
 
     const auto dt = GetFrameTime();
+
+    // todo put all the view in a list?!
     game.update(dt);
     scene.update(game.state, dt);
     minihudView.update();
@@ -45,19 +47,29 @@ ScreenState GameplayScreen::update() {
 
 void GameplayScreen::run() {
     // @formatter:off
+    const auto camera = game.aircraftCamera.getCamera();
+    const auto state = game.state;
     ClearBackground(BLUE);
-    BeginMode3D(game.aircraftCamera.getCamera());
-        // DrawGrid(100, 20.0f);
-        scene.draw(game.state, game.aircraftCamera.getCamera());
-        game.entities.draw(game.state);
-        if (IsKeyDown(KEY_F1)) aircraft.draw(game.state);
+
+    BeginMode3D(camera);
+        // the main scene
+        scene.draw(state, camera);
+        // all the entities in the scene
+        game.entities.draw(state);
+
+        // if an "F" key pressed, draw the user aircraft (see it from outside)
+        if (IsKeyDown(KEY_F1)) aircraft.draw(state);
     EndMode3D();
 
+    // if an "F" key pressed, we do not display the cockpit
     if (IsKeyDown(KEY_F1)) return;
 
-    cockpitView.draw(game.state);
+    // display cockpit
+    cockpitView.draw(state);
+
+    // display cockpit items
     mapView.draw();
-    minihudView.draw(game.state);
+    minihudView.draw(state);
     debugView.draw();
 
     // build radar contacts from all alive entities
@@ -71,15 +83,17 @@ void GameplayScreen::run() {
         }
         contacts.push_back({e.position, color});
     });
-    // draw on the right
+    // draw on the left pane (switch between radar, navball, hud, etc.)
     switch (leftPane) {
         case 0:
-            radarView.draw(game.state, contacts, (Vector2){377.0f, 666.0f});
+            radarView.draw(state, contacts, (Vector2){377.0f, 666.0f});
             break;
+            case 1:
+            navballView.draw(state);
         default:
             break;
     }
-    // DrawFPS(1000, 10);
+
     // --- crash overlay (drawn on top of everything) ---
     if (game.state.crashed) {
         const int sw = GetScreenWidth();
