@@ -4,8 +4,6 @@ draft = false
 title = "Calculating Some Numbers"
 +++
 
-# Calculating Some Numbers
-
 In order to give my aircraft feel of a true jet, I needed some numbers to add to my physics equations.
 
 I started from the basics, Newtonian force law:

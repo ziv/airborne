@@ -6,15 +6,44 @@
     <description>Recent content on Airborne</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Tue, 31 Mar 2026 12:00:40 +0300</lastBuildDate><atom:link href="https://ziv.github.io/airborne/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Wed, 01 Apr 2026 12:00:40 +0300</lastBuildDate><atom:link href="https://ziv.github.io/airborne/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Tech Stack</title>
+      <link>https://ziv.github.io/airborne/posts/tech-stack/</link>
+      <pubDate>Wed, 01 Apr 2026 12:00:40 +0300</pubDate>
+      
+      <guid>https://ziv.github.io/airborne/posts/tech-stack/</guid>
+      <description>&lt;p&gt;When I started this project, I didn&amp;rsquo;t have a clear idea of the tech stack I would be using.
+I knew I wanted to use low level graphics programming, and I had some experience with C++.&lt;/p&gt;
+&lt;p&gt;During the research I got to know about the library &amp;ldquo;&lt;a href=&#34;https://github.com/raysan5/raylib&#34;&gt;&lt;em&gt;raylib&lt;/em&gt;&lt;/a&gt;&amp;rdquo;, which is a simple
+and easy-to-use library for graphics. Simplify the starting point and save me from reinventing the wheel.&lt;/p&gt;
+&lt;p&gt;I checked out &lt;em&gt;Rust&lt;/em&gt;, &lt;em&gt;Go&lt;/em&gt; and &lt;em&gt;Zig&lt;/em&gt; options, but since I intended to use &amp;ldquo;raylib&amp;rdquo; that is written in &lt;em&gt;C&lt;/em&gt; I choose &lt;em&gt;C++&lt;/em&gt;
+as the
+programming language where C code is natively supported.&lt;/p&gt;</description>
+      <content>&lt;p&gt;When I started this project, I didn&amp;rsquo;t have a clear idea of the tech stack I would be using.
+I knew I wanted to use low level graphics programming, and I had some experience with C++.&lt;/p&gt;
+&lt;p&gt;During the research I got to know about the library &amp;ldquo;&lt;a href=&#34;https://github.com/raysan5/raylib&#34;&gt;&lt;em&gt;raylib&lt;/em&gt;&lt;/a&gt;&amp;rdquo;, which is a simple
+and easy-to-use library for graphics. Simplify the starting point and save me from reinventing the wheel.&lt;/p&gt;
+&lt;p&gt;I checked out &lt;em&gt;Rust&lt;/em&gt;, &lt;em&gt;Go&lt;/em&gt; and &lt;em&gt;Zig&lt;/em&gt; options, but since I intended to use &amp;ldquo;raylib&amp;rdquo; that is written in &lt;em&gt;C&lt;/em&gt; I choose &lt;em&gt;C++&lt;/em&gt;
+as the
+programming language where C code is natively supported.&lt;/p&gt;
+&lt;p&gt;Since I come from languages with package managers, it was confusing at first to not have one, but I got used to it and I
+don&amp;rsquo;t miss it that much.&lt;/p&gt;
+&lt;p&gt;Cmake chosen as the build system, and except for the &amp;ldquo;raylib&amp;rdquo; library, I have just another library for parsing JSON
+files, which is &amp;ldquo;&lt;a href=&#34;https://github.com/nlohmann/json&#34;&gt;nlohmann/json&lt;/a&gt;&amp;rdquo; (the de-factor standard for reading JSON in C++
+world).&lt;/p&gt;
+&lt;p&gt;C++ changes a lot, and I wanted to use the latest features, so I chose C++17 as the standard for this project (there are futures in the standard library !!! 😍)
+I&amp;rsquo;m still learning it, but I&amp;rsquo;m excited to use it. From time to time, I stumble upon some features that I didn&amp;rsquo;t know about, and it&amp;rsquo;s a great way to learn the language and LLMs are a great help in that.&lt;/p&gt;
+</content>
+    </item>
+    
     <item>
       <title>Calculating Some Numbers</title>
       <link>https://ziv.github.io/airborne/posts/numbers/</link>
       <pubDate>Tue, 31 Mar 2026 12:00:40 +0300</pubDate>
       
       <guid>https://ziv.github.io/airborne/posts/numbers/</guid>
-      <description>&lt;h1 id=&#34;calculating-some-numbers&#34;&gt;Calculating Some Numbers&lt;/h1&gt;
-&lt;p&gt;In order to give my aircraft feel of a true jet, I needed some numbers to add to my physics equations.&lt;/p&gt;
+      <description>&lt;p&gt;In order to give my aircraft feel of a true jet, I needed some numbers to add to my physics equations.&lt;/p&gt;
 &lt;p&gt;I started from the basics, Newtonian force law:&lt;/p&gt;
 &lt;p&gt;$$F = ma$$&lt;/p&gt;
 &lt;p&gt;And using vectors of all forces I get:&lt;/p&gt;
@@ -30,8 +59,7 @@
 &lt;p&gt;$$\vec{a} = \frac{\vec{F}_{net}}{m}$$&lt;/p&gt;
 &lt;h2 id=&#34;drag---the-anti-thrust&#34;&gt;Drag - The Anti Thrust&lt;/h2&gt;
 &lt;p&gt;Drag definition contain some variables $\rho$ and $A$ that will be treated as a constant to make the equation simpler.&lt;/p&gt;</description>
-      <content>&lt;h1 id=&#34;calculating-some-numbers&#34;&gt;Calculating Some Numbers&lt;/h1&gt;
-&lt;p&gt;In order to give my aircraft feel of a true jet, I needed some numbers to add to my physics equations.&lt;/p&gt;
+      <content>&lt;p&gt;In order to give my aircraft feel of a true jet, I needed some numbers to add to my physics equations.&lt;/p&gt;
 &lt;p&gt;I started from the basics, Newtonian force law:&lt;/p&gt;
 &lt;p&gt;$$F = ma$$&lt;/p&gt;
 &lt;p&gt;And using vectors of all forces I get:&lt;/p&gt;
@@ -153,16 +181,6 @@ using
 the &amp;ldquo;raylib&amp;rdquo; library, which provides a solid foundation and saves me from reinventing a lot from scratch.&lt;/p&gt;
 &lt;p&gt;Let’s get started.&lt;/p&gt;
 </content>
-    </item>
-    
-    <item>
-      <title>Getting Started</title>
-      <link>https://ziv.github.io/airborne/posts/nights-of-war/</link>
-      <pubDate>Tue, 31 Mar 2026 12:00:40 +0300</pubDate>
-      
-      <guid>https://ziv.github.io/airborne/posts/nights-of-war/</guid>
-      <description></description>
-      <content></content>
     </item>
     
   </channel>
