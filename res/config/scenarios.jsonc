@@ -72,11 +72,11 @@
           "id": "radar-station",
           "type": "structure",
           "subtype": "radar",
-          "position": [53125, 100, 26875],    // placeholder — target area
+          "position": [52500, 0, 27000],    // placeholder — target area
           "heading": 0,
           "health": 100,
           "faction": "enemy",
-          "model": "res/mig23.glb"
+          "model": "res/aa-radar.glb"
         },
         // light AAA defending the radar
         {

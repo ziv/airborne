@@ -18,10 +18,10 @@ class GameData {
     static constexpr float MAX_LANDING_SPEED_RATIO = 2.0f;
 
     /// Maximum roll angle (degrees) for a safe landing.
-    static constexpr float MAX_LANDING_ROLL = 10.0f;
+    static constexpr float MAX_LANDING_ROLL = 12.0f;
 
     /// Pitch must be between these bounds (degrees) for a safe landing.
-    static constexpr float MIN_LANDING_PITCH = -5.0f;
+    static constexpr float MIN_LANDING_PITCH = -10.0f;
     static constexpr float MAX_LANDING_PITCH = 15.0f;
 
     /// Check if the aircraft is inside any friendly AIRBASE landing zone.
