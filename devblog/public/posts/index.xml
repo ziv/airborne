@@ -6,7 +6,30 @@
     <description>Recent content in Posts on Airborne</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Wed, 01 Apr 2026 12:00:40 +0300</lastBuildDate><atom:link href="https://ziv.github.io/airborne/posts/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Tue, 07 Apr 2026 12:00:40 +0300</lastBuildDate><atom:link href="https://ziv.github.io/airborne/posts/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Landing</title>
+      <link>https://ziv.github.io/airborne/posts/landing/</link>
+      <pubDate>Tue, 07 Apr 2026 12:00:40 +0300</pubDate>
+      
+      <guid>https://ziv.github.io/airborne/posts/landing/</guid>
+      <description>&lt;p&gt;Landing is a tricky to implement and test. Come on, landing itself is tricky and require keeping wings leveled, nose up
+and not to fast. And all of that is hard to do in a simulator, where you have no real feedback from the aircraft, and
+you have to rely on instruments and visual cues.&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://ziv.github.io/airborne/landing0.png&#34; alt=&#34;Landing area on a surface&#34;&gt;&lt;/p&gt;
+&lt;p&gt;In order to debug the landing process, I added a box to each landing area that represent the ideal landing spot. So its
+a great opportunity to show some screenshots of the landing areas and the boxes.&lt;/p&gt;</description>
+      <content>&lt;p&gt;Landing is a tricky to implement and test. Come on, landing itself is tricky and require keeping wings leveled, nose up
+and not to fast. And all of that is hard to do in a simulator, where you have no real feedback from the aircraft, and
+you have to rely on instruments and visual cues.&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://ziv.github.io/airborne/landing0.png&#34; alt=&#34;Landing area on a surface&#34;&gt;&lt;/p&gt;
+&lt;p&gt;In order to debug the landing process, I added a box to each landing area that represent the ideal landing spot. So its
+a great opportunity to show some screenshots of the landing areas and the boxes.&lt;/p&gt;
+&lt;p&gt;And another one on a carrier:&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://ziv.github.io/airborne/landing1.png&#34; alt=&#34;Landing area on a carrier&#34;&gt;&lt;/p&gt;
+</content>
+    </item>
+    
     <item>
       <title>Tech Stack</title>
       <link>https://ziv.github.io/airborne/posts/tech-stack/</link>
