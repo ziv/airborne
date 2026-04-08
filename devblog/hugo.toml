@@ -17,4 +17,4 @@ theme = "re-terminal"
 
         [languages.en.params.logo]
             logoText = "AIRBORNE"
-            logoHomeLink = "/"
+            logoHomeLink = "/airborne/"
