@@ -115,6 +115,9 @@ const auto liftForce = Vector3Scale(state.orientation.up, state.forces.lift);
 const auto weightForce = Vector3Scale(GamePhysics::Gravity, mass);
 
 const auto total = Vector3Add(Vector3Add(Vector3Add(thrustForce, dragForce), weightForce), liftForce);
+
 const auto acceleration = Vector3Scale(total, 1.0f / mass);
+
+
 ```
 
