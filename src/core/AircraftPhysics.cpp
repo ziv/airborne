@@ -27,7 +27,7 @@ void AircraftPhysics::update(AircraftState &state, const float dt) const {
     if (state.controls.throttle <= 1.0f) {
         fuelBurnRate += state.controls.throttle * 1.0f;
     } else {
-        float abDepth = (state.controls.throttle - 1.0f) / 0.2f;
+        const float abDepth = (state.controls.throttle - 1.0f) / 0.2f;
         fuelBurnRate = 1.1f + (abDepth * 6.4f);
     }
 
@@ -46,42 +46,43 @@ void AircraftPhysics::update(AircraftState &state, const float dt) const {
     } else {
         if (state.controls.brakes) state.forces.drag *= groundBrakesDragRatio; // on ground, drag mimic the wheels brakes
         const float dampFactor = powf(0.9f, dt * 60.0f); // normalized to 60fps baseline
-        if (state.controls.brakes && state.forces.speed < groundBrakesSpeed) state.forces.velocity = Vector3Scale(state.forces.velocity, dampFactor);
+        if (state.controls.brakes && state.forces.speed < groundBrakesSpeed) state.forces.velocity = state.forces.velocity * dampFactor;
         if (state.forces.velocity.y < 0.0f) state.forces.velocity.y = 0.0f; // on ground there is no more velocity down
     }
 
     const float mass = weight / 9.81f;
 
     // forces vectors
-    const auto thrustForce = Vector3Scale(state.orientation.forward, state.forces.thrust);
-    const auto dragForce = Vector3Scale(state.orientation.forward, -state.forces.drag);
-    const auto liftForce = Vector3Scale(state.orientation.up, state.forces.lift);
-    const auto weightForce = Vector3Scale(GamePhysics::Gravity, mass);
+    // const auto thrustForce = Vector3Scale(state.orientation.forward, state.forces.thrust);
+    const auto thrustForce = state.orientation.forward * state.forces.thrust;
+    const auto dragForce = state.orientation.forward * -state.forces.drag;
+    const auto liftForce = state.orientation.up * state.forces.lift;
+    const auto weightForce = GamePhysics::Gravity * mass;
 
-    const auto total = Vector3Add(Vector3Add(Vector3Add(thrustForce, dragForce), weightForce), liftForce);
-    const auto acceleration = Vector3Scale(total, 1.0f / mass);
+    const auto total = thrustForce + dragForce + weightForce + liftForce;
+    const auto acceleration = total / mass;
 
     // acceleration
-    state.forces.velocity = Vector3Add(state.forces.velocity, Vector3Scale(acceleration, dt));
+    state.forces.velocity = state.forces.velocity + (acceleration * dt);
     state.forces.speed = Vector3Length(state.forces.velocity);
 
     // limit velocity (not suppose to happen, the drag should be equal to thrust in max speed)
     if (state.forces.speed > maxSpeed && state.forces.speed != 0.0f) {
-        state.forces.velocity = Vector3Scale(state.forces.velocity, maxSpeed / state.forces.speed);
+        state.forces.velocity = state.forces.velocity * maxSpeed / state.forces.speed;
         state.forces.speed = Vector3Length(state.forces.velocity);
     }
 
     // weathervaning
     // https://en.wikipedia.org/wiki/Weathervane_effect
     if (state.forces.speed > stallSpeed) {
-        auto [x, y, z] = Vector3Scale(state.orientation.forward, state.forces.speed);
+        auto [x, y, z] = state.orientation.forward * state.forces.speed;
         state.forces.velocity.x = Lerp(state.forces.velocity.x, x, 2.0f * dt);
         state.forces.velocity.y = Lerp(state.forces.velocity.y, y, 2.0f * dt);
         state.forces.velocity.z = Lerp(state.forces.velocity.z, z, 2.0f * dt);
     }
 
     // update position
-    state.position = Vector3Add(state.position, Vector3Scale(state.forces.velocity, dt));
+    state.position = state.position + (state.forces.velocity * dt);
 
     // --- ground / surface clamping ---
     // effectiveFloorHeight is set by GameData each frame:
@@ -93,7 +94,6 @@ void AircraftPhysics::update(AircraftState &state, const float dt) const {
         if (state.forces.velocity.y < 0.0f) state.forces.velocity.y = 0.0f;
     }
 
-
     // keep the center less than SHIFT_THRESHOLD to keep the
     // calculations accurate (large floats issue)
     const auto ST = state.SHIFT_THRESHOLD;
@@ -104,7 +104,6 @@ void AircraftPhysics::update(AircraftState &state, const float dt) const {
         state.position.x += ST;
         state.mapOffset.x += ST;
     }
-
     if (state.position.z > ST) {
         state.position.z -= ST;
         state.mapOffset.y -= ST;

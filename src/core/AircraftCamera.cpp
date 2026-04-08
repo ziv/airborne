@@ -15,7 +15,7 @@ void AircraftCamera::update(const AircraftState &state, const float dt) {
     camera.up = Vector3RotateByQuaternion(state.orientation.up, qTilt);
 
     if (IsKeyDown(KEY_F1)) {
-        const Vector3 offsetRight = Vector3Scale(state.orientation.right, -100.0f);
+        const Vector3 offsetRight =  Vector3Scale(state.orientation.right, -100.0f);
         const Vector3 offsetUp = Vector3Scale(state.orientation.up, 0.0f);
         const Vector3 offsetForward = Vector3Scale(state.orientation.forward, -100.0f);
 
