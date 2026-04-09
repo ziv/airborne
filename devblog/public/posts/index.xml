@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Posts on Airborne</title>
+    <link>https://ziv.github.io/airborne/posts/</link>
+    <description>Recent content in Posts on Airborne</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Tue, 07 Apr 2026 12:00:40 +0300</lastBuildDate><atom:link href="https://ziv.github.io/airborne/posts/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Landing</title>
+      <link>https://ziv.github.io/airborne/posts/004-landing/</link>
+      <pubDate>Tue, 07 Apr 2026 12:00:40 +0300</pubDate>
+      
+      <guid>https://ziv.github.io/airborne/posts/004-landing/</guid>
+      <description>&lt;p&gt;&lt;img src=&#34;https://ziv.github.io/airborne/i3.png&#34; alt=&#34;F35 fr&#34;&gt;&lt;/p&gt;
+&lt;p&gt;Landing is a tricky to implement and test. Come on, landing itself is tricky and require keeping wings leveled, nose up
+and not to fast. And all of that is hard to do in a simulator, where you have no real feedback from the aircraft, and
+you have to rely on instruments and visual cues.&lt;/p&gt;
+&lt;p&gt;I crashed a lot of planes while trying to implement landing and I understand I needed a visual aid to help me understand
+what is going on.&lt;/p&gt;</description>
+      <content>&lt;p&gt;&lt;img src=&#34;https://ziv.github.io/airborne/i3.png&#34; alt=&#34;F35 fr&#34;&gt;&lt;/p&gt;
+&lt;p&gt;Landing is a tricky to implement and test. Come on, landing itself is tricky and require keeping wings leveled, nose up
+and not to fast. And all of that is hard to do in a simulator, where you have no real feedback from the aircraft, and
+you have to rely on instruments and visual cues.&lt;/p&gt;
+&lt;p&gt;I crashed a lot of planes while trying to implement landing and I understand I needed a visual aid to help me understand
+what is going on.&lt;/p&gt;
+&lt;p&gt;For easier debugging, I added a virtual landing area to the game, which is a simple box on the ground that represent the
+area where the
+plane should land.&lt;/p&gt;
+&lt;p&gt;Only when the plane is inside the box, the landing process will start and the plane will be able to land. This way I can
+see if the plane is in the right position and if not, I can adjust my approach.&lt;/p&gt;
+&lt;p&gt;You can see this landing area in the screenshots below. The first one is on a surface:&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://ziv.github.io/airborne/landing0.png&#34; alt=&#34;Landing area on a surface&#34;&gt;&lt;/p&gt;
+&lt;p&gt;And another one on a carrier:&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://ziv.github.io/airborne/landing1.png&#34; alt=&#34;Landing area on a carrier&#34;&gt;&lt;/p&gt;
+</content>
+    </item>
+    
+    <item>
+      <title>Calculating Some Numbers</title>
+      <link>https://ziv.github.io/airborne/posts/003-numbers/</link>
+      <pubDate>Thu, 02 Apr 2026 12:00:40 +0300</pubDate>
+      
+      <guid>https://ziv.github.io/airborne/posts/003-numbers/</guid>
+      <description>&lt;p&gt;&lt;img src=&#34;https://ziv.github.io/airborne/i2.png&#34; alt=&#34;Future fr&#34;&gt;&lt;/p&gt;
+&lt;p&gt;In order to give my aircraft feel of a true jet, I needed some numbers to add to my physics equations.&lt;/p&gt;
+&lt;p&gt;I opened my physics book and started to write down the equations that I will need to implement in my game. I will not go
+into the details of the equations, but I will explain the basic idea behind them.&lt;/p&gt;
+&lt;p&gt;I started from the basics, Newton&amp;rsquo;s laws of motion, force equals mass times acceleration:&lt;/p&gt;</description>
+      <content>&lt;p&gt;&lt;img src=&#34;https://ziv.github.io/airborne/i2.png&#34; alt=&#34;Future fr&#34;&gt;&lt;/p&gt;
+&lt;p&gt;In order to give my aircraft feel of a true jet, I needed some numbers to add to my physics equations.&lt;/p&gt;
+&lt;p&gt;I opened my physics book and started to write down the equations that I will need to implement in my game. I will not go
+into the details of the equations, but I will explain the basic idea behind them.&lt;/p&gt;
+&lt;p&gt;I started from the basics, Newton&amp;rsquo;s laws of motion, force equals mass times acceleration:&lt;/p&gt;
+&lt;p&gt;$$F = ma$$&lt;/p&gt;
+&lt;p&gt;Since I want to get the acceleration in a 3D space, I will use vectors to represent the forces:&lt;/p&gt;
+&lt;p&gt;$$\vec{F}_{net} = \vec{T} + \vec{L} + \vec{D} + \vec{W}$$&lt;/p&gt;
+&lt;p&gt;Where:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;$\vec{T}$ Thrust&lt;/li&gt;
+&lt;li&gt;$\vec{L}$ Lift&lt;/li&gt;
+&lt;li&gt;$\vec{D}$ Drag&lt;/li&gt;
+&lt;li&gt;$\vec{W}$ Weight&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;And in vector form, the equation becomes:&lt;/p&gt;
+&lt;p&gt;$$\vec{F}_{net} = m \cdot \vec{a}$$&lt;/p&gt;
+&lt;p&gt;And the acceleration is:&lt;/p&gt;
+&lt;p&gt;$$\vec{a} = \frac{\vec{F}_{net}}{m}$$&lt;/p&gt;
+&lt;p&gt;Let&amp;rsquo;s break down each force and see how we can calculate it.&lt;/p&gt;
+&lt;h2 id=&#34;drag---the-anti-thrust&#34;&gt;Drag - The Anti Thrust&lt;/h2&gt;
+&lt;p&gt;&lt;a href=&#34;https://en.wikipedia.org/wiki/Drag_%28physics%29&#34;&gt;Drag&lt;/a&gt; is the force that opposes the motion of the aircraft. It is caused
+by the air resistance and it is proportional to
+the square of the velocity.&lt;/p&gt;
+&lt;p&gt;$$F_D = \frac{1}{2} \cdot \rho \cdot v^2 \cdot C_D \cdot A$$&lt;/p&gt;
+&lt;p&gt;Its definition contain some variables $\rho$ and $A$ that will be treated as a constant to make the equation
+simpler.&lt;/p&gt;
+&lt;p&gt;$$F_D = v^2 \cdot C_D$$&lt;/p&gt;
+&lt;p&gt;In my simpler version, $C_D$ is my drag coefficient.&lt;/p&gt;
+&lt;h2 id=&#34;lift---gravitys-enemy&#34;&gt;Lift - Gravity&amp;rsquo;s Enemy&lt;/h2&gt;
+&lt;p&gt;&lt;a href=&#34;https://en.wikipedia.org/wiki/Lift_%28force%29&#34;&gt;Lift&lt;/a&gt; is the force that opposes the weight of the aircraft and it is caused
+by the air flowing over the wings. It is also
+proportional to the square of the velocity.&lt;/p&gt;
+&lt;p&gt;$$F_L = \frac{1}{2} \cdot \rho \cdot v^2 \cdot C_L \cdot S$$&lt;/p&gt;
+&lt;p&gt;Here again, lift definition contain some variables $\rho$ and $S$ that will be treated as constant to make the equation
+simpler.&lt;/p&gt;
+&lt;p&gt;$$F_L = v^2 \cdot C_L$$&lt;/p&gt;
+&lt;p&gt;And again, in my simpler version, $C_L$ is my lift coefficient.&lt;/p&gt;
+&lt;h2 id=&#34;weight---nobody-beats-the-gravity&#34;&gt;Weight - Nobody Beats the Gravity&lt;/h2&gt;
+&lt;p&gt;Here the formula is much simpler since we know the acceleration. Its a constant.&lt;/p&gt;
+&lt;p&gt;$$G\approx9.18$$&lt;/p&gt;
+&lt;p&gt;So in our case:&lt;/p&gt;
+&lt;p&gt;$$F_W = m \cdot G$$&lt;/p&gt;
+&lt;p&gt;$$\frac{F}{m}=G$$&lt;/p&gt;
+&lt;hr&gt;
+&lt;h1 id=&#34;numbers&#34;&gt;Numbers?!&lt;/h1&gt;
+&lt;p&gt;OK, we fooled around with some equations but what about the numbers? Let&amp;rsquo;s take some real numbers from a real jet and
+see how we can use them to calculate the coefficients.&lt;/p&gt;
+&lt;p&gt;F-16 (Falcon/Viper) is a good example of a jet that is not too fast and not too slow, and it has a lot of data available
+online.&lt;/p&gt;
+&lt;table&gt;
+  &lt;thead&gt;
+      &lt;tr&gt;
+          &lt;th&gt;Property&lt;/th&gt;
+          &lt;th&gt;Value&lt;/th&gt;
+          &lt;th&gt;Unit&lt;/th&gt;
+      &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+      &lt;tr&gt;
+          &lt;td&gt;Weight&lt;/td&gt;
+          &lt;td&gt;$120,000$&lt;/td&gt;
+          &lt;td&gt;$N$&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;Thrust&lt;/td&gt;
+          &lt;td&gt;$130,000$&lt;/td&gt;
+          &lt;td&gt;$N$&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;Max Speed&lt;/td&gt;
+          &lt;td&gt;$600$&lt;/td&gt;
+          &lt;td&gt;$m/s$&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;Stall Speed&lt;/td&gt;
+          &lt;td&gt;$65$&lt;/td&gt;
+          &lt;td&gt;$m/s$&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;Cruise Speed&lt;/td&gt;
+          &lt;td&gt;$250$&lt;/td&gt;
+          &lt;td&gt;$m/s$&lt;/td&gt;
+      &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+&lt;h2 id=&#34;c_d&#34;&gt;$C_D$&lt;/h2&gt;
+&lt;p&gt;In max velocity ($600m/s$) drag should be equal to thrust.&lt;/p&gt;
+&lt;p&gt;$$\vec{T}+\vec{D}=0$$&lt;/p&gt;
+&lt;p&gt;$$130,000=600^2 \cdot C_D \rightarrow C_D \approx 0.36$$&lt;/p&gt;
+&lt;h2 id=&#34;c_l&#34;&gt;$C_L$&lt;/h2&gt;
+&lt;p&gt;In a cruise speed ($250m/s$) lift should be equal to weight.&lt;/p&gt;
+&lt;p&gt;$$\vec{L}+\vec{W}=0$$&lt;/p&gt;
+&lt;p&gt;$$120,000=250^2 \cdot C_L \rightarrow C_L=1.92$$&lt;/p&gt;
+&lt;hr&gt;
+&lt;p&gt;Now we have the coefficients, we can use them in our equations to calculate the forces and the acceleration of our
+aircraft.&lt;/p&gt;
+</content>
+    </item>
+    
+    <item>
+      <title>Tech Stack</title>
+      <link>https://ziv.github.io/airborne/posts/002-tech-stack/</link>
+      <pubDate>Wed, 01 Apr 2026 12:00:40 +0300</pubDate>
+      
+      <guid>https://ziv.github.io/airborne/posts/002-tech-stack/</guid>
+      <description>&lt;p&gt;&lt;img src=&#34;https://ziv.github.io/airborne/i1.png&#34; alt=&#34;F16 fr&#34;&gt;&lt;/p&gt;
+&lt;p&gt;When I started this project, I didn&amp;rsquo;t have a clear idea of the tech stack I would be using.
+I knew I wanted to use low level graphics programming, and I had some experience with C++.&lt;/p&gt;
+&lt;p&gt;During the research I got to know about the library &amp;ldquo;&lt;a href=&#34;https://github.com/raysan5/raylib&#34;&gt;&lt;em&gt;raylib&lt;/em&gt;&lt;/a&gt;&amp;rdquo;, which is a simple
+and easy-to-use library for graphics. Simplify the starting point and save me from reinventing the wheel.&lt;/p&gt;
+&lt;p&gt;I checked out &lt;em&gt;Rust&lt;/em&gt;, &lt;em&gt;Go&lt;/em&gt; and &lt;em&gt;Zig&lt;/em&gt; options, but since I intended to use &amp;ldquo;raylib&amp;rdquo; that is written in &lt;em&gt;C&lt;/em&gt; I choose &lt;em&gt;C++&lt;/em&gt;
+as the
+programming language where C code is natively supported.&lt;/p&gt;</description>
+      <content>&lt;p&gt;&lt;img src=&#34;https://ziv.github.io/airborne/i1.png&#34; alt=&#34;F16 fr&#34;&gt;&lt;/p&gt;
+&lt;p&gt;When I started this project, I didn&amp;rsquo;t have a clear idea of the tech stack I would be using.
+I knew I wanted to use low level graphics programming, and I had some experience with C++.&lt;/p&gt;
+&lt;p&gt;During the research I got to know about the library &amp;ldquo;&lt;a href=&#34;https://github.com/raysan5/raylib&#34;&gt;&lt;em&gt;raylib&lt;/em&gt;&lt;/a&gt;&amp;rdquo;, which is a simple
+and easy-to-use library for graphics. Simplify the starting point and save me from reinventing the wheel.&lt;/p&gt;
+&lt;p&gt;I checked out &lt;em&gt;Rust&lt;/em&gt;, &lt;em&gt;Go&lt;/em&gt; and &lt;em&gt;Zig&lt;/em&gt; options, but since I intended to use &amp;ldquo;raylib&amp;rdquo; that is written in &lt;em&gt;C&lt;/em&gt; I choose &lt;em&gt;C++&lt;/em&gt;
+as the
+programming language where C code is natively supported.&lt;/p&gt;
+&lt;p&gt;Since I come from languages with package managers, it was confusing at first to not have one, but I got used to it and I
+don&amp;rsquo;t miss it that much.&lt;/p&gt;
+&lt;p&gt;Cmake chosen as the build system, and except for the &amp;ldquo;raylib&amp;rdquo; library, I have just another library for parsing JSON
+files, which is &amp;ldquo;&lt;a href=&#34;https://github.com/nlohmann/json&#34;&gt;nlohmann/json&lt;/a&gt;&amp;rdquo; (the de-factor standard for reading JSON in C++
+world).&lt;/p&gt;
+&lt;p&gt;C++ changes a lot, and I wanted to use the latest features, so I chose C++17 as the standard for this project (there are futures in the standard library !!! 😍)
+I&amp;rsquo;m still learning it, but I&amp;rsquo;m excited to use it. From time to time, I stumble upon some features that I didn&amp;rsquo;t know about, and it&amp;rsquo;s a great way to learn the language and LLMs are a great help in that.&lt;/p&gt;
+</content>
+    </item>
+    
+    <item>
+      <title>Getting Started</title>
+      <link>https://ziv.github.io/airborne/posts/001-getting-started/</link>
+      <pubDate>Tue, 31 Mar 2026 12:00:40 +0300</pubDate>
+      
+      <guid>https://ziv.github.io/airborne/posts/001-getting-started/</guid>
+      <description>&lt;p&gt;&lt;img src=&#34;https://ziv.github.io/airborne/i0.png&#34; alt=&#34;F15 fr&#34;&gt;&lt;/p&gt;
+&lt;p&gt;A development or more precisely, a remake of the 1989 F-15 II flight simulator by MicroProse.&lt;/p&gt;
+&lt;p&gt;The purpose of this blog is to accompany the project’s development, document the decisions made along the way, and
+capture lessons learned, among other things.&lt;/p&gt;
+&lt;p&gt;I began the project by selecting a technology stack and researching modern workflows with OpenGL.&lt;/p&gt;
+&lt;p&gt;For this project, I chose a language I was once familiar with, C++, and one I’m excited to dive back into. I’m also
+using
+the &amp;ldquo;raylib&amp;rdquo; library, which provides a solid foundation and saves me from reinventing a lot from scratch.&lt;/p&gt;</description>
+      <content>&lt;p&gt;&lt;img src=&#34;https://ziv.github.io/airborne/i0.png&#34; alt=&#34;F15 fr&#34;&gt;&lt;/p&gt;
+&lt;p&gt;A development or more precisely, a remake of the 1989 F-15 II flight simulator by MicroProse.&lt;/p&gt;
+&lt;p&gt;The purpose of this blog is to accompany the project’s development, document the decisions made along the way, and
+capture lessons learned, among other things.&lt;/p&gt;
+&lt;p&gt;I began the project by selecting a technology stack and researching modern workflows with OpenGL.&lt;/p&gt;
+&lt;p&gt;For this project, I chose a language I was once familiar with, C++, and one I’m excited to dive back into. I’m also
+using
+the &amp;ldquo;raylib&amp;rdquo; library, which provides a solid foundation and saves me from reinventing a lot from scratch.&lt;/p&gt;
+&lt;p&gt;Let’s get started.&lt;/p&gt;
+</content>
+    </item>
+    
+  </channel>
+</rss>

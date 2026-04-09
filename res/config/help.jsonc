@@ -1,0 +1,74 @@
+{
+  "A": [
+    {
+      "control": "[+]",
+      "text": "Increase throttle"
+    },
+    {
+      "control": "[-]",
+      "text": "Decrease throttle"
+    },
+    {
+      "control": "[1-9]",
+      "text": "Throttle 10% to 90%"
+    },
+    {
+      "control": "[0]",
+      "text": "Engine off"
+    },
+    {
+      "control": "[A]",
+      "text": "After burner"
+    },
+    {
+      "control": "[G]",
+      "text": "Toggle Gear"
+    },
+    {
+      "control": "[B]",
+      "text": "Toggle Brakes"
+    },
+    {
+      "control": "[ARROW_UP]",
+      "text": "Pitch down"
+    },
+    {
+      "control": "[ARROW_DOWN]",
+      "text": "Pitch up"
+    },
+    {
+      "control": "[ARROW_LEFT]",
+      "text": "Roll left"
+    },
+    {
+      "control": "[ARROW_RIGHT]",
+      "text": "Roll right"
+    },
+    {
+      "control": "[P]",
+      "text": "Pause game"
+    },
+    {
+      "control": "[BACKSPACE]",
+      "text": "Exit game"
+    }
+  ],
+  "B": [
+    {
+      "control": "[ALT+H]",
+      "text": "Toggle HUD colors"
+    },
+    {
+      "control": "[F2]",
+      "text": "Toggle left panel content"
+    },
+    {
+      "control": "[F3]",
+      "text": "Toggle middle panel content"
+    },
+    {
+      "control": "[F4]",
+      "text": "Toggle right panel content"
+    }
+  ]
+}
