@@ -9,7 +9,7 @@ theme = "re-terminal"
 
 [params]
     themeColor = "pink"
-    showLanguageSelector = false
+    contentTypeName = "posts"
 
 [params.twitter]
     creator = "zivdev"
