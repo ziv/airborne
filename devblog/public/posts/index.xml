@@ -6,7 +6,66 @@
     <description>Recent content in Posts on Airborne</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Tue, 24 Mar 2026 00:00:00 +0000</lastBuildDate><atom:link href="https://ziv.github.io/airborne/posts/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Wed, 25 Mar 2026 00:00:00 +0000</lastBuildDate><atom:link href="https://ziv.github.io/airborne/posts/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Roll, Pitch, Yaw and Keyboard input</title>
+      <link>https://ziv.github.io/airborne/posts/005-yaw-rall-pitch/</link>
+      <pubDate>Wed, 25 Mar 2026 00:00:00 +0000</pubDate>
+      
+      <guid>https://ziv.github.io/airborne/posts/005-yaw-rall-pitch/</guid>
+      <description>&lt;p&gt;&lt;img src=&#34;https://ziv.github.io/airborne/i4.png&#34; alt=&#34;Future fr&#34;&gt;&lt;/p&gt;
+&lt;p&gt;Let&amp;rsquo;s continue exploring model movement. In this example, we will take all three angles into account: roll, pitch, and yaw.&lt;/p&gt;
+&lt;p&gt;But before we start, let&amp;rsquo;s go back to the basics. What we did in the last post was apply a &lt;strong&gt;transformation&lt;/strong&gt; to the model.&lt;/p&gt;
+&lt;p&gt;(This isn&amp;rsquo;t going to be a linear algebra lesson; you can find more about linear transformations in 3D space in &lt;a href=&#34;https://en.wikipedia.org/wiki/Linear_map&#34;&gt;this article&lt;/a&gt;.)&lt;/p&gt;
+&lt;p&gt;As a reminder, if we want to apply multiple transformations, we can combine them into a single transformation. We do this by multiplying the transformation matrices together (applied sequentially as Yaw $\rightarrow$ Pitch $\rightarrow$ Roll):&lt;/p&gt;</description>
+      <content>&lt;p&gt;&lt;img src=&#34;https://ziv.github.io/airborne/i4.png&#34; alt=&#34;Future fr&#34;&gt;&lt;/p&gt;
+&lt;p&gt;Let&amp;rsquo;s continue exploring model movement. In this example, we will take all three angles into account: roll, pitch, and yaw.&lt;/p&gt;
+&lt;p&gt;But before we start, let&amp;rsquo;s go back to the basics. What we did in the last post was apply a &lt;strong&gt;transformation&lt;/strong&gt; to the model.&lt;/p&gt;
+&lt;p&gt;(This isn&amp;rsquo;t going to be a linear algebra lesson; you can find more about linear transformations in 3D space in &lt;a href=&#34;https://en.wikipedia.org/wiki/Linear_map&#34;&gt;this article&lt;/a&gt;.)&lt;/p&gt;
+&lt;p&gt;As a reminder, if we want to apply multiple transformations, we can combine them into a single transformation. We do this by multiplying the transformation matrices together (applied sequentially as Yaw $\rightarrow$ Pitch $\rightarrow$ Roll):&lt;/p&gt;
+&lt;p&gt;$$M=R_{roll} \cdot R_{pitch} \cdot R_{yaw}$$&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Note: The order of multiplication is crucial because matrix multiplication is &lt;strong&gt;not commutative&lt;/strong&gt;.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;keyboard-input&#34;&gt;Keyboard Input&lt;/h2&gt;
+&lt;p&gt;Before the video demonstration, let&amp;rsquo;s see how we can control the model with keyboard input. We will use the &lt;code&gt;IsKeyDown&lt;/code&gt; function to check if a key is pressed and update the angles accordingly.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-c++&#34; data-lang=&#34;c++&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;// setup
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;auto&lt;/span&gt; roll &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;0.0f&lt;/span&gt;;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;auto&lt;/span&gt; pitch &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;0.0f&lt;/span&gt;;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;auto&lt;/span&gt; yaw &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;0.0f&lt;/span&gt;;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;// and in the main loop:
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt; 
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; (IsKeyDown(KEY_RIGHT)) roll &lt;span style=&#34;color:#f92672&#34;&gt;+=&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;0.01f&lt;/span&gt;;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; (IsKeyDown(KEY_LEFT)) roll &lt;span style=&#34;color:#f92672&#34;&gt;-=&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;0.01f&lt;/span&gt;;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; (IsKeyDown(KEY_UP)) pitch &lt;span style=&#34;color:#f92672&#34;&gt;+=&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;0.01f&lt;/span&gt;;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; (IsKeyDown(KEY_DOWN)) pitch &lt;span style=&#34;color:#f92672&#34;&gt;-=&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;0.01f&lt;/span&gt;;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;// I used A and D for yaw
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; (IsKeyDown(KEY_D)) yaw &lt;span style=&#34;color:#f92672&#34;&gt;+=&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;0.01f&lt;/span&gt;; 
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; (IsKeyDown(KEY_A)) yaw &lt;span style=&#34;color:#f92672&#34;&gt;-=&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;0.01f&lt;/span&gt;;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;While this isn&amp;rsquo;t exactly how we will ultimately control our model, we&amp;rsquo;ll use it as a foundation for our future input system.&lt;/p&gt;
+&lt;p&gt;Let&amp;rsquo;s wrap the values to stay within a $2\pi$ range. This isn&amp;rsquo;t strictly necessary for the transformation itself, but it keeps the UI display clean and makes the angles easier to understand.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-c++&#34; data-lang=&#34;c++&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;constexpr&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;auto&lt;/span&gt; PI2 &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; PI &lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;2&lt;/span&gt;;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; (roll &lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt; PI2) roll &lt;span style=&#34;color:#f92672&#34;&gt;-=&lt;/span&gt; PI2;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; (roll &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;) roll &lt;span style=&#34;color:#f92672&#34;&gt;+=&lt;/span&gt; PI2;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; (pitch &lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt; PI2) pitch &lt;span style=&#34;color:#f92672&#34;&gt;-=&lt;/span&gt; PI2;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; (pitch &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;) pitch &lt;span style=&#34;color:#f92672&#34;&gt;+=&lt;/span&gt; PI2;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; (yaw &lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt; PI2) yaw &lt;span style=&#34;color:#f92672&#34;&gt;-=&lt;/span&gt; PI2;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; (yaw &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;) yaw &lt;span style=&#34;color:#f92672&#34;&gt;+=&lt;/span&gt; PI2;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Finally, we apply the combined transformation to the model:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-c++&#34; data-lang=&#34;c++&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;model.transform &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; MatrixRotateZ(roll) &lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt; MatrixRotateX(pitch) &lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt; MatrixRotateY(yaw);
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;ul&gt;
+&lt;li&gt;Thanks to C++ operator overloading, we can conveniently use the &lt;code&gt;*&lt;/code&gt; operator to multiply these matrices. &amp;ldquo;raymath&amp;rdquo; does provide a dedicated function for matrix multiplication (&lt;code&gt;MatrixMultiply&lt;/code&gt;), but utilizing the overloaded operators makes the math much more readable.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Now we can see the model rotating across all three axes, fully controlled by keyboard input. I&amp;rsquo;ve added visual cues in the video below to identify the keystrokes:&lt;/p&gt;
+&lt;div style=&#34;position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;&#34;&gt;
+      &lt;iframe allow=&#34;accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen&#34; loading=&#34;eager&#34; referrerpolicy=&#34;strict-origin-when-cross-origin&#34; src=&#34;https://www.youtube.com/embed/gZcf-Y9sP2s?autoplay=0&amp;amp;controls=1&amp;amp;end=0&amp;amp;loop=0&amp;amp;mute=0&amp;amp;start=0&#34; style=&#34;position: absolute; top: 0; left: 0; width: 100%; height: 100%; border:0;&#34; title=&#34;YouTube video&#34;&gt;&lt;/iframe&gt;
+    &lt;/div&gt;
+
+</content>
+    </item>
+    
     <item>
       <title>Movement</title>
       <link>https://ziv.github.io/airborne/posts/004-movement/</link>

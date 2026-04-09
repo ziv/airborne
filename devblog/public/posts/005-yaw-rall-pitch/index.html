@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  
+    <title>Roll, Pitch, Yaw and Keyboard input :: Airborne</title>
+  
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="
+Let&rsquo;s continue exploring model movement. In this example, we will take all three angles into account: roll, pitch, and yaw.
+But before we start, let&rsquo;s go back to the basics. What we did in the last post was apply a transformation to the model.
+(This isn&rsquo;t going to be a linear algebra lesson; you can find more about linear transformations in 3D space in this article.)
+As a reminder, if we want to apply multiple transformations, we can combine them into a single transformation. We do this by multiplying the transformation matrices together (applied sequentially as Yaw $\rightarrow$ Pitch $\rightarrow$ Roll):
+" />
+<meta name="keywords" content="" />
+
+  <meta name="robots" content="noodp" />
+
+<link rel="canonical" href="https://ziv.github.io/airborne/posts/005-yaw-rall-pitch/" />
+
+
+      <script async src="https://www.googletagmanager.com/gtag/js?id=G-0GMMREP8RD"></script>
+      <script>
+        var doNotTrack = false;
+        if ( true ) {
+          var dnt = (navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack);
+          var doNotTrack = (dnt == "1" || dnt == "yes");
+        }
+        if (!doNotTrack) {
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+          gtag('config', 'G-0GMMREP8RD');
+        }
+      </script>
+
+
+
+
+
+  
+  
+  
+  
+  
+  <link rel="stylesheet" href="https://ziv.github.io/airborne/styles.css">
+
+
+
+
+
+
+
+  <link rel="shortcut icon" href="https://ziv.github.io/airborne/img/theme-colors/pink.png">
+  <link rel="apple-touch-icon" href="https://ziv.github.io/airborne/img/theme-colors/pink.png">
+
+
+
+<meta name="twitter:card" content="summary" />
+
+  
+    <meta name="twitter:creator" content="" />
+
+
+
+<meta property="og:locale" content="en" />
+<meta property="og:type" content="article" />
+<meta property="og:title" content="Roll, Pitch, Yaw and Keyboard input">
+<meta property="og:description" content="
+Let&rsquo;s continue exploring model movement. In this example, we will take all three angles into account: roll, pitch, and yaw.
+But before we start, let&rsquo;s go back to the basics. What we did in the last post was apply a transformation to the model.
+(This isn&rsquo;t going to be a linear algebra lesson; you can find more about linear transformations in 3D space in this article.)
+As a reminder, if we want to apply multiple transformations, we can combine them into a single transformation. We do this by multiplying the transformation matrices together (applied sequentially as Yaw $\rightarrow$ Pitch $\rightarrow$ Roll):
+" />
+<meta property="og:url" content="https://ziv.github.io/airborne/posts/005-yaw-rall-pitch/" />
+<meta property="og:site_name" content="Airborne" />
+
+  
+    <meta property="og:image" content="https://ziv.github.io/airborne/img/favicon/pink.png">
+  
+
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="627">
+
+
+  <meta property="article:published_time" content="2026-03-25 00:00:00 &#43;0000 UTC" />
+
+
+
+
+
+
+
+
+
+
+
+
+<script>
+    MathJax = {
+        tex: {
+            inlineMath: [['$', '$'], ['\\(', '\\)']],
+            displayMath: [['$$', '$$'], ['\\[', '\\]']],
+            processEscapes: true,
+            processEnvironments: true
+        },
+        options: {
+            skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+        }
+    };
+</script>
+<script src="https://polyfill.io"></script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+<style>
+    img[alt*="fr"] {
+    float: right;
+    margin-left: 1em;
+    margin-bottom: 1em;
+    }
+</style>
+
+  
+
+
+</head>
+<body class="pink">
+
+
+
+
+<div class="container center headings--one-size">
+
+  <header class="header">
+  <div class="header__inner">
+    <div class="header__logo">
+      <a href="/airborne/">
+  <div class="logo">
+    AIRBORNE
+  </div>
+</a>
+
+    </div>
+    
+      <ul class="menu menu--mobile">
+  <li class="menu__trigger">Menu&nbsp;▾</li>
+  <li>
+    <ul class="menu__dropdown">
+      
+        
+          <li><a href="/airborne/about">About</a></li>
+        
+      
+        
+          <li><a href="https://github.com/ziv/airborne">Repository</a></li>
+        
+      
+      
+    </ul>
+  </li>
+</ul>
+
+    
+    
+  </div>
+  
+    <nav class="navigation-menu">
+  <ul class="navigation-menu__inner menu--desktop">
+    
+      
+        
+          <li><a href="/airborne/about" >About</a></li>
+        
+      
+        
+          <li><a href="https://github.com/ziv/airborne" >Repository</a></li>
+        
+      
+    
+  </ul>
+</nav>
+
+  
+</header>
+
+
+  <div class="content">
+    
+<article class="post">
+  <h1 class="post-title">
+    <a href="https://ziv.github.io/airborne/posts/005-yaw-rall-pitch/">Roll, Pitch, Yaw and Keyboard input</a>
+  </h1>
+  <div class="post-meta"><time class="post-date">2026-03-25</time>
+    
+</div>
+
+  
+  
+
+
+
+  
+
+  <div class="post-content"><div>
+        <p><img src="/airborne/i4.png" alt="Future fr"></p>
+<p>Let&rsquo;s continue exploring model movement. In this example, we will take all three angles into account: roll, pitch, and yaw.</p>
+<p>But before we start, let&rsquo;s go back to the basics. What we did in the last post was apply a <strong>transformation</strong> to the model.</p>
+<p>(This isn&rsquo;t going to be a linear algebra lesson; you can find more about linear transformations in 3D space in <a href="https://en.wikipedia.org/wiki/Linear_map">this article</a>.)</p>
+<p>As a reminder, if we want to apply multiple transformations, we can combine them into a single transformation. We do this by multiplying the transformation matrices together (applied sequentially as Yaw $\rightarrow$ Pitch $\rightarrow$ Roll):</p>
+<p>$$M=R_{roll} \cdot R_{pitch} \cdot R_{yaw}$$</p>
+<ul>
+<li>Note: The order of multiplication is crucial because matrix multiplication is <strong>not commutative</strong>.</li>
+</ul>
+<h2 id="keyboard-input">Keyboard Input<a href="#keyboard-input" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h2>
+<p>Before the video demonstration, let&rsquo;s see how we can control the model with keyboard input. We will use the <code>IsKeyDown</code> function to check if a key is pressed and update the angles accordingly.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-c++" data-lang="c++"><span style="display:flex;"><span><span style="color:#75715e">// setup
+</span></span></span><span style="display:flex;"><span><span style="color:#66d9ef">auto</span> roll <span style="color:#f92672">=</span> <span style="color:#ae81ff">0.0f</span>;
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">auto</span> pitch <span style="color:#f92672">=</span> <span style="color:#ae81ff">0.0f</span>;
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">auto</span> yaw <span style="color:#f92672">=</span> <span style="color:#ae81ff">0.0f</span>;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// and in the main loop:
+</span></span></span><span style="display:flex;"><span> 
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">if</span> (IsKeyDown(KEY_RIGHT)) roll <span style="color:#f92672">+=</span> <span style="color:#ae81ff">0.01f</span>;
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">if</span> (IsKeyDown(KEY_LEFT)) roll <span style="color:#f92672">-=</span> <span style="color:#ae81ff">0.01f</span>;
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">if</span> (IsKeyDown(KEY_UP)) pitch <span style="color:#f92672">+=</span> <span style="color:#ae81ff">0.01f</span>;
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">if</span> (IsKeyDown(KEY_DOWN)) pitch <span style="color:#f92672">-=</span> <span style="color:#ae81ff">0.01f</span>;
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// I used A and D for yaw
+</span></span></span><span style="display:flex;"><span><span style="color:#66d9ef">if</span> (IsKeyDown(KEY_D)) yaw <span style="color:#f92672">+=</span> <span style="color:#ae81ff">0.01f</span>; 
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">if</span> (IsKeyDown(KEY_A)) yaw <span style="color:#f92672">-=</span> <span style="color:#ae81ff">0.01f</span>;
+</span></span></code></pre></div><p>While this isn&rsquo;t exactly how we will ultimately control our model, we&rsquo;ll use it as a foundation for our future input system.</p>
+<p>Let&rsquo;s wrap the values to stay within a $2\pi$ range. This isn&rsquo;t strictly necessary for the transformation itself, but it keeps the UI display clean and makes the angles easier to understand.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-c++" data-lang="c++"><span style="display:flex;"><span><span style="color:#66d9ef">constexpr</span> <span style="color:#66d9ef">auto</span> PI2 <span style="color:#f92672">=</span> PI <span style="color:#f92672">*</span> <span style="color:#ae81ff">2</span>;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">if</span> (roll <span style="color:#f92672">&gt;</span> PI2) roll <span style="color:#f92672">-=</span> PI2;
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">if</span> (roll <span style="color:#f92672">&lt;</span> <span style="color:#ae81ff">0</span>) roll <span style="color:#f92672">+=</span> PI2;
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">if</span> (pitch <span style="color:#f92672">&gt;</span> PI2) pitch <span style="color:#f92672">-=</span> PI2;
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">if</span> (pitch <span style="color:#f92672">&lt;</span> <span style="color:#ae81ff">0</span>) pitch <span style="color:#f92672">+=</span> PI2;
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">if</span> (yaw <span style="color:#f92672">&gt;</span> PI2) yaw <span style="color:#f92672">-=</span> PI2;
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">if</span> (yaw <span style="color:#f92672">&lt;</span> <span style="color:#ae81ff">0</span>) yaw <span style="color:#f92672">+=</span> PI2;
+</span></span></code></pre></div><p>Finally, we apply the combined transformation to the model:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-c++" data-lang="c++"><span style="display:flex;"><span>model.transform <span style="color:#f92672">=</span> MatrixRotateZ(roll) <span style="color:#f92672">*</span> MatrixRotateX(pitch) <span style="color:#f92672">*</span> MatrixRotateY(yaw);
+</span></span></code></pre></div><ul>
+<li>Thanks to C++ operator overloading, we can conveniently use the <code>*</code> operator to multiply these matrices. &ldquo;raymath&rdquo; does provide a dedicated function for matrix multiplication (<code>MatrixMultiply</code>), but utilizing the overloaded operators makes the math much more readable.</li>
+</ul>
+<p>Now we can see the model rotating across all three axes, fully controlled by keyboard input. I&rsquo;ve added visual cues in the video below to identify the keystrokes:</p>
+<div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;">
+      <iframe allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen" loading="eager" referrerpolicy="strict-origin-when-cross-origin" src="https://www.youtube.com/embed/gZcf-Y9sP2s?autoplay=0&amp;controls=1&amp;end=0&amp;loop=0&amp;mute=0&amp;start=0" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border:0;" title="YouTube video"></iframe>
+    </div>
+
+
+      </div></div>
+
+  
+
+  
+    
+
+  
+</article>
+
+  </div>
+
+  
+    <footer class="footer">
+  <div class="footer__inner">
+    
+      <div class="copyright">
+        <span>© 2026 Powered by <a href="https://gohugo.io" target="_blank">Hugo</a></span>
+    
+      <span>:: Theme by <a href="https://github.com/mirus-ua" target="_blank">Mirus</a></span>
+      </div>
+  </div>
+</footer>
+
+
+
+
+
+
+<script type="text/javascript" src="/airborne/bundle.min.js"></script>
+
+
+
+
+
+
+
+
+  
+</div>
+
+</body>
+</html>
