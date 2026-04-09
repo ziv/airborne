@@ -69,7 +69,5 @@ And the result can be seen in the video below:
 
 How to combine all together and control the plane using the keyboard will be covered in the next post.
 
----
+B.T.W, How I created those videos using "raylib"? This is a subject for another post :)
 
-B.T.W,
-How I created those videos using "raylib"? This is a subject for another post :)
