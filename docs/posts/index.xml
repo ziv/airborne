@@ -9,10 +9,10 @@
     <lastBuildDate>Tue, 07 Apr 2026 12:00:40 +0300</lastBuildDate><atom:link href="https://ziv.github.io/airborne/posts/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Landing</title>
-      <link>https://ziv.github.io/airborne/posts/004-landing/</link>
+      <link>https://ziv.github.io/airborne/posts/009-landing/</link>
       <pubDate>Tue, 07 Apr 2026 12:00:40 +0300</pubDate>
       
-      <guid>https://ziv.github.io/airborne/posts/004-landing/</guid>
+      <guid>https://ziv.github.io/airborne/posts/009-landing/</guid>
       <description>&lt;p&gt;&lt;img src=&#34;https://ziv.github.io/airborne/i3.png&#34; alt=&#34;F35 fr&#34;&gt;&lt;/p&gt;
 &lt;p&gt;Landing is a tricky to implement and test. Come on, landing itself is tricky and require keeping wings leveled, nose up
 and not to fast. And all of that is hard to do in a simulator, where you have no real feedback from the aircraft, and
@@ -39,10 +39,10 @@ see if the plane is in the right position and if not, I can adjust my approach.&
     
     <item>
       <title>Calculating Some Numbers</title>
-      <link>https://ziv.github.io/airborne/posts/003-numbers/</link>
-      <pubDate>Thu, 02 Apr 2026 12:00:40 +0300</pubDate>
+      <link>https://ziv.github.io/airborne/posts/006-numbers/</link>
+      <pubDate>Mon, 23 Mar 2026 00:00:00 +0000</pubDate>
       
-      <guid>https://ziv.github.io/airborne/posts/003-numbers/</guid>
+      <guid>https://ziv.github.io/airborne/posts/006-numbers/</guid>
       <description>&lt;p&gt;&lt;img src=&#34;https://ziv.github.io/airborne/i2.png&#34; alt=&#34;Future fr&#34;&gt;&lt;/p&gt;
 &lt;p&gt;In order to give my aircraft feel of a true jet, I needed some numbers to add to my physics equations.&lt;/p&gt;
 &lt;p&gt;I opened my physics book and started to write down the equations that I will need to implement in my game. I will not go
@@ -149,9 +149,80 @@ aircraft.&lt;/p&gt;
     </item>
     
     <item>
+      <title>First Steps</title>
+      <link>https://ziv.github.io/airborne/posts/003-window/</link>
+      <pubDate>Mon, 23 Mar 2026 00:00:00 +0000</pubDate>
+      
+      <guid>https://ziv.github.io/airborne/posts/003-window/</guid>
+      <description>&lt;p&gt;&lt;img src=&#34;https://ziv.github.io/airborne/i4.png&#34; alt=&#34;Future fr&#34;&gt;&lt;/p&gt;
+&lt;p&gt;This post is diving directory into &amp;ldquo;raylib&amp;rdquo; usage. Feel free to skip it if you are not interested in the technical
+details of the implementation.&lt;/p&gt;
+&lt;p&gt;Without further ado, let&amp;rsquo;s start with the basics.&lt;/p&gt;
+&lt;p&gt;Creating a window in a specific size and title is as simple as calling the &lt;code&gt;InitWindow&lt;/code&gt; function with the desired width,
+height, and title. The main loop of the program is a simple while loop that checks if the window should close, and if
+not, it begins drawing, clears the background, draws some text, and ends drawing.&lt;/p&gt;</description>
+      <content>&lt;p&gt;&lt;img src=&#34;https://ziv.github.io/airborne/i4.png&#34; alt=&#34;Future fr&#34;&gt;&lt;/p&gt;
+&lt;p&gt;This post is diving directory into &amp;ldquo;raylib&amp;rdquo; usage. Feel free to skip it if you are not interested in the technical
+details of the implementation.&lt;/p&gt;
+&lt;p&gt;Without further ado, let&amp;rsquo;s start with the basics.&lt;/p&gt;
+&lt;p&gt;Creating a window in a specific size and title is as simple as calling the &lt;code&gt;InitWindow&lt;/code&gt; function with the desired width,
+height, and title. The main loop of the program is a simple while loop that checks if the window should close, and if
+not, it begins drawing, clears the background, draws some text, and ends drawing.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-cpp&#34; data-lang=&#34;cpp&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#include&lt;/span&gt; &lt;span style=&#34;color:#75715e&#34;&gt;&amp;#34;raylib.h&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;main&lt;/span&gt;() {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    InitWindow(&lt;span style=&#34;color:#ae81ff&#34;&gt;600&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;400&lt;/span&gt;, &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;example&amp;#34;&lt;/span&gt;);
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;while&lt;/span&gt; (&lt;span style=&#34;color:#f92672&#34;&gt;!&lt;/span&gt;WindowShouldClose()) {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        BeginDrawing();
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;            ClearBackground(RAYWHITE);
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;            DrawText(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;Hello, world!&amp;#34;&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;190&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;200&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;20&lt;/span&gt;, RED);
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        EndDrawing();
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    }
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;}
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;My view is represented by a &lt;code&gt;Camera&lt;/code&gt; struct, in our case &lt;code&gt;Camera3D&lt;/code&gt; that contains the position, target, up vector, field
+of view, and projection type.&lt;/p&gt;
+&lt;p&gt;I set the camera position and target. I set the field of view to $45^o$ degrees and the projection type to perspective.
+The
+up vector is set to $(0, 1, 0)$ which means that the positive y-axis is pointing upwards.&lt;/p&gt;
+&lt;p&gt;In order to have some orientation in the 3D space, I added a grid to the world. The grid is drawn using the &lt;code&gt;DrawGrid&lt;/code&gt;
+function.&lt;/p&gt;
+&lt;p&gt;Now my code look like this:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-cpp&#34; data-lang=&#34;cpp&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;InitWindow(&lt;span style=&#34;color:#ae81ff&#34;&gt;600&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;400&lt;/span&gt;, &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;example&amp;#34;&lt;/span&gt;);
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;Camera3D camera &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; {&lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;};
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;// camera setup
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;camera.position &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; (Vector3){&lt;span style=&#34;color:#ae81ff&#34;&gt;0.0f&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;10.0f&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;10.0f&lt;/span&gt;};
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;camera.fovy &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;45.0f&lt;/span&gt;;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;camera.projection &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; CAMERA_PERSPECTIVE;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;camera.up &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; (Vector3){&lt;span style=&#34;color:#ae81ff&#34;&gt;0.0f&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;1.0f&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;0.0f&lt;/span&gt;};
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;camera.target &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; (Vector3){&lt;span style=&#34;color:#ae81ff&#34;&gt;0.0f&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;0.0f&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;0.0f&lt;/span&gt;};
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;while&lt;/span&gt; (&lt;span style=&#34;color:#f92672&#34;&gt;!&lt;/span&gt;WindowShouldClose()) {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    BeginDrawing();
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    ClearBackground(RAYWHITE);
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        BeginMode3D(camera);       &lt;span style=&#34;color:#75715e&#34;&gt;// in 3D mode we need to specify the camera
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;            DrawGrid(&lt;span style=&#34;color:#ae81ff&#34;&gt;10&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;1.0f&lt;/span&gt;);    &lt;span style=&#34;color:#75715e&#34;&gt;// Draw a grid with 10 lines and 
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;                                   &lt;span style=&#34;color:#75715e&#34;&gt;// 1.0f spacing between lines
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        EndMode3D();
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        DrawText(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;Hello, world!&amp;#34;&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;10&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;10&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;16&lt;/span&gt;, RED);
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    EndDrawing();
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;}
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;And the results look like this:&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://ziv.github.io/airborne/window-example.png&#34; alt=&#34;Window grid example&#34;&gt;&lt;/p&gt;
+&lt;p&gt;My camera is my point of view so it is going to represent the cockpit view of the plane.&lt;/p&gt;
+&lt;p&gt;An aircraft got 3 degrees of freedom in the 3D space, so I need to be able to move the camera in all directions and rotate it around all axes.&lt;/p&gt;
+&lt;p&gt;Let&amp;rsquo;s keep this subject to the next post.&lt;/p&gt;
+</content>
+    </item>
+    
+    <item>
       <title>Tech Stack</title>
       <link>https://ziv.github.io/airborne/posts/002-tech-stack/</link>
-      <pubDate>Wed, 01 Apr 2026 12:00:40 +0300</pubDate>
+      <pubDate>Sun, 22 Mar 2026 00:00:00 +0000</pubDate>
       
       <guid>https://ziv.github.io/airborne/posts/002-tech-stack/</guid>
       <description>&lt;p&gt;&lt;img src=&#34;https://ziv.github.io/airborne/i1.png&#34; alt=&#34;F16 fr&#34;&gt;&lt;/p&gt;
@@ -172,18 +243,19 @@ as the
 programming language where C code is natively supported.&lt;/p&gt;
 &lt;p&gt;Since I come from languages with package managers, it was confusing at first to not have one, but I got used to it and I
 don&amp;rsquo;t miss it that much.&lt;/p&gt;
-&lt;p&gt;Cmake chosen as the build system, and except for the &amp;ldquo;raylib&amp;rdquo; library, I have just another library for parsing JSON
-files, which is &amp;ldquo;&lt;a href=&#34;https://github.com/nlohmann/json&#34;&gt;nlohmann/json&lt;/a&gt;&amp;rdquo; (the de-factor standard for reading JSON in C++
-world).&lt;/p&gt;
-&lt;p&gt;C++ changes a lot, and I wanted to use the latest features, so I chose C++17 as the standard for this project (there are futures in the standard library !!! 😍)
-I&amp;rsquo;m still learning it, but I&amp;rsquo;m excited to use it. From time to time, I stumble upon some features that I didn&amp;rsquo;t know about, and it&amp;rsquo;s a great way to learn the language and LLMs are a great help in that.&lt;/p&gt;
+&lt;p&gt;Cmake chosen as the build system, and except for the &amp;ldquo;raylib&amp;rdquo; library, I have just another dependency, a library for
+parsing JSON content, which is &amp;ldquo;&lt;a href=&#34;https://github.com/nlohmann/json&#34;&gt;nlohmann/json&lt;/a&gt;&amp;rdquo; (the de-factor standard for reading
+JSON in C++ world).&lt;/p&gt;
+&lt;p&gt;C++ changes a lot, and I wanted to use the latest features, so I chose C++20 (Concepts!!!) as the standard for this project
+I&amp;rsquo;m still learning it, but I&amp;rsquo;m excited to use it. From time to time, I stumble upon some features that I didn&amp;rsquo;t know
+about, and it&amp;rsquo;s a great way to learn the language and LLMs are a great help in that.&lt;/p&gt;
 </content>
     </item>
     
     <item>
       <title>Getting Started</title>
       <link>https://ziv.github.io/airborne/posts/001-getting-started/</link>
-      <pubDate>Tue, 31 Mar 2026 12:00:40 +0300</pubDate>
+      <pubDate>Sat, 21 Mar 2026 00:00:00 +0000</pubDate>
       
       <guid>https://ziv.github.io/airborne/posts/001-getting-started/</guid>
       <description>&lt;p&gt;&lt;img src=&#34;https://ziv.github.io/airborne/i0.png&#34; alt=&#34;F15 fr&#34;&gt;&lt;/p&gt;

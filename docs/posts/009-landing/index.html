@@ -2,21 +2,19 @@
 <html lang="en">
 <head>
   
-    <title>Getting Started :: Airborne</title>
+    <title>Landing :: Airborne</title>
   
   <meta http-equiv="content-type" content="text/html; charset=utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="description" content="
-A development or more precisely, a remake of the 1989 F-15 II flight simulator by MicroProse.
-The purpose of this blog is to accompany the project’s development, document the decisions made along the way, and capture lessons learned, among other things.
-I began the project by selecting a technology stack and researching modern workflows with OpenGL.
-For this project, I chose a language I was once familiar with, C&#43;&#43;, and one I’m excited to dive back into. I’m also using the &ldquo;raylib&rdquo; library, which provides a solid foundation and saves me from reinventing a lot from scratch.
+Landing is a tricky to implement and test. Come on, landing itself is tricky and require keeping wings leveled, nose up and not to fast. And all of that is hard to do in a simulator, where you have no real feedback from the aircraft, and you have to rely on instruments and visual cues.
+I crashed a lot of planes while trying to implement landing and I understand I needed a visual aid to help me understand what is going on.
 " />
 <meta name="keywords" content="" />
 
   <meta name="robots" content="noodp" />
 
-<link rel="canonical" href="https://ziv.github.io/airborne/posts/001-getting-started/" />
+<link rel="canonical" href="https://ziv.github.io/airborne/posts/009-landing/" />
 
 
 
@@ -48,14 +46,12 @@ For this project, I chose a language I was once familiar with, C&#43;&#43;, and 
 
 <meta property="og:locale" content="en" />
 <meta property="og:type" content="article" />
-<meta property="og:title" content="Getting Started">
+<meta property="og:title" content="Landing">
 <meta property="og:description" content="
-A development or more precisely, a remake of the 1989 F-15 II flight simulator by MicroProse.
-The purpose of this blog is to accompany the project’s development, document the decisions made along the way, and capture lessons learned, among other things.
-I began the project by selecting a technology stack and researching modern workflows with OpenGL.
-For this project, I chose a language I was once familiar with, C&#43;&#43;, and one I’m excited to dive back into. I’m also using the &ldquo;raylib&rdquo; library, which provides a solid foundation and saves me from reinventing a lot from scratch.
+Landing is a tricky to implement and test. Come on, landing itself is tricky and require keeping wings leveled, nose up and not to fast. And all of that is hard to do in a simulator, where you have no real feedback from the aircraft, and you have to rely on instruments and visual cues.
+I crashed a lot of planes while trying to implement landing and I understand I needed a visual aid to help me understand what is going on.
 " />
-<meta property="og:url" content="https://ziv.github.io/airborne/posts/001-getting-started/" />
+<meta property="og:url" content="https://ziv.github.io/airborne/posts/009-landing/" />
 <meta property="og:site_name" content="Airborne" />
 
   
@@ -66,7 +62,7 @@ For this project, I chose a language I was once familiar with, C&#43;&#43;, and 
 <meta property="og:image:height" content="627">
 
 
-  <meta property="article:published_time" content="2026-03-21 00:00:00 &#43;0000 UTC" />
+  <meta property="article:published_time" content="2026-04-07 12:00:40 &#43;0300 IDT" />
 
 
 
@@ -135,9 +131,9 @@ For this project, I chose a language I was once familiar with, C&#43;&#43;, and 
     
 <article class="post">
   <h1 class="post-title">
-    <a href="https://ziv.github.io/airborne/posts/001-getting-started/">Getting Started</a>
+    <a href="https://ziv.github.io/airborne/posts/009-landing/">Landing</a>
   </h1>
-  <div class="post-meta"><time class="post-date">2026-03-21</time>
+  <div class="post-meta"><time class="post-date">2026-04-07</time>
     
 </div>
 
@@ -149,15 +145,21 @@ For this project, I chose a language I was once familiar with, C&#43;&#43;, and 
   
 
   <div class="post-content"><div>
-        <p><img src="/airborne/i0.png" alt="F15 fr"></p>
-<p>A development or more precisely, a remake of the 1989 F-15 II flight simulator by MicroProse.</p>
-<p>The purpose of this blog is to accompany the project’s development, document the decisions made along the way, and
-capture lessons learned, among other things.</p>
-<p>I began the project by selecting a technology stack and researching modern workflows with OpenGL.</p>
-<p>For this project, I chose a language I was once familiar with, C++, and one I’m excited to dive back into. I’m also
-using
-the &ldquo;raylib&rdquo; library, which provides a solid foundation and saves me from reinventing a lot from scratch.</p>
-<p>Let’s get started.</p>
+        <p><img src="/airborne/i3.png" alt="F35 fr"></p>
+<p>Landing is a tricky to implement and test. Come on, landing itself is tricky and require keeping wings leveled, nose up
+and not to fast. And all of that is hard to do in a simulator, where you have no real feedback from the aircraft, and
+you have to rely on instruments and visual cues.</p>
+<p>I crashed a lot of planes while trying to implement landing and I understand I needed a visual aid to help me understand
+what is going on.</p>
+<p>For easier debugging, I added a virtual landing area to the game, which is a simple box on the ground that represent the
+area where the
+plane should land.</p>
+<p>Only when the plane is inside the box, the landing process will start and the plane will be able to land. This way I can
+see if the plane is in the right position and if not, I can adjust my approach.</p>
+<p>You can see this landing area in the screenshots below. The first one is on a surface:</p>
+<p><img src="/airborne/landing0.png" alt="Landing area on a surface"></p>
+<p>And another one on a carrier:</p>
+<p><img src="/airborne/landing1.png" alt="Landing area on a carrier"></p>
 
       </div></div>
 

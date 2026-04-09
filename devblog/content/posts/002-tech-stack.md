@@ -1,5 +1,5 @@
 +++
-date = '2026-04-01T12:00:40+03:00'
+date = '2026-03-22T00:00:00+00:00'
 draft = false
 title = 'Tech Stack'
 +++
@@ -19,10 +19,11 @@ programming language where C code is natively supported.
 Since I come from languages with package managers, it was confusing at first to not have one, but I got used to it and I
 don't miss it that much.
 
-Cmake chosen as the build system, and except for the "raylib" library, I have just another library for parsing JSON
-files, which is "[nlohmann/json](https://github.com/nlohmann/json)" (the de-factor standard for reading JSON in C++
-world).
+Cmake chosen as the build system, and except for the "raylib" library, I have just another dependency, a library for
+parsing JSON content, which is "[nlohmann/json](https://github.com/nlohmann/json)" (the de-factor standard for reading
+JSON in C++ world).
 
-C++ changes a lot, and I wanted to use the latest features, so I chose C++17 as the standard for this project (there are futures in the standard library !!! 😍)
-I'm still learning it, but I'm excited to use it. From time to time, I stumble upon some features that I didn't know about, and it's a great way to learn the language and LLMs are a great help in that.
+C++ changes a lot, and I wanted to use the latest features, so I chose C++20 (Concepts!!!) as the standard for this project
+I'm still learning it, but I'm excited to use it. From time to time, I stumble upon some features that I didn't know
+about, and it's a great way to learn the language and LLMs are a great help in that.
 
