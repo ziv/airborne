@@ -6,74 +6,70 @@ title = "Movement"
 
 ![Future fr](/i3.png)
 
-This post is diving directory into "raylib" usage. Feel free to skip it if you are not interested in the technical
-details of the implementation.
+In the last post, I set up the window and the camera. Now it's time to add some movement to the plane.
 
-Without further ado, let's start with the basics.
+First, let's remember an aircraft always move forward (if it's not falling) and it can change its direction by changing
+its orientation, what we know as "pitch", "yaw", and "roll".
 
-Creating a window in a specific size and title is as simple as calling the `InitWindow` function with the desired width,
-height, and title. The main loop of the program is a simple while loop that checks if the window should close, and if
-not, it begins drawing, clears the background, draws some text, and ends drawing.
+But for demonstration purposes, I'll move an object in 3D instead of the camera.
 
-```cpp
-#include "raylib.h"
+## Model Transformation
 
-int main() {
-    InitWindow(600, 400, "example");
-    
-    while (!WindowShouldClose()) {
-        BeginDrawing();
-            ClearBackground(RAYWHITE);
-            DrawText("Hello, world!", 190, 200, 20, RED);
-        EndDrawing();
-    }
-    return 0;
-}
+Let's start with placing model on our surface. The first vector is its position, the scalar is its scale, and the last
+one is its color (if not textured).
+
+```c++
+DrawModel(model, (Vector3){0.0f, 0.0f, 0.0f}, 1.0f, WHITE);
 ```
 
-My view is represented by a `Camera` struct, in our case `Camera3D` that contains the position, target, up vector, field
-of view, and projection type.
+## Roll
 
-I set the camera position and target. I set the field of view to $45^o$ degrees and the projection type to perspective.
-The
-up vector is set to $(0, 1, 0)$ which means that the positive y-axis is pointing upwards.
+Roll is the rotation around the z-axis, and it is usually controlled by the ailerons.
 
-In order to have some orientation in the 3D space, I added a grid to the world. The grid is drawn using the `DrawGrid`
-function.
+In order to roll the model (rotate it around the z-axis), I'll use "raylib" `MatrixRotateZ` function.
 
-Now my code look like this:
-
-```cpp
-InitWindow(600, 400, "example");
-
-Camera3D camera = {0};
-
-// camera setup
-camera.position = (Vector3){0.0f, 10.0f, 10.0f};
-camera.fovy = 45.0f;
-camera.projection = CAMERA_PERSPECTIVE;
-camera.up = (Vector3){0.0f, 1.0f, 0.0f};
-camera.target = (Vector3){0.0f, 0.0f, 0.0f};
-
-while (!WindowShouldClose()) {
-    BeginDrawing();
-    ClearBackground(RAYWHITE);
-        BeginMode3D(camera);       // in 3D mode we need to specify the camera
-        
-            DrawGrid(10, 1.0f);    // Draw a grid with 10 lines and 
-                                   // 1.0f spacing between lines
-        EndMode3D();
-        DrawText("Hello, world!", 10, 10, 16, RED);
-    EndDrawing();
-}
+```c++
+// roll is the angle in radians
+model.transform = MatrixRotateZ(roll);
 ```
 
-And the results look like this:
+And the result can be seen in the video below:
 
-![Window grid example](/window-example.png)
+{{< youtube dwfztdSTA-U >}}
 
-My camera is my point of view so it is going to represent the cockpit view of the plane.
+## Pitch
 
-An aircraft got 3 degrees of freedom in the 3D space, so I need to be able to move the camera in all directions and rotate it around all axes.
+Pitch is the rotation around the x-axis, and it is usually controlled by the elevators.
 
-Let's keep this subject to the next post.
+Let's use "raylib" `MatrixRotateX` function to pitch the model:
+
+```c++
+// pitch is the angle in radians
+model.transform = MatrixRotateX(pitch);
+```
+
+And the result can be seen in the video below:
+
+{{< youtube 46j_P_Jsa0A >}}
+
+## Yaw
+
+Yaw is the rotation around the y-axis, and it is usually controlled by the rudder.
+
+Let's use "raylib" `MatrixRotateY` function to yaw the model:
+
+```c++
+// yaw is the angle in radians
+model.transform = MatrixRotateY(yaw);
+```
+
+And the result can be seen in the video below:
+
+{{< youtube ns_GgbeQYpM >}}
+
+How to combine all together and control the plane using the keyboard will be covered in the next post.
+
+---
+
+B.T.W,
+How I created those videos using "raylib"? This is a subject for another post :)

@@ -7,9 +7,10 @@
   <meta http-equiv="content-type" content="text/html; charset=utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="description" content="
-This post is diving directory into &ldquo;raylib&rdquo; usage. Feel free to skip it if you are not interested in the technical details of the implementation.
-Without further ado, let&rsquo;s start with the basics.
-Creating a window in a specific size and title is as simple as calling the InitWindow function with the desired width, height, and title. The main loop of the program is a simple while loop that checks if the window should close, and if not, it begins drawing, clears the background, draws some text, and ends drawing.
+In the last post, I set up the window and the camera. Now it&rsquo;s time to add some movement to the plane.
+First, let&rsquo;s remember an aircraft always move forward (if it&rsquo;s not falling) and it can change its direction by changing its orientation, what we know as &ldquo;pitch&rdquo;, &ldquo;yaw&rdquo;, and &ldquo;roll&rdquo;.
+But for demonstration purposes, I&rsquo;ll move an object in 3D instead of the camera.
+Model Transformation Let&rsquo;s start with placing model on our surface. The first vector is its position, the scalar is its scale, and the last one is its color (if not textured).
 " />
 <meta name="keywords" content="" />
 
@@ -66,9 +67,10 @@ Creating a window in a specific size and title is as simple as calling the InitW
 <meta property="og:type" content="article" />
 <meta property="og:title" content="Movement">
 <meta property="og:description" content="
-This post is diving directory into &ldquo;raylib&rdquo; usage. Feel free to skip it if you are not interested in the technical details of the implementation.
-Without further ado, let&rsquo;s start with the basics.
-Creating a window in a specific size and title is as simple as calling the InitWindow function with the desired width, height, and title. The main loop of the program is a simple while loop that checks if the window should close, and if not, it begins drawing, clears the background, draws some text, and ends drawing.
+In the last post, I set up the window and the camera. Now it&rsquo;s time to add some movement to the plane.
+First, let&rsquo;s remember an aircraft always move forward (if it&rsquo;s not falling) and it can change its direction by changing its orientation, what we know as &ldquo;pitch&rdquo;, &ldquo;yaw&rdquo;, and &ldquo;roll&rdquo;.
+But for demonstration purposes, I&rsquo;ll move an object in 3D instead of the camera.
+Model Transformation Let&rsquo;s start with placing model on our surface. The first vector is its position, the scalar is its scale, and the last one is its color (if not textured).
 " />
 <meta property="og:url" content="https://ziv.github.io/airborne/posts/004-movement/" />
 <meta property="og:site_name" content="Airborne" />
@@ -201,60 +203,48 @@ Creating a window in a specific size and title is as simple as calling the InitW
 
   <div class="post-content"><div>
         <p><img src="/airborne/i3.png" alt="Future fr"></p>
-<p>This post is diving directory into &ldquo;raylib&rdquo; usage. Feel free to skip it if you are not interested in the technical
-details of the implementation.</p>
-<p>Without further ado, let&rsquo;s start with the basics.</p>
-<p>Creating a window in a specific size and title is as simple as calling the <code>InitWindow</code> function with the desired width,
-height, and title. The main loop of the program is a simple while loop that checks if the window should close, and if
-not, it begins drawing, clears the background, draws some text, and ends drawing.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&#34;raylib.h&#34;</span><span style="color:#75715e">
-</span></span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">int</span> <span style="color:#a6e22e">main</span>() {
-</span></span><span style="display:flex;"><span>    InitWindow(<span style="color:#ae81ff">600</span>, <span style="color:#ae81ff">400</span>, <span style="color:#e6db74">&#34;example&#34;</span>);
-</span></span><span style="display:flex;"><span>    
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">while</span> (<span style="color:#f92672">!</span>WindowShouldClose()) {
-</span></span><span style="display:flex;"><span>        BeginDrawing();
-</span></span><span style="display:flex;"><span>            ClearBackground(RAYWHITE);
-</span></span><span style="display:flex;"><span>            DrawText(<span style="color:#e6db74">&#34;Hello, world!&#34;</span>, <span style="color:#ae81ff">190</span>, <span style="color:#ae81ff">200</span>, <span style="color:#ae81ff">20</span>, RED);
-</span></span><span style="display:flex;"><span>        EndDrawing();
-</span></span><span style="display:flex;"><span>    }
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> <span style="color:#ae81ff">0</span>;
-</span></span><span style="display:flex;"><span>}
-</span></span></code></pre></div><p>My view is represented by a <code>Camera</code> struct, in our case <code>Camera3D</code> that contains the position, target, up vector, field
-of view, and projection type.</p>
-<p>I set the camera position and target. I set the field of view to $45^o$ degrees and the projection type to perspective.
-The
-up vector is set to $(0, 1, 0)$ which means that the positive y-axis is pointing upwards.</p>
-<p>In order to have some orientation in the 3D space, I added a grid to the world. The grid is drawn using the <code>DrawGrid</code>
-function.</p>
-<p>Now my code look like this:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span>InitWindow(<span style="color:#ae81ff">600</span>, <span style="color:#ae81ff">400</span>, <span style="color:#e6db74">&#34;example&#34;</span>);
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>Camera3D camera <span style="color:#f92672">=</span> {<span style="color:#ae81ff">0</span>};
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e">// camera setup
-</span></span></span><span style="display:flex;"><span>camera.position <span style="color:#f92672">=</span> (Vector3){<span style="color:#ae81ff">0.0f</span>, <span style="color:#ae81ff">10.0f</span>, <span style="color:#ae81ff">10.0f</span>};
-</span></span><span style="display:flex;"><span>camera.fovy <span style="color:#f92672">=</span> <span style="color:#ae81ff">45.0f</span>;
-</span></span><span style="display:flex;"><span>camera.projection <span style="color:#f92672">=</span> CAMERA_PERSPECTIVE;
-</span></span><span style="display:flex;"><span>camera.up <span style="color:#f92672">=</span> (Vector3){<span style="color:#ae81ff">0.0f</span>, <span style="color:#ae81ff">1.0f</span>, <span style="color:#ae81ff">0.0f</span>};
-</span></span><span style="display:flex;"><span>camera.target <span style="color:#f92672">=</span> (Vector3){<span style="color:#ae81ff">0.0f</span>, <span style="color:#ae81ff">0.0f</span>, <span style="color:#ae81ff">0.0f</span>};
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">while</span> (<span style="color:#f92672">!</span>WindowShouldClose()) {
-</span></span><span style="display:flex;"><span>    BeginDrawing();
-</span></span><span style="display:flex;"><span>    ClearBackground(RAYWHITE);
-</span></span><span style="display:flex;"><span>        BeginMode3D(camera);       <span style="color:#75715e">// in 3D mode we need to specify the camera
-</span></span></span><span style="display:flex;"><span>        
-</span></span><span style="display:flex;"><span>            DrawGrid(<span style="color:#ae81ff">10</span>, <span style="color:#ae81ff">1.0f</span>);    <span style="color:#75715e">// Draw a grid with 10 lines and 
-</span></span></span><span style="display:flex;"><span>                                   <span style="color:#75715e">// 1.0f spacing between lines
-</span></span></span><span style="display:flex;"><span>        EndMode3D();
-</span></span><span style="display:flex;"><span>        DrawText(<span style="color:#e6db74">&#34;Hello, world!&#34;</span>, <span style="color:#ae81ff">10</span>, <span style="color:#ae81ff">10</span>, <span style="color:#ae81ff">16</span>, RED);
-</span></span><span style="display:flex;"><span>    EndDrawing();
-</span></span><span style="display:flex;"><span>}
-</span></span></code></pre></div><p>And the results look like this:</p>
-<p><img src="/airborne/window-example.png" alt="Window grid example"></p>
-<p>My camera is my point of view so it is going to represent the cockpit view of the plane.</p>
-<p>An aircraft got 3 degrees of freedom in the 3D space, so I need to be able to move the camera in all directions and rotate it around all axes.</p>
-<p>Let&rsquo;s keep this subject to the next post.</p>
+<p>In the last post, I set up the window and the camera. Now it&rsquo;s time to add some movement to the plane.</p>
+<p>First, let&rsquo;s remember an aircraft always move forward (if it&rsquo;s not falling) and it can change its direction by changing
+its orientation, what we know as &ldquo;pitch&rdquo;, &ldquo;yaw&rdquo;, and &ldquo;roll&rdquo;.</p>
+<p>But for demonstration purposes, I&rsquo;ll move an object in 3D instead of the camera.</p>
+<h2 id="model-transformation">Model Transformation<a href="#model-transformation" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h2>
+<p>Let&rsquo;s start with placing model on our surface. The first vector is its position, the scalar is its scale, and the last
+one is its color (if not textured).</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-c++" data-lang="c++"><span style="display:flex;"><span>DrawModel(model, (Vector3){<span style="color:#ae81ff">0.0f</span>, <span style="color:#ae81ff">0.0f</span>, <span style="color:#ae81ff">0.0f</span>}, <span style="color:#ae81ff">1.0f</span>, WHITE);
+</span></span></code></pre></div><h2 id="roll">Roll<a href="#roll" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h2>
+<p>Roll is the rotation around the z-axis, and it is usually controlled by the ailerons.</p>
+<p>In order to roll the model (rotate it around the z-axis), I&rsquo;ll use &ldquo;raylib&rdquo; <code>MatrixRotateZ</code> function.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-c++" data-lang="c++"><span style="display:flex;"><span><span style="color:#75715e">// roll is the angle in radians
+</span></span></span><span style="display:flex;"><span>model.transform <span style="color:#f92672">=</span> MatrixRotateZ(roll);
+</span></span></code></pre></div><p>And the result can be seen in the video below:</p>
+<div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;">
+      <iframe allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen" loading="eager" referrerpolicy="strict-origin-when-cross-origin" src="https://www.youtube.com/embed/dwfztdSTA-U?autoplay=0&amp;controls=1&amp;end=0&amp;loop=0&amp;mute=0&amp;start=0" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border:0;" title="YouTube video"></iframe>
+    </div>
+
+<h2 id="pitch">Pitch<a href="#pitch" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h2>
+<p>Pitch is the rotation around the x-axis, and it is usually controlled by the elevators.</p>
+<p>Let&rsquo;s use &ldquo;raylib&rdquo; <code>MatrixRotateX</code> function to pitch the model:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-c++" data-lang="c++"><span style="display:flex;"><span><span style="color:#75715e">// pitch is the angle in radians
+</span></span></span><span style="display:flex;"><span>model.transform <span style="color:#f92672">=</span> MatrixRotateX(pitch);
+</span></span></code></pre></div><p>And the result can be seen in the video below:</p>
+<div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;">
+      <iframe allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen" loading="eager" referrerpolicy="strict-origin-when-cross-origin" src="https://www.youtube.com/embed/46j_P_Jsa0A?autoplay=0&amp;controls=1&amp;end=0&amp;loop=0&amp;mute=0&amp;start=0" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border:0;" title="YouTube video"></iframe>
+    </div>
+
+<h2 id="yaw">Yaw<a href="#yaw" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h2>
+<p>Yaw is the rotation around the y-axis, and it is usually controlled by the rudder.</p>
+<p>Let&rsquo;s use &ldquo;raylib&rdquo; <code>MatrixRotateY</code> function to yaw the model:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-c++" data-lang="c++"><span style="display:flex;"><span><span style="color:#75715e">// yaw is the angle in radians
+</span></span></span><span style="display:flex;"><span>model.transform <span style="color:#f92672">=</span> MatrixRotateY(yaw);
+</span></span></code></pre></div><p>And the result can be seen in the video below:</p>
+<div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;">
+      <iframe allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen" loading="eager" referrerpolicy="strict-origin-when-cross-origin" src="https://www.youtube.com/embed/ns_GgbeQYpM?autoplay=0&amp;controls=1&amp;end=0&amp;loop=0&amp;mute=0&amp;start=0" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border:0;" title="YouTube video"></iframe>
+    </div>
+
+<p>How to combine all together and control the plane using the keyboard will be covered in the next post.</p>
+<hr>
+<p>B.T.W,
+How I created those videos using &ldquo;raylib&rdquo;? This is a subject for another post :)</p>
 
       </div></div>
 
