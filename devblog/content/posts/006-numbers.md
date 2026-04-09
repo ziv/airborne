@@ -4,7 +4,7 @@ draft = false
 title = "Calculating Some Numbers"
 +++
 
-![Future fr](/i2.png)
+![Future fr](/i5.png)
 
 In order to give my aircraft feel of a true jet, I needed some numbers to add to my physics equations.
 

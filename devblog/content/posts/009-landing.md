@@ -4,7 +4,7 @@ draft = false
 title = 'Landing'
 +++
 
-![F35 fr](/i3.png)
+![F35 fr](/i5.png)
 
 Landing is a tricky to implement and test. Come on, landing itself is tricky and require keeping wings leveled, nose up
 and not to fast. And all of that is hard to do in a simulator, where you have no real feedback from the aircraft, and

@@ -6,24 +6,14 @@ title = 'Tech Stack'
 
 ![F16 fr](/i1.png)
 
-When I started this project, I didn't have a clear idea of the tech stack I would be using.
-I knew I wanted to use low level graphics programming, and I had some experience with C++.
+When I started this project, I didn't have a clear idea of the tech stack I would be using. I just knew I wanted to dive into low-level graphics programming and leverage my past experience with C++.
 
-During the research I got to know about the library "[_raylib_](https://github.com/raysan5/raylib)", which is a simple
-and easy-to-use library for graphics. Simplify the starting point and save me from reinventing the wheel.
+During my research, I discovered [raylib](https://github.com/raysan5/raylib), a simple and easy-to-use graphics library. It simplifies the starting point tremendously and saves me from having to build a rendering engine from scratch.
 
-I checked out _Rust_, _Go_ and _Zig_ options, but since I intended to use "raylib" that is written in _C_ I choose _C++_
-as the
-programming language where C code is natively supported.
+I explored options like Rust, Go, and Zig, but since raylib is written in C, I ultimately chose C++ to take advantage of its native C compatibility.
 
-Since I come from languages with package managers, it was confusing at first to not have one, but I got used to it and I
-don't miss it that much.
+Coming from languages with robust package managers, the lack of a standard one in C++ was a bit jarring at first. However, I've gotten used to it, and I honestly don't miss it that much.
 
-Cmake chosen as the build system, and except for the "raylib" library, I have just another dependency, a library for
-parsing JSON content, which is "[nlohmann/json](https://github.com/nlohmann/json)" (the de-factor standard for reading
-JSON in C++ world).
+I selected CMake as my build system. Aside from raylib, I have only one other dependency: nlohmann/json, which is the de facto standard for parsing JSON in the C++ world.
 
-C++ changes a lot, and I wanted to use the latest features, so I chose C++20 (Concepts!!!) as the standard for this project
-I'm still learning it, but I'm excited to use it. From time to time, I stumble upon some features that I didn't know
-about, and it's a great way to learn the language and LLMs are a great help in that.
-
+C++ has evolved significantly, and I wanted to utilize its modern capabilities, so I chose C++20 (Concepts!!!) as the standard for this project. I'm still learning the ropes, but I'm excited to use it. I frequently stumble upon features I didn't know about; it's a great way to learn the language, and having LLMs around to help explain things makes the journey much smoother.

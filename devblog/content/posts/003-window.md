@@ -4,7 +4,7 @@ draft = false
 title = "First Steps"
 +++
 
-![Future fr](/i4.png)
+![Future fr](/i2.png)
 
 This post is diving directory into "raylib" usage. Feel free to skip it if you are not interested in the technical
 details of the implementation.

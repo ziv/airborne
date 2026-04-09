@@ -3,6 +3,17 @@ locale = "en-us"
 title = "Airborne"
 theme = "re-terminal"
 
+[services]
+    [services.googleAnalytics]
+        id = 'G-0GMMREP8RD'
+
+[params]
+    themeColor = "pink"
+    showLanguageSelector = false
+
+[params.twitter]
+    creator = "zivdev"
+
 [markup.goldmark.renderer]
     unsafe = true
 
@@ -13,10 +24,19 @@ theme = "re-terminal"
 [languages]
     [languages.en.params]
         languageName = "English"
-            title = "AIRBORNE"
-            subtitle = "Development blog"
+        title = "AIRBORNE"
+        subtitle = "Development blog"
 
+    [languages.en.params.logo]
+        logoText = "AIRBORNE"
+        logoHomeLink = "/airborne/"
 
-        [languages.en.params.logo]
-            logoText = "AIRBORNE"
-            logoHomeLink = "/airborne/"
+    [languages.en.menu]
+        [[languages.en.menu.main]]
+            identifier = "about"
+            name = "About"
+            url = "/about"
+        [[languages.en.menu.main]]
+            identifier = "repo"
+            name = "Repository"
+            url = "https://github.com/ziv/airborne"

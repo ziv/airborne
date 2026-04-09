@@ -17,6 +17,20 @@ I crashed a lot of planes while trying to implement landing and I understand I n
 <link rel="canonical" href="https://ziv.github.io/airborne/posts/009-landing/" />
 
 
+      <script async src="https://www.googletagmanager.com/gtag/js?id=G-0GMMREP8RD"></script>
+      <script>
+        var doNotTrack = false;
+        if ( true ) {
+          var dnt = (navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack);
+          var doNotTrack = (dnt == "1" || dnt == "yes");
+        }
+        if (!doNotTrack) {
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+          gtag('config', 'G-0GMMREP8RD');
+        }
+      </script>
 
 
 
@@ -35,12 +49,15 @@ I crashed a lot of planes while trying to implement landing and I understand I n
 
 
 
-  <link rel="shortcut icon" href="https://ziv.github.io/airborne/img/theme-colors/orange.png">
-  <link rel="apple-touch-icon" href="https://ziv.github.io/airborne/img/theme-colors/orange.png">
+  <link rel="shortcut icon" href="https://ziv.github.io/airborne/img/theme-colors/pink.png">
+  <link rel="apple-touch-icon" href="https://ziv.github.io/airborne/img/theme-colors/pink.png">
 
 
 
 <meta name="twitter:card" content="summary" />
+
+  
+    <meta name="twitter:creator" content="" />
 
 
 
@@ -55,7 +72,7 @@ I crashed a lot of planes while trying to implement landing and I understand I n
 <meta property="og:site_name" content="Airborne" />
 
   
-    <meta property="og:image" content="img/favicon/%!s(&lt;nil&gt;).png">
+    <meta property="og:image" content="https://ziv.github.io/airborne/img/favicon/pink.png">
   
 
 <meta property="og:image:width" content="1200">
@@ -103,7 +120,7 @@ I crashed a lot of planes while trying to implement landing and I understand I n
 
 
 </head>
-<body class="">
+<body class="pink">
 
 
 
@@ -121,8 +138,44 @@ I crashed a lot of planes while trying to implement landing and I understand I n
 
     </div>
     
+      <ul class="menu menu--mobile">
+  <li class="menu__trigger">Menu&nbsp;▾</li>
+  <li>
+    <ul class="menu__dropdown">
+      
+        
+          <li><a href="/airborne/about">About</a></li>
+        
+      
+        
+          <li><a href="https://github.com/ziv/airborne">Repository</a></li>
+        
+      
+      
+    </ul>
+  </li>
+</ul>
+
+    
     
   </div>
+  
+    <nav class="navigation-menu">
+  <ul class="navigation-menu__inner menu--desktop">
+    
+      
+        
+          <li><a href="/airborne/about" >About</a></li>
+        
+      
+        
+          <li><a href="https://github.com/ziv/airborne" >Repository</a></li>
+        
+      
+    
+  </ul>
+</nav>
+
   
 </header>
 
@@ -145,7 +198,7 @@ I crashed a lot of planes while trying to implement landing and I understand I n
   
 
   <div class="post-content"><div>
-        <p><img src="/airborne/i3.png" alt="F35 fr"></p>
+        <p><img src="/airborne/i5.png" alt="F35 fr"></p>
 <p>Landing is a tricky to implement and test. Come on, landing itself is tricky and require keeping wings leveled, nose up
 and not to fast. And all of that is hard to do in a simulator, where you have no real feedback from the aircraft, and
 you have to rely on instruments and visual cues.</p>
@@ -178,9 +231,9 @@ see if the plane is in the right position and if not, I can adjust my approach.<
   <div class="footer__inner">
     
       <div class="copyright">
-        <span>© 2026 Powered by <a href="https://gohugo.io">Hugo</a></span>
+        <span>© 2026 Powered by <a href="https://gohugo.io" target="_blank">Hugo</a></span>
     
-      <span>:: <a href="https://github.com/mirus-ua/hugo-theme-re-terminal" target="_blank">Theme</a> made by <a href="https://github.com/mirus-ua" target="_blank">Mirus</a></span>
+      <span>:: Theme by <a href="https://github.com/mirus-ua" target="_blank">Mirus</a></span>
       </div>
   </div>
 </footer>

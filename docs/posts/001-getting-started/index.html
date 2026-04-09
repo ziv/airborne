@@ -7,10 +7,9 @@
   <meta http-equiv="content-type" content="text/html; charset=utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="description" content="
-A development or more precisely, a remake of the 1989 F-15 II flight simulator by MicroProse.
-The purpose of this blog is to accompany the project’s development, document the decisions made along the way, and capture lessons learned, among other things.
-I began the project by selecting a technology stack and researching modern workflows with OpenGL.
-For this project, I chose a language I was once familiar with, C&#43;&#43;, and one I’m excited to dive back into. I’m also using the &ldquo;raylib&rdquo; library, which provides a solid foundation and saves me from reinventing a lot from scratch.
+Welcome to the development—or more precisely, the remake—of the classic 1989 F-15 II flight simulator by MicroProse.
+The purpose of this blog is to document the project&rsquo;s journey, explain the decisions made along the way, and share the lessons I learn.
+I kicked off the project by selecting a technology stack and researching modern OpenGL workflows. For the core language, I chose to return to C&#43;&#43;, a language I was once familiar with and am excited to dive back into.
 " />
 <meta name="keywords" content="" />
 
@@ -19,6 +18,20 @@ For this project, I chose a language I was once familiar with, C&#43;&#43;, and 
 <link rel="canonical" href="https://ziv.github.io/airborne/posts/001-getting-started/" />
 
 
+      <script async src="https://www.googletagmanager.com/gtag/js?id=G-0GMMREP8RD"></script>
+      <script>
+        var doNotTrack = false;
+        if ( true ) {
+          var dnt = (navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack);
+          var doNotTrack = (dnt == "1" || dnt == "yes");
+        }
+        if (!doNotTrack) {
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+          gtag('config', 'G-0GMMREP8RD');
+        }
+      </script>
 
 
 
@@ -37,12 +50,15 @@ For this project, I chose a language I was once familiar with, C&#43;&#43;, and 
 
 
 
-  <link rel="shortcut icon" href="https://ziv.github.io/airborne/img/theme-colors/orange.png">
-  <link rel="apple-touch-icon" href="https://ziv.github.io/airborne/img/theme-colors/orange.png">
+  <link rel="shortcut icon" href="https://ziv.github.io/airborne/img/theme-colors/pink.png">
+  <link rel="apple-touch-icon" href="https://ziv.github.io/airborne/img/theme-colors/pink.png">
 
 
 
 <meta name="twitter:card" content="summary" />
+
+  
+    <meta name="twitter:creator" content="" />
 
 
 
@@ -50,16 +66,15 @@ For this project, I chose a language I was once familiar with, C&#43;&#43;, and 
 <meta property="og:type" content="article" />
 <meta property="og:title" content="Getting Started">
 <meta property="og:description" content="
-A development or more precisely, a remake of the 1989 F-15 II flight simulator by MicroProse.
-The purpose of this blog is to accompany the project’s development, document the decisions made along the way, and capture lessons learned, among other things.
-I began the project by selecting a technology stack and researching modern workflows with OpenGL.
-For this project, I chose a language I was once familiar with, C&#43;&#43;, and one I’m excited to dive back into. I’m also using the &ldquo;raylib&rdquo; library, which provides a solid foundation and saves me from reinventing a lot from scratch.
+Welcome to the development—or more precisely, the remake—of the classic 1989 F-15 II flight simulator by MicroProse.
+The purpose of this blog is to document the project&rsquo;s journey, explain the decisions made along the way, and share the lessons I learn.
+I kicked off the project by selecting a technology stack and researching modern OpenGL workflows. For the core language, I chose to return to C&#43;&#43;, a language I was once familiar with and am excited to dive back into.
 " />
 <meta property="og:url" content="https://ziv.github.io/airborne/posts/001-getting-started/" />
 <meta property="og:site_name" content="Airborne" />
 
   
-    <meta property="og:image" content="img/favicon/%!s(&lt;nil&gt;).png">
+    <meta property="og:image" content="https://ziv.github.io/airborne/img/favicon/pink.png">
   
 
 <meta property="og:image:width" content="1200">
@@ -107,7 +122,7 @@ For this project, I chose a language I was once familiar with, C&#43;&#43;, and 
 
 
 </head>
-<body class="">
+<body class="pink">
 
 
 
@@ -125,8 +140,44 @@ For this project, I chose a language I was once familiar with, C&#43;&#43;, and 
 
     </div>
     
+      <ul class="menu menu--mobile">
+  <li class="menu__trigger">Menu&nbsp;▾</li>
+  <li>
+    <ul class="menu__dropdown">
+      
+        
+          <li><a href="/airborne/about">About</a></li>
+        
+      
+        
+          <li><a href="https://github.com/ziv/airborne">Repository</a></li>
+        
+      
+      
+    </ul>
+  </li>
+</ul>
+
+    
     
   </div>
+  
+    <nav class="navigation-menu">
+  <ul class="navigation-menu__inner menu--desktop">
+    
+      
+        
+          <li><a href="/airborne/about" >About</a></li>
+        
+      
+        
+          <li><a href="https://github.com/ziv/airborne" >Repository</a></li>
+        
+      
+    
+  </ul>
+</nav>
+
   
 </header>
 
@@ -150,13 +201,10 @@ For this project, I chose a language I was once familiar with, C&#43;&#43;, and 
 
   <div class="post-content"><div>
         <p><img src="/airborne/i0.png" alt="F15 fr"></p>
-<p>A development or more precisely, a remake of the 1989 F-15 II flight simulator by MicroProse.</p>
-<p>The purpose of this blog is to accompany the project’s development, document the decisions made along the way, and
-capture lessons learned, among other things.</p>
-<p>I began the project by selecting a technology stack and researching modern workflows with OpenGL.</p>
-<p>For this project, I chose a language I was once familiar with, C++, and one I’m excited to dive back into. I’m also
-using
-the &ldquo;raylib&rdquo; library, which provides a solid foundation and saves me from reinventing a lot from scratch.</p>
+<p>Welcome to the development—or more precisely, the remake—of the classic 1989 F-15 II flight simulator by MicroProse.</p>
+<p>The purpose of this blog is to document the project&rsquo;s journey, explain the decisions made along the way, and share the lessons I learn.</p>
+<p>I kicked off the project by selecting a technology stack and researching modern OpenGL workflows. For the core language, I chose to return to C++, a language I was once familiar with and am excited to dive back into.</p>
+<p>I’m pairing it with the raylib library, which provides a solid foundation and saves me from reinventing the wheel.</p>
 <p>Let’s get started.</p>
 
       </div></div>
@@ -176,9 +224,9 @@ the &ldquo;raylib&rdquo; library, which provides a solid foundation and saves me
   <div class="footer__inner">
     
       <div class="copyright">
-        <span>© 2026 Powered by <a href="https://gohugo.io">Hugo</a></span>
+        <span>© 2026 Powered by <a href="https://gohugo.io" target="_blank">Hugo</a></span>
     
-      <span>:: <a href="https://github.com/mirus-ua/hugo-theme-re-terminal" target="_blank">Theme</a> made by <a href="https://github.com/mirus-ua" target="_blank">Mirus</a></span>
+      <span>:: Theme by <a href="https://github.com/mirus-ua" target="_blank">Mirus</a></span>
       </div>
   </div>
 </footer>

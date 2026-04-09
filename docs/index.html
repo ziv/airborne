@@ -15,6 +15,20 @@
 <link rel="canonical" href="https://ziv.github.io/airborne/" />
 
 
+      <script async src="https://www.googletagmanager.com/gtag/js?id=G-0GMMREP8RD"></script>
+      <script>
+        var doNotTrack = false;
+        if ( true ) {
+          var dnt = (navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack);
+          var doNotTrack = (dnt == "1" || dnt == "yes");
+        }
+        if (!doNotTrack) {
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+          gtag('config', 'G-0GMMREP8RD');
+        }
+      </script>
 
 
 
@@ -33,12 +47,15 @@
 
 
 
-  <link rel="shortcut icon" href="https://ziv.github.io/airborne/img/theme-colors/orange.png">
-  <link rel="apple-touch-icon" href="https://ziv.github.io/airborne/img/theme-colors/orange.png">
+  <link rel="shortcut icon" href="https://ziv.github.io/airborne/img/theme-colors/pink.png">
+  <link rel="apple-touch-icon" href="https://ziv.github.io/airborne/img/theme-colors/pink.png">
 
 
 
 <meta name="twitter:card" content="summary" />
+
+  
+    <meta name="twitter:creator" content="zivdev" />
 
 
 
@@ -50,7 +67,7 @@
 <meta property="og:site_name" content="Airborne" />
 
   
-    <meta property="og:image" content="img/favicon/%!s(&lt;nil&gt;).png">
+    <meta property="og:image" content="https://ziv.github.io/airborne/img/favicon/pink.png">
   
 
 <meta property="og:image:width" content="1200">
@@ -98,7 +115,7 @@
 
 
 </head>
-<body class="">
+<body class="pink">
 
 
 
@@ -116,8 +133,44 @@
 
     </div>
     
+      <ul class="menu menu--mobile">
+  <li class="menu__trigger">Menu&nbsp;▾</li>
+  <li>
+    <ul class="menu__dropdown">
+      
+        
+          <li><a href="/airborne/about">About</a></li>
+        
+      
+        
+          <li><a href="https://github.com/ziv/airborne">Repository</a></li>
+        
+      
+      
+    </ul>
+  </li>
+</ul>
+
+    
     
   </div>
+  
+    <nav class="navigation-menu">
+  <ul class="navigation-menu__inner menu--desktop">
+    
+      
+        
+          <li><a href="/airborne/about" >About</a></li>
+        
+      
+        
+          <li><a href="https://github.com/ziv/airborne" >Repository</a></li>
+        
+      
+    
+  </ul>
+</nav>
+
   
 </header>
 
@@ -154,7 +207,7 @@
 
         <div class="post-content">
           
-            <p><img src="/airborne/i3.png" alt="F35 fr"></p>
+            <p><img src="/airborne/i5.png" alt="F35 fr"></p>
 <p>Landing is a tricky to implement and test. Come on, landing itself is tricky and require keeping wings leveled, nose up
 and not to fast. And all of that is hard to do in a simulator, where you have no real feedback from the aircraft, and
 you have to rely on instruments and visual cues.</p>
@@ -166,6 +219,41 @@ what is going on.</p>
         
           <div>
             <a class="read-more button" href="/airborne/posts/009-landing/"> →</a>
+          </div>
+        
+      </article>
+    
+      <article class="post on-list">
+        <h1 class="post-title">
+          <a href="https://ziv.github.io/airborne/posts/004-movement/">Movement</a>
+        </h1>
+
+        <div class="post-meta"><time class="post-date">2026-03-24</time>
+          
+
+        </div>
+
+        
+
+        
+
+
+
+        <div class="post-content">
+          
+            <p><img src="/airborne/i3.png" alt="Future fr"></p>
+<p>This post is diving directory into &ldquo;raylib&rdquo; usage. Feel free to skip it if you are not interested in the technical
+details of the implementation.</p>
+<p>Without further ado, let&rsquo;s start with the basics.</p>
+<p>Creating a window in a specific size and title is as simple as calling the <code>InitWindow</code> function with the desired width,
+height, and title. The main loop of the program is a simple while loop that checks if the window should close, and if
+not, it begins drawing, clears the background, draws some text, and ends drawing.</p>
+          
+        </div>
+
+        
+          <div>
+            <a class="read-more button" href="/airborne/posts/004-movement/"> →</a>
           </div>
         
       </article>
@@ -188,7 +276,7 @@ what is going on.</p>
 
         <div class="post-content">
           
-            <p><img src="/airborne/i2.png" alt="Future fr"></p>
+            <p><img src="/airborne/i5.png" alt="Future fr"></p>
 <p>In order to give my aircraft feel of a true jet, I needed some numbers to add to my physics equations.</p>
 <p>I opened my physics book and started to write down the equations that I will need to implement in my game. I will not go
 into the details of the equations, but I will explain the basic idea behind them.</p>
@@ -221,7 +309,7 @@ into the details of the equations, but I will explain the basic idea behind them
 
         <div class="post-content">
           
-            <p><img src="/airborne/i4.png" alt="Future fr"></p>
+            <p><img src="/airborne/i2.png" alt="Future fr"></p>
 <p>This post is diving directory into &ldquo;raylib&rdquo; usage. Feel free to skip it if you are not interested in the technical
 details of the implementation.</p>
 <p>Without further ado, let&rsquo;s start with the basics.</p>
@@ -257,13 +345,9 @@ not, it begins drawing, clears the background, draws some text, and ends drawing
         <div class="post-content">
           
             <p><img src="/airborne/i1.png" alt="F16 fr"></p>
-<p>When I started this project, I didn&rsquo;t have a clear idea of the tech stack I would be using.
-I knew I wanted to use low level graphics programming, and I had some experience with C++.</p>
-<p>During the research I got to know about the library &ldquo;<a href="https://github.com/raysan5/raylib"><em>raylib</em></a>&rdquo;, which is a simple
-and easy-to-use library for graphics. Simplify the starting point and save me from reinventing the wheel.</p>
-<p>I checked out <em>Rust</em>, <em>Go</em> and <em>Zig</em> options, but since I intended to use &ldquo;raylib&rdquo; that is written in <em>C</em> I choose <em>C++</em>
-as the
-programming language where C code is natively supported.</p>
+<p>When I started this project, I didn&rsquo;t have a clear idea of the tech stack I would be using. I just knew I wanted to dive into low-level graphics programming and leverage my past experience with C++.</p>
+<p>During my research, I discovered <a href="https://github.com/raysan5/raylib">raylib</a>, a simple and easy-to-use graphics library. It simplifies the starting point tremendously and saves me from having to build a rendering engine from scratch.</p>
+<p>I explored options like Rust, Go, and Zig, but since raylib is written in C, I ultimately chose C++ to take advantage of its native C compatibility.</p>
           
         </div>
 
@@ -293,13 +377,9 @@ programming language where C code is natively supported.</p>
         <div class="post-content">
           
             <p><img src="/airborne/i0.png" alt="F15 fr"></p>
-<p>A development or more precisely, a remake of the 1989 F-15 II flight simulator by MicroProse.</p>
-<p>The purpose of this blog is to accompany the project’s development, document the decisions made along the way, and
-capture lessons learned, among other things.</p>
-<p>I began the project by selecting a technology stack and researching modern workflows with OpenGL.</p>
-<p>For this project, I chose a language I was once familiar with, C++, and one I’m excited to dive back into. I’m also
-using
-the &ldquo;raylib&rdquo; library, which provides a solid foundation and saves me from reinventing a lot from scratch.</p>
+<p>Welcome to the development—or more precisely, the remake—of the classic 1989 F-15 II flight simulator by MicroProse.</p>
+<p>The purpose of this blog is to document the project&rsquo;s journey, explain the decisions made along the way, and share the lessons I learn.</p>
+<p>I kicked off the project by selecting a technology stack and researching modern OpenGL workflows. For the core language, I chose to return to C++, a language I was once familiar with and am excited to dive back into.</p>
           
         </div>
 
@@ -327,9 +407,9 @@ the &ldquo;raylib&rdquo; library, which provides a solid foundation and saves me
   <div class="footer__inner">
     
       <div class="copyright">
-        <span>© 2026 Powered by <a href="https://gohugo.io">Hugo</a></span>
+        <span>© 2026 Powered by <a href="https://gohugo.io" target="_blank">Hugo</a></span>
     
-      <span>:: <a href="https://github.com/mirus-ua/hugo-theme-re-terminal" target="_blank">Theme</a> made by <a href="https://github.com/mirus-ua" target="_blank">Mirus</a></span>
+      <span>:: Theme by <a href="https://github.com/mirus-ua" target="_blank">Mirus</a></span>
       </div>
   </div>
 </footer>

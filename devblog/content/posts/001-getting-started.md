@@ -6,15 +6,12 @@ title = 'Getting Started'
 
 ![F15 fr](/i0.png)
 
-A development or more precisely, a remake of the 1989 F-15 II flight simulator by MicroProse.
+Welcome to the development—or more precisely, the remake—of the classic 1989 F-15 II flight simulator by MicroProse.
 
-The purpose of this blog is to accompany the project’s development, document the decisions made along the way, and
-capture lessons learned, among other things.
+The purpose of this blog is to document the project's journey, explain the decisions made along the way, and share the lessons I learn.
 
-I began the project by selecting a technology stack and researching modern workflows with OpenGL.
+I kicked off the project by selecting a technology stack and researching modern OpenGL workflows. For the core language, I chose to return to C++, a language I was once familiar with and am excited to dive back into.
 
-For this project, I chose a language I was once familiar with, C++, and one I’m excited to dive back into. I’m also
-using
-the "raylib" library, which provides a solid foundation and saves me from reinventing a lot from scratch.
+ I’m pairing it with the raylib library, which provides a solid foundation and saves me from reinventing the wheel.
 
 Let’s get started.
