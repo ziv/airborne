@@ -20,7 +20,7 @@ ScreenState GameplayScreen::update() {
     if (game.paused) return ScreenState::GAMEPLAY;
     if (game.state.crashed && IsKeyPressed(KEY_SPACE)) return ScreenState::MAIN_MENU;
     if (game.state.crashed) return ScreenState::GAMEPLAY;
-
+    if (IsKeyPressed(KEY_T)) game.autopilot.toggle();
     const auto dt = GetFrameTime();
 
     game.update(dt);

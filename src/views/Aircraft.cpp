@@ -7,7 +7,7 @@
 #include "../primitives/Utils.h"
 
 
-Aircraft::Aircraft(): aircraft(LoadModel("res/f_15_c_pixy.glb")) {
+Aircraft::Aircraft() {
     // waypoints.push_back((AircraftWaypoint){{100.0, 1000.0, 100.0}, 50.0, 10.0});
     // waypoints.push_back((AircraftWaypoint){{500.0, 1000.0, 500.0}, 50.0, 10.0});
     // waypoints.push_back((AircraftWaypoint){{10000.0, 1000.0, 10000.0}, 20.0, 10.0});
@@ -16,9 +16,9 @@ Aircraft::Aircraft(): aircraft(LoadModel("res/f_15_c_pixy.glb")) {
 
 
 void Aircraft::draw(const AircraftState &state) {
-    const Vector3 &position = {state.position.x, state.position.y - 20, state.position.z};
-    aircraft->transform = MatrixMultiply(MatrixRotateX(90 * DEG2RAD), QuaternionToMatrix(state.orientation.rotation));
-    DrawModel(aircraft, position, 0.001f, RED);
+    // const Vector3 &position = {state.position.x, state.position.y - 20, state.position.z};
+    // aircraft->transform = MatrixMultiply(MatrixRotateX(90 * DEG2RAD), QuaternionToMatrix(state.orientation.rotation));
+    // DrawModel(aircraft, position, 0.001f, RED);
 }
 
 

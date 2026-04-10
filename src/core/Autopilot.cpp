@@ -5,56 +5,61 @@
 #include "Autopilot.h"
 #include "../primitives/Utils.h"
 
-Autopilot::Autopilot(const float maxBankAngle,
-                     const float maxPullRatio,
-                     const float speedRatio) : maxBankAngle(maxBankAngle),
-                                               maxPullRatio(maxPullRatio),
-                                               speedRatio(speedRatio) {
+Autopilot::Autopilot(const AppConfig &config, const Scenario &scenario) : maxBankAngle(config.get<float>("/autoPilot/maxBankAngle")),
+                                                                          maxPullRatio(config.get<float>("/autoPilot/pullRatio")),
+                                                                          speedRatio(config.get<float>("/autoPilot/speedRatio")) {
+    // todo currently take all items and put them without any order or filter
+    // for (const auto &def: scenario.entityDefinitions) {
+    //     const auto pos = def.position + (Vector3){0.0f, 2000.0f, 0.0f};
+    //     addWaypoint(pos, 400.0f, 200.0f);
+    //     TraceLog(LOG_INFO, "[Autopilot] target %f,%f,%f", pos.x, pos.y, pos.z);
+    // }
+    addWaypoint("kineret", (Vector3){87000.0f, 3000.0f, 86000.0f}, 400.0f, 200.0f);
+    addWaypoint("yesod", (Vector3){89000.0f, 4000.0f, 50000.0f}, 400.0f, 200.0f);
+    addWaypoint("bint gbel", (Vector3){73000.0f, 5000.0f, 42000.0f}, 400.0f, 200.0f);
+    addWaypoint("tyre", (Vector3){52000.0f, 2000.0f, 26000.0f}, 400.0f, 200.0f);
 }
 
-void Autopilot::AddWaypoint(const Vector3 &position, const float targetSpeed, const float arrivalRadius) {
-    route.push_back({position, targetSpeed, arrivalRadius});
+void Autopilot::addWaypoint(const std::string &name, const Vector3 &position, const float targetSpeed, const float arrivalRadius) {
+    route.push_back((Waypoint){name, position, targetSpeed, arrivalRadius});
 }
 
-bool Autopilot::IsActive() const {
-    return currentWaypointIndex < route.size() && active;
-}
-
-PilotControls Autopilot::Steer(const Vector3 &position,
-                               const Vector3 &forward,
-                               const Vector3 &right,
-                               const Vector3 &up,
-                               const float deltaTime,
-                               const float speed) {
-    PilotControls input = {0.0f, 0.0f, 0.0f, 0.0f};
-
-    // nothing changed
-    if (!IsActive()) return input;
+void Autopilot::steer(AircraftState &state, const float deltaTime) {
+    state.controls.pitch = 0.0f;
+    state.controls.roll = 0.0f;
+    state.controls.yaw = 0.0f;
 
     // current target
+    if (currentWaypointIndex >= route.size()) {
+        TraceLog(LOG_INFO, "[Autopilot] route complete!");
+        return;
+    }
     const auto target = route[currentWaypointIndex];
 
+    // current absolute position (so we can compare positions)
+    const auto position = state.pos();
+
     // did we reach the target?
-    if (Vector3Distance(target.Position, position) < target.ArrivalRadius) {
+    if (Vector3Distance(target.position, position) < target.arrivalRadius) {
         TraceLog(LOG_INFO, "[Autopilot] reached waypoint %zu!", currentWaypointIndex);
         // move to the next waypoint if any, let the next tick
         // to handle to steering
-        currentWaypointIndex++;
-        return input;
+        currentWaypointIndex += 1;
+        return;
     }
 
-    // --- Bank-and-pull manoeuvre ---
+    // --- Bank-and-pull maneuver ---
     // 1. Compute heading error on the XZ plane
     // 2. Roll to align the lift vector with the desired turn direction
     // 3. Pitch toward the target altitude
     // 4. Adjust throttle toward the target speed
 
     // normalized line of sight to the target
-    const auto dirToTarget = Vector3Normalize(Vector3Subtract(target.Position, position));
+    const auto dirToTarget = Vector3Normalize(Vector3Subtract(target.position, position));
 
     // normalize flat forward vectors
-    const auto flatForward = GetFlatForward(forward, up);
-    const auto flatDirToTarget = GetFlatForward(dirToTarget, up);
+    const auto flatForward = GetFlatForward(state.orientation.forward, state.orientation.up);
+    const auto flatDirToTarget = GetFlatForward(dirToTarget, state.orientation.up);
 
     // angle in rad (on XZ space)
     const float currentHeading = atan2f(flatForward.x, flatForward.z);
@@ -69,10 +74,10 @@ PilotControls Autopilot::Steer(const Vector3 &position,
 
     // our target angle is limited by autopilot restrictions
     const float maxBankAngleRad = maxBankAngle * PI / 180.0f;
-    const float targetBank = Clamp(headingError * 1.5f, -maxBankAngleRad, maxBankAngleRad);
+    const float targetBank = Clamp(headingError, -maxBankAngleRad, maxBankAngleRad);
 
     // the required roll
-    const float currentBank = atan2f(right.y, up.y);
+    const float currentBank = atan2f(state.orientation.right.y, state.orientation.up.y);
     float rollError = currentBank - targetBank;
 
     // 360 deg guard
@@ -80,37 +85,49 @@ PilotControls Autopilot::Steer(const Vector3 &position,
     while (rollError < -PI) rollError += 2.0f * PI;
 
     // todo why 2.0?
-    input.roll = rollError * 2.0f * deltaTime;
+    state.controls.roll = rollError * deltaTime;
 
     // vertical distance
     const Vector2 sourcePosXZ = {position.x, position.z};
-    const Vector2 targetPosXZ = {target.Position.x, target.Position.z};
+    const Vector2 targetPosXZ = {target.position.x, target.position.z};
     const float distanceXZ = Vector2Distance(sourcePosXZ, targetPosXZ);
-    const float heightDiff = target.Position.y - position.y;
+    const float heightDiff = target.position.y - position.y;
 
     // the pitch angle with guard
     const float targetPitchAngle = (distanceXZ > 0.1f) ? atan2f(heightDiff, distanceXZ) : 0.0f;
 
     // plane pitch angle
-    const float currentPitchAngle = asinf(Clamp(forward.y, -1.0f, 1.0f));
+    const float currentPitchAngle = asinf(Clamp(state.orientation.forward.y, -1.0f, 1.0f));
 
     // height error angle
     const float pitchError = targetPitchAngle - currentPitchAngle;
 
     // the pull with aggression factor
-    const float turnPull = fabsf(currentBank) * maxPullRatio;
+    const float turnPull = fabsf(targetBank) * maxPullRatio;
 
     // pitch results
     const float desiredPitchInput = pitchError + turnPull;
 
     // limiting the result to not "break" the stick
-    input.pitch = Clamp(desiredPitchInput, -1.0f, 1.0f) * deltaTime;
+    state.controls.pitch = Clamp(desiredPitchInput, -1.0f, 1.0f) * deltaTime;
 
     // update throttle direction
-    if (speed < target.TargetSpeed) input.throttle = speedRatio * deltaTime;
-    else if (speed > target.TargetSpeed) input.throttle = -speedRatio * deltaTime;
+    if (state.forces.speed < target.targetSpeed) state.controls.throttle += speedRatio * deltaTime;
+    else if (state.forces.speed > target.targetSpeed) state.controls.throttle -= speedRatio * deltaTime;
 
-    input.yaw = 0.0f;
+    state.controls.throttle = Clamp(state.controls.throttle, 0.0f, 1.0f);
 
-    return input;
+    state.controls.yaw = 0.0f;
+}
+
+
+bool Autopilot::isActive() const {
+    return currentWaypointIndex < route.size() && active;
+}
+
+void Autopilot::toggle() {
+    active = !active;
+    if (active) {
+        TraceLog(LOG_INFO, "[Autopilot] activated, heading to waypoint %zu: %s", currentWaypointIndex, route[currentWaypointIndex].name.c_str());
+    }
 }

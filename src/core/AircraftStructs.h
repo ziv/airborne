@@ -104,7 +104,7 @@ struct AircraftState {
 
     /// @brief Returns the current position of the aircraft in world coordinates (i.e. with world offset applied).
     [[nodiscard]] Vector3 pos() const {
-        return position + (Vector3){mapOffset.x, 0.0f, mapOffset.y};
+        return position - (Vector3){mapOffset.x, 0.0f, mapOffset.y};
     }
 
     /// @brief Converts a position relative to the aircraft into world coordinates (i.e. with world offset applied).

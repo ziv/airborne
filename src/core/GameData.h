@@ -13,6 +13,7 @@
 #include "AircraftCamera.h"
 #include "AircraftControls.h"
 #include "AircraftPhysics.h"
+#include "Autopilot.h"
 #include "../primitives/AppConfig.h"
 #include "../scenario/Scenario.h"
 #include "../entities/EntityRegistry.h"
@@ -52,6 +53,7 @@ class GameData {
     void spawnInitialEntities();
 
 public:
+    Autopilot autopilot;
     bool paused = false;          ///< When true the simulation is frozen.
     AircraftState state;          ///< Central mutable aircraft state.
     Scenario scenario;            ///< Active mission definition.

@@ -10,6 +10,7 @@
 GameData::GameData(const AppConfig &config, const Scenario &scenario)
     : heightAboveGround(config.get<float>("/airplane/heightAboveGround")),
       stallSpeed(config.get<float>("/airplane/stallSpeed")),
+      autopilot(config, scenario),
       scenario(scenario),
       aircraftControls(config),
       aircraftPhysics(config),
@@ -60,24 +61,19 @@ void GameData::update(const float dt) {
     const bool wasFlying = state.flying;
     state.flying = state.position.y > state.effectiveFloorHeight + 1.0f;
 
-    // --- 4. Controls (gear retraction blocked on the ground) ---
-    aircraftControls.update(state, dt);
+    // --- 4. Controls (who is control the aricraft) ---
+    if (autopilot.isActive()) autopilot.steer(state, dt);
+    else aircraftControls.update(state, dt);
 
     // --- 5. Physics (ground-clamps to effectiveFloorHeight) ---
     aircraftPhysics.update(state, dt);
 
     // --- 6. Crash / landing detection ---
-    // Only check at the moment the aircraft transitions from flying to ground.
-    const bool touchedDown = wasFlying && !state.flying;
-    if (touchedDown) {
-        if (!state.landingZone.active) {
-            // hit terrain / sea with no runway below → crash
-            state.crashed = true;
-        } else if (!isGoodLanding()) {
-            // landed on a strip but too fast, gear up, or wings not level → crash
-            state.crashed = true;
-        }
-        // else: safe landing — aircraft is now in ground mode
+    // Only check at the moment the aircraft transitions from flying to ground (touchdwon).
+    if (wasFlying && !state.flying) {
+        // hit terrain / sea with no runway below → crash
+        // landed on a strip but too fast, gear up, or wings not level → crash
+        if (!state.landingZone.active || !isGoodLanding()) state.crashed = true;
     }
 
     // --- 7. Remaining subsystems ---

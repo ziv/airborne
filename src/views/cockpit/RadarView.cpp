@@ -43,8 +43,8 @@ void RadarView::draw(const AircraftState &state,
     auto color = GRAY;
 
     // player absolute world position (accounting for large-world offset)
-    const float playerX = state.position.x + state.mapOffset.x;
-    const float playerZ = state.position.z + state.mapOffset.y;
+    const float playerX = state.position.x - state.mapOffset.x;
+    const float playerZ = state.position.z - state.mapOffset.y;
 
     // project orientation onto XZ plane for top-down radar
     const Vector2 fwd = Vector2Normalize({state.orientation.forward.x, state.orientation.forward.z});
@@ -69,8 +69,57 @@ void RadarView::draw(const AircraftState &state,
         if (e.faction == Faction::ENEMY) color = RED;
         else if (e.faction == Faction::FRIENDLY) color = GREEN;
 
-        DrawRectangle(bpx - 2, bpy - 2, 4, 4, color);
+        switch (e.type) {
+            case EntityType::AIRCRAFT:
+                drawAircraft(bpx, bpy, e.heading, color);
+                break;
+            case EntityType::SAM:
+            case EntityType::AAA:
+                drawSam(bpx, bpy, color);
+                break;
+            case EntityType::NAVAL:
+                drawShip(bpx, bpy, color);
+                break;
+            default:
+            case EntityType::STRUCTURE:
+            case EntityType::AIRBASE:
+                drawStructure(bpx, bpy, color);
+                break;
+        }
         const int altFeet = static_cast<int>(e.position.y * GamePhysics::METERS_TO_FEET);
         DrawText(TextFormat("%d", altFeet), bpx + 5, bpy - 5, 10, WHITE);
     });
+}
+
+/// @brief Ship blimp is a sircle
+void RadarView::drawShip(const int x, const int y, const Color &color) {
+    DrawCircle(x, y, 5, color);
+}
+
+/// @brief Aircraft blip is a triangle
+void RadarView::drawAircraft(const int x, const int y, const float heading, const Color &color) {
+    const auto fx = static_cast<float>(x);
+    const auto fy = static_cast<float>(y);
+    const auto rad = heading * DEG2RAD;
+    const Vector2 fwd = {sinf(rad), -cosf(rad)};
+    const Vector2 right = {fwd.y, -fwd.x};
+
+    const Vector2 p1 = {fx + fwd.x * 6, fy + fwd.y * 6};
+    const Vector2 p2 = {fx - fwd.x * 4 + right.x * 3, fy - fwd.y * 4 + right.y * 3};
+    const Vector2 p3 = {fx - fwd.x * 4 - right.x * 3, fy - fwd.y * 4 - right.y * 3};
+
+    DrawTriangle(p1, p2, p3, color);
+}
+
+/// @brief SAM/AAA blip is an X
+void RadarView::drawSam(const int x, const int y, const Color &color) {
+    const auto fx = static_cast<float>(x);
+    const auto fy = static_cast<float>(y);
+    DrawLineEx({fx - 3, fy - 3}, {fx + 3, fy + 3}, 2, color);
+    DrawLineEx({fx - 3, fy + 3}, {fx + 3, fy - 3}, 2, color);
+}
+
+/// @brief SAM/AAA blip is a rectangle
+void RadarView::drawStructure(const int x, const int y, const Color &color) {
+    DrawRectangle(x - 2, y - 2, 4, 4, color);
 }

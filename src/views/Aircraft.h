@@ -35,7 +35,7 @@ struct AircraftSteer {
 /// @brief Renders the player's aircraft model from an external perspective.
 class Aircraft {
 private:
-    ModelHandle aircraft;
+    // ModelHandle aircraft;
     // limit the roll
     // float maxBankAngle = 45.0f;
     //

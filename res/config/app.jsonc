@@ -46,7 +46,7 @@
   "autoPilot": {
     "maxBankAngle": 60,
     "pullRatio": 0.8,
-    "speedRatio": 0.1
+    "speedRatio": 0.08
   },
   "splash": {
     "bgPath": "res/splash.png",

@@ -74,7 +74,7 @@
           "id": "radar-station",
           "type": "structure",
           "subtype": "radar",
-          "position": [52500, 0, 27000],    // placeholder — target area
+          "position": [32500, 0, 58000],    // placeholder — target area
           "heading": 0,
           "health": 100,
           "faction": "enemy",
@@ -85,7 +85,7 @@
           "id": "aaa-01",
           "type": "aaa",
           "subtype": "zsu23",
-          "position": [4000, 100, 4000],    // placeholder — near radar
+          "position": [40000, 100, 60000],    // placeholder — near radar
           "heading": 0,
           "health": 50,
           "faction": "enemy",
@@ -103,7 +103,7 @@
           "id": "aaa-02",
           "type": "aaa",
           "subtype": "zsu23",
-          "position": [30500, 0, 29500],    // placeholder — near radar
+          "position": [30500, 0, 59500],    // placeholder — near radar
           "heading": 0,
           "health": 50,
           "faction": "enemy",

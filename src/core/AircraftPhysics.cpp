@@ -37,6 +37,7 @@ void AircraftPhysics::update(AircraftState &state, const float dt) const {
 
     state.fuel -= fuelBurnRate * dt;
     if (state.fuel <= 0.0f) {
+        TraceLog(LOG_WARNING, "Out of fuel!");
         state.fuel = 0.0f;
         state.controls.throttle = 0.0f;
     }
