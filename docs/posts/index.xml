@@ -8,6 +8,27 @@
     <language>en-us</language>
     <lastBuildDate>Fri, 27 Mar 2026 00:00:00 +0000</lastBuildDate><atom:link href="https://ziv.github.io/airborne/posts/index.xml" rel="self" type="application/rss+xml" />
     <item>
+      <title>Some Colors</title>
+      <link>https://ziv.github.io/airborne/posts/008-some-colors/</link>
+      <pubDate>Fri, 27 Mar 2026 00:00:00 +0000</pubDate>
+      
+      <guid>https://ziv.github.io/airborne/posts/008-some-colors/</guid>
+      <description>&lt;p&gt;&lt;img src=&#34;https://ziv.github.io/airborne/i7.png&#34; alt=&#34;Future fr&#34;&gt;&lt;/p&gt;
+&lt;p&gt;In this post we will continue to build our world by adding some colors to it.&lt;/p&gt;
+&lt;p&gt;First, I owe you a better render of the results from the previous post. I was not happy with the way the terrain looked in the previous post, so here it is again:&lt;/p&gt;
+&lt;p&gt;Since the original game is always in the back of my mind, I wanted to keep the same color palette as the original game. So i tried to mimic the way height being colored back in the 80&amp;rsquo;s.&lt;/p&gt;</description>
+      <content>&lt;p&gt;&lt;img src=&#34;https://ziv.github.io/airborne/i7.png&#34; alt=&#34;Future fr&#34;&gt;&lt;/p&gt;
+&lt;p&gt;In this post we will continue to build our world by adding some colors to it.&lt;/p&gt;
+&lt;p&gt;First, I owe you a better render of the results from the previous post. I was not happy with the way the terrain looked in the previous post, so here it is again:&lt;/p&gt;
+&lt;p&gt;Since the original game is always in the back of my mind, I wanted to keep the same color palette as the original game. So i tried to mimic the way height being colored back in the 80&amp;rsquo;s.&lt;/p&gt;
+&lt;p&gt;The color scheme was pretty simple, blue for the sea, green/yellow for the land, and gray/brown for the mountains (mostly).&lt;/p&gt;
+&lt;p&gt;Here is an example of how it really looks in the original game:&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://ziv.github.io/airborne/original-vga.png&#34; alt=&#34;Original game&#34;&gt;&lt;/p&gt;
+&lt;p&gt;(This image is a blow mind for me. It is VGA graphics, which means it has a palette of 256 colors but I grew up with monochrome CGA graphics, so this is a huge step up for me even this days)&lt;/p&gt;
+</content>
+    </item>
+    
+    <item>
       <title>The World is Flat Enough</title>
       <link>https://ziv.github.io/airborne/posts/007-the-world/</link>
       <pubDate>Fri, 27 Mar 2026 00:00:00 +0000</pubDate>

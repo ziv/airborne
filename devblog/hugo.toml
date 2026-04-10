@@ -6,10 +6,13 @@ theme = "re-terminal"
 [services]
     [services.googleAnalytics]
         id = 'G-0GMMREP8RD'
+    [services.disqus]
+        shortname = "airbrone"
 
 [params]
     themeColor = "pink"
     contentTypeName = "posts"
+    disqusShortname = "airbrone"
 
 [params.twitter]
     creator = "zivdev"

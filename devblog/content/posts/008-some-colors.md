@@ -1,6 +1,6 @@
 +++
 date = '2026-03-27T00:00:00+00:00'
-draft = false
+draft = true
 title = "Some Colors"
 +++
 

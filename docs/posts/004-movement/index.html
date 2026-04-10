@@ -47,7 +47,7 @@ Model Transformation Let&rsquo;s start with placing model on our surface. The fi
 
 
 
-
+<link rel="stylesheet" href="https://ziv.github.io/airborne/style.css">
 
 
 
@@ -111,14 +111,6 @@ Model Transformation Let&rsquo;s start with placing model on our surface. The fi
 </script>
 <script src="https://polyfill.io"></script>
 <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-
-<style>
-    img[alt*="fr"] {
-    float: right;
-    margin-left: 1em;
-    margin-bottom: 1em;
-    }
-</style>
 
   
 
@@ -276,8 +268,26 @@ one is its color (if not textured).</p>
   
 
   
+    <div id="disqus_thread"></div>
+<script>
+    window.disqus_config = function () {
     
-
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "airbrone" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
   
 </article>
 
