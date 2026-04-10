@@ -6,36 +6,26 @@
 #include "GameplayScreen.h"
 #include "primitives/Utils.h"
 #include "primitives/AppConfig.h"
-#include "entities/Entity.h"
 
 GameplayScreen::GameplayScreen(AppConfig &config, const Scenario &scenario)
     : GameScreen(config),
       game(config, scenario),
       scene(config),
       cockpitView(game, config),
-      debugView(game),
-      minihudView(config),
-      navballView(config),
-      mapView(config) {
+      debugView(game) {
 }
 
 ScreenState GameplayScreen::update() {
-    // pause game
     if (IsKeyPressed(KEY_P)) game.paused = !game.paused;
     if (game.paused) return ScreenState::GAMEPLAY;
-
-    if (game.state.crashed) {
-        crashTimer += GetFrameTime();
-        if (crashTimer > 50.0f || IsKeyPressed(KEY_SPACE)) {
-            return ScreenState::MAIN_MENU;
-        }
-        return ScreenState::GAMEPLAY;
-    }
+    if (game.state.crashed && IsKeyPressed(KEY_SPACE)) return ScreenState::MAIN_MENU;
+    if (game.state.crashed) return ScreenState::GAMEPLAY;
 
     const auto dt = GetFrameTime();
 
     game.update(dt);
     scene.update(game.state, dt);
+    game.entities.update(game.state, dt);
     cockpitView.update(game.state, dt);
     debugView.update();
 
@@ -43,41 +33,37 @@ ScreenState GameplayScreen::update() {
 }
 
 void GameplayScreen::run() {
-    // @formatter:off
     const auto camera = game.aircraftCamera.getCamera();
     const auto state = game.state;
-    ClearBackground(BLUE);
 
+    ClearBackground(BLUE);
     BeginMode3D(camera);
+    // @formatter:off
         // the main scene
         scene.draw(state, camera);
         // all the entities in the scene
         game.entities.draw(state);
-        // if an "F" key pressed, draw the user aircraft (see it from outside)
-        // if (IsKeyDown(KEY_F1)) aircraft.draw(state);
+    // @formatter:on
     EndMode3D();
-
-    // if an "F" key pressed, we do not display the cockpit
-    // if (IsKeyDown(KEY_F1)) return;
 
     cockpitView.draw(state);
     debugView.draw();
 
     // --- crash overlay (drawn on top of everything) ---
-    if (game.state.crashed) {
-        const int sw = GetScreenWidth();
-        const int sh = GetScreenHeight();
-        // dim the screen
-        DrawRectangle(0, 0, sw, sh, Fade(BLACK, 0.5f));
-        // main message
-        const char *msg = "CRASHED";
-        const int msgW = MeasureText(msg, 40);
-        DrawText(msg, sw / 2 - msgW / 2, sh / 2 - 30, 40, RED);
-        // hint
-        const char *hint = "Press SPACE to continue";
-        const int hintW = MeasureText(hint, 20);
-        DrawText(hint, sw / 2 - hintW / 2, sh / 2 + 20, 20, WHITE);
-    }
+    if (game.state.crashed) crashLayout();
+}
 
-    // @formatter:on
+void GameplayScreen::crashLayout() {
+    const int sw = GetScreenWidth();
+    const int sh = GetScreenHeight();
+    // dim the screen
+    DrawRectangle(0, 0, sw, sh, Fade(BLACK, 0.5f));
+    // main message
+    const auto msg = "CRASHED";
+    const int msgW = MeasureText(msg, 40);
+    DrawText(msg, sw / 2 - msgW / 2, sh / 2 - 30, 40, RED);
+    // hint
+    const auto hint = "Press SPACE to continue";
+    const int hintW = MeasureText(hint, 20);
+    DrawText(hint, sw / 2 - hintW / 2, sh / 2 + 20, 20, WHITE);
 }

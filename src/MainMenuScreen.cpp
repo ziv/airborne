@@ -8,82 +8,57 @@
 
 MainMenuScreen::MainMenuScreen(AppConfig &config, Scenario &scenario)
     : GameScreen(config),
+      scenarios(ScenarioLoader::loadAll(config.get<std::string_view>("/mainMenu/scenarios").data())),
       activeScenario(scenario),
-      bg(LoadTexture("res/brief.png")) {
-    scenarios = ScenarioLoader::loadAll("res/config/scenarios.jsonc");
+      bg(LoadTexture(config.get<std::string_view>("/mainMenu/bgPath").data())) {
+    // scenarios = ;
+    scenariosCount = static_cast<int>(scenarios.size());
 }
 
 ScreenState MainMenuScreen::update() {
     if (!scenarios.empty()) {
-        if (IsKeyPressed(KEY_UP)) {
-            selectedIndex = (selectedIndex - 1 + static_cast<int>(scenarios.size())) % static_cast<int>(scenarios.size());
-        }
-        if (IsKeyPressed(KEY_DOWN)) {
-            selectedIndex = (selectedIndex + 1) % static_cast<int>(scenarios.size());
-        }
-    }
-
-    if (IsKeyPressed(KEY_ENTER) || IsKeyPressed(KEY_SPACE)) {
-        if (!scenarios.empty()) {
+        if (IsKeyPressed(KEY_UP)) selectedIndex = (selectedIndex - 1 + scenariosCount) % scenariosCount;
+        if (IsKeyPressed(KEY_DOWN)) selectedIndex = (selectedIndex + 1) % scenariosCount;
+        if (IsKeyPressed(KEY_ENTER) || IsKeyPressed(KEY_SPACE)) {
             activeScenario = scenarios[selectedIndex];
             return ScreenState::BRIEFING;
         }
-        return ScreenState::GAMEPLAY;
     }
-    if (IsKeyPressed(KEY_SLASH)) {
-        return ScreenState::HELP;
-    }
+    if (IsKeyPressed(KEY_ESCAPE)) return ScreenState::SPLASH;
+    if (IsKeyPressed(KEY_SLASH)) return ScreenState::HELP;
     return ScreenState::MAIN_MENU;
 }
 
 void MainMenuScreen::run() {
     DrawTexture(bg, 0, 0, WHITE);
     int y = 50;
-    DrawText("AIRBORNE", 50, y, 40, MAROON);
+    DrawText("Welcome caption!", 50, y, 40, DARKPURPLE);
     y += 60;
 
     if (!scenarios.empty()) {
-        DrawText("Select Mission", 50, y, 24, DARKPURPLE);
+        DrawText("Select Mission", 50, y, 24, WHITE);
         y += 35;
-        for (int i = 0; i < static_cast<int>(scenarios.size()); i++) {
+        for (int i = 0; i < scenariosCount; i++) {
             const bool selected = (i == selectedIndex);
             const auto &s = scenarios[i];
 
-            const Color nameColor = selected ? MAROON : DARKGRAY;
+            const Color nameColor = selected ? DARKPURPLE : GOLD;
 
             DrawText(TextFormat("%s%s", selected ? "> " : "  ", s.name.data()), 50, y, 20, nameColor);
-            DrawText(TextFormat("[%s]", s.difficulty.data()), 350, y, 16, GRAY);
+            DrawText(TextFormat("[%s]", s.difficulty.data()), 350, y, 16, BLACK);
 
             if (selected) {
                 // show description for the highlighted mission
-                DrawText(s.description.c_str(), 70, y + 22, 12, Color{100, 100, 100, 255});
+                DrawText(s.description.c_str(), 70, y + 22, 12, WHITE);
                 y += 22;
             }
             y += 30;
         }
         y += 15;
-        DrawText("Press [ENTER] to start selected mission", 50, y, 20, MAROON);
+        DrawText("Press [ENTER] to start selected mission", 50, y, 20, WHITE);
         y += 30;
-        DrawText("Press [/] for the help page", 50, y, 16, MAROON);
+        DrawText("Press [/] for the help page", 50, y, 16, WHITE);
     } else {
         DrawText("No scenarios found in res/config/scenarios.jsonc", 50, y, 20, RED);
     }
-    // y += 50;
-
-    // DrawText("Controls", 50, y, 24, DARKPURPLE);
-    // y += 35;
-    // DrawText("[G]   - Toggle gear", 50, y, 20, GREEN);
-    // y += 25;
-    // DrawText("[B]   - Toggle brakes", 50, y, 20, GREEN);
-    // y += 25;
-    // DrawText("[0]   - Engine off", 50, y, 20, GREEN);
-    // y += 25;
-    // DrawText("[1-9] - Engine thrust", 50, y, 20, GREEN);
-    // y += 25;
-    // DrawText("[A]   - Afterburner", 50, y, 20, GREEN);
-    // y += 25;
-    // DrawText("[+/-] - Increase/Decrease thrust", 50, y, 20, GREEN);
-    // y += 25;
-    // DrawText("[ESC] - Exit", 50, y, 20, GREEN);
-    // y += 40;
 }

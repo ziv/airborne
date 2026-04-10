@@ -23,4 +23,6 @@ I had 3 goals when I started this project:
 
 Let's see how it goes :)
 
+[It stats here](https://ziv.github.io/airborne/posts/001-getting-started/)
+
 

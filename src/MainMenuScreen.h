@@ -17,6 +17,7 @@ class MainMenuScreen : public GameScreen {
     std::vector<Scenario> scenarios; ///< All scenarios loaded from the config file.
     int selectedIndex = 0; ///< Currently highlighted scenario index.
     TextureHandle bg;
+    int scenariosCount = 0;
 
 public:
     MainMenuScreen(AppConfig &config, Scenario &scenario);

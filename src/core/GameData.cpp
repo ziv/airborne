@@ -111,6 +111,9 @@ LandingZoneInfo GameData::checkLandingZones() const {
         const float dx = state.position.x - entityLocalX;
         const float dz = state.position.z - entityLocalZ;
 
+        // todo make this test better
+        if (dx + dz > 10000) continue;
+
         const bool isCarrier = (e->subtype == "carrier");
 
         // half-extents: short side (width) across heading, long side along heading

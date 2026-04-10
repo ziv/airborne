@@ -52,6 +52,10 @@
     "bgPath": "res/splash.png",
     "musicPath": "res/sound0.mp3"
   },
+  "mainMenu": {
+    "bgPath": "res/main-menu-bg.png",
+    "scenarios": "res/config/scenarios.jsonc"
+  },
   "game": {
     "cockpitTexture": "res/cockpit-z.png",
     "cockpitChroma": "res/shaders/chromakey.fs",

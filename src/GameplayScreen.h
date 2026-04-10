@@ -8,18 +8,12 @@
  * pause, pane switching, and crash-overlay logic.
  */
 #pragma once
-#include <vector>
 #include "GameScreen.h"
-#include "core/Autopilot.h"
 #include "core/GameData.h"
 #include "core/SceneManager.h"
 #include "views/Aircraft.h"
 #include "views/CockpitView.h"
 #include "views/DebugView.h"
-#include "views/cockpit/MapView.h"
-#include "views/cockpit/MinihudView.h"
-#include "views/NavballView.h"
-#include "views/cockpit/RadarView.h"
 
 class GameplayScreen : public GameScreen {
     GameData game;       ///< Core simulation (physics, controls, entities).
@@ -28,14 +22,12 @@ class GameplayScreen : public GameScreen {
     // views
     CockpitView cockpitView;
     DebugView debugView;
-    MinihudView minihudView;
-    NavballView navballView;
-    MapView mapView;
-    // RadarView radarView;
     Aircraft aircraft;
 
     /// Seconds elapsed since crash — used for the crash overlay delay.
-    float crashTimer = 0.0f;
+    // float crashTimer = 0.0f;
+
+    static void crashLayout();
 
 public:
     /// Every mission requires a scenario (no free-flight mode).
