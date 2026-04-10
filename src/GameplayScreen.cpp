@@ -34,14 +34,10 @@ ScreenState GameplayScreen::update() {
 
     const auto dt = GetFrameTime();
 
-    // todo put all the view in a list?!
     game.update(dt);
     scene.update(game.state, dt);
     cockpitView.update(game.state, dt);
-    // minihudView.update();
     debugView.update();
-    // mapView.update(game.state, dt);
-    // radarView.update();
 
     return ScreenState::GAMEPLAY;
 }
@@ -57,7 +53,6 @@ void GameplayScreen::run() {
         scene.draw(state, camera);
         // all the entities in the scene
         game.entities.draw(state);
-
         // if an "F" key pressed, draw the user aircraft (see it from outside)
         // if (IsKeyDown(KEY_F1)) aircraft.draw(state);
     EndMode3D();
@@ -65,35 +60,8 @@ void GameplayScreen::run() {
     // if an "F" key pressed, we do not display the cockpit
     // if (IsKeyDown(KEY_F1)) return;
 
-    // display cockpit
     cockpitView.draw(state);
-
-    // display cockpit items
-    // mapView.draw({0.0f, 0.0f});
-    // minihudView.draw(state);
     debugView.draw();
-
-    // build radar contacts from all alive entities
-    // std::vector<RadarContact> contacts;
-    // game.entities.forEachAlive([&](EntityBase& e) {
-    //     Color color;
-    //     switch (e.faction) {
-    //         case Faction::ENEMY:    color = RED;    break;
-    //         case Faction::FRIENDLY: color = GREEN;  break;
-    //         default:                color = GRAY;   break;
-    //     }
-    //     contacts.push_back({e.position, color});
-    // });
-    // // draw on the left pane (switch between radar, navball, hud, etc.)
-    // switch (leftPane) {
-    //     case 0:
-    //         radarView.draw(state, contacts, (Vector2){377.0f, 666.0f});
-    //         break;
-    //         case 1:
-    //         navballView.draw(state, (Vector2){377.0f, 666.0f});
-    //     default:
-    //         break;
-    // }
 
     // --- crash overlay (drawn on top of everything) ---
     if (game.state.crashed) {

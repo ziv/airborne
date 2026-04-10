@@ -6,7 +6,69 @@
     <description>Recent content on Airborne</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Thu, 26 Mar 2026 00:00:00 +0000</lastBuildDate><atom:link href="https://ziv.github.io/airborne/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Fri, 27 Mar 2026 00:00:00 +0000</lastBuildDate><atom:link href="https://ziv.github.io/airborne/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>The World is Flat Enough</title>
+      <link>https://ziv.github.io/airborne/posts/007-the-world/</link>
+      <pubDate>Fri, 27 Mar 2026 00:00:00 +0000</pubDate>
+      
+      <guid>https://ziv.github.io/airborne/posts/007-the-world/</guid>
+      <description>&lt;p&gt;&lt;img src=&#34;https://ziv.github.io/airborne/i6.png&#34; alt=&#34;Future fr&#34;&gt;&lt;/p&gt;
+&lt;p&gt;Before we can move our camera in a 3D space, we need to define the world that we will be moving in.&lt;/p&gt;
+&lt;p&gt;It took me a while to decide how I wanted to represent the world in my game. At first, I wanted to keep the low-poly aesthetic from the 80s, but I also wanted to retain the &amp;ldquo;real world maps&amp;rdquo; feel used in the original games.&lt;/p&gt;
+&lt;p&gt;Eventually, I decided to go with a more &amp;ldquo;realistic&amp;rdquo; world and take advantage of the fact that we are no longer limited by 80s hardware. So, 3D semi-realistic it is.&lt;/p&gt;</description>
+      <content>&lt;p&gt;&lt;img src=&#34;https://ziv.github.io/airborne/i6.png&#34; alt=&#34;Future fr&#34;&gt;&lt;/p&gt;
+&lt;p&gt;Before we can move our camera in a 3D space, we need to define the world that we will be moving in.&lt;/p&gt;
+&lt;p&gt;It took me a while to decide how I wanted to represent the world in my game. At first, I wanted to keep the low-poly aesthetic from the 80s, but I also wanted to retain the &amp;ldquo;real world maps&amp;rdquo; feel used in the original games.&lt;/p&gt;
+&lt;p&gt;Eventually, I decided to go with a more &amp;ldquo;realistic&amp;rdquo; world and take advantage of the fact that we are no longer limited by 80s hardware. So, 3D semi-realistic it is.&lt;/p&gt;
+&lt;p&gt;There are multiple methods to generate 3D terrain, I chose to use a combination of a heightmap and a texture.&lt;/p&gt;
+&lt;h2 id=&#34;what-is-a-heightmap&#34;&gt;What is a Heightmap?&lt;/h2&gt;
+&lt;p&gt;A heightmap is a grayscale image where the brightness of each pixel represents the height of the terrain at that specific point.&lt;/p&gt;
+&lt;p&gt;Here is an example of a heightmap of the island of &lt;a href=&#34;https://en.wikipedia.org/wiki/Sardinia&#34;&gt;Sardinia&lt;/a&gt;:&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://ziv.github.io/airborne/sardinia.png&#34; alt=&#34;Sardinia heightmap&#34;&gt;&lt;/p&gt;
+&lt;p&gt;The black parts represent sea level, while the white parts represent the highest points on the island. Those beautiful fractal shapes are actually mountain ridges and river valleys.&lt;/p&gt;
+&lt;p&gt;Let&amp;rsquo;s convert this heightmap into a 3D terrain.&lt;/p&gt;
+&lt;h2 id=&#34;heightmap-to-3d-step-by-step&#34;&gt;Heightmap to 3D: Step-by-Step&lt;/h2&gt;
+&lt;p&gt;First, we load the image:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-c++&#34; data-lang=&#34;c++&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;Image image &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; LoadImage(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;heightmap.png&amp;#34;&lt;/span&gt;);
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Next, we want to create a heightmap mesh. raylib provides a handy function to do exactly that for us. We will create a mesh with the same dimensions as the heightmap, and the engine will use the brightness of each pixel to determine the Y-axis height of the terrain.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-c++&#34; data-lang=&#34;c++&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;const&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;auto&lt;/span&gt; terrainWidth &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;static_cast&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;float&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt;(image.width);
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;const&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;auto&lt;/span&gt; terrainLength &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;static_cast&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;float&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt;(image.height);
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;Vector3 terrainSize &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; { terrainWidth, &lt;span style=&#34;color:#ae81ff&#34;&gt;600.0f&lt;/span&gt;, terrainLength };
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;Mesh mesh &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; GenMeshHeightmap(image, terrainSize);
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;A mesh is simply a collection of vertices, normals, and texture coordinates that define the shape of the terrain. We will use this mesh to create a model that we can actually render in our game.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-c++&#34; data-lang=&#34;c++&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;Model model &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; LoadModelFromMesh(mesh);
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;In the main loop, we render the model using the DrawModel function:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-c++&#34; data-lang=&#34;c++&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;BeginMode3D(camera);
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    DrawGrid(&lt;span style=&#34;color:#ae81ff&#34;&gt;10&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;1.0f&lt;/span&gt;);
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    DrawModel(model, (Vector3){&lt;span style=&#34;color:#ae81ff&#34;&gt;0.0f&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;0.0f&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;0.0f&lt;/span&gt;}, &lt;span style=&#34;color:#ae81ff&#34;&gt;1.0f&lt;/span&gt;, WHITE);
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;EndMode3D();
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;The result is a 3D terrain. However, with no texture, it&amp;rsquo;s not looking very good just yet:&lt;/p&gt;
+&lt;div style=&#34;position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;&#34;&gt;
+      &lt;iframe allow=&#34;accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen&#34; loading=&#34;eager&#34; referrerpolicy=&#34;strict-origin-when-cross-origin&#34; src=&#34;https://www.youtube.com/embed/gk152bjS5jg?autoplay=0&amp;amp;controls=1&amp;amp;end=0&amp;amp;loop=0&amp;amp;mute=0&amp;amp;start=0&#34; style=&#34;position: absolute; top: 0; left: 0; width: 100%; height: 100%; border:0;&#34; title=&#34;YouTube video&#34;&gt;&lt;/iframe&gt;
+    &lt;/div&gt;
+
+&lt;p&gt;We can clearly see the spikes representing the mountains and the flat areas representing sea level.&lt;/p&gt;
+&lt;p&gt;But what happens if we take that same heightmap image and use it as a texture for the terrain? Let&amp;rsquo;s find out.&lt;/p&gt;
+&lt;p&gt;We start by re-using the heightmap image to generate a texture:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-c++&#34; data-lang=&#34;c++&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;Texture2D texture &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; LoadTextureFromImage(image);
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;And then we apply this texture to the model&amp;rsquo;s material:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-c++&#34; data-lang=&#34;c++&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;model.materials[&lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;].maps[MATERIAL_MAP_DIFFUSE].texture &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; texture;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;By the way, since the raw image data is no longer needed in the CPU memory, it is time to unload it:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-c++&#34; data-lang=&#34;c++&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;UnloadImage(image);
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;In a later post, I&amp;rsquo;ll describe how I use RAII (Resource Acquisition Is Initialization) to automatically manage resources in my game. For now, let&amp;rsquo;s just remember to manually unload any resources we no longer need.&lt;/p&gt;
+&lt;p&gt;Let&amp;rsquo;s see the results:&lt;/p&gt;
+&lt;div style=&#34;position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;&#34;&gt;
+      &lt;iframe allow=&#34;accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen&#34; loading=&#34;eager&#34; referrerpolicy=&#34;strict-origin-when-cross-origin&#34; src=&#34;https://www.youtube.com/embed/2smBngctZcE?autoplay=0&amp;amp;controls=1&amp;amp;end=0&amp;amp;loop=0&amp;amp;mute=0&amp;amp;start=0&#34; style=&#34;position: absolute; top: 0; left: 0; width: 100%; height: 100%; border:0;&#34; title=&#34;YouTube video&#34;&gt;&lt;/iframe&gt;
+    &lt;/div&gt;
+
+&lt;p&gt;From this result, it&amp;rsquo;s pretty obvious I chose an exaggerated number for the terrain&amp;rsquo;s height limit (it&amp;rsquo;s a bit too spiky!), but we can see the texture is successfully applied, and it already looks significantly better than before.&lt;/p&gt;
+&lt;p&gt;We will continue to improve and tweak the terrain in the next post.&lt;/p&gt;
+</content>
+    </item>
+    
     <item>
       <title>Camera and Models</title>
       <link>https://ziv.github.io/airborne/posts/006-camera-and-models/</link>
