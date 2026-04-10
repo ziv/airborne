@@ -6,7 +6,99 @@
     <description>Recent content in Posts on Airborne</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Wed, 25 Mar 2026 00:00:00 +0000</lastBuildDate><atom:link href="https://ziv.github.io/airborne/posts/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Thu, 26 Mar 2026 00:00:00 +0000</lastBuildDate><atom:link href="https://ziv.github.io/airborne/posts/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Camera and Models</title>
+      <link>https://ziv.github.io/airborne/posts/006-camera-and-models/</link>
+      <pubDate>Thu, 26 Mar 2026 00:00:00 +0000</pubDate>
+      
+      <guid>https://ziv.github.io/airborne/posts/006-camera-and-models/</guid>
+      <description>&lt;p&gt;&lt;img src=&#34;https://ziv.github.io/airborne/i5.png&#34; alt=&#34;Future fr&#34;&gt;&lt;/p&gt;
+&lt;p&gt;In the previous post, we explored how to move a 3D model using angles. However, a camera is not a model. It does not
+have a generic &lt;code&gt;transform&lt;/code&gt; component, so we need to find another way to rotate it.&lt;/p&gt;
+&lt;p&gt;&amp;ldquo;raylib&amp;rdquo; defines a data structure called a &amp;ldquo;&lt;a href=&#34;https://en.wikipedia.org/wiki/Quaternion&#34;&gt;Quaternion&lt;/a&gt;&amp;rdquo;. It is a
+mathematical construct used to represent rotations in 3D space safely, without suffering
+from &lt;a href=&#34;https://en.wikipedia.org/wiki/Gimbal_lock&#34;&gt;gimbal lock&lt;/a&gt; - a notorious problem that occurs when relying solely on
+Euler angles.&lt;/p&gt;</description>
+      <content>&lt;p&gt;&lt;img src=&#34;https://ziv.github.io/airborne/i5.png&#34; alt=&#34;Future fr&#34;&gt;&lt;/p&gt;
+&lt;p&gt;In the previous post, we explored how to move a 3D model using angles. However, a camera is not a model. It does not
+have a generic &lt;code&gt;transform&lt;/code&gt; component, so we need to find another way to rotate it.&lt;/p&gt;
+&lt;p&gt;&amp;ldquo;raylib&amp;rdquo; defines a data structure called a &amp;ldquo;&lt;a href=&#34;https://en.wikipedia.org/wiki/Quaternion&#34;&gt;Quaternion&lt;/a&gt;&amp;rdquo;. It is a
+mathematical construct used to represent rotations in 3D space safely, without suffering
+from &lt;a href=&#34;https://en.wikipedia.org/wiki/Gimbal_lock&#34;&gt;gimbal lock&lt;/a&gt; - a notorious problem that occurs when relying solely on
+Euler angles.&lt;/p&gt;
+&lt;h2 id=&#34;what-is-a-quaternion&#34;&gt;What is a Quaternion?&lt;/h2&gt;
+&lt;p&gt;In mathematics, the quaternion number system extends complex numbers and is heavily used in 3D graphics to calculate
+smooth rotations. Simply put, a quaternion is a four-dimensional vector that elegantly represents an orientation in
+three-dimensional space.&lt;/p&gt;
+&lt;p&gt;Quaternions are generally represented in the following form:&lt;/p&gt;
+&lt;p&gt;$$a+b,\mathbf{i}+c,\mathbf{j}+d,\mathbf{k}$$&lt;/p&gt;
+&lt;p&gt;where the coefficients $a, b, c, d$ are real numbers, and $1, i, j, k$ are the basis elements (read more
+on &lt;a href=&#34;https://en.wikipedia.org/wiki/Quaternion&#34;&gt;Wikipedia&lt;/a&gt;).&lt;/p&gt;
+&lt;h2 id=&#34;the-cameras-anatomy&#34;&gt;The Camera&amp;rsquo;s Anatomy&lt;/h2&gt;
+&lt;p&gt;The camera in &amp;ldquo;raylib&amp;rdquo; does not store its own rotation state. Instead, its orientation is defined by three vectors:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Position:&lt;/strong&gt; The exact point where the camera is located in the world.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Target (Forward):&lt;/strong&gt; The point the camera is looking at.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Up:&lt;/strong&gt; The direction that tells the camera which way is &amp;ldquo;up&amp;rdquo; (preventing the world from rendering upside down).&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;To effectively control the camera, we can maintain its internal orientation using a &lt;strong&gt;quaternion&lt;/strong&gt;. This way, we can
+apply rotations to the quaternion and easily extract the new &lt;code&gt;forward&lt;/code&gt; and &lt;code&gt;up&lt;/code&gt; vectors to update the camera.&lt;/p&gt;
+&lt;h2 id=&#34;rotating-the-camera-step-by-step&#34;&gt;Rotating the Camera: Step-by-Step&lt;/h2&gt;
+&lt;p&gt;Let&amp;rsquo;s see an example of how to rotate the camera using quaternions.&lt;/p&gt;
+&lt;h3 id=&#34;1-setting-up-the-reference-vectors&#34;&gt;1. Setting Up the Reference Vectors&lt;/h3&gt;
+&lt;p&gt;First, we need to define our &amp;ldquo;relative world&amp;rdquo; coordinate system. These are constant vectors that represent the baseline
+axes. We also need to set up the camera&amp;rsquo;s initial rotation state.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-c++&#34; data-lang=&#34;c++&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;// Reference vectors representing the &amp;#34;relative world&amp;#34; coordinate system
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;const&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;auto&lt;/span&gt; worldUp &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; (Vector3){&lt;span style=&#34;color:#ae81ff&#34;&gt;0.0f&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;1.0f&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;0.0f&lt;/span&gt;}; 
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;const&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;auto&lt;/span&gt; worldForward &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; (Vector3){&lt;span style=&#34;color:#ae81ff&#34;&gt;0.0f&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;0.0f&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;1.0f&lt;/span&gt;};
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;const&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;auto&lt;/span&gt; worldRight &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; (Vector3){&lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;1.0f&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;0.0f&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;0.0f&lt;/span&gt;};
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;// Start with the identity quaternion (represents no rotation)
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;auto&lt;/span&gt; matrix &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; QuaternionIdentity();
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;// Extract the current camera directional vectors
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;auto&lt;/span&gt; right &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; worldRight; 
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;auto&lt;/span&gt; up &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; camera.up;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;auto&lt;/span&gt; forward &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; Vector3Normalize(camera.target); &lt;span style=&#34;color:#75715e&#34;&gt;// Simplified for this example
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;// Arbitrary angles to rotate the camera (in radians)
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;float&lt;/span&gt; pitch &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;0.2f&lt;/span&gt;; &lt;span style=&#34;color:#75715e&#34;&gt;// Rotation around the right vector
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;float&lt;/span&gt; roll &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;0.5f&lt;/span&gt;;  &lt;span style=&#34;color:#75715e&#34;&gt;// Rotation around the forward vector
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;float&lt;/span&gt; yaw &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;0.1f&lt;/span&gt;;   &lt;span style=&#34;color:#75715e&#34;&gt;// Rotation around the up vector
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h3 id=&#34;2-calculating-the-rotations&#34;&gt;2. Calculating the Rotations&lt;/h3&gt;
+&lt;p&gt;Just like with the model, we want to apply changes to the pitch, roll, and yaw angles. We calculate a separate
+quaternion for each axis rotation:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-c++&#34; data-lang=&#34;c++&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;const&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;auto&lt;/span&gt; qPitch &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; QuaternionFromAxisAngle(right, pitch);
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;const&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;auto&lt;/span&gt; qRoll &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; QuaternionFromAxisAngle(forward, roll);
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;const&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;auto&lt;/span&gt; qYaw &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; QuaternionFromAxisAngle(up, yaw);
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Next, we combine them to get the final orientation of the camera for this frame:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-c++&#34; data-lang=&#34;c++&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;const&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;auto&lt;/span&gt; orientation &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; QuaternionMultiply(qYaw, QuaternionMultiply(qPitch, qRoll));
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h3 id=&#34;3-updating-the-state-and-applying-to-camera&#34;&gt;3. Updating the State and Applying to Camera&lt;/h3&gt;
+&lt;p&gt;Now, we update our main rotation matrix by multiplying the new orientation quaternion with the current rotation state:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-c++&#34; data-lang=&#34;c++&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;matrix &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; QuaternionNormalize(QuaternionMultiply(orientation, matrix));
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Finally, we calculate the new &lt;code&gt;forward&lt;/code&gt;, &lt;code&gt;up&lt;/code&gt;, and &lt;code&gt;right&lt;/code&gt; vectors based on our updated quaternion matrix, and feed
+those
+values back into the &amp;ldquo;raylib&amp;rdquo; camera:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-c++&#34; data-lang=&#34;c++&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;// Calculate the new directional vectors after applying the rotation
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;forward &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; Vector3Normalize(Vector3RotateByQuaternion(matrix, worldForward));
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;up &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; Vector3Normalize(Vector3RotateByQuaternion(matrix, worldUp));
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;right &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; Vector3Normalize(Vector3RotateByQuaternion(matrix, worldRight));
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;// Apply the new orientation to the camera
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;camera.target &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; forward;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;camera.up &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; up;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;By calculating the camera&amp;rsquo;s orientation this way, we can rotate it freely in any direction without ever worrying about
+gimbal lock or broken axes!&lt;/p&gt;
+</content>
+    </item>
+    
     <item>
       <title>Roll, Pitch, Yaw and Keyboard input</title>
       <link>https://ziv.github.io/airborne/posts/005-yaw-rall-pitch/</link>
