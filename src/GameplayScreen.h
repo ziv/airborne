@@ -16,7 +16,6 @@
 #include "views/Aircraft.h"
 #include "views/CockpitView.h"
 #include "views/DebugView.h"
-#include "views/HudView.h"
 #include "views/cockpit/MapView.h"
 #include "views/cockpit/MinihudView.h"
 #include "views/NavballView.h"
@@ -31,7 +30,6 @@ class GameplayScreen : public GameScreen {
     DebugView debugView;
     MinihudView minihudView;
     NavballView navballView;
-    HudView hudView;
     MapView mapView;
     // RadarView radarView;
     Aircraft aircraft;

@@ -51,8 +51,6 @@ add_executable(${PROJECT_NAME} src/main.cpp
         src/primitives/Resource.h
         src/views/cockpit/MinihudView.cpp
         src/views/cockpit/MinihudView.h
-        src/views/HudView.cpp
-        src/views/HudView.h
         src/views/NavballView.cpp
         src/views/NavballView.h
         src/primitives/Logger.h

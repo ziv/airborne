@@ -21,5 +21,5 @@ ScreenState SplashScreen::update() {
 
 void SplashScreen::run() {
     DrawTexture(tex, 0, 0, WHITE);
-    DrawText("Created by Ziv Perry", 960, 750, 20, GREEN);
+    DrawText("Created by Ziv Perry", 910, 640, 20, GOLD);
 }

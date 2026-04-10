@@ -16,13 +16,12 @@ GameplayScreen::GameplayScreen(AppConfig &config, const Scenario &scenario)
       debugView(game),
       minihudView(config),
       navballView(config),
-      hudView(config),
       mapView(config) {
 }
 
 ScreenState GameplayScreen::update() {
     // pause game
-    if (IsKeyPressed(KEY_L)) game.paused = !game.paused;
+    if (IsKeyPressed(KEY_P)) game.paused = !game.paused;
     if (game.paused) return ScreenState::GAMEPLAY;
 
     if (game.state.crashed) {
