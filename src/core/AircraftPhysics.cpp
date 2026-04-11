@@ -6,23 +6,13 @@
 #include "../primitives/Constants.h"
 #include "raymath.h"
 
-AircraftPhysics::AircraftPhysics(const AppConfig &config) : weight(config.get<float>("/airplane/weight")),
-                                                            engineThrust(config.get<float>("/airplane/engineThrust")),
-                                                            maxSpeed(config.get<float>("/airplane/maxSpeed")),
-                                                            stallSpeed(config.get<float>("/airplane/stallSpeed")),
-                                                            groundBrakesSpeed(config.get<float>("/airplane/groundBrakesSpeed")),
-                                                            dragCoefficient(config.get<float>("/airplane/dragCoefficient")),
-                                                            liftCoefficient(config.get<float>("/airplane/liftCoefficient")),
-                                                            flyingBrakesDragRatio(config.get<float>("/airplane/flyingBrakesDragRatio")),
-                                                            flyingGearDragRatio(config.get<float>("/airplane/flyingGearDragRatio")),
-                                                            groundBrakesDragRatio(config.get<float>("/airplane/groundBrakesDragRatio")),
-                                                            stallLiftRatio(config.get<float>("/airplane/stallLiftRatio")) {
+AircraftPhysics::AircraftPhysics(const AppConfig &config) : conf(config.get<AircraftPhysicsConfig>("/airplane")) {
 }
 
 void AircraftPhysics::update(AircraftState &state, const float dt) const {
-    state.forces.thrust = state.controls.throttle * engineThrust;
-    state.forces.drag = (state.forces.speed * state.forces.speed) * dragCoefficient;
-    state.forces.lift = (state.forces.speed * state.forces.speed) * liftCoefficient;
+    state.forces.thrust = state.controls.throttle * conf.engineThrust;
+    state.forces.drag = (state.forces.speed * state.forces.speed) * conf.dragCoefficient;
+    state.forces.lift = (state.forces.speed * state.forces.speed) * conf.liftCoefficient;
 
 
     // fuel consumption: idle baseline + linear at military power, exponential in afterburner
@@ -45,17 +35,17 @@ void AircraftPhysics::update(AircraftState &state, const float dt) const {
     // --- Airborne vs Ground drag model ---
     // todo move out?
     if (state.flying) {
-        if (state.controls.brakes) state.forces.drag *= flyingBrakesDragRatio; // breaks increase drag by 600%
-        if (state.controls.gear) state.forces.drag *= flyingGearDragRatio; // gear generate drag
-        if (state.forces.speed < stallSpeed) state.forces.lift *= stallLiftRatio; // stall reduce lift by 90%
+        if (state.controls.brakes) state.forces.drag *= conf.flyingBrakesDragRatio; // breaks increase drag by 600%
+        if (state.controls.gear) state.forces.drag *= conf.flyingGearDragRatio; // gear generate drag
+        if (state.forces.speed < conf.stallSpeed) state.forces.lift *= conf.stallLiftRatio; // stall reduce lift by 90%
     } else {
-        if (state.controls.brakes) state.forces.drag *= groundBrakesDragRatio; // on ground, drag mimic the wheels brakes
+        if (state.controls.brakes) state.forces.drag *= conf.groundBrakesDragRatio; // on ground, drag mimic the wheels brakes
         const float dampFactor = powf(0.9f, dt * 60.0f); // normalized to 60fps baseline
-        if (state.controls.brakes && state.forces.speed < groundBrakesSpeed) state.forces.velocity = state.forces.velocity * dampFactor;
+        if (state.controls.brakes && state.forces.speed < conf.groundBrakesSpeed) state.forces.velocity = state.forces.velocity * dampFactor;
         if (state.forces.velocity.y < 0.0f) state.forces.velocity.y = 0.0f; // on ground there is no more velocity down
     }
 
-    const float mass = weight / 9.81f;
+    const float mass = conf.weight / 9.81f;
 
     // --- Force vectors (world space) ---
     const auto thrustForce = state.orientation.forward * state.forces.thrust;
@@ -71,14 +61,14 @@ void AircraftPhysics::update(AircraftState &state, const float dt) const {
     state.forces.speed = Vector3Length(state.forces.velocity);
 
     // hard speed cap (normally drag balances thrust before this limit)
-    if (state.forces.speed > maxSpeed && state.forces.speed != 0.0f) {
-        state.forces.velocity = state.forces.velocity * maxSpeed / state.forces.speed;
+    if (state.forces.speed > conf.maxSpeed && state.forces.speed != 0.0f) {
+        state.forces.velocity = state.forces.velocity * conf.maxSpeed / state.forces.speed;
         state.forces.speed = Vector3Length(state.forces.velocity);
     }
 
     // --- Weathervaning: align velocity toward the nose above stall speed ---
     // https://en.wikipedia.org/wiki/Weathervane_effect
-    if (state.forces.speed > stallSpeed) {
+    if (state.forces.speed > conf.stallSpeed) {
         auto [x, y, z] = state.orientation.forward * state.forces.speed;
         state.forces.velocity.x = Lerp(state.forces.velocity.x, x, 2.0f * dt);
         state.forces.velocity.y = Lerp(state.forces.velocity.y, y, 2.0f * dt);
