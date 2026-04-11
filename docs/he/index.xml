@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>איירבורן</title>
+    <link>https://ziv.github.io/airborne/he/</link>
+    <description>Recent content on איירבורן</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>he-il</language><atom:link href="https://ziv.github.io/airborne/he/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title></title>
+      <link>https://ziv.github.io/airborne/he/about/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://ziv.github.io/airborne/he/about/</guid>
+      <description>&lt;p&gt;My name is Ziv. I am a software engineer with a passion for flight simulators and a huge fan of the MicroProse titles I
+grew up on.&lt;/p&gt;
+&lt;p&gt;While my day job is as a Principal Architect at ZoomInfo, at night I write code in low-level languages and expand my
+knowledge of physics and mathematics.&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://ziv.github.io/airborne/f15-se-ii.png&#34; alt=&#34;F-15 Strike Eagle II fr&#34;&gt;&lt;/p&gt;
+&lt;p&gt;I spent so many hours flying F15 Strike Eagle II on my XT-16MGhz machine with monochrome CGA resolution screen. I tried to play
+it again, it was fun but somthing is missing. No, I don&amp;rsquo;t want another DCS neither an arcade game, I want the same
+gameplay I
+got from this magic game, so this project has begun.&lt;/p&gt;</description>
+      <content>&lt;p&gt;My name is Ziv. I am a software engineer with a passion for flight simulators and a huge fan of the MicroProse titles I
+grew up on.&lt;/p&gt;
+&lt;p&gt;While my day job is as a Principal Architect at ZoomInfo, at night I write code in low-level languages and expand my
+knowledge of physics and mathematics.&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://ziv.github.io/airborne/f15-se-ii.png&#34; alt=&#34;F-15 Strike Eagle II fr&#34;&gt;&lt;/p&gt;
+&lt;p&gt;I spent so many hours flying F15 Strike Eagle II on my XT-16MGhz machine with monochrome CGA resolution screen. I tried to play
+it again, it was fun but somthing is missing. No, I don&amp;rsquo;t want another DCS neither an arcade game, I want the same
+gameplay I
+got from this magic game, so this project has begun.&lt;/p&gt;
+&lt;p&gt;I created this blog to document the development of my flight simulator and to share the lessons I learn along the way.&lt;/p&gt;
+&lt;p&gt;I had 3 goals when I started this project:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;Not to use a game engine.&lt;/li&gt;
+&lt;li&gt;To re-learn C++ and linear algebra.&lt;/li&gt;
+&lt;li&gt;To have fun.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;Let&amp;rsquo;s see how it goes :)&lt;/p&gt;
+&lt;p&gt;&lt;a href=&#34;https://ziv.github.io/airborne/posts/001-getting-started/&#34;&gt;It starts here&lt;/a&gt;&lt;/p&gt;
+</content>
+    </item>
+    
+  </channel>
+</rss>
