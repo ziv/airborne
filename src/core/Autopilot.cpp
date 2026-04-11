@@ -5,9 +5,7 @@
 #include "Autopilot.h"
 #include "../primitives/Utils.h"
 
-Autopilot::Autopilot(const AppConfig &config, const Scenario &scenario) : maxBankAngle(config.get<float>("/autoPilot/maxBankAngle")),
-                                                                          maxPullRatio(config.get<float>("/autoPilot/pullRatio")),
-                                                                          speedRatio(config.get<float>("/autoPilot/speedRatio")) {
+Autopilot::Autopilot(const AppConfig &config, const Scenario &scenario) : conf(config.get<AutopilotConfig>("/autoPilot")) {
     // todo currently take all items and put them without any order or filter
     for (const auto &def: scenario.entityDefinitions) {
         auto pos = def.position;
@@ -71,7 +69,7 @@ void Autopilot::steer(AircraftState &state, const float deltaTime) {
     while (headingError < -PI) headingError += 2.0f * PI;
 
     // our target angle is limited by autopilot restrictions
-    const float maxBankAngleRad = maxBankAngle * PI / 180.0f;
+    const float maxBankAngleRad = conf.maxBankAngle * PI / 180.0f;
     const float targetBank = Clamp(headingError, -maxBankAngleRad, maxBankAngleRad);
 
     // the required roll
@@ -101,7 +99,7 @@ void Autopilot::steer(AircraftState &state, const float deltaTime) {
     const float pitchError = targetPitchAngle - currentPitchAngle;
 
     // the pull with aggression factor
-    const float turnPull = fabsf(targetBank) * maxPullRatio;
+    const float turnPull = fabsf(targetBank) * conf.maxPullRatio;
 
     // pitch results
     const float desiredPitchInput = pitchError + turnPull;
@@ -110,8 +108,8 @@ void Autopilot::steer(AircraftState &state, const float deltaTime) {
     state.controls.pitch = Clamp(desiredPitchInput, -1.0f, 1.0f) * deltaTime;
 
     // update throttle direction
-    if (state.forces.speed < target.targetSpeed) state.controls.throttle += speedRatio * deltaTime;
-    else if (state.forces.speed > target.targetSpeed) state.controls.throttle -= speedRatio * deltaTime;
+    if (state.forces.speed < target.targetSpeed) state.controls.throttle += conf.speedRatio * deltaTime;
+    else if (state.forces.speed > target.targetSpeed) state.controls.throttle -= conf.speedRatio * deltaTime;
 
     state.controls.throttle = Clamp(state.controls.throttle, 0.0f, 1.0f);
 

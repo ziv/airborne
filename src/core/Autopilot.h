@@ -22,6 +22,14 @@ struct Waypoint {
     float arrivalRadius;
 };
 
+struct AutopilotConfig {
+    float maxBankAngle = 45.0f; ///< Maximum roll angle (degrees) the autopilot will command.
+    float maxPullRatio = 1.0f; ///< Pitch aggression factor during banked turns.
+    float speedRatio = 1.0f; ///< Throttle change rate.
+};
+
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(AutopilotConfig, maxBankAngle, maxPullRatio, speedRatio);
+
 /**
  * @brief Waypoint-following autopilot that outputs PilotControls.
  *
@@ -32,9 +40,7 @@ class Autopilot {
     std::vector<Waypoint> route;
     int currentWaypointIndex = 0;
 
-    float maxBankAngle = 45.0f; ///< Maximum roll angle (degrees) the autopilot will command.
-    float maxPullRatio = 1.0f; ///< Pitch aggression factor during banked turns.
-    float speedRatio = 1.0f; ///< Throttle change rate.
+    AutopilotConfig conf;
     bool active = false;
 
 public:
