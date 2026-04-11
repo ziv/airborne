@@ -39,6 +39,7 @@ NLOHMANN_JSON_SERIALIZE_ENUM(EntityState, {
 
 /// @brief Classification of an entity (determines behavior and rendering).
 enum class EntityType {
+    None,
     AIRCRAFT,
     SAM, ///< Surface-to-air missile site.
     AAA, ///< Anti-aircraft artillery.
@@ -64,9 +65,9 @@ NLOHMANN_JSON_SERIALIZE_ENUM(EntityType, {
  * Subclasses (e.g. GroundTarget) extend this with type-specific behavior.
  */
 struct EntityBase {
-    EntityId id;
-    EntityType type;
-    std::string subtype; ///< Optional subclassification (e.g. "carrier" for AIRBASE).
+    EntityId id = "";
+    EntityType type = EntityType::None;
+    std::string subtype = ""; ///< Optional subclassification (e.g. "carrier" for AIRBASE).
     Faction faction = Faction::ENEMY;
     EntityState state = EntityState::ACTIVE;
 
@@ -75,7 +76,7 @@ struct EntityBase {
     float health = 100.0f;
     float maxHealth = 100.0f;
 
-    std::string modelId; ///< Path to the .glb model file, or empty for fallback cube.
+    std::string modelId = ""; ///< Path to the .glb model file, or empty for fallback cube.
 
     [[nodiscard]] bool isAlive() const {
         return state == EntityState::ACTIVE || state == EntityState::DAMAGED;
@@ -84,4 +85,4 @@ struct EntityBase {
     [[nodiscard]] bool isEnemy() const { return faction == Faction::ENEMY; }
 };
 
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(EntityBase, id, type, subtype, faction, state, position, heading, health, maxHealth, modelId);
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(EntityBase, id, type, subtype, faction, state, position, heading, health, maxHealth, modelId);

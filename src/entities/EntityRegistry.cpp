@@ -16,7 +16,7 @@ EntityRegistry::~EntityRegistry() {
 
 void EntityRegistry::ensureModelLoaded(const std::string &path) {
     if (path.empty()) return;
-    if (modelCache.count(path)) return;
+    if (modelCache.contains(path)) return;
 
     if (!FileExists(path.c_str())) {
         TraceLog(LOG_WARNING, "Model file not found: %s", path.c_str());

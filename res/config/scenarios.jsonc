@@ -72,25 +72,23 @@
           "state": "active",
           "health": 100,
           "maxHealth": 100,
-          "modelId": "carrier",
-          //          "model": "res/carrier_scene.glb"
-          "model": "res/gerald_ford_aircraft_carrier.glb",
+          "modelId": "res/models/carrier.glb",
           "scale": 0.5
+        },
+        {
+          "id": "abother-home-base",
+          "type": "airbase",
+          "subtype": "international-airport",
+          "position": [
+            41000,
+            0,
+            74000
+          ],
+          // placeholder
+          "heading": 90,
+          "faction": "friendly",
+          "model": "res/airport.glb"
         }
-//        {
-//          "id": "abother-home-base",
-//          "type": "airbase",
-//          "subtype": "international-airport",
-//          "position": [
-//            41000,
-//            0,
-//            74000
-//          ],
-//          // placeholder
-//          "heading": 90,
-//          "faction": "friendly",
-//          "model": "res/airport.glb"
-//        },
 //        {
 //          "id": "radar-station",
 //          "type": "structure",
