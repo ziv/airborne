@@ -31,6 +31,7 @@ point, without any context of whether it was actually sea or land.&lt;/p&gt;
 imagery, and we can use that to our advantage. I fired up QGIS and exported a beautiful satellite image (thanks to Bing
 Maps) of the area around Sardinia. I then used that real-world image as the texture for my terrain, and it looks
 significantly better.&lt;/p&gt;
+&lt;p&gt;See for yourself:&lt;/p&gt;
 &lt;p&gt;&lt;img src=&#34;https://ziv.github.io/airborne/textured-sardinia.png&#34; alt=&#34;Sardinia with texture&#34;&gt;&lt;/p&gt;
 </content>
     </item>

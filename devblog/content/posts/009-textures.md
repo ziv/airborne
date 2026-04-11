@@ -20,4 +20,6 @@ imagery, and we can use that to our advantage. I fired up QGIS and exported a be
 Maps) of the area around Sardinia. I then used that real-world image as the texture for my terrain, and it looks
 significantly better.
 
+See for yourself:
+
 ![Sardinia with texture](/textured-sardinia.png)
