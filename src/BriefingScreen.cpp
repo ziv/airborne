@@ -45,23 +45,23 @@ void BriefingScreen::run() {
     y += 50;
 
     // objectives
-    DrawText("OBJECTIVES", margin, y, 24, GOLD);
-    y += 35;
-    for (const auto &obj: scenario.objectives) {
-        const char *marker = obj.required ? "[REQ]" : "[OPT]";
-        Color markerColor = obj.required ? RED : YELLOW;
-        DrawText(marker, margin, y, 18, markerColor);
-        DrawText(obj.label.c_str(), margin + 70, y, 18, WHITE);
-        y += 25;
-    }
-    y += 20;
+    // DrawText("OBJECTIVES", margin, y, 24, GOLD);
+    // y += 35;
+    // for (const auto &obj: scenario.objectives) {
+    //     const char *marker = obj.required ? "[REQ]" : "[OPT]";
+    //     Color markerColor = obj.required ? RED : YELLOW;
+    //     DrawText(marker, margin, y, 18, markerColor);
+    //     DrawText(obj.label.c_str(), margin + 70, y, 18, WHITE);
+    //     y += 25;
+    // }
+    // y += 20;
 
     // entities summary
     DrawText("INTEL", margin, y, 24, GOLD);
     y += 35;
     int enemyCount = 0;
     int friendlyCount = 0;
-    for (const auto &e: scenario.entityDefinitions) {
+    for (const auto &e: scenario.entities) {
         if (e.faction == Faction::ENEMY) enemyCount++;
         else if (e.faction == Faction::FRIENDLY) friendlyCount++;
     }
@@ -69,7 +69,7 @@ void BriefingScreen::run() {
     y += 25;
     DrawText(TextFormat("Friendly assets: %d", friendlyCount), margin, y, 18, GREEN);
     y += 25;
-    DrawText(TextFormat("Total entities: %d", static_cast<int>(scenario.entityDefinitions.size())), margin, y, 18, LIGHTGRAY);
+    DrawText(TextFormat("Total entities: %d", static_cast<int>(scenario.entities.size())), margin, y, 18, LIGHTGRAY);
     y += 40;
 
     // start conditions

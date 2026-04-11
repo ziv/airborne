@@ -18,17 +18,17 @@
  * listAvailable().
  */
 class ScenarioLoader {
-    static Vector3 parseVector3(const nlohmann::json& j);
-    static Faction parseFaction(const std::string& s);
-    static EntityType parseEntityType(const std::string& s);
-    static ObjectiveType parseObjectiveType(const std::string& s);
-    static StartConditions parseStart(const nlohmann::json& j);
-    static WeaponLoadout parseLoadout(const nlohmann::json& j);
-    static ScenarioScoring parseScoring(const nlohmann::json& j);
-    static Objective parseObjective(const nlohmann::json& j);
-    static EntityBase parseEntity(const nlohmann::json& j);
-    static Trigger parseTrigger(const nlohmann::json& j);
-    static Scenario parseScenario(const nlohmann::json& j);
+    // static Vector3 parseVector3(const nlohmann::json& j);
+    // static Faction parseFaction(const std::string& s);
+    // static EntityType parseEntityType(const std::string& s);
+    // static ObjectiveType parseObjectiveType(const std::string& s);
+    // static StartConditions parseStart(const nlohmann::json& j);
+    // static WeaponLoadout parseLoadout(const nlohmann::json& j);
+    // static ScenarioScoring parseScoring(const nlohmann::json& j);
+    // static Objective parseObjective(const nlohmann::json& j);
+    // static EntityBase parseEntity(const nlohmann::json& j);
+    // static Trigger parseTrigger(const nlohmann::json& j);
+    // static Scenario parseScenario(const nlohmann::json& j);
 
 public:
     /// @brief Load a single scenario from a JSONC file.

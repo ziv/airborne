@@ -23,7 +23,7 @@ GameData::GameData(const AppConfig &config, const Scenario &scenario)
 }
 
 void GameData::spawnInitialEntities() {
-    for (const auto &def: scenario.entityDefinitions) {
+    for (const auto &def: scenario.entities) {
         if (def.type == EntityType::STRUCTURE) {
             auto gt = std::make_unique<GroundTarget>();
             static_cast<EntityBase &>(*gt) = def;

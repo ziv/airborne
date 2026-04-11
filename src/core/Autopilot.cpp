@@ -7,7 +7,7 @@
 
 Autopilot::Autopilot(const AppConfig &config, const Scenario &scenario) : conf(config.get<AutopilotConfig>("/autoPilot")) {
     // todo currently take all items and put them without any order or filter
-    for (const auto &def: scenario.entityDefinitions) {
+    for (const auto &def: scenario.entities) {
         auto pos = def.position;
         // for ground target, add some height...
         // todo what about ground target not at sea level?!
