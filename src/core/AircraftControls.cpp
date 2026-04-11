@@ -6,9 +6,7 @@
 #include "raylib.h"
 #include "raymath.h"
 
-AircraftControls::AircraftControls(const AppConfig &config) : pitchRatio(config.get<float>("/airplane/pitchRatio")),
-                                                              rollRatio(config.get<float>("/airplane/rollRatio")),
-                                                              yawRatio(config.get<float>("/airplane/yawRatio")) {
+AircraftControls::AircraftControls(const AppConfig &config) : conf(config.get<AircraftControlsConfig>("/airplane")) {
 }
 
 void AircraftControls::update(AircraftState &state, const float dt) const {
@@ -17,14 +15,14 @@ void AircraftControls::update(AircraftState &state, const float dt) const {
     state.controls.yaw = 0.0f;
 
     // steering
-    if (IsKeyDown(KEY_UP)) state.controls.pitch = -pitchRatio * dt;
-    if (IsKeyDown(KEY_DOWN)) state.controls.pitch = pitchRatio * dt;
+    if (IsKeyDown(KEY_UP)) state.controls.pitch = -conf.pitchRatio * dt;
+    if (IsKeyDown(KEY_DOWN)) state.controls.pitch = conf.pitchRatio * dt;
 
-    if (IsKeyDown(KEY_LEFT)) state.controls.roll = -rollRatio * dt;
-    if (IsKeyDown(KEY_RIGHT)) state.controls.roll = rollRatio * dt;
+    if (IsKeyDown(KEY_LEFT)) state.controls.roll = -conf.rollRatio * dt;
+    if (IsKeyDown(KEY_RIGHT)) state.controls.roll = conf.rollRatio * dt;
 
-    if (IsKeyDown(KEY_Q)) state.controls.yaw = yawRatio * dt;
-    if (IsKeyDown(KEY_E)) state.controls.yaw = -yawRatio * dt;
+    if (IsKeyDown(KEY_Q)) state.controls.yaw = conf.yawRatio * dt;
+    if (IsKeyDown(KEY_E)) state.controls.yaw = -conf.yawRatio * dt;
 
     // throttling
     if (IsKeyDown(KEY_ZERO)) state.controls.throttle = 0.0f;

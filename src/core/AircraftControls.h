@@ -10,10 +10,16 @@
 #include "../primitives/AppConfig.h"
 #include "AircraftStructs.h"
 
+struct AircraftControlsConfig {
+    float pitchRatio = 0.7f; ///< Pitch sensitivity (degrees per second at full deflection).
+    float rollRatio = 0.9f; ///< Roll sensitivity.
+    float yawRatio = 0.5f; ///< Yaw (rudder) sensitivity.
+};
+
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(AircraftControlsConfig, pitchRatio, rollRatio, yawRatio);
+
 class AircraftControls {
-    float pitchRatio;   ///< Pitch sensitivity (degrees per second at full deflection).
-    float rollRatio;    ///< Roll sensitivity.
-    float yawRatio;     ///< Yaw (rudder) sensitivity.
+    AircraftControlsConfig conf;
 
 public:
     explicit AircraftControls(const AppConfig &config);
