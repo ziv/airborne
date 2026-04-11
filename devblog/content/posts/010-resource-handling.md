@@ -1,7 +1,7 @@
 +++
 date = '2026-03-30T00:00:00+00:00'
 draft = false
-title = "Resource Management"
+title = "Resource Micro Management"
 +++
 
 ![Future fr](/i9.png)

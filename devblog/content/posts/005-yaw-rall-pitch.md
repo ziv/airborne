@@ -1,7 +1,7 @@
 +++
 date = '2026-03-25T00:00:00+00:00'
 draft = false
-title = "Roll, Pitch, Yaw and Keyboard input"
+title = "Orientation Is Everything"
 +++
 
 ![Future fr](/i4.png)

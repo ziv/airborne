@@ -8,7 +8,7 @@
     <language>en-us</language>
     <lastBuildDate>Mon, 30 Mar 2026 00:00:00 +0000</lastBuildDate><atom:link href="https://ziv.github.io/airborne/index.xml" rel="self" type="application/rss+xml" />
     <item>
-      <title>Resource Management</title>
+      <title>Resource Micro Management</title>
       <link>https://ziv.github.io/airborne/posts/010-resource-handling/</link>
       <pubDate>Mon, 30 Mar 2026 00:00:00 +0000</pubDate>
       
@@ -102,7 +102,7 @@ No more memory leaks!&lt;/p&gt;
     </item>
     
     <item>
-      <title>Sattelite Imagery and Textures</title>
+      <title>Textures From The Sky</title>
       <link>https://ziv.github.io/airborne/posts/009-textures/</link>
       <pubDate>Sun, 29 Mar 2026 00:00:00 +0000</pubDate>
       
@@ -131,7 +131,7 @@ significantly better.&lt;/p&gt;
     </item>
     
     <item>
-      <title>Some Colors</title>
+      <title>Coloring Book</title>
       <link>https://ziv.github.io/airborne/posts/008-some-colors/</link>
       <pubDate>Sat, 28 Mar 2026 00:00:00 +0000</pubDate>
       
@@ -281,7 +281,7 @@ differentiate between land and sea. I will talk about how to solve this exact is
     </item>
     
     <item>
-      <title>Camera and Models</title>
+      <title>Models And Cameras, Oh My!</title>
       <link>https://ziv.github.io/airborne/posts/006-camera-and-models/</link>
       <pubDate>Thu, 26 Mar 2026 00:00:00 +0000</pubDate>
       
@@ -373,7 +373,7 @@ gimbal lock or broken axes!&lt;/p&gt;
     </item>
     
     <item>
-      <title>Roll, Pitch, Yaw and Keyboard input</title>
+      <title>Orientation Is Everything</title>
       <link>https://ziv.github.io/airborne/posts/005-yaw-rall-pitch/</link>
       <pubDate>Wed, 25 Mar 2026 00:00:00 +0000</pubDate>
       
@@ -432,7 +432,7 @@ gimbal lock or broken axes!&lt;/p&gt;
     </item>
     
     <item>
-      <title>Movement</title>
+      <title>Moving Around</title>
       <link>https://ziv.github.io/airborne/posts/004-movement/</link>
       <pubDate>Tue, 24 Mar 2026 00:00:00 +0000</pubDate>
       
@@ -490,7 +490,7 @@ one is its color (if not textured).&lt;/p&gt;
     </item>
     
     <item>
-      <title>First Steps</title>
+      <title>Its Just a Window</title>
       <link>https://ziv.github.io/airborne/posts/003-window/</link>
       <pubDate>Mon, 23 Mar 2026 00:00:00 +0000</pubDate>
       

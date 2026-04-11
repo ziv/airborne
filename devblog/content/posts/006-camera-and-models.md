@@ -1,7 +1,7 @@
 +++
 date = '2026-03-26T00:00:00+00:00'
 draft = false
-title = "Camera and Models"
+title = "Models And Cameras, Oh My!"
 +++
 
 ![Future fr](/i5.png)
