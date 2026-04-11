@@ -7,7 +7,8 @@ made by [MicroProse](https://en.wikipedia.org/wiki/MicroProse) back in the 80s.
 The magic of those games comes from the fact it is not really a simulator, and it is not really an arcade. It somthing
 between just genius like [Sid Meier](https://en.wikipedia.org/wiki/Sid_Meier) can create :).
 
-Check out the [development blog](https://ziv.github.io/airborne/) for updates.
+Check out the [development blog](https://ziv.github.io/airborne/) for updates ot
+the [Wiki](https://github.com/ziv/airborne/wiki) for more information.
 
 ## How to
 
@@ -33,26 +34,3 @@ got from this magic game, so this project has begun.
 
 ![ia](res/f15-se-ii.png)
 
-## Credits
-
-Only items currently in use in the compiled code:
-
-- Models by [Uxxman](https://sketchfab.com/Uxxman)
-
-## Keyboard Controls
-
-- `ARROW UP` - Pitch down
-- `ARROW DOWN` - Pitch up
-- `ARROW LEFT` - Roll left
-- `ARROW RIGHT` - Roll right
-- `+` - Increase throttle
-- `-` - Decrease throttle
-- `1-9` - Throttle presets (10% to 90%)
-- `A` - Afterburner
-- `B` - Toggle brakes
-- `G` - Toggle landing gear
-
-## Display Controls
-
-- `OPTION/ALT` + `H` - Toggle HUD colors (green/white/black)
-- `F1` - Display aircraft from outside
