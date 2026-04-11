@@ -83,7 +83,11 @@ const auto qYaw = QuaternionFromAxisAngle(up, yaw);
 Next, we combine them to get the final orientation of the camera for this frame:
 
 ```c++
-const auto orientation = QuaternionMultiply(qYaw, QuaternionMultiply(qPitch, qRoll));
+const auto orientation = QuaternionMultiply(
+    qYaw, 
+    QuaternionMultiply(
+        qPitch, 
+        qRoll));
 ```
 
 ### 3. Updating the State and Applying to Camera

@@ -352,7 +352,11 @@ quaternion for each axis rotation:&lt;/p&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;const&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;auto&lt;/span&gt; qRoll &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; QuaternionFromAxisAngle(forward, roll);
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;const&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;auto&lt;/span&gt; qYaw &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; QuaternionFromAxisAngle(up, yaw);
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Next, we combine them to get the final orientation of the camera for this frame:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-c++&#34; data-lang=&#34;c++&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;const&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;auto&lt;/span&gt; orientation &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; QuaternionMultiply(qYaw, QuaternionMultiply(qPitch, qRoll));
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-c++&#34; data-lang=&#34;c++&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;const&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;auto&lt;/span&gt; orientation &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; QuaternionMultiply(
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    qYaw, 
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    QuaternionMultiply(
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        qPitch, 
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        qRoll));
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h3 id=&#34;3-updating-the-state-and-applying-to-camera&#34;&gt;3. Updating the State and Applying to Camera&lt;/h3&gt;
 &lt;p&gt;Now, we update our main rotation matrix by multiplying the new orientation quaternion with the current rotation state:&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-c++&#34; data-lang=&#34;c++&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;matrix &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; QuaternionNormalize(QuaternionMultiply(orientation, matrix));
@@ -596,6 +600,17 @@ function.&lt;/p&gt;
 &lt;p&gt;I kicked off the project by selecting a technology stack and researching modern OpenGL workflows. For the core language, I chose to return to C++, a language I was once familiar with and am excited to dive back into.&lt;/p&gt;
 &lt;p&gt;I’m pairing it with the raylib library, which provides a solid foundation and saves me from reinventing the wheel.&lt;/p&gt;
 &lt;p&gt;Let’s get started.&lt;/p&gt;
+</content>
+    </item>
+    
+    <item>
+      <title>אודות</title>
+      <link>https://ziv.github.io/airborne/he/about/</link>
+      <pubDate>Sat, 21 Mar 2026 00:00:00 +0000</pubDate>
+      
+      <guid>https://ziv.github.io/airborne/he/about/</guid>
+      <description>&lt;p&gt;בקרוב&lt;/p&gt;</description>
+      <content>&lt;p&gt;בקרוב&lt;/p&gt;
 </content>
     </item>
     
@@ -1969,42 +1984,6 @@ res/
 &lt;p&gt;DebriefScreen with scoring. MapView enhancements (threat rings, objective markers, flight path). Sound effects for weapons/RWR/comms. Multiple scenario files.&lt;/p&gt;
 &lt;h3 id=&#34;phase-8--advanced&#34;&gt;Phase 8 — Advanced&lt;/h3&gt;
 &lt;p&gt;Photograph objective. Escort objective. SEAD objective. Weather effects. Night missions. Difficulty scaling (more enemies, better AI, tighter time limits).&lt;/p&gt;
-</content>
-    </item>
-    
-    <item>
-      <title></title>
-      <link>https://ziv.github.io/airborne/he/about/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
-      <guid>https://ziv.github.io/airborne/he/about/</guid>
-      <description>&lt;p&gt;My name is Ziv. I am a software engineer with a passion for flight simulators and a huge fan of the MicroProse titles I
-grew up on.&lt;/p&gt;
-&lt;p&gt;While my day job is as a Principal Architect at ZoomInfo, at night I write code in low-level languages and expand my
-knowledge of physics and mathematics.&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;https://ziv.github.io/airborne/f15-se-ii.png&#34; alt=&#34;F-15 Strike Eagle II fr&#34;&gt;&lt;/p&gt;
-&lt;p&gt;I spent so many hours flying F15 Strike Eagle II on my XT-16MGhz machine with monochrome CGA resolution screen. I tried to play
-it again, it was fun but somthing is missing. No, I don&amp;rsquo;t want another DCS neither an arcade game, I want the same
-gameplay I
-got from this magic game, so this project has begun.&lt;/p&gt;</description>
-      <content>&lt;p&gt;My name is Ziv. I am a software engineer with a passion for flight simulators and a huge fan of the MicroProse titles I
-grew up on.&lt;/p&gt;
-&lt;p&gt;While my day job is as a Principal Architect at ZoomInfo, at night I write code in low-level languages and expand my
-knowledge of physics and mathematics.&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;https://ziv.github.io/airborne/f15-se-ii.png&#34; alt=&#34;F-15 Strike Eagle II fr&#34;&gt;&lt;/p&gt;
-&lt;p&gt;I spent so many hours flying F15 Strike Eagle II on my XT-16MGhz machine with monochrome CGA resolution screen. I tried to play
-it again, it was fun but somthing is missing. No, I don&amp;rsquo;t want another DCS neither an arcade game, I want the same
-gameplay I
-got from this magic game, so this project has begun.&lt;/p&gt;
-&lt;p&gt;I created this blog to document the development of my flight simulator and to share the lessons I learn along the way.&lt;/p&gt;
-&lt;p&gt;I had 3 goals when I started this project:&lt;/p&gt;
-&lt;ol&gt;
-&lt;li&gt;Not to use a game engine.&lt;/li&gt;
-&lt;li&gt;To re-learn C++ and linear algebra.&lt;/li&gt;
-&lt;li&gt;To have fun.&lt;/li&gt;
-&lt;/ol&gt;
-&lt;p&gt;Let&amp;rsquo;s see how it goes :)&lt;/p&gt;
-&lt;p&gt;&lt;a href=&#34;https://ziv.github.io/airborne/posts/001-getting-started/&#34;&gt;It starts here&lt;/a&gt;&lt;/p&gt;
 </content>
     </item>
     

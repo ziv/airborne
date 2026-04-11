@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" dir="ltr">
 <head>
   
     <title>Models And Cameras, Oh My! :: Airborne</title>
@@ -144,11 +144,36 @@ In the previous post, we explored how to move a 3D model using angles. However, 
         
       
       
+        <hr />
+        
+          <li>
+            <a href="https://ziv.github.io/airborne/">English</a>
+          </li>
+        
+          <li>
+            <a href="https://ziv.github.io/airborne/he/">עברית</a>
+          </li>
+        
+      
     </ul>
   </li>
 </ul>
 
     
+    
+      <ul class="menu menu--desktop menu--language-selector">
+  <li class="menu__trigger">English&nbsp;▾</li>
+  <li>
+    <ul class="menu__dropdown">
+      
+        <li><a href="https://ziv.github.io/airborne/">English</a></li>
+      
+        <li><a href="https://ziv.github.io/airborne/he/">עברית</a></li>
+      
+    </ul>
+  </li>
+</ul>
+
     
   </div>
   
@@ -249,7 +274,11 @@ quaternion for each axis rotation:</p>
 </span></span><span style="display:flex;"><span><span style="color:#66d9ef">const</span> <span style="color:#66d9ef">auto</span> qRoll <span style="color:#f92672">=</span> QuaternionFromAxisAngle(forward, roll);
 </span></span><span style="display:flex;"><span><span style="color:#66d9ef">const</span> <span style="color:#66d9ef">auto</span> qYaw <span style="color:#f92672">=</span> QuaternionFromAxisAngle(up, yaw);
 </span></span></code></pre></div><p>Next, we combine them to get the final orientation of the camera for this frame:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-c++" data-lang="c++"><span style="display:flex;"><span><span style="color:#66d9ef">const</span> <span style="color:#66d9ef">auto</span> orientation <span style="color:#f92672">=</span> QuaternionMultiply(qYaw, QuaternionMultiply(qPitch, qRoll));
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-c++" data-lang="c++"><span style="display:flex;"><span><span style="color:#66d9ef">const</span> <span style="color:#66d9ef">auto</span> orientation <span style="color:#f92672">=</span> QuaternionMultiply(
+</span></span><span style="display:flex;"><span>    qYaw, 
+</span></span><span style="display:flex;"><span>    QuaternionMultiply(
+</span></span><span style="display:flex;"><span>        qPitch, 
+</span></span><span style="display:flex;"><span>        qRoll));
 </span></span></code></pre></div><h3 id="3-updating-the-state-and-applying-to-camera">3. Updating the State and Applying to Camera<a href="#3-updating-the-state-and-applying-to-camera" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h3>
 <p>Now, we update our main rotation matrix by multiplying the new orientation quaternion with the current rotation state:</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-c++" data-lang="c++"><span style="display:flex;"><span>matrix <span style="color:#f92672">=</span> QuaternionNormalize(QuaternionMultiply(orientation, matrix));

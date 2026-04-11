@@ -14,6 +14,7 @@ services:
 params:
   themeColor: "pink"
   contentTypeName: "posts"
+  showLanguageSelector: true
   twitter:
     creator: "zivdev"
 
@@ -58,11 +59,18 @@ languages:
     label: "עברית"
     locale: "he-il"
     title: "איירבורן"
+    params:
+      languageName: "English"
+      title: "AIRBORNE"
+      subtitle: "Development blog"
+      logo:
+        logoText: "AIRBORNE"
+        logoHomeLink: "/airborne/he"
     menu:
       main:
-        - identifier: "about"
-          name: "אודות"
-          url: "/he/about"
         - identifier: "repo"
           name: "ריפו"
           url: "https://github.com/ziv/airborne"
+        - identifier: "about"
+          name: "אודות"
+          url: "/he/about"
