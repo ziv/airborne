@@ -12,14 +12,19 @@
 #include "AircraftStructs.h"
 #include "../primitives/Types.h"
 
+struct AircraftTransformationConfig {
+    MeterPerSecond maxSpeed = 600.0f; ///< Reference speed for normalising control authority.
+    MeterPerSecond vleSpeed = 150.0f; ///< Max gear-extended speed; above this → turbulence.
+    MeterPerSecond stallSpeed = 65.0f; ///< Below this speed aerodynamic effects diminish.
+    Ratio bankInduceYawRatio = 0.2f; ///< Adverse yaw factor from bank angle.
+    Ratio liftLossPitchRatio = 0.1f; ///< Nose-down pitch tendency when lift vector tilts.
+};
+
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(AircraftTransformationConfig, maxSpeed, vleSpeed, stallSpeed, bankInduceYawRatio, liftLossPitchRatio);
 
 /// @brief Holds the direction/orientation of the aircraft in 3d space
 class AircraftTransformation {
-    MeterPerSecond maxSpeed;          ///< Reference speed for normalising control authority.
-    MeterPerSecond vleSpeed;          ///< Max gear-extended speed; above this → turbulence.
-    MeterPerSecond stallSpeed;        ///< Below this speed aerodynamic effects diminish.
-    Ratio bankInduceYawRatio;         ///< Adverse yaw factor from bank angle.
-    Ratio liftLossPitchRatio;         ///< Nose-down pitch tendency when lift vector tilts.
+    AircraftTransformationConfig conf;
 
     /// @brief Apply full 3-axis orientation changes while airborne.
     void flyingOrientation(AircraftState &state, float dt) const;
@@ -28,7 +33,7 @@ class AircraftTransformation {
     void groundOrientation(AircraftState &state, float dt) const;
 
     /// @brief Apply a delta quaternion and re-derive basis vectors.
-    static void updateOrientation(AircraftState &state, const Quaternion &qDelta) ;
+    static void updateOrientation(AircraftState &state, const Quaternion &qDelta);
 
 public:
     explicit AircraftTransformation(const AppConfig &config);

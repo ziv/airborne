@@ -6,11 +6,7 @@
 #include "../primitives/Constants.h"
 #include "raymath.h"
 
-AircraftTransformation::AircraftTransformation(const AppConfig &config) : maxSpeed(config.get<float>("/airplane/maxSpeed")),
-                                                                          vleSpeed(config.get<float>("/airplane/vleSpeed")),
-                                                                          stallSpeed(config.get<float>("/airplane/stallSpeed")),
-                                                                          bankInduceYawRatio(config.get<float>("/airplane/bankInduceYawRatio")),
-                                                                          liftLossPitchRatio(config.get<float>("/airplane/liftLossPitchRatio")) {
+AircraftTransformation::AircraftTransformation(const AppConfig &config) : conf(config.get<AircraftTransformationConfig>("/airplane")) {
 }
 
 void AircraftTransformation::update(AircraftState &state, const float dt) const {
@@ -19,18 +15,18 @@ void AircraftTransformation::update(AircraftState &state, const float dt) const 
 }
 
 void AircraftTransformation::flyingOrientation(AircraftState &state, const float dt) const {
-    const auto speedRatio = state.forces.speed / maxSpeed;
+    const auto speedRatio = state.forces.speed / conf.maxSpeed;
 
     // --- Arcade-style aerodynamic side-effects ---
 
     // Adverse yaw: bank angle induces a yaw moment toward the lowered wing.
     // https://en.wikipedia.org/wiki/Adverse_yaw
-    const auto bankInducedYaw = state.forces.speed < 0.001f ? 0.0f : state.orientation.right.y * bankInduceYawRatio * dt;
+    const auto bankInducedYaw = state.forces.speed < 0.001f ? 0.0f : state.orientation.right.y * conf.bankInduceYawRatio * dt;
 
     // Lift-loss pitch-down: when the lift vector is no longer purely vertical the
     // aircraft tends to pitch nose-down.
     // https://en.wikipedia.org/wiki/Stall_(fluid_dynamics)
-    const auto liftLossPitch = state.forces.speed < 0.001f ? 0.0f : (1.0f - state.orientation.up.y) * liftLossPitchRatio * dt;
+    const auto liftLossPitch = state.forces.speed < 0.001f ? 0.0f : (1.0f - state.orientation.up.y) * conf.liftLossPitchRatio * dt;
 
     // more speed equals more steering except yaw
     const auto totalPitch = (state.controls.pitch + liftLossPitch) * speedRatio;
@@ -45,8 +41,8 @@ void AircraftTransformation::flyingOrientation(AircraftState &state, const float
     // --- VLE turbulence: random shaking above max gear-extended speed ---
     // https://en.wikipedia.org/wiki/V_speeds#VLE
     auto qTurbulence = QuaternionIdentity();
-    if (state.controls.gear && state.forces.speed > vleSpeed) {
-        const float overSpeed = state.forces.speed - vleSpeed;
+    if (state.controls.gear && state.forces.speed > conf.vleSpeed) {
+        const float overSpeed = state.forces.speed - conf.vleSpeed;
         const float turbulenceIntensity = Clamp((overSpeed * overSpeed) * 0.0001f * dt, 0.0f, 0.03f);
 
         const float noisePitch = (static_cast<float>(GetRandomValue(-100, 100)) / 100.0f) * turbulenceIntensity;
@@ -69,7 +65,7 @@ void AircraftTransformation::flyingOrientation(AircraftState &state, const float
 }
 
 void AircraftTransformation::groundOrientation(AircraftState &state, const float dt) const {
-    const auto speedRatio = state.forces.speed / maxSpeed;
+    const auto speedRatio = state.forces.speed / conf.maxSpeed;
 
     // apply the changes (more speed equals more steering except yaw)
     // on ground pitch can be positive only
