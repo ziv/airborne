@@ -6,7 +6,7 @@ title = "Resource Micro Management"
 
 ![Future fr](/i9.png)
 
-In this post, I'm taking a brief break from graphics to talk about under-the-hood architecture—specifically, how I
+In this post, I'm taking a brief break from graphics to talk about under-the-hood architecture-specifically, how I
 handle resources in my game. By "resources," I mean all the external assets the game relies on, such as textures,
 models, and sounds.
 

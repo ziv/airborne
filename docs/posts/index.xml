@@ -14,14 +14,14 @@
       
       <guid>https://ziv.github.io/airborne/posts/010-resource-handling/</guid>
       <description>&lt;p&gt;&lt;img src=&#34;https://ziv.github.io/airborne/i9.png&#34; alt=&#34;Future fr&#34;&gt;&lt;/p&gt;
-&lt;p&gt;In this post, I&amp;rsquo;m taking a brief break from graphics to talk about under-the-hood architecture—specifically, how I
+&lt;p&gt;In this post, I&amp;rsquo;m taking a brief break from graphics to talk about under-the-hood architecture-specifically, how I
 handle resources in my game. By &amp;ldquo;resources,&amp;rdquo; I mean all the external assets the game relies on, such as textures,
 models, and sounds.&lt;/p&gt;
 &lt;p&gt;Raylib provides a straightforward way to load and manage resources, but because it&amp;rsquo;s a C library, you have to manually
 unload every single resource when you are done with it. This can be tedious and highly error-prone, leading to memory
 leaks if you have a lot of assets to juggle.&lt;/p&gt;</description>
       <content>&lt;p&gt;&lt;img src=&#34;https://ziv.github.io/airborne/i9.png&#34; alt=&#34;Future fr&#34;&gt;&lt;/p&gt;
-&lt;p&gt;In this post, I&amp;rsquo;m taking a brief break from graphics to talk about under-the-hood architecture—specifically, how I
+&lt;p&gt;In this post, I&amp;rsquo;m taking a brief break from graphics to talk about under-the-hood architecture-specifically, how I
 handle resources in my game. By &amp;ldquo;resources,&amp;rdquo; I mean all the external assets the game relies on, such as textures,
 models, and sounds.&lt;/p&gt;
 &lt;p&gt;Raylib provides a straightforward way to load and manage resources, but because it&amp;rsquo;s a C library, you have to manually
