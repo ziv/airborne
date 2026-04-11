@@ -8,6 +8,94 @@
     <language>en-us</language>
     <lastBuildDate>Fri, 27 Mar 2026 00:00:00 +0000</lastBuildDate><atom:link href="https://ziv.github.io/airborne/index.xml" rel="self" type="application/rss+xml" />
     <item>
+      <title>Some Colors</title>
+      <link>https://ziv.github.io/airborne/posts/008-some-colors/</link>
+      <pubDate>Fri, 27 Mar 2026 00:00:00 +0000</pubDate>
+      
+      <guid>https://ziv.github.io/airborne/posts/008-some-colors/</guid>
+      <description>&lt;p&gt;&lt;img src=&#34;https://ziv.github.io/airborne/i7.png&#34; alt=&#34;Future fr&#34;&gt;&lt;/p&gt;
+&lt;p&gt;In this post, we will continue building our world by adding colors and textures to our terrain. We will also explore how
+to use heightmaps to create a more compelling landscape.&lt;/p&gt;
+&lt;p&gt;First, I owe you a better render of the results from the previous post. I wasn&amp;rsquo;t entirely happy with the way the terrain
+looked in the video, so here it is again—this time as a high-quality image. The gray clouds you see are simply the raw
+heightmap applied as a texture directly onto the terrain:&lt;/p&gt;</description>
+      <content>&lt;p&gt;&lt;img src=&#34;https://ziv.github.io/airborne/i7.png&#34; alt=&#34;Future fr&#34;&gt;&lt;/p&gt;
+&lt;p&gt;In this post, we will continue building our world by adding colors and textures to our terrain. We will also explore how
+to use heightmaps to create a more compelling landscape.&lt;/p&gt;
+&lt;p&gt;First, I owe you a better render of the results from the previous post. I wasn&amp;rsquo;t entirely happy with the way the terrain
+looked in the video, so here it is again—this time as a high-quality image. The gray clouds you see are simply the raw
+heightmap applied as a texture directly onto the terrain:&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://ziv.github.io/airborne/hm-texture.png&#34; alt=&#34;Heightmap as texture&#34;&gt;&lt;/p&gt;
+&lt;p&gt;Since the original F-15 Strike Eagle II is always in the back of my mind, I wanted to keep the same aesthetic and color
+palette as the classic game. So, I tried to mimic the way elevation was colored back in the 80s.&lt;/p&gt;
+&lt;p&gt;The color scheme was pretty simple: blue for the sea, green/yellow for the land, and gray/brown for the mountains (
+mostly).&lt;/p&gt;
+&lt;p&gt;Here is an example of how it actually looked in the original game:&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://ziv.github.io/airborne/original-vga.png&#34; alt=&#34;Original game&#34;&gt;&lt;/p&gt;
+&lt;p&gt;(Side note: This image is mind-blowing to me. It uses VGA graphics, which means it had a palette of 256 colors. I grew
+up playing this on monochrome CGA graphics, so seeing it like this feels like a huge step up, even today!)&lt;/p&gt;
+&lt;h2 id=&#34;hypsometric-map&#34;&gt;Hypsometric Map&lt;/h2&gt;
+&lt;p&gt;As mentioned, my first attempt at coloring the terrain was to use different colors for different elevation tiers. This
+technique is called a hypsometric map, and it is a common way to represent elevation in cartography.&lt;/p&gt;
+&lt;p&gt;I replaced the code that blindly applies the heightmap texture with a new snippet that generates and applies different
+colors based on the height value of each pixel.&lt;/p&gt;
+&lt;p&gt;Let&amp;rsquo;s take a look at the code that does this, step-by-step.&lt;/p&gt;
+&lt;h3 id=&#34;1-colors&#34;&gt;1. Colors&lt;/h3&gt;
+&lt;p&gt;First, let&amp;rsquo;s define our basic color palette:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-c++&#34; data-lang=&#34;c++&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;Color colorBlue &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; {&lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;102&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;204&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;255&lt;/span&gt;};
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;Color colorGreen &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; {&lt;span style=&#34;color:#ae81ff&#34;&gt;25&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;178&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;51&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;255&lt;/span&gt;};
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;Color colorYellow &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; {&lt;span style=&#34;color:#ae81ff&#34;&gt;255&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;229&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;102&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;255&lt;/span&gt;};
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;Color colorBrown &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; {&lt;span style=&#34;color:#ae81ff&#34;&gt;153&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;102&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;51&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;255&lt;/span&gt;};
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h3 id=&#34;2-generating-a-new-texture&#34;&gt;2. Generating a New Texture&lt;/h3&gt;
+&lt;p&gt;We will create a blank image in CPU memory with the exact same dimensions as our original heightmap:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-c++&#34; data-lang=&#34;c++&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;Image hypsometricImage &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; GenImageColor(image.width, image.height, BLANK);
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Next, we iterate through all the pixels of the original heightmap and &amp;ldquo;paint&amp;rdquo; our new image:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-c++&#34; data-lang=&#34;c++&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;// Extract the pixel array from the original heightmap
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;Color &lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt;pixels &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; LoadImageColors(image);
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;for&lt;/span&gt; (&lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt; y &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;; y &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&lt;/span&gt; image.height; y&lt;span style=&#34;color:#f92672&#34;&gt;++&lt;/span&gt;) {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;for&lt;/span&gt; (&lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt; x &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;; x &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&lt;/span&gt; image.width; x&lt;span style=&#34;color:#f92672&#34;&gt;++&lt;/span&gt;) {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#75715e&#34;&gt;// The image data is a 1D flat array, so we calculate the index
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt; index &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; y &lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt; image.width &lt;span style=&#34;color:#f92672&#34;&gt;+&lt;/span&gt; x;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#75715e&#34;&gt;// In a grayscale image, the R, G, and B channels are identical. 
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#75715e&#34;&gt;// We can just read the Red channel to get our height value (0-255).
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#66d9ef&#34;&gt;unsigned&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;char&lt;/span&gt; heightValue &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; pixels[index].r;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        Color pixelColor;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#75715e&#34;&gt;// Map the height value to a specific color band
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; (heightValue &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;10&lt;/span&gt;) pixelColor &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; colorBlue;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#66d9ef&#34;&gt;else&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;if&lt;/span&gt; (heightValue &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;50&lt;/span&gt;) pixelColor &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; colorGreen;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#66d9ef&#34;&gt;else&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;if&lt;/span&gt; (heightValue &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;100&lt;/span&gt;) pixelColor &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; colorYellow;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#66d9ef&#34;&gt;else&lt;/span&gt; pixelColor &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; colorBrown;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;     
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#75715e&#34;&gt;// Draw the mapped pixel onto our new image
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        ImageDrawPixel(&lt;span style=&#34;color:#f92672&#34;&gt;&amp;amp;&lt;/span&gt;hypsometricImage, x, y, pixelColor);
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    }
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;}
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h3 id=&#34;3-applying-the-texture&#34;&gt;3. Applying the Texture&lt;/h3&gt;
+&lt;p&gt;Now, we convert the image we just drew into a texture (sending it to the GPU) and apply it to our 3D model:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-c++&#34; data-lang=&#34;c++&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;Texture2D hypsometricTexture &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; LoadTextureFromImage(hypsometricImage);
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;model.materials[&lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;].maps[MATERIAL_MAP_DIFFUSE].texture &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; hypsometricTexture;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;// Don&amp;#39;t forget to clean up the CPU memory!
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;UnloadImageColors(pixels);
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;UnloadImage(hypsometricImage);
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;// UnloadImage(image); // Assuming you unload the original heightmap here too
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;And here is the result:&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://ziv.github.io/airborne/hyps-texture.png&#34; alt=&#34;Hypsometric map&#34;&gt;&lt;/p&gt;
+&lt;p&gt;OK! We have a beautifully colored terrain, and I actually really like the retro vibe of it. But, there is a fundamental
+problem with this approach.&lt;/p&gt;
+&lt;h3 id=&#34;4-the-problem&#34;&gt;4. The Problem&lt;/h3&gt;
+&lt;p&gt;Because we are using a heightmap that mathematically clamps the sea level at a specific grayscale value, every piece of
+land in the original dataset that happens to be below or exactly at sea level will be colored blue. Flat plains or
+valleys with the same elevation value as the ocean will be incorrectly treated as water.&lt;/p&gt;
+&lt;p&gt;Since I want to use real-world maps to construct my game world, I need to find a smarter, more robust way to
+differentiate between land and sea. I will talk about how to solve this exact issue in the next post.&lt;/p&gt;
+</content>
+    </item>
+    
+    <item>
       <title>The World is Flat Enough</title>
       <link>https://ziv.github.io/airborne/posts/007-the-world/</link>
       <pubDate>Fri, 27 Mar 2026 00:00:00 +0000</pubDate>
