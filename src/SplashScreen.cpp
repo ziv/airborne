@@ -6,8 +6,9 @@
 #include "raylib.h"
 
 SplashScreen::SplashScreen(AppConfig &inputConfig) : GameScreen(inputConfig),
-                                                     music(LoadMusicStream(config.get<std::string_view>("/splash/musicPath").data())),
-                                                     tex(LoadTexture(config.get<std::string_view>("/splash/bgPath").data())) {
+                                                     conf(config.get<SplashScreenConfig>("/splash")),
+                                                     music(LoadMusicStream(conf.musicPath.c_str())),
+                                                     tex(LoadTexture(conf.bgPath.c_str())) {
     PlayMusicStream(music);
 }
 

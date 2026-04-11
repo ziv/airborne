@@ -16,8 +16,8 @@
 #include "views/DebugView.h"
 
 class GameplayScreen : public GameScreen {
-    GameData game;       ///< Core simulation (physics, controls, entities).
-    SceneManager scene;  ///< Terrain rendering, fog shader, engine audio.
+    GameData game; ///< Core simulation (physics, controls, entities).
+    SceneManager scene; ///< Terrain rendering, fog shader, engine audio.
 
     // views
     CockpitView cockpitView;
@@ -34,5 +34,6 @@ public:
     GameplayScreen(AppConfig &config, const Scenario &scenario);
 
     ScreenState update() override;
+
     void run() override;
 };

@@ -10,8 +10,15 @@
 #include "../primitives/AppConfig.h"
 #include "raylib.h"
 
+struct AircraftCameraConfig {
+    float tilt = 0.45f; ///< Downward pitch offset (radians) applied to the pilot's view.
+    float fov = 85.0f;
+};
+
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(AircraftCameraConfig, tilt, fov);
+
 class AircraftCamera {
-    float pilotTilt;     ///< Downward pitch offset (radians) applied to the pilot's view.
+    AircraftCameraConfig conf;
     Camera camera = {0}; ///< Raylib camera updated each frame.
 
 public:

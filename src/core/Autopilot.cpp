@@ -9,15 +9,13 @@ Autopilot::Autopilot(const AppConfig &config, const Scenario &scenario) : maxBan
                                                                           maxPullRatio(config.get<float>("/autoPilot/pullRatio")),
                                                                           speedRatio(config.get<float>("/autoPilot/speedRatio")) {
     // todo currently take all items and put them without any order or filter
-    // for (const auto &def: scenario.entityDefinitions) {
-    //     const auto pos = def.position + (Vector3){0.0f, 2000.0f, 0.0f};
-    //     addWaypoint(pos, 400.0f, 200.0f);
-    //     TraceLog(LOG_INFO, "[Autopilot] target %f,%f,%f", pos.x, pos.y, pos.z);
-    // }
-    addWaypoint("kineret", (Vector3){87000.0f, 3000.0f, 86000.0f}, 400.0f, 200.0f);
-    addWaypoint("yesod", (Vector3){89000.0f, 4000.0f, 50000.0f}, 400.0f, 200.0f);
-    addWaypoint("bint gbel", (Vector3){73000.0f, 5000.0f, 42000.0f}, 400.0f, 200.0f);
-    addWaypoint("tyre", (Vector3){52000.0f, 2000.0f, 26000.0f}, 400.0f, 200.0f);
+    for (const auto &def: scenario.entityDefinitions) {
+        auto pos = def.position;
+        // for ground target, add some height...
+        // todo what about ground target not at sea level?!
+        if (def.position.y < 1000.0f) pos.y += 1000.0;
+        addWaypoint(def.id, pos, 400.0f, 200.0f);
+    }
 }
 
 void Autopilot::addWaypoint(const std::string &name, const Vector3 &position, const float targetSpeed, const float arrivalRadius) {

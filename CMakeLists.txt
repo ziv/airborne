@@ -81,5 +81,7 @@ add_executable(${PROJECT_NAME} src/main.cpp
         src/views/cockpit/OffView.h
         src/views/cockpit/EngineView.cpp
         src/views/cockpit/EngineView.h
+        src/primitives/Session.cpp
+        src/primitives/Session.h
 )
 target_link_libraries(${PROJECT_NAME} PRIVATE raylib)
