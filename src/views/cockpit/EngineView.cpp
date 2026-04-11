@@ -14,13 +14,13 @@ void EngineView::drawEngine(const AircraftState &state, const Vector2 &center) c
     constexpr float innerRadius = radius - thickness;
     constexpr float outerRadius = radius;
 
-    // חלוקת הזוויות (חצי עיגול עליון: 180 עד 360)
+    // angle range (upper semicircle: 180 to 360)
     constexpr float startAngle = 180.0f;
     constexpr float endGreen = 300.0f;
     constexpr float endOrange = 330.0f;
     constexpr float endRed = 360.0f;
 
-    // 1. ציור הרקע (שקוף)
+    // 1. draw background (transparent)
     DrawRing(center, innerRadius, outerRadius, startAngle, endGreen, segments, Fade(GREEN, 0.2f));
     DrawRing(center, innerRadius, outerRadius, endGreen, endOrange, segments, Fade(ORANGE, 0.2f));
     DrawRing(center, innerRadius, outerRadius, endOrange, endRed, segments, Fade(RED, 0.2f));
@@ -48,7 +48,7 @@ void EngineView::drawEngine(const AircraftState &state, const Vector2 &center) c
     //     center.y + std::sin(needleAngleRad) * innerRadius
     // };
     // const Vector2 needleEnd = {
-    //     center.x + std::cos(needleAngleRad) * (outerRadius + 5.0f), // בולט קצת החוצה
+    //     center.x + std::cos(needleAngleRad) * (outerRadius + 5.0f), // sticks out slightly
     //     center.y + std::sin(needleAngleRad) * (outerRadius + 5.0f)
     // };
 

@@ -79,7 +79,7 @@ void BriefingScreen::run() {
                         scenario.start.altitude, scenario.start.fuel, scenario.start.heading),
              margin, y, 18, LIGHTGRAY);
     y += 25;
-    DrawText(TextFormat("Carrier launch: %s", scenario.start.onCarrier ? "YES" : "NO"),
+    DrawText(TextFormat("Carrier launch: %s", scenario.start.carrier ? "YES" : "NO"),
              margin, y, 18, LIGHTGRAY);
     y += 50;
 

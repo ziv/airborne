@@ -15,9 +15,11 @@
 struct WeaponLoadout {
     int slots = 0;                              ///< Number of weapon hardpoints.
     std::vector<std::string> available;         ///< Pool of selectable weapon types.
-    std::vector<std::string> defaultLoadout;    ///< Factory-default weapon assignment.
-    std::vector<std::string> selectedLoadout;   ///< Player's current selection.
+    std::vector<std::string> defaults;    ///< Factory-default weapon assignment.
+    // std::vector<std::string> selectedLoadout;   ///< Player's current selection.
 };
+
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(WeaponLoadout, slots, available);
 
 /// @brief Initial aircraft position, heading, speed, altitude, fuel, and launch mode.
 struct StartConditions {
@@ -26,8 +28,10 @@ struct StartConditions {
     MeterPerSecond speed = 0;
     Meter altitude = 100;
     float fuel = 3500;       ///< Starting fuel in kilograms.
-    bool onCarrier = false;  ///< True for a carrier catapult launch.
+    bool carrier = false;  ///< True for a carrier catapult launch.
 };
+
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(StartConditions, position, heading, speed, altitude, fuel, carrier);
 
 /// @brief Point values and bonus flags for the post-mission debrief.
 struct ScenarioScoring {
@@ -40,6 +44,8 @@ struct ScenarioScoring {
     bool fuelBonus = true;
     int noDamageBonus = 500;
 };
+
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(ScenarioScoring, objectiveComplete, bonusObjective, enemyAircraftKill, samDestroyed, aaaDestroyed, timeBonus, fuelBonus, noDamageBonus);
 
 /// @brief Complete mission definition loaded from a JSONC scenario file.
 struct Scenario {
@@ -57,3 +63,5 @@ struct Scenario {
     std::vector<Trigger> triggers;                ///< Event-driven scripting triggers.
     ScenarioScoring scoring;
 };
+
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Scenario, id, name, description, difficulty, theater, start, loadout, objectives, entityDefinitions, triggers, scoring);

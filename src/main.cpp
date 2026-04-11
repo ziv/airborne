@@ -92,12 +92,12 @@ int main() {
         // BeginDrawing();
         // float scale = fmin((static_cast<float>((GetScreenWidth()) / width, (float) GetScreenHeight() / height);
         // DrawTexturePro(target.texture,
-        //                {0.0f, 0.0f, (float) target.texture.width, (float) -target.texture.height}, // המקור (ה-y הפוך כי OpenGL הופך טקסטורות)
+        //                {0.0f, 0.0f, (float) target.texture.width, (float) -target.texture.height}, // source (y is flipped because OpenGL flips textures)
         //                {
         //                    (GetScreenWidth() - ((float) width * scale)) * 0.5f, (GetScreenHeight() - ((float) height * scale)) * 0.5f,
-        //                    // המיקום הממורכז
+        //                    // centered position
         //                    (float) width * scale, (float) height * scale
-        //                }, // הגודל המתוח
+        //                }, // stretched size
         //                {0, 0}, 0.0f, WHITE
         // );
         // EndDrawing();

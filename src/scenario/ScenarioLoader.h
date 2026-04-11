@@ -7,7 +7,7 @@
  */
 #pragma once
 #include "Scenario.h"
-#include "../lib/json.hpp"
+#include "../lib/json.h"
 #include <string>
 #include <vector>
 

@@ -8,17 +8,17 @@
 
 using json = nlohmann::json;
 
-Vector3 ScenarioLoader::parseVector3(const json& j) {
+Vector3 ScenarioLoader::parseVector3(const json &j) {
     return {j[0].get<float>(), j[1].get<float>(), j[2].get<float>()};
 }
 
-Faction ScenarioLoader::parseFaction(const std::string& s) {
+Faction ScenarioLoader::parseFaction(const std::string &s) {
     if (s == "friendly") return Faction::FRIENDLY;
     if (s == "neutral") return Faction::NEUTRAL;
     return Faction::ENEMY;
 }
 
-EntityType ScenarioLoader::parseEntityType(const std::string& s) {
+EntityType ScenarioLoader::parseEntityType(const std::string &s) {
     if (s == "aircraft") return EntityType::AIRCRAFT;
     if (s == "sam") return EntityType::SAM;
     if (s == "aaa") return EntityType::AAA;
@@ -29,7 +29,7 @@ EntityType ScenarioLoader::parseEntityType(const std::string& s) {
     return EntityType::STRUCTURE;
 }
 
-ObjectiveType ScenarioLoader::parseObjectiveType(const std::string& s) {
+ObjectiveType ScenarioLoader::parseObjectiveType(const std::string &s) {
     if (s == "destroy") return ObjectiveType::DESTROY;
     if (s == "photograph") return ObjectiveType::PHOTOGRAPH;
     if (s == "navigate") return ObjectiveType::NAVIGATE;
@@ -40,31 +40,31 @@ ObjectiveType ScenarioLoader::parseObjectiveType(const std::string& s) {
     return ObjectiveType::DESTROY;
 }
 
-StartConditions ScenarioLoader::parseStart(const json& j) {
+StartConditions ScenarioLoader::parseStart(const json &j) {
     StartConditions sc;
     if (j.contains("position")) sc.position = parseVector3(j["position"]);
     if (j.contains("heading")) sc.heading = j["heading"].get<float>();
     if (j.contains("speed")) sc.speed = j["speed"].get<float>();
     if (j.contains("altitude")) sc.altitude = j["altitude"].get<float>();
     if (j.contains("fuel")) sc.fuel = j["fuel"].get<float>();
-    if (j.contains("carrier")) sc.onCarrier = j["carrier"].get<bool>();
+    if (j.contains("carrier")) sc.carrier = j["carrier"].get<bool>();
     return sc;
 }
 
-WeaponLoadout ScenarioLoader::parseLoadout(const json& j) {
+WeaponLoadout ScenarioLoader::parseLoadout(const json &j) {
     WeaponLoadout wl;
     if (j.contains("slots")) wl.slots = j["slots"].get<int>();
     if (j.contains("available")) {
-        for (const auto& w : j["available"]) wl.available.push_back(w.get<std::string>());
+        for (const auto &w: j["available"]) wl.available.push_back(w.get<std::string>());
     }
-    if (j.contains("default")) {
-        for (const auto& w : j["default"]) wl.defaultLoadout.push_back(w.get<std::string>());
-    }
-    wl.selectedLoadout = wl.defaultLoadout;
+    // if (j.contains("default")) {
+    //     for (const auto &w: j["default"]) wl.defaultLoadout.push_back(w.get<std::string>());
+    // }
+    // wl.selectedLoadout = wl.defaultLoadout;
     return wl;
 }
 
-ScenarioScoring ScenarioLoader::parseScoring(const json& j) {
+ScenarioScoring ScenarioLoader::parseScoring(const json &j) {
     ScenarioScoring ss;
     if (j.contains("objectiveComplete")) ss.objectiveComplete = j["objectiveComplete"].get<int>();
     if (j.contains("bonusObjective")) ss.bonusObjective = j["bonusObjective"].get<int>();
@@ -77,7 +77,7 @@ ScenarioScoring ScenarioLoader::parseScoring(const json& j) {
     return ss;
 }
 
-Objective ScenarioLoader::parseObjective(const json& j) {
+Objective ScenarioLoader::parseObjective(const json &j) {
     Objective obj;
     obj.id = j["id"].get<std::string>();
     obj.type = parseObjectiveType(j["type"].get<std::string>());
@@ -87,7 +87,7 @@ Objective ScenarioLoader::parseObjective(const json& j) {
     if (j.contains("order")) obj.displayOrder = j["order"].get<int>();
 
     if (j.contains("params")) {
-        const auto& p = j["params"];
+        const auto &p = j["params"];
         if (p.contains("minAltitude")) obj.params.minAltitude = p["minAltitude"].get<float>();
         if (p.contains("maxAltitude")) obj.params.maxAltitude = p["maxAltitude"].get<float>();
         if (p.contains("maxDistance")) obj.params.maxDistance = p["maxDistance"].get<float>();
@@ -98,7 +98,7 @@ Objective ScenarioLoader::parseObjective(const json& j) {
     return obj;
 }
 
-EntityBase ScenarioLoader::parseEntity(const json& j) {
+EntityBase ScenarioLoader::parseEntity(const json &j) {
     EntityBase e;
     e.id = j["id"].get<std::string>();
     e.type = parseEntityType(j["type"].get<std::string>());
@@ -114,14 +114,14 @@ EntityBase ScenarioLoader::parseEntity(const json& j) {
     return e;
 }
 
-Trigger ScenarioLoader::parseTrigger(const json& j) {
+Trigger ScenarioLoader::parseTrigger(const json &j) {
     Trigger t;
     t.id = j["id"].get<std::string>();
     if (j.contains("once")) t.once = j["once"].get<bool>();
 
     // parse condition
     t.condition.type = [&]() -> TriggerType {
-        const auto& type = j["type"].get<std::string>();
+        const auto &type = j["type"].get<std::string>();
         if (type == "zone_enter") return TriggerType::ZONE_ENTER;
         if (type == "zone_exit") return TriggerType::ZONE_EXIT;
         if (type == "entity_destroyed") return TriggerType::ENTITY_DESTROYED;
@@ -135,7 +135,7 @@ Trigger ScenarioLoader::parseTrigger(const json& j) {
     }();
 
     if (j.contains("params")) {
-        const auto& p = j["params"];
+        const auto &p = j["params"];
         if (p.contains("entityId")) t.condition.entityId = p["entityId"].get<std::string>();
         if (p.contains("zone")) t.condition.zoneCenter = parseVector3(p["zone"]);
         if (p.contains("radius")) t.condition.radius = p["radius"].get<float>();
@@ -145,9 +145,9 @@ Trigger ScenarioLoader::parseTrigger(const json& j) {
 
     // parse action
     if (j.contains("action")) {
-        const auto& a = j["action"];
+        const auto &a = j["action"];
         t.action.type = [&]() -> TriggerActionType {
-            const auto& type = a["type"].get<std::string>();
+            const auto &type = a["type"].get<std::string>();
             if (type == "spawn_entity") return TriggerActionType::SPAWN_ENTITY;
             if (type == "destroy_entity") return TriggerActionType::DESTROY_ENTITY;
             if (type == "radio_message") return TriggerActionType::RADIO_MESSAGE;
@@ -164,7 +164,7 @@ Trigger ScenarioLoader::parseTrigger(const json& j) {
     return t;
 }
 
-Scenario ScenarioLoader::parseScenario(const json& data) {
+Scenario ScenarioLoader::parseScenario(const json &data) {
     Scenario s;
     s.id = data["id"].get<std::string>();
     s.name = data["name"].get<std::string>();
@@ -177,19 +177,19 @@ Scenario ScenarioLoader::parseScenario(const json& data) {
     if (data.contains("scoring")) s.scoring = parseScoring(data["scoring"]);
 
     if (data.contains("objectives")) {
-        for (const auto& obj : data["objectives"]) {
+        for (const auto &obj: data["objectives"]) {
             s.objectives.push_back(parseObjective(obj));
         }
     }
 
     if (data.contains("entities")) {
-        for (const auto& ent : data["entities"]) {
+        for (const auto &ent: data["entities"]) {
             s.entityDefinitions.push_back(parseEntity(ent));
         }
     }
 
     if (data.contains("triggers")) {
-        for (const auto& trg : data["triggers"]) {
+        for (const auto &trg: data["triggers"]) {
             s.triggers.push_back(parseTrigger(trg));
         }
     }
@@ -199,22 +199,22 @@ Scenario ScenarioLoader::parseScenario(const json& data) {
     return s;
 }
 
-Scenario ScenarioLoader::load(const std::string& path) {
+Scenario ScenarioLoader::load(const std::string &path) {
     TraceLog(LOG_INFO, "Loading scenario: %s", path.c_str());
     const json data = UtilsLoaders::LoadJson(path);
-    return parseScenario(data);
+    return data.get<Scenario>();
 }
 
-std::vector<Scenario> ScenarioLoader::loadAll(const std::string& configPath) {
+std::vector<Scenario> ScenarioLoader::loadAll(const std::string &configPath) {
     TraceLog(LOG_INFO, "Loading all scenarios from: %s", configPath.c_str());
     const json data = UtilsLoaders::LoadJson(configPath);
 
     std::vector<Scenario> scenarios;
     if (data.contains("scenarios")) {
-        for (const auto& entry : data["scenarios"]) {
+        for (const auto &entry: data["scenarios"]) {
             try {
-                scenarios.push_back(parseScenario(entry));
-            } catch (const std::exception& e) {
+                scenarios.push_back(entry.get<Scenario>());
+            } catch (const std::exception &e) {
                 TraceLog(LOG_WARNING, "Failed to parse scenario: %s", e.what());
             }
         }
@@ -223,16 +223,16 @@ std::vector<Scenario> ScenarioLoader::loadAll(const std::string& configPath) {
     return scenarios;
 }
 
-std::vector<std::string> ScenarioLoader::listAvailable(const std::string& scenariosDir) {
+std::vector<std::string> ScenarioLoader::listAvailable(const std::string &scenariosDir) {
     std::vector<std::string> files;
     try {
-        for (const auto& entry : std::filesystem::directory_iterator(scenariosDir)) {
+        for (const auto &entry: std::filesystem::directory_iterator(scenariosDir)) {
             if (entry.path().extension() == ".jsonc") {
                 files.push_back(entry.path().string());
             }
         }
         std::sort(files.begin(), files.end());
-    } catch (const std::filesystem::filesystem_error& e) {
+    } catch (const std::filesystem::filesystem_error &e) {
         TraceLog(LOG_WARNING, "Could not list scenarios in %s: %s", scenariosDir.c_str(), e.what());
     }
     return files;

@@ -84,5 +84,6 @@ add_executable(${PROJECT_NAME} src/main.cpp
         src/primitives/Session.cpp
         src/primitives/Session.h
         src/lib/json.h
+        src/scenario/Payload.h
 )
 target_link_libraries(${PROJECT_NAME} PRIVATE raylib)

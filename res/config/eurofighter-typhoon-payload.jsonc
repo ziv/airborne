@@ -1,0 +1,40 @@
+{
+  "aircraft": "Eurofighter Typhoon",
+  "max_payload_lbs": 16500,
+  "internal_gun": {
+    "type": "Mauser_BK27",
+    "ammo": 150
+  },
+  "hardpoints": {
+    "wingtips": {
+      "left_tip": "iris_t", // Alts: "iris_t", "asraam", "aim9"
+      "right_tip": "iris_t" // Alts: "iris_t", "asraam", "aim9"
+    },
+    "outer_wing": {
+      "max_weight": 1000,
+      "station_2": "meteor", // Alts: "meteor", "aim120"
+      "station_12": "meteor" // Alts: "meteor", "aim120"
+    },
+    "mid_wing": {
+      "max_weight": 3000,
+      "station_3": "brimstone_x3", // Alts: "brimstone_x3", "paveway_iv", "storm_shadow"
+      "station_11": "brimstone_x3" // Alts: "brimstone_x3", "paveway_iv", "storm_shadow"
+    },
+    "inner_wing": {
+      "max_weight": 4500,
+      "station_4": "drop_tank_1000L", // Alts: "drop_tank_1000L", "taurus", "storm_shadow"
+      "station_10": "drop_tank_1000L" // Alts: "drop_tank_1000L", "taurus", "storm_shadow"
+    },
+    "fuselage_recessed": {
+      // 4 recesses flush with the fuselage, intended only for heavy air-to-air missiles
+      "front_left": "meteor",  // Alts: "meteor", "aim120"
+      "front_right": "meteor", // Alts: "meteor", "aim120"
+      "rear_left": "meteor",   // Alts: "meteor", "aim120"
+      "rear_right": "meteor"   // Alts: "meteor", "aim120"
+    },
+    "centerline": {
+      "max_weight": 2500,
+      "station_7": "litening_pod" // Alts: "drop_tank_1000L", "litening_pod", "null"
+    }
+  }
+}

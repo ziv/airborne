@@ -27,7 +27,7 @@ inline Texture2D initClouds() {
     for (int i = 0; i < noiseImage.width * noiseImage.height; i++) {
         if (const unsigned char intensity = pixels[i].r; intensity < 120) {
             // clear sky
-            pixels[i] = {255, 255, 255, 0}; // לבן, אבל שקוף לחלוטין
+            pixels[i] = {255, 255, 255, 0}; // white, but fully transparent
         } else {
             // clouds
             const auto alpha = static_cast<unsigned char>((static_cast<float>(intensity) - 120) * 1.8f);
