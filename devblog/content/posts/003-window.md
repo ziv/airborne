@@ -2,9 +2,8 @@
 date = '2026-03-23T00:00:00+00:00'
 draft = false
 title = "Its Just a Window"
+cover = "i2.png"
 +++
-
-![Future fr](/i2.png)
 
 This post is diving directory into "raylib" usage. Feel free to skip it if you are not interested in the technical
 details of the implementation.

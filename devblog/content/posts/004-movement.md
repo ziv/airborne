@@ -2,9 +2,8 @@
 date = '2026-03-24T00:00:00+00:00'
 draft = false
 title = "Moving Around"
+cover = "i3.png"
 +++
-
-![Future fr](/i3.png)
 
 In the last post, I set up the window and the camera. Now it's time to add some movement to the plane.
 

@@ -2,9 +2,8 @@
 date = '2026-03-26T00:00:00+00:00'
 draft = false
 title = "Models And Cameras, Oh My!"
+cover = "i5.png"
 +++
-
-![Future fr](/i5.png)
 
 In the previous post, we explored how to move a 3D model using angles. However, a camera is not a model. It does not
 have a generic `transform` component, so we need to find another way to rotate it.

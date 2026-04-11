@@ -2,9 +2,8 @@
 date = '2026-03-21T00:00:00+00:00'
 draft = false
 title = 'Getting Started'
+cover = "i0.png"
 +++
-
-![F15 fr](/i0.png)
 
 Welcome to the development, or more precisely, the remake, of the classic 1989 F-15 II flight simulator by MicroProse.
 

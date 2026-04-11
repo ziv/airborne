@@ -6,8 +6,7 @@
   
   <meta http-equiv="content-type" content="text/html; charset=utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="
-In this post, I&rsquo;m taking a brief break from graphics to talk about under-the-hood architecture-specifically, how I handle resources in my game. By &ldquo;resources,&rdquo; I mean all the external assets the game relies on, such as textures, models, and sounds.
+<meta name="description" content="In this post, I&rsquo;m taking a brief break from graphics to talk about under-the-hood architecture-specifically, how I handle resources in my game. By &ldquo;resources,&rdquo; I mean all the external assets the game relies on, such as textures, models, and sounds.
 Raylib provides a straightforward way to load and manage resources, but because it&rsquo;s a C library, you have to manually unload every single resource when you are done with it. This can be tedious and highly error-prone, leading to memory leaks if you have a lot of assets to juggle.
 " />
 <meta name="keywords" content="" />
@@ -64,16 +63,15 @@ Raylib provides a straightforward way to load and manage resources, but because 
 <meta property="og:locale" content="en" />
 <meta property="og:type" content="article" />
 <meta property="og:title" content="Resource Micro Management">
-<meta property="og:description" content="
-In this post, I&rsquo;m taking a brief break from graphics to talk about under-the-hood architecture-specifically, how I handle resources in my game. By &ldquo;resources,&rdquo; I mean all the external assets the game relies on, such as textures, models, and sounds.
+<meta property="og:description" content="In this post, I&rsquo;m taking a brief break from graphics to talk about under-the-hood architecture-specifically, how I handle resources in my game. By &ldquo;resources,&rdquo; I mean all the external assets the game relies on, such as textures, models, and sounds.
 Raylib provides a straightforward way to load and manage resources, but because it&rsquo;s a C library, you have to manually unload every single resource when you are done with it. This can be tedious and highly error-prone, leading to memory leaks if you have a lot of assets to juggle.
 " />
 <meta property="og:url" content="https://ziv.github.io/airborne/posts/010-resource-handling/" />
 <meta property="og:site_name" content="Airborne" />
 
   
-    <meta property="og:image" content="https://ziv.github.io/airborne/img/favicon/pink.png">
   
+  <meta property="og:image" content="https://ziv.github.io/airborne/i9.png">
 
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="627">
@@ -209,14 +207,19 @@ Raylib provides a straightforward way to load and manage resources, but because 
 
   
   
+    
+    <img src="https://ziv.github.io/airborne/i9.png"
+      class="post-cover"
+      alt=" "
+      title="Cover Image" />
+  
 
 
 
   
 
   <div class="post-content"><div>
-        <p><img src="/airborne/i9.png" alt="Future fr"></p>
-<p>In this post, I&rsquo;m taking a brief break from graphics to talk about under-the-hood architecture-specifically, how I
+        <p>In this post, I&rsquo;m taking a brief break from graphics to talk about under-the-hood architecture-specifically, how I
 handle resources in my game. By &ldquo;resources,&rdquo; I mean all the external assets the game relies on, such as textures,
 models, and sounds.</p>
 <p>Raylib provides a straightforward way to load and manage resources, but because it&rsquo;s a C library, you have to manually

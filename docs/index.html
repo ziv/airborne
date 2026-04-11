@@ -219,13 +219,18 @@
         
 
         
+    
+    <img src="https://ziv.github.io/airborne/i9.png"
+      class="post-cover"
+      alt="Resource Micro Management"
+      title="Cover Image" />
+  
 
 
 
         <div class="post-content">
           
-            <p><img src="/airborne/i9.png" alt="Future fr"></p>
-<p>In this post, I&rsquo;m taking a brief break from graphics to talk about under-the-hood architecture-specifically, how I
+            <p>In this post, I&rsquo;m taking a brief break from graphics to talk about under-the-hood architecture-specifically, how I
 handle resources in my game. By &ldquo;resources,&rdquo; I mean all the external assets the game relies on, such as textures,
 models, and sounds.</p>
 <p>Raylib provides a straightforward way to load and manage resources, but because it&rsquo;s a C library, you have to manually
@@ -254,13 +259,18 @@ leaks if you have a lot of assets to juggle.</p>
         
 
         
+    
+    <img src="https://ziv.github.io/airborne/i8.png"
+      class="post-cover"
+      alt="Textures From The Sky"
+      title="Cover Image" />
+  
 
 
 
         <div class="post-content">
           
-            <p><img src="/airborne/i8.png" alt="Future fr"></p>
-<p>We left off the last post with a beautiful 3D terrain, but it had a bit of a flaw. We ran into a problem with coloring
+            <p>We left off the last post with a beautiful 3D terrain, but it had a bit of a flaw. We ran into a problem with coloring
 flat plains that happen to sit at or below sea level, they were incorrectly painted as water. In this post, we will
 solve that problem and apply the final texture to our terrain.</p>
 <p><img src="/airborne/hm-and-hyps.png" alt="heightmap and colormap"></p>
@@ -289,13 +299,18 @@ point, without any context of whether it was actually sea or land.</p>
         
 
         
+    
+    <img src="https://ziv.github.io/airborne/i7.png"
+      class="post-cover"
+      alt="Coloring Book"
+      title="Cover Image" />
+  
 
 
 
         <div class="post-content">
           
-            <p><img src="/airborne/i7.png" alt="Future fr"></p>
-<p>In this post, we will continue building our world by adding colors and textures to our terrain. We will also explore how
+            <p>In this post, we will continue building our world by adding colors and textures to our terrain. We will also explore how
 to use heightmaps to create a more compelling landscape.</p>
 <p>First, I owe you a better render of the results from the previous post. I wasn&rsquo;t entirely happy with the way the terrain
 looked in the video, so here it is again, this time as a high-quality image. The gray clouds you see are simply the raw
@@ -323,13 +338,18 @@ heightmap applied as a texture directly onto the terrain:</p>
         
 
         
+    
+    <img src="https://ziv.github.io/airborne/i6.png"
+      class="post-cover"
+      alt="The World is Flat Enough"
+      title="Cover Image" />
+  
 
 
 
         <div class="post-content">
           
-            <p><img src="/airborne/i6.png" alt="Future fr"></p>
-<p>Before we can move our camera in a 3D space, we need to define the world that we will be moving in.</p>
+            <p>Before we can move our camera in a 3D space, we need to define the world that we will be moving in.</p>
 <p>It took me a while to decide how I wanted to represent the world in my game. At first, I wanted to keep the low-poly aesthetic from the 80s, but I also wanted to retain the &ldquo;real world maps&rdquo; feel used in the original games.</p>
 <p>Eventually, I decided to go with a more &ldquo;realistic&rdquo; world and take advantage of the fact that we are no longer limited by 80s hardware. So, 3D semi-realistic it is.</p>
           
@@ -355,13 +375,18 @@ heightmap applied as a texture directly onto the terrain:</p>
         
 
         
+    
+    <img src="https://ziv.github.io/airborne/i5.png"
+      class="post-cover"
+      alt="Models And Cameras, Oh My!"
+      title="Cover Image" />
+  
 
 
 
         <div class="post-content">
           
-            <p><img src="/airborne/i5.png" alt="Future fr"></p>
-<p>In the previous post, we explored how to move a 3D model using angles. However, a camera is not a model. It does not
+            <p>In the previous post, we explored how to move a 3D model using angles. However, a camera is not a model. It does not
 have a generic <code>transform</code> component, so we need to find another way to rotate it.</p>
 <p>&ldquo;raylib&rdquo; defines a data structure called a &ldquo;<a href="https://en.wikipedia.org/wiki/Quaternion">Quaternion</a>&rdquo;. It is a
 mathematical construct used to represent rotations in 3D space safely, without suffering
@@ -390,13 +415,18 @@ Euler angles.</p>
         
 
         
+    
+    <img src="https://ziv.github.io/airborne/i4.png"
+      class="post-cover"
+      alt="Orientation Is Everything"
+      title="Cover Image" />
+  
 
 
 
         <div class="post-content">
           
-            <p><img src="/airborne/i4.png" alt="Future fr"></p>
-<p>Let&rsquo;s continue exploring model movement. In this example, we will take all three angles into account: roll, pitch, and yaw.</p>
+            <p>Let&rsquo;s continue exploring model movement. In this example, we will take all three angles into account: roll, pitch, and yaw.</p>
 <p>But before we start, let&rsquo;s go back to the basics. What we did in the last post was apply a <strong>transformation</strong> to the model.</p>
 <p>(This isn&rsquo;t going to be a linear algebra lesson; you can find more about linear transformations in 3D space in <a href="https://en.wikipedia.org/wiki/Linear_map">this article</a>.)</p>
 <p>As a reminder, if we want to apply multiple transformations, we can combine them into a single transformation. We do this by multiplying the transformation matrices together (applied sequentially as Yaw $\rightarrow$ Pitch $\rightarrow$ Roll):</p>
@@ -423,13 +453,18 @@ Euler angles.</p>
         
 
         
+    
+    <img src="https://ziv.github.io/airborne/i3.png"
+      class="post-cover"
+      alt="Moving Around"
+      title="Cover Image" />
+  
 
 
 
         <div class="post-content">
           
-            <p><img src="/airborne/i3.png" alt="Future fr"></p>
-<p>In the last post, I set up the window and the camera. Now it&rsquo;s time to add some movement to the plane.</p>
+            <p>In the last post, I set up the window and the camera. Now it&rsquo;s time to add some movement to the plane.</p>
 <p>First, let&rsquo;s remember an aircraft always move forward (if it&rsquo;s not falling) and it can change its direction by changing
 its orientation, what we know as &ldquo;pitch&rdquo;, &ldquo;yaw&rdquo;, and &ldquo;roll&rdquo;.</p>
 <p>But for demonstration purposes, I&rsquo;ll move an object in 3D instead of the camera.</p>
@@ -459,13 +494,18 @@ one is its color (if not textured).</p>
         
 
         
+    
+    <img src="https://ziv.github.io/airborne/i2.png"
+      class="post-cover"
+      alt="Its Just a Window"
+      title="Cover Image" />
+  
 
 
 
         <div class="post-content">
           
-            <p><img src="/airborne/i2.png" alt="Future fr"></p>
-<p>This post is diving directory into &ldquo;raylib&rdquo; usage. Feel free to skip it if you are not interested in the technical
+            <p>This post is diving directory into &ldquo;raylib&rdquo; usage. Feel free to skip it if you are not interested in the technical
 details of the implementation.</p>
 <p>Without further ado, let&rsquo;s start with the basics.</p>
 <p>Creating a window in a specific size and title is as simple as calling the <code>InitWindow</code> function with the desired width,
@@ -494,13 +534,18 @@ not, it begins drawing, clears the background, draws some text, and ends drawing
         
 
         
+    
+    <img src="https://ziv.github.io/airborne/i1.png"
+      class="post-cover"
+      alt="Tech Stack"
+      title="Cover Image" />
+  
 
 
 
         <div class="post-content">
           
-            <p><img src="/airborne/i1.png" alt="F16 fr"></p>
-<p>When I started this project, I didn&rsquo;t have a clear idea of the tech stack I would be using. I just knew I wanted to dive into low-level graphics programming and leverage my past experience with C++.</p>
+            <p>When I started this project, I didn&rsquo;t have a clear idea of the tech stack I would be using. I just knew I wanted to dive into low-level graphics programming and leverage my past experience with C++.</p>
 <p>During my research, I discovered <a href="https://github.com/raysan5/raylib">raylib</a>, a simple and easy-to-use graphics library. It simplifies the starting point tremendously and saves me from having to build a rendering engine from scratch.</p>
 <p>I explored options like Rust, Go, and Zig, but since raylib is written in C, I ultimately chose C++ to take advantage of its native C compatibility.</p>
           
@@ -526,13 +571,18 @@ not, it begins drawing, clears the background, draws some text, and ends drawing
         
 
         
+    
+    <img src="https://ziv.github.io/airborne/i0.png"
+      class="post-cover"
+      alt="Getting Started"
+      title="Cover Image" />
+  
 
 
 
         <div class="post-content">
           
-            <p><img src="/airborne/i0.png" alt="F15 fr"></p>
-<p>Welcome to the development, or more precisely, the remake, of the classic 1989 F-15 II flight simulator by MicroProse.</p>
+            <p>Welcome to the development, or more precisely, the remake, of the classic 1989 F-15 II flight simulator by MicroProse.</p>
 <p>The purpose of this blog is to document the project&rsquo;s journey, explain the decisions made along the way, and share the lessons I learn.</p>
 <p>I kicked off the project by selecting a technology stack and researching modern OpenGL workflows. For the core language, I chose to return to C++, a language I was once familiar with and am excited to dive back into.</p>
           
