@@ -587,11 +587,11 @@ function.&lt;/p&gt;
       
       <guid>https://ziv.github.io/airborne/posts/001-getting-started/</guid>
       <description>&lt;p&gt;&lt;img src=&#34;https://ziv.github.io/airborne/i0.png&#34; alt=&#34;F15 fr&#34;&gt;&lt;/p&gt;
-&lt;p&gt;Welcome to the development—or more precisely, the remake—of the classic 1989 F-15 II flight simulator by MicroProse.&lt;/p&gt;
+&lt;p&gt;Welcome to the development, or more precisely, the remake, of the classic 1989 F-15 II flight simulator by MicroProse.&lt;/p&gt;
 &lt;p&gt;The purpose of this blog is to document the project&amp;rsquo;s journey, explain the decisions made along the way, and share the lessons I learn.&lt;/p&gt;
 &lt;p&gt;I kicked off the project by selecting a technology stack and researching modern OpenGL workflows. For the core language, I chose to return to C++, a language I was once familiar with and am excited to dive back into.&lt;/p&gt;</description>
       <content>&lt;p&gt;&lt;img src=&#34;https://ziv.github.io/airborne/i0.png&#34; alt=&#34;F15 fr&#34;&gt;&lt;/p&gt;
-&lt;p&gt;Welcome to the development—or more precisely, the remake—of the classic 1989 F-15 II flight simulator by MicroProse.&lt;/p&gt;
+&lt;p&gt;Welcome to the development, or more precisely, the remake, of the classic 1989 F-15 II flight simulator by MicroProse.&lt;/p&gt;
 &lt;p&gt;The purpose of this blog is to document the project&amp;rsquo;s journey, explain the decisions made along the way, and share the lessons I learn.&lt;/p&gt;
 &lt;p&gt;I kicked off the project by selecting a technology stack and researching modern OpenGL workflows. For the core language, I chose to return to C++, a language I was once familiar with and am excited to dive back into.&lt;/p&gt;
 &lt;p&gt;I’m pairing it with the raylib library, which provides a solid foundation and saves me from reinventing the wheel.&lt;/p&gt;

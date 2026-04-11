@@ -6,7 +6,7 @@ title = 'Getting Started'
 
 ![F15 fr](/i0.png)
 
-Welcome to the development—or more precisely, the remake—of the classic 1989 F-15 II flight simulator by MicroProse.
+Welcome to the development, or more precisely, the remake, of the classic 1989 F-15 II flight simulator by MicroProse.
 
 The purpose of this blog is to document the project's journey, explain the decisions made along the way, and share the lessons I learn.
 
