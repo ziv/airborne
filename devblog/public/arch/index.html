@@ -1,0 +1,1554 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="/airborne/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=airborne/livereload" data-no-instant defer></script>
+  
+    <title> :: Airborne</title>
+  
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Scenario &amp; Mission System — Architecture Overview The scenario system brings structured gameplay to Airborne. A Scenario is a self-contained combat mission: the player receives a briefing with objectives, flies into hostile territory populated with threats and targets, completes (or fails) objectives, and receives a debrief with scoring. Scenarios are data-driven — defined entirely in JSON files following the existing AppConfig pattern — so new missions can be authored without code changes.
+" />
+<meta name="keywords" content="" />
+
+  <meta name="robots" content="noodp" />
+
+<link rel="canonical" href="http://localhost:1313/airborne/arch/" />
+
+
+      <script async src="https://www.googletagmanager.com/gtag/js?id=G-0GMMREP8RD"></script>
+      <script>
+        var doNotTrack = false;
+        if ( true ) {
+          var dnt = (navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack);
+          var doNotTrack = (dnt == "1" || dnt == "yes");
+        }
+        if (!doNotTrack) {
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+          gtag('config', 'G-0GMMREP8RD');
+        }
+      </script>
+
+
+
+
+
+  
+  
+  
+  
+  
+  <link rel="stylesheet" href="http://localhost:1313/airborne/styles.css">
+
+
+
+<link rel="stylesheet" href="http://localhost:1313/airborne/style.css">
+
+
+
+  <link rel="shortcut icon" href="http://localhost:1313/airborne/img/theme-colors/pink.png">
+  <link rel="apple-touch-icon" href="http://localhost:1313/airborne/img/theme-colors/pink.png">
+
+
+
+<meta name="twitter:card" content="summary" />
+
+  
+    <meta name="twitter:creator" content="" />
+
+
+
+<meta property="og:locale" content="en" />
+<meta property="og:type" content="article" />
+<meta property="og:title" content="">
+<meta property="og:description" content="Scenario &amp; Mission System — Architecture Overview The scenario system brings structured gameplay to Airborne. A Scenario is a self-contained combat mission: the player receives a briefing with objectives, flies into hostile territory populated with threats and targets, completes (or fails) objectives, and receives a debrief with scoring. Scenarios are data-driven — defined entirely in JSON files following the existing AppConfig pattern — so new missions can be authored without code changes.
+" />
+<meta property="og:url" content="http://localhost:1313/airborne/arch/" />
+<meta property="og:site_name" content="Airborne" />
+
+  
+    <meta property="og:image" content="http://localhost:1313/airborne/img/favicon/pink.png">
+  
+
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="627">
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script>
+    MathJax = {
+        tex: {
+            inlineMath: [['$', '$'], ['\\(', '\\)']],
+            displayMath: [['$$', '$$'], ['\\[', '\\]']],
+            processEscapes: true,
+            processEnvironments: true
+        },
+        options: {
+            skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+        }
+    };
+</script>
+<script src="https://polyfill.io"></script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+  
+
+
+</head>
+<body class="pink">
+
+
+
+
+<div class="container center headings--one-size">
+
+  <header class="header">
+  <div class="header__inner">
+    <div class="header__logo">
+      <a href="/airborne/">
+  <div class="logo">
+    AIRBORNE
+  </div>
+</a>
+
+    </div>
+    
+      <ul class="menu menu--mobile">
+  <li class="menu__trigger">Menu&nbsp;▾</li>
+  <li>
+    <ul class="menu__dropdown">
+      
+        
+          <li><a href="/airborne/about">About</a></li>
+        
+      
+        
+          <li><a href="https://github.com/ziv/airborne">Repository</a></li>
+        
+      
+      
+    </ul>
+  </li>
+</ul>
+
+    
+    
+  </div>
+  
+    <nav class="navigation-menu">
+  <ul class="navigation-menu__inner menu--desktop">
+    
+      
+        
+          <li><a href="/airborne/about" >About</a></li>
+        
+      
+        
+          <li><a href="https://github.com/ziv/airborne" >Repository</a></li>
+        
+      
+    
+  </ul>
+</nav>
+
+  
+</header>
+
+
+  <div class="content">
+    
+<article class="post">
+  <h1 class="post-title">
+    <a href="http://localhost:1313/airborne/arch/"></a>
+  </h1>
+  <div class="post-meta">
+    
+</div>
+
+  
+  
+
+
+
+  
+
+  <div class="post-content"><div>
+        <h1 id="scenario--mission-system--architecture">Scenario &amp; Mission System — Architecture<a href="#scenario--mission-system--architecture" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h1>
+<h2 id="overview">Overview<a href="#overview" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h2>
+<p>The scenario system brings structured gameplay to Airborne. A <strong>Scenario</strong> is a self-contained combat mission: the player receives a briefing with objectives, flies into hostile territory populated with threats and targets, completes (or fails) objectives, and receives a debrief with scoring. Scenarios are <strong>data-driven</strong> — defined entirely in JSON files following the existing <code>AppConfig</code> pattern — so new missions can be authored without code changes.</p>
+<hr>
+<h2 id="1-scenario-lifecycle">1. Scenario Lifecycle<a href="#1-scenario-lifecycle" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h2>
+<p>The mission flows through a state machine that extends the existing screen system:</p>
+<pre tabindex="0"><code>┌──────────┐    ┌───────────┐    ┌───────────────┐    ┌──────────┐
+│ BRIEFING │───▶│  GAMEPLAY  │───▶│   DEBRIEF     │───▶│MAIN_MENU │
+│  Screen  │    │  (active   │    │   Screen      │    │          │
+│          │    │   mission) │    │               │    │          │
+└──────────┘    └─────┬──────┘    └───────────────┘    └──────────┘
+                      │
+                      ▼
+               Mission failed /
+               Player ejected /
+               Aircraft destroyed
+                      │
+                      ▼
+               ┌──────────────┐
+               │   DEBRIEF    │
+               │  (failure)   │
+               └──────────────┘
+</code></pre><h3 id="new-screen-states">New Screen States<a href="#new-screen-states" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span><span style="color:#66d9ef">enum</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ScreenState</span> {
+</span></span><span style="display:flex;"><span>    SPLASH,
+</span></span><span style="display:flex;"><span>    MAIN_MENU,
+</span></span><span style="display:flex;"><span>    BRIEFING,      <span style="color:#75715e">// NEW — mission briefing &amp; loadout
+</span></span></span><span style="display:flex;"><span>    GAMEPLAY,      <span style="color:#75715e">// existing — now mission-aware
+</span></span></span><span style="display:flex;"><span>    DEBRIEF,       <span style="color:#75715e">// NEW — results &amp; scoring
+</span></span></span><span style="display:flex;"><span>    EXIT
+</span></span><span style="display:flex;"><span>};
+</span></span></code></pre></div><ul>
+<li><strong>BriefingScreen</strong> — displays mission objectives, map preview, threat overview, and weapon loadout selection. Player presses a key to launch.</li>
+<li><strong>GameplayScreen</strong> — existing screen, now receives a <code>Scenario</code> and creates a <code>MissionManager</code> that orchestrates the mission during gameplay.</li>
+<li><strong>DebriefScreen</strong> — shows completed/failed objectives, score breakdown, and flight stats (time, fuel used, weapons expended).</li>
+</ul>
+<hr>
+<h2 id="2-scenario-definition-json">2. Scenario Definition (JSON)<a href="#2-scenario-definition-json" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h2>
+<p>Scenarios live in <code>res/scenarios/</code> as <code>.jsonc</code> files. The format:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-jsonc" data-lang="jsonc"><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;id&#34;</span>: <span style="color:#e6db74">&#34;strike-bridges-01&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;name&#34;</span>: <span style="color:#e6db74">&#34;Bridge Busters&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;description&#34;</span>: <span style="color:#e6db74">&#34;Destroy two key bridges on the Euphrates to halt enemy supply lines.&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;difficulty&#34;</span>: <span style="color:#e6db74">&#34;medium&#34;</span>,          <span style="color:#75715e">// &#34;easy&#34; | &#34;medium&#34; | &#34;hard&#34; | &#34;ace&#34;
+</span></span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;theater&#34;</span>: <span style="color:#e6db74">&#34;north&#34;</span>,              <span style="color:#75715e">// references a map/terrain set
+</span></span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#75715e">// where the player starts
+</span></span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;start&#34;</span>: {
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;position&#34;</span>: [<span style="color:#ae81ff">2000</span>, <span style="color:#ae81ff">100</span>, <span style="color:#ae81ff">1500</span>],
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;heading&#34;</span>: <span style="color:#ae81ff">90</span>,                 <span style="color:#75715e">// degrees
+</span></span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;speed&#34;</span>: <span style="color:#ae81ff">0</span>,                    <span style="color:#75715e">// m/s (0 = start on carrier/runway)
+</span></span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;altitude&#34;</span>: <span style="color:#ae81ff">100</span>,               <span style="color:#75715e">// meters
+</span></span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;fuel&#34;</span>: <span style="color:#ae81ff">3500</span>,                  <span style="color:#75715e">// kg
+</span></span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;carrier&#34;</span>: <span style="color:#66d9ef">true</span>                <span style="color:#75715e">// start on aircraft carrier
+</span></span></span><span style="display:flex;"><span>  },
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#75715e">// available weapon loadout (player picks in briefing)
+</span></span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;loadout&#34;</span>: {
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;slots&#34;</span>: <span style="color:#ae81ff">6</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;available&#34;</span>: [<span style="color:#e6db74">&#34;aim9&#34;</span>, <span style="color:#e6db74">&#34;aim7&#34;</span>, <span style="color:#e6db74">&#34;mk82&#34;</span>, <span style="color:#e6db74">&#34;mk84&#34;</span>, <span style="color:#e6db74">&#34;agm65&#34;</span>, <span style="color:#e6db74">&#34;camera_pod&#34;</span>],
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;default&#34;</span>: [<span style="color:#e6db74">&#34;aim9&#34;</span>, <span style="color:#e6db74">&#34;aim9&#34;</span>, <span style="color:#e6db74">&#34;mk82&#34;</span>, <span style="color:#e6db74">&#34;mk82&#34;</span>, <span style="color:#e6db74">&#34;mk84&#34;</span>, <span style="color:#e6db74">&#34;mk84&#34;</span>]
+</span></span><span style="display:flex;"><span>  },
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#75715e">// mission objectives — ordered list, can be sequential or parallel
+</span></span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;objectives&#34;</span>: [
+</span></span><span style="display:flex;"><span>    {
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;id&#34;</span>: <span style="color:#e6db74">&#34;obj-bridge-north&#34;</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;type&#34;</span>: <span style="color:#e6db74">&#34;destroy&#34;</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;target&#34;</span>: <span style="color:#e6db74">&#34;bridge-north&#34;</span>,     <span style="color:#75715e">// references entity id
+</span></span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;label&#34;</span>: <span style="color:#e6db74">&#34;Destroy northern bridge&#34;</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;required&#34;</span>: <span style="color:#66d9ef">true</span>,             <span style="color:#75715e">// must complete to succeed
+</span></span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;order&#34;</span>: <span style="color:#ae81ff">1</span>                    <span style="color:#75715e">// display order
+</span></span></span><span style="display:flex;"><span>    },
+</span></span><span style="display:flex;"><span>    {
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;id&#34;</span>: <span style="color:#e6db74">&#34;obj-bridge-south&#34;</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;type&#34;</span>: <span style="color:#e6db74">&#34;destroy&#34;</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;target&#34;</span>: <span style="color:#e6db74">&#34;bridge-south&#34;</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;label&#34;</span>: <span style="color:#e6db74">&#34;Destroy southern bridge&#34;</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;required&#34;</span>: <span style="color:#66d9ef">true</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;order&#34;</span>: <span style="color:#ae81ff">2</span>
+</span></span><span style="display:flex;"><span>    },
+</span></span><span style="display:flex;"><span>    {
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;id&#34;</span>: <span style="color:#e6db74">&#34;obj-recon-depot&#34;</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;type&#34;</span>: <span style="color:#e6db74">&#34;photograph&#34;</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;target&#34;</span>: <span style="color:#e6db74">&#34;supply-depot&#34;</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;label&#34;</span>: <span style="color:#e6db74">&#34;Photograph enemy supply depot&#34;</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;required&#34;</span>: <span style="color:#66d9ef">false</span>,            <span style="color:#75715e">// bonus objective
+</span></span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;order&#34;</span>: <span style="color:#ae81ff">3</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;params&#34;</span>: {
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&#34;minAltitude&#34;</span>: <span style="color:#ae81ff">300</span>,         <span style="color:#75715e">// must be below this altitude
+</span></span></span><span style="display:flex;"><span>        <span style="color:#f92672">&#34;maxAltitude&#34;</span>: <span style="color:#ae81ff">2000</span>,        <span style="color:#75715e">// must be above this altitude
+</span></span></span><span style="display:flex;"><span>        <span style="color:#f92672">&#34;maxDistance&#34;</span>: <span style="color:#ae81ff">500</span>,          <span style="color:#75715e">// meters from target
+</span></span></span><span style="display:flex;"><span>        <span style="color:#f92672">&#34;requiredAngle&#34;</span>: <span style="color:#ae81ff">30</span>         <span style="color:#75715e">// degrees — must be looking at target
+</span></span></span><span style="display:flex;"><span>      }
+</span></span><span style="display:flex;"><span>    },
+</span></span><span style="display:flex;"><span>    {
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;id&#34;</span>: <span style="color:#e6db74">&#34;obj-rtb&#34;</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;type&#34;</span>: <span style="color:#e6db74">&#34;navigate&#34;</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;target&#34;</span>: <span style="color:#e6db74">&#34;home-base&#34;</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;label&#34;</span>: <span style="color:#e6db74">&#34;Return to base&#34;</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;required&#34;</span>: <span style="color:#66d9ef">true</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;order&#34;</span>: <span style="color:#ae81ff">99</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;params&#34;</span>: {
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&#34;arrivalRadius&#34;</span>: <span style="color:#ae81ff">2000</span>
+</span></span><span style="display:flex;"><span>      }
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>  ],
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#75715e">// all world entities for this scenario
+</span></span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;entities&#34;</span>: [
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// ── Targets ──
+</span></span></span><span style="display:flex;"><span>    {
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;id&#34;</span>: <span style="color:#e6db74">&#34;bridge-north&#34;</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;type&#34;</span>: <span style="color:#e6db74">&#34;structure&#34;</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;subtype&#34;</span>: <span style="color:#e6db74">&#34;bridge&#34;</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;position&#34;</span>: [<span style="color:#ae81ff">45000</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">32000</span>],
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;heading&#34;</span>: <span style="color:#ae81ff">0</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;health&#34;</span>: <span style="color:#ae81ff">100</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;model&#34;</span>: <span style="color:#e6db74">&#34;bridge_01&#34;</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;faction&#34;</span>: <span style="color:#e6db74">&#34;enemy&#34;</span>
+</span></span><span style="display:flex;"><span>    },
+</span></span><span style="display:flex;"><span>    {
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;id&#34;</span>: <span style="color:#e6db74">&#34;bridge-south&#34;</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;type&#34;</span>: <span style="color:#e6db74">&#34;structure&#34;</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;subtype&#34;</span>: <span style="color:#e6db74">&#34;bridge&#34;</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;position&#34;</span>: [<span style="color:#ae81ff">45000</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">28000</span>],
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;heading&#34;</span>: <span style="color:#ae81ff">0</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;health&#34;</span>: <span style="color:#ae81ff">100</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;model&#34;</span>: <span style="color:#e6db74">&#34;bridge_01&#34;</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;faction&#34;</span>: <span style="color:#e6db74">&#34;enemy&#34;</span>
+</span></span><span style="display:flex;"><span>    },
+</span></span><span style="display:flex;"><span>    {
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;id&#34;</span>: <span style="color:#e6db74">&#34;supply-depot&#34;</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;type&#34;</span>: <span style="color:#e6db74">&#34;structure&#34;</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;subtype&#34;</span>: <span style="color:#e6db74">&#34;depot&#34;</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;position&#34;</span>: [<span style="color:#ae81ff">47000</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">30000</span>],
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;heading&#34;</span>: <span style="color:#ae81ff">45</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;health&#34;</span>: <span style="color:#ae81ff">200</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;model&#34;</span>: <span style="color:#e6db74">&#34;depot_01&#34;</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;faction&#34;</span>: <span style="color:#e6db74">&#34;enemy&#34;</span>
+</span></span><span style="display:flex;"><span>    },
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// ── Air Defenses ──
+</span></span></span><span style="display:flex;"><span>    {
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;id&#34;</span>: <span style="color:#e6db74">&#34;sam-site-alpha&#34;</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;type&#34;</span>: <span style="color:#e6db74">&#34;sam&#34;</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;subtype&#34;</span>: <span style="color:#e6db74">&#34;sa6&#34;</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;position&#34;</span>: [<span style="color:#ae81ff">43000</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">31000</span>],
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;heading&#34;</span>: <span style="color:#ae81ff">0</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;health&#34;</span>: <span style="color:#ae81ff">80</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;faction&#34;</span>: <span style="color:#e6db74">&#34;enemy&#34;</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;params&#34;</span>: {
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&#34;detectionRange&#34;</span>: <span style="color:#ae81ff">25000</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&#34;engagementRange&#34;</span>: <span style="color:#ae81ff">18000</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&#34;minAltitude&#34;</span>: <span style="color:#ae81ff">50</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&#34;maxAltitude&#34;</span>: <span style="color:#ae81ff">12000</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&#34;missileSpeed&#34;</span>: <span style="color:#ae81ff">900</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&#34;reloadTime&#34;</span>: <span style="color:#ae81ff">8.0</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&#34;maxMissiles&#34;</span>: <span style="color:#ae81ff">4</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&#34;accuracy&#34;</span>: <span style="color:#ae81ff">0.7</span>
+</span></span><span style="display:flex;"><span>      }
+</span></span><span style="display:flex;"><span>    },
+</span></span><span style="display:flex;"><span>    {
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;id&#34;</span>: <span style="color:#e6db74">&#34;aaa-battery-01&#34;</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;type&#34;</span>: <span style="color:#e6db74">&#34;aaa&#34;</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;subtype&#34;</span>: <span style="color:#e6db74">&#34;zsu23&#34;</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;position&#34;</span>: [<span style="color:#ae81ff">44500</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">31500</span>],
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;heading&#34;</span>: <span style="color:#ae81ff">0</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;health&#34;</span>: <span style="color:#ae81ff">50</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;faction&#34;</span>: <span style="color:#e6db74">&#34;enemy&#34;</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;params&#34;</span>: {
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&#34;detectionRange&#34;</span>: <span style="color:#ae81ff">5000</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&#34;engagementRange&#34;</span>: <span style="color:#ae81ff">3000</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&#34;maxAltitude&#34;</span>: <span style="color:#ae81ff">3000</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&#34;fireRate&#34;</span>: <span style="color:#ae81ff">10.0</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&#34;accuracy&#34;</span>: <span style="color:#ae81ff">0.3</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&#34;burstDuration&#34;</span>: <span style="color:#ae81ff">2.0</span>
+</span></span><span style="display:flex;"><span>      }
+</span></span><span style="display:flex;"><span>    },
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// ── Enemy Aircraft ──
+</span></span></span><span style="display:flex;"><span>    {
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;id&#34;</span>: <span style="color:#e6db74">&#34;mig29-patrol-01&#34;</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;type&#34;</span>: <span style="color:#e6db74">&#34;aircraft&#34;</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;subtype&#34;</span>: <span style="color:#e6db74">&#34;mig29&#34;</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;position&#34;</span>: [<span style="color:#ae81ff">50000</span>, <span style="color:#ae81ff">5000</span>, <span style="color:#ae81ff">35000</span>],
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;heading&#34;</span>: <span style="color:#ae81ff">180</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;health&#34;</span>: <span style="color:#ae81ff">100</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;faction&#34;</span>: <span style="color:#e6db74">&#34;enemy&#34;</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;params&#34;</span>: {
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&#34;speed&#34;</span>: <span style="color:#ae81ff">250</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&#34;behavior&#34;</span>: <span style="color:#e6db74">&#34;patrol&#34;</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&#34;engageRange&#34;</span>: <span style="color:#ae81ff">30000</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&#34;disengageRange&#34;</span>: <span style="color:#ae81ff">50000</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&#34;weaponRange&#34;</span>: <span style="color:#ae81ff">15000</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&#34;waypoints&#34;</span>: [
+</span></span><span style="display:flex;"><span>          [<span style="color:#ae81ff">50000</span>, <span style="color:#ae81ff">5000</span>, <span style="color:#ae81ff">35000</span>],
+</span></span><span style="display:flex;"><span>          [<span style="color:#ae81ff">40000</span>, <span style="color:#ae81ff">5000</span>, <span style="color:#ae81ff">30000</span>],
+</span></span><span style="display:flex;"><span>          [<span style="color:#ae81ff">50000</span>, <span style="color:#ae81ff">5000</span>, <span style="color:#ae81ff">25000</span>]
+</span></span><span style="display:flex;"><span>        ],
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&#34;skill&#34;</span>: <span style="color:#e6db74">&#34;veteran&#34;</span>         <span style="color:#75715e">// &#34;rookie&#34; | &#34;regular&#34; | &#34;veteran&#34; | &#34;ace&#34;
+</span></span></span><span style="display:flex;"><span>      }
+</span></span><span style="display:flex;"><span>    },
+</span></span><span style="display:flex;"><span>    {
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;id&#34;</span>: <span style="color:#e6db74">&#34;mig21-cap-01&#34;</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;type&#34;</span>: <span style="color:#e6db74">&#34;aircraft&#34;</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;subtype&#34;</span>: <span style="color:#e6db74">&#34;mig21&#34;</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;position&#34;</span>: [<span style="color:#ae81ff">48000</span>, <span style="color:#ae81ff">4000</span>, <span style="color:#ae81ff">33000</span>],
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;heading&#34;</span>: <span style="color:#ae81ff">270</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;health&#34;</span>: <span style="color:#ae81ff">80</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;faction&#34;</span>: <span style="color:#e6db74">&#34;enemy&#34;</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;params&#34;</span>: {
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&#34;speed&#34;</span>: <span style="color:#ae81ff">200</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&#34;behavior&#34;</span>: <span style="color:#e6db74">&#34;cap&#34;</span>,         <span style="color:#75715e">// combat air patrol
+</span></span></span><span style="display:flex;"><span>        <span style="color:#f92672">&#34;engageRange&#34;</span>: <span style="color:#ae81ff">20000</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&#34;weaponRange&#34;</span>: <span style="color:#ae81ff">8000</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&#34;waypoints&#34;</span>: [
+</span></span><span style="display:flex;"><span>          [<span style="color:#ae81ff">48000</span>, <span style="color:#ae81ff">4000</span>, <span style="color:#ae81ff">33000</span>],
+</span></span><span style="display:flex;"><span>          [<span style="color:#ae81ff">44000</span>, <span style="color:#ae81ff">4000</span>, <span style="color:#ae81ff">29000</span>]
+</span></span><span style="display:flex;"><span>        ],
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&#34;skill&#34;</span>: <span style="color:#e6db74">&#34;regular&#34;</span>
+</span></span><span style="display:flex;"><span>      }
+</span></span><span style="display:flex;"><span>    },
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// ── Friendly / Neutral ──
+</span></span></span><span style="display:flex;"><span>    {
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;id&#34;</span>: <span style="color:#e6db74">&#34;home-base&#34;</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;type&#34;</span>: <span style="color:#e6db74">&#34;airbase&#34;</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;subtype&#34;</span>: <span style="color:#e6db74">&#34;carrier&#34;</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;position&#34;</span>: [<span style="color:#ae81ff">2000</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1500</span>],
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;heading&#34;</span>: <span style="color:#ae81ff">90</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;faction&#34;</span>: <span style="color:#e6db74">&#34;friendly&#34;</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;model&#34;</span>: <span style="color:#e6db74">&#34;carrier&#34;</span>
+</span></span><span style="display:flex;"><span>    },
+</span></span><span style="display:flex;"><span>    {
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;id&#34;</span>: <span style="color:#e6db74">&#34;awacs&#34;</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;type&#34;</span>: <span style="color:#e6db74">&#34;aircraft&#34;</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;subtype&#34;</span>: <span style="color:#e6db74">&#34;e3&#34;</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;position&#34;</span>: [<span style="color:#ae81ff">10000</span>, <span style="color:#ae81ff">8000</span>, <span style="color:#ae81ff">10000</span>],
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;heading&#34;</span>: <span style="color:#ae81ff">0</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;faction&#34;</span>: <span style="color:#e6db74">&#34;friendly&#34;</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;params&#34;</span>: {
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&#34;speed&#34;</span>: <span style="color:#ae81ff">150</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&#34;behavior&#34;</span>: <span style="color:#e6db74">&#34;orbit&#34;</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&#34;waypoints&#34;</span>: [
+</span></span><span style="display:flex;"><span>          [<span style="color:#ae81ff">10000</span>, <span style="color:#ae81ff">8000</span>, <span style="color:#ae81ff">10000</span>],
+</span></span><span style="display:flex;"><span>          [<span style="color:#ae81ff">15000</span>, <span style="color:#ae81ff">8000</span>, <span style="color:#ae81ff">15000</span>]
+</span></span><span style="display:flex;"><span>        ]
+</span></span><span style="display:flex;"><span>      }
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>  ],
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#75715e">// events triggered by conditions during gameplay
+</span></span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;triggers&#34;</span>: [
+</span></span><span style="display:flex;"><span>    {
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;id&#34;</span>: <span style="color:#e6db74">&#34;trg-scramble&#34;</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;type&#34;</span>: <span style="color:#e6db74">&#34;zone_enter&#34;</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;params&#34;</span>: {
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&#34;zone&#34;</span>: [<span style="color:#ae81ff">40000</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">25000</span>],   <span style="color:#75715e">// center
+</span></span></span><span style="display:flex;"><span>        <span style="color:#f92672">&#34;radius&#34;</span>: <span style="color:#ae81ff">15000</span>
+</span></span><span style="display:flex;"><span>      },
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;action&#34;</span>: {
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&#34;type&#34;</span>: <span style="color:#e6db74">&#34;spawn_entity&#34;</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&#34;entityId&#34;</span>: <span style="color:#e6db74">&#34;mig29-scramble-01&#34;</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&#34;entity&#34;</span>: {
+</span></span><span style="display:flex;"><span>          <span style="color:#f92672">&#34;type&#34;</span>: <span style="color:#e6db74">&#34;aircraft&#34;</span>,
+</span></span><span style="display:flex;"><span>          <span style="color:#f92672">&#34;subtype&#34;</span>: <span style="color:#e6db74">&#34;mig29&#34;</span>,
+</span></span><span style="display:flex;"><span>          <span style="color:#f92672">&#34;position&#34;</span>: [<span style="color:#ae81ff">55000</span>, <span style="color:#ae81ff">1000</span>, <span style="color:#ae81ff">35000</span>],
+</span></span><span style="display:flex;"><span>          <span style="color:#f92672">&#34;heading&#34;</span>: <span style="color:#ae81ff">240</span>,
+</span></span><span style="display:flex;"><span>          <span style="color:#f92672">&#34;health&#34;</span>: <span style="color:#ae81ff">100</span>,
+</span></span><span style="display:flex;"><span>          <span style="color:#f92672">&#34;faction&#34;</span>: <span style="color:#e6db74">&#34;enemy&#34;</span>,
+</span></span><span style="display:flex;"><span>          <span style="color:#f92672">&#34;params&#34;</span>: {
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">&#34;speed&#34;</span>: <span style="color:#ae81ff">300</span>,
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">&#34;behavior&#34;</span>: <span style="color:#e6db74">&#34;intercept&#34;</span>,
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">&#34;skill&#34;</span>: <span style="color:#e6db74">&#34;ace&#34;</span>
+</span></span><span style="display:flex;"><span>          }
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>      },
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;once&#34;</span>: <span style="color:#66d9ef">true</span>
+</span></span><span style="display:flex;"><span>    },
+</span></span><span style="display:flex;"><span>    {
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;id&#34;</span>: <span style="color:#e6db74">&#34;trg-mission-warning&#34;</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;type&#34;</span>: <span style="color:#e6db74">&#34;time_elapsed&#34;</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;params&#34;</span>: { <span style="color:#f92672">&#34;seconds&#34;</span>: <span style="color:#ae81ff">600</span> },
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;action&#34;</span>: {
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&#34;type&#34;</span>: <span style="color:#e6db74">&#34;radio_message&#34;</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&#34;message&#34;</span>: <span style="color:#e6db74">&#34;Viper 1, fuel advisory. RTB in 10 mikes.&#34;</span>
+</span></span><span style="display:flex;"><span>      },
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;once&#34;</span>: <span style="color:#66d9ef">true</span>
+</span></span><span style="display:flex;"><span>    },
+</span></span><span style="display:flex;"><span>    {
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;id&#34;</span>: <span style="color:#e6db74">&#34;trg-sam-alert&#34;</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;type&#34;</span>: <span style="color:#e6db74">&#34;entity_detects_player&#34;</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;params&#34;</span>: { <span style="color:#f92672">&#34;entityId&#34;</span>: <span style="color:#e6db74">&#34;sam-site-alpha&#34;</span> },
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;action&#34;</span>: {
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&#34;type&#34;</span>: <span style="color:#e6db74">&#34;radio_message&#34;</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&#34;message&#34;</span>: <span style="color:#e6db74">&#34;WARNING — SAM radar lock detected!&#34;</span>
+</span></span><span style="display:flex;"><span>      },
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;once&#34;</span>: <span style="color:#66d9ef">false</span>
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>  ],
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#75715e">// when is the mission over?
+</span></span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;completion&#34;</span>: {
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;success&#34;</span>: <span style="color:#e6db74">&#34;all_required_objectives&#34;</span>,   <span style="color:#75715e">// all required=true objectives done
+</span></span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;failure&#34;</span>: [
+</span></span><span style="display:flex;"><span>      <span style="color:#e6db74">&#34;player_destroyed&#34;</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#e6db74">&#34;player_ejected&#34;</span>,
+</span></span><span style="display:flex;"><span>      { <span style="color:#f92672">&#34;type&#34;</span>: <span style="color:#e6db74">&#34;time_exceeded&#34;</span>, <span style="color:#f92672">&#34;seconds&#34;</span>: <span style="color:#ae81ff">1800</span> }
+</span></span><span style="display:flex;"><span>    ]
+</span></span><span style="display:flex;"><span>  },
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#75715e">// scoring
+</span></span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;scoring&#34;</span>: {
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;objectiveComplete&#34;</span>: <span style="color:#ae81ff">1000</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;bonusObjective&#34;</span>: <span style="color:#ae81ff">500</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;enemyAircraftKill&#34;</span>: <span style="color:#ae81ff">250</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;samDestroyed&#34;</span>: <span style="color:#ae81ff">200</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;aaaDestroyed&#34;</span>: <span style="color:#ae81ff">100</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;timeBonus&#34;</span>: <span style="color:#66d9ef">true</span>,              <span style="color:#75715e">// bonus for finishing fast
+</span></span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;fuelBonus&#34;</span>: <span style="color:#66d9ef">true</span>,              <span style="color:#75715e">// bonus for fuel remaining
+</span></span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;noDamageBonus&#34;</span>: <span style="color:#ae81ff">500</span>
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><hr>
+<h2 id="3-entity-system">3. Entity System<a href="#3-entity-system" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h2>
+<h3 id="31-entity-type-hierarchy">3.1 Entity Type Hierarchy<a href="#31-entity-type-hierarchy" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h3>
+<p>All world objects (enemies, targets, friendlies) are <strong>entities</strong> managed by a central registry. They share a common interface but differ in behavior.</p>
+<pre tabindex="0"><code>src/entities/
+├── Entity.h              // base struct + EntityId, EntityState, Faction
+├── EntityRegistry.h      // central container: spawn, destroy, query by type/faction/range
+├── AirEntity.h/.cpp      // enemy/friendly aircraft — extends existing Aircraft class
+├── SamSite.h/.cpp        // surface-to-air missile battery
+├── AAABattery.h/.cpp     // anti-aircraft artillery
+├── GroundTarget.h/.cpp   // static structures: bridges, depots, radars, bunkers
+├── NavalEntity.h/.cpp    // ships: carriers, destroyers
+└── Airbase.h/.cpp        // friendly/enemy airfields — spawn points &amp; RTB targets
+</code></pre><h3 id="32-entity-base">3.2 Entity Base<a href="#32-entity-base" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span><span style="color:#75715e">// src/entities/Entity.h
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#pragma once
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&#34;raylib.h&#34;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&#34;../primitives/Types.h&#34;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;string&gt;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">using</span> EntityId <span style="color:#f92672">=</span> std<span style="color:#f92672">::</span>string;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">enum</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Faction</span> { FRIENDLY, ENEMY, NEUTRAL };
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">enum</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">EntityState</span> {
+</span></span><span style="display:flex;"><span>    INACTIVE,      <span style="color:#75715e">// not yet spawned / out of range
+</span></span></span><span style="display:flex;"><span>    ACTIVE,        <span style="color:#75715e">// alive and participating
+</span></span></span><span style="display:flex;"><span>    DAMAGED,       <span style="color:#75715e">// still functional but impaired
+</span></span></span><span style="display:flex;"><span>    DESTROYED,     <span style="color:#75715e">// dead — wreckage may remain
+</span></span></span><span style="display:flex;"><span>    DESPAWNED      <span style="color:#75715e">// removed from world entirely
+</span></span></span><span style="display:flex;"><span>};
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">enum</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">EntityType</span> {
+</span></span><span style="display:flex;"><span>    AIRCRAFT,
+</span></span><span style="display:flex;"><span>    SAM,
+</span></span><span style="display:flex;"><span>    AAA,
+</span></span><span style="display:flex;"><span>    STRUCTURE,     <span style="color:#75715e">// bridges, depots, radars, bunkers
+</span></span></span><span style="display:flex;"><span>    NAVAL,
+</span></span><span style="display:flex;"><span>    AIRBASE,
+</span></span><span style="display:flex;"><span>    WAYPOINT       <span style="color:#75715e">// navigation marker (invisible)
+</span></span></span><span style="display:flex;"><span>};
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">struct</span> <span style="color:#a6e22e">EntityBase</span> {
+</span></span><span style="display:flex;"><span>    EntityId id;
+</span></span><span style="display:flex;"><span>    EntityType type;
+</span></span><span style="display:flex;"><span>    std<span style="color:#f92672">::</span>string subtype;          <span style="color:#75715e">// &#34;mig29&#34;, &#34;sa6&#34;, &#34;bridge&#34;, etc.
+</span></span></span><span style="display:flex;"><span>    Faction faction <span style="color:#f92672">=</span> Faction<span style="color:#f92672">::</span>ENEMY;
+</span></span><span style="display:flex;"><span>    EntityState state <span style="color:#f92672">=</span> EntityState<span style="color:#f92672">::</span>ACTIVE;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    Vector3 position <span style="color:#f92672">=</span> {<span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">0</span>};
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">float</span> heading <span style="color:#f92672">=</span> <span style="color:#ae81ff">0.0f</span>;         <span style="color:#75715e">// degrees
+</span></span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">float</span> health <span style="color:#f92672">=</span> <span style="color:#ae81ff">100.0f</span>;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">float</span> maxHealth <span style="color:#f92672">=</span> <span style="color:#ae81ff">100.0f</span>;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// rendering
+</span></span></span><span style="display:flex;"><span>    std<span style="color:#f92672">::</span>string modelId;          <span style="color:#75715e">// key into a model cache
+</span></span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">[[nodiscard]]</span> <span style="color:#66d9ef">bool</span> isAlive() <span style="color:#66d9ef">const</span> {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> state <span style="color:#f92672">==</span> EntityState<span style="color:#f92672">::</span>ACTIVE <span style="color:#f92672">||</span> state <span style="color:#f92672">==</span> EntityState<span style="color:#f92672">::</span>DAMAGED;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">[[nodiscard]]</span> <span style="color:#66d9ef">bool</span> isEnemy() <span style="color:#66d9ef">const</span> { <span style="color:#66d9ef">return</span> faction <span style="color:#f92672">==</span> Faction<span style="color:#f92672">::</span>ENEMY; }
+</span></span><span style="display:flex;"><span>};
+</span></span></code></pre></div><h3 id="33-entity-registry">3.3 Entity Registry<a href="#33-entity-registry" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h3>
+<p>The registry owns all entities and provides fast queries. It is the single source of truth for &ldquo;what exists in the world.&rdquo;</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span><span style="color:#75715e">// src/entities/EntityRegistry.h
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#pragma once
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&#34;Entity.h&#34;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;vector&gt;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;unordered_map&gt;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;functional&gt;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">EntityRegistry</span> {
+</span></span><span style="display:flex;"><span>    std<span style="color:#f92672">::</span>unordered_map<span style="color:#f92672">&lt;</span>EntityId, size_t<span style="color:#f92672">&gt;</span> idIndex;  <span style="color:#75715e">// id → vector index
+</span></span></span><span style="display:flex;"><span>    std<span style="color:#f92672">::</span>vector<span style="color:#f92672">&lt;</span>std<span style="color:#f92672">::</span>unique_ptr<span style="color:#f92672">&lt;</span>EntityBase<span style="color:#f92672">&gt;&gt;</span> entities;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span><span style="color:#f92672">:</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// lifecycle
+</span></span></span><span style="display:flex;"><span>    EntityBase<span style="color:#f92672">*</span> spawn(std<span style="color:#f92672">::</span>unique_ptr<span style="color:#f92672">&lt;</span>EntityBase<span style="color:#f92672">&gt;</span> entity);
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">destroy</span>(<span style="color:#66d9ef">const</span> EntityId<span style="color:#f92672">&amp;</span> id);                      <span style="color:#75715e">// sets state to DESTROYED
+</span></span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">despawn</span>(<span style="color:#66d9ef">const</span> EntityId<span style="color:#f92672">&amp;</span> id);                      <span style="color:#75715e">// removes entirely
+</span></span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// queries
+</span></span></span><span style="display:flex;"><span>    EntityBase<span style="color:#f92672">*</span> <span style="color:#a6e22e">get</span>(<span style="color:#66d9ef">const</span> EntityId<span style="color:#f92672">&amp;</span> id);
+</span></span><span style="display:flex;"><span>    std<span style="color:#f92672">::</span>vector<span style="color:#f92672">&lt;</span>EntityBase<span style="color:#f92672">*&gt;</span> getByType(EntityType type);
+</span></span><span style="display:flex;"><span>    std<span style="color:#f92672">::</span>vector<span style="color:#f92672">&lt;</span>EntityBase<span style="color:#f92672">*&gt;</span> getByFaction(Faction faction);
+</span></span><span style="display:flex;"><span>    std<span style="color:#f92672">::</span>vector<span style="color:#f92672">&lt;</span>EntityBase<span style="color:#f92672">*&gt;</span> getInRadius(Vector3 center, <span style="color:#66d9ef">float</span> radius);
+</span></span><span style="display:flex;"><span>    std<span style="color:#f92672">::</span>vector<span style="color:#f92672">&lt;</span>EntityBase<span style="color:#f92672">*&gt;</span> getEnemiesInRadius(Vector3 center, <span style="color:#66d9ef">float</span> radius);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// iteration
+</span></span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">forEach</span>(std<span style="color:#f92672">::</span>function<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">void</span>(EntityBase<span style="color:#f92672">&amp;</span>)<span style="color:#f92672">&gt;</span> fn);
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">forEachAlive</span>(std<span style="color:#f92672">::</span>function<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">void</span>(EntityBase<span style="color:#f92672">&amp;</span>)<span style="color:#f92672">&gt;</span> fn);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// frame update — calls update on all active entities
+</span></span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">update</span>(<span style="color:#66d9ef">const</span> AircraftState<span style="color:#f92672">&amp;</span> playerState, <span style="color:#66d9ef">float</span> dt);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// draw all visible entities
+</span></span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">draw</span>(<span style="color:#66d9ef">const</span> AircraftState<span style="color:#f92672">&amp;</span> playerState);
+</span></span><span style="display:flex;"><span>};
+</span></span></code></pre></div><h3 id="34-air-entity-enemy--friendly-aircraft">3.4 Air Entity (Enemy / Friendly Aircraft)<a href="#34-air-entity-enemy--friendly-aircraft" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h3>
+<p>Evolves from the existing <code>Aircraft</code> class. Adds AI behavior modes, weapons, and threat response.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span><span style="color:#75715e">// src/entities/AirEntity.h
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#pragma once
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&#34;Entity.h&#34;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&#34;../views/Aircraft.h&#34;</span><span style="color:#75715e">   </span><span style="color:#75715e">// reuse waypoint/steer logic
+</span></span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">enum</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">AirBehavior</span> {
+</span></span><span style="display:flex;"><span>    PATROL,       <span style="color:#75715e">// fly waypoints, scan for player
+</span></span></span><span style="display:flex;"><span>    CAP,          <span style="color:#75715e">// combat air patrol — orbit and engage if player enters zone
+</span></span></span><span style="display:flex;"><span>    INTERCEPT,    <span style="color:#75715e">// beeline toward player
+</span></span></span><span style="display:flex;"><span>    ENGAGE,       <span style="color:#75715e">// dogfight — track and fire
+</span></span></span><span style="display:flex;"><span>    EVADE,        <span style="color:#75715e">// defensive maneuvers (chaff/flare, break turns)
+</span></span></span><span style="display:flex;"><span>    FLEE,         <span style="color:#75715e">// disengage and run
+</span></span></span><span style="display:flex;"><span>    ORBIT,        <span style="color:#75715e">// hold pattern (AWACS, tanker)
+</span></span></span><span style="display:flex;"><span>    RTB           <span style="color:#75715e">// return to base
+</span></span></span><span style="display:flex;"><span>};
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">enum</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">AirSkill</span> { ROOKIE, REGULAR, VETERAN, ACE };
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">struct</span> <span style="color:#a6e22e">AirEntity</span> <span style="color:#f92672">:</span> EntityBase {
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// navigation
+</span></span></span><span style="display:flex;"><span>    std<span style="color:#f92672">::</span>vector<span style="color:#f92672">&lt;</span>AircraftWaypoint<span style="color:#f92672">&gt;</span> waypoints;
+</span></span><span style="display:flex;"><span>    size_t currentWaypointIndex <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>;
+</span></span><span style="display:flex;"><span>    Vector3 forward <span style="color:#f92672">=</span> {<span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">0</span>};
+</span></span><span style="display:flex;"><span>    MeterPerSecond speed <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// AI
+</span></span></span><span style="display:flex;"><span>    AirBehavior behavior <span style="color:#f92672">=</span> AirBehavior<span style="color:#f92672">::</span>PATROL;
+</span></span><span style="display:flex;"><span>    AirBehavior initialBehavior <span style="color:#f92672">=</span> AirBehavior<span style="color:#f92672">::</span>PATROL;
+</span></span><span style="display:flex;"><span>    AirSkill skill <span style="color:#f92672">=</span> AirSkill<span style="color:#f92672">::</span>REGULAR;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// engagement parameters
+</span></span></span><span style="display:flex;"><span>    Meter engageRange <span style="color:#f92672">=</span> <span style="color:#ae81ff">30000</span>;     <span style="color:#75715e">// switch to ENGAGE when player this close
+</span></span></span><span style="display:flex;"><span>    Meter disengageRange <span style="color:#f92672">=</span> <span style="color:#ae81ff">50000</span>;  <span style="color:#75715e">// switch back to PATROL when player this far
+</span></span></span><span style="display:flex;"><span>    Meter weaponRange <span style="color:#f92672">=</span> <span style="color:#ae81ff">15000</span>;     <span style="color:#75715e">// can fire weapons
+</span></span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">float</span> lockOnTime <span style="color:#f92672">=</span> <span style="color:#ae81ff">2.0f</span>;      <span style="color:#75715e">// seconds to achieve lock
+</span></span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">float</span> currentLockTime <span style="color:#f92672">=</span> <span style="color:#ae81ff">0.0f</span>;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// steering limits (tuned by skill)
+</span></span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">float</span> maxTurnRate <span style="color:#f92672">=</span> <span style="color:#ae81ff">0.5f</span>;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">float</span> maxBankAngle <span style="color:#f92672">=</span> <span style="color:#ae81ff">60.0f</span>;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// weapons
+</span></span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">int</span> missiles <span style="color:#f92672">=</span> <span style="color:#ae81ff">4</span>;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">float</span> missileReloadTimer <span style="color:#f92672">=</span> <span style="color:#ae81ff">0.0f</span>;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">update</span>(<span style="color:#66d9ef">const</span> AircraftState<span style="color:#f92672">&amp;</span> playerState, <span style="color:#66d9ef">float</span> dt);
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">steer</span>(<span style="color:#66d9ef">float</span> dt);
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">evaluateThreat</span>(<span style="color:#66d9ef">const</span> AircraftState<span style="color:#f92672">&amp;</span> playerState);
+</span></span><span style="display:flex;"><span>};
+</span></span></code></pre></div><h3 id="35-sam-site">3.5 SAM Site<a href="#35-sam-site" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span><span style="color:#75715e">// src/entities/SamSite.h
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#pragma once
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&#34;Entity.h&#34;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">enum</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">SamState</span> {
+</span></span><span style="display:flex;"><span>    IDLE,          <span style="color:#75715e">// scanning
+</span></span></span><span style="display:flex;"><span>    TRACKING,      <span style="color:#75715e">// radar lock — player gets RWR warning
+</span></span></span><span style="display:flex;"><span>    FIRING,        <span style="color:#75715e">// missile in flight
+</span></span></span><span style="display:flex;"><span>    RELOADING,     <span style="color:#75715e">// between salvos
+</span></span></span><span style="display:flex;"><span>    DESTROYED
+</span></span><span style="display:flex;"><span>};
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">struct</span> <span style="color:#a6e22e">SamSite</span> <span style="color:#f92672">:</span> EntityBase {
+</span></span><span style="display:flex;"><span>    SamState samState <span style="color:#f92672">=</span> SamState<span style="color:#f92672">::</span>IDLE;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    Meter detectionRange <span style="color:#f92672">=</span> <span style="color:#ae81ff">25000</span>;
+</span></span><span style="display:flex;"><span>    Meter engagementRange <span style="color:#f92672">=</span> <span style="color:#ae81ff">18000</span>;
+</span></span><span style="display:flex;"><span>    Meter minAltitude <span style="color:#f92672">=</span> <span style="color:#ae81ff">50</span>;
+</span></span><span style="display:flex;"><span>    Meter maxAltitude <span style="color:#f92672">=</span> <span style="color:#ae81ff">12000</span>;
+</span></span><span style="display:flex;"><span>    MeterPerSecond missileSpeed <span style="color:#f92672">=</span> <span style="color:#ae81ff">900</span>;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">float</span> reloadTime <span style="color:#f92672">=</span> <span style="color:#ae81ff">8.0f</span>;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">float</span> reloadTimer <span style="color:#f92672">=</span> <span style="color:#ae81ff">0.0f</span>;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">int</span> maxMissiles <span style="color:#f92672">=</span> <span style="color:#ae81ff">4</span>;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">int</span> remainingMissiles <span style="color:#f92672">=</span> <span style="color:#ae81ff">4</span>;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">float</span> accuracy <span style="color:#f92672">=</span> <span style="color:#ae81ff">0.7f</span>;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">float</span> trackingTime <span style="color:#f92672">=</span> <span style="color:#ae81ff">0.0f</span>;       <span style="color:#75715e">// how long target has been tracked
+</span></span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">float</span> lockOnThreshold <span style="color:#f92672">=</span> <span style="color:#ae81ff">3.0f</span>;    <span style="color:#75715e">// seconds to achieve lock
+</span></span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">update</span>(<span style="color:#66d9ef">const</span> AircraftState<span style="color:#f92672">&amp;</span> playerState, <span style="color:#66d9ef">float</span> dt);
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">bool</span> <span style="color:#a6e22e">canEngage</span>(<span style="color:#66d9ef">const</span> AircraftState<span style="color:#f92672">&amp;</span> playerState) <span style="color:#66d9ef">const</span>;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">bool</span> <span style="color:#a6e22e">isPlayerInEnvelope</span>(<span style="color:#66d9ef">const</span> AircraftState<span style="color:#f92672">&amp;</span> playerState) <span style="color:#66d9ef">const</span>;
+</span></span><span style="display:flex;"><span>};
+</span></span></code></pre></div><h3 id="36-aaa-battery">3.6 AAA Battery<a href="#36-aaa-battery" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span><span style="color:#75715e">// src/entities/AAABattery.h
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#pragma once
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&#34;Entity.h&#34;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">struct</span> <span style="color:#a6e22e">AAABattery</span> <span style="color:#f92672">:</span> EntityBase {
+</span></span><span style="display:flex;"><span>    Meter detectionRange <span style="color:#f92672">=</span> <span style="color:#ae81ff">5000</span>;
+</span></span><span style="display:flex;"><span>    Meter engagementRange <span style="color:#f92672">=</span> <span style="color:#ae81ff">3000</span>;
+</span></span><span style="display:flex;"><span>    Meter maxAltitude <span style="color:#f92672">=</span> <span style="color:#ae81ff">3000</span>;          <span style="color:#75715e">// effective ceiling
+</span></span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">float</span> fireRate <span style="color:#f92672">=</span> <span style="color:#ae81ff">10.0f</span>;            <span style="color:#75715e">// rounds per second
+</span></span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">float</span> accuracy <span style="color:#f92672">=</span> <span style="color:#ae81ff">0.3f</span>;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">float</span> burstDuration <span style="color:#f92672">=</span> <span style="color:#ae81ff">2.0f</span>;        <span style="color:#75715e">// seconds per burst
+</span></span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">float</span> burstCooldown <span style="color:#f92672">=</span> <span style="color:#ae81ff">1.5f</span>;        <span style="color:#75715e">// seconds between bursts
+</span></span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">float</span> burstTimer <span style="color:#f92672">=</span> <span style="color:#ae81ff">0.0f</span>;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">bool</span> firing <span style="color:#f92672">=</span> false;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">update</span>(<span style="color:#66d9ef">const</span> AircraftState<span style="color:#f92672">&amp;</span> playerState, <span style="color:#66d9ef">float</span> dt);
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">bool</span> <span style="color:#a6e22e">isPlayerInRange</span>(<span style="color:#66d9ef">const</span> AircraftState<span style="color:#f92672">&amp;</span> playerState) <span style="color:#66d9ef">const</span>;
+</span></span><span style="display:flex;"><span>};
+</span></span></code></pre></div><h3 id="37-ground-target-structures">3.7 Ground Target (Structures)<a href="#37-ground-target-structures" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span><span style="color:#75715e">// src/entities/GroundTarget.h
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#pragma once
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&#34;Entity.h&#34;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// Structures are static — no AI, just health + position + model.
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">// Subtypes: &#34;bridge&#34;, &#34;depot&#34;, &#34;radar&#34;, &#34;bunker&#34;, &#34;fuel_tank&#34;, &#34;runway&#34;
+</span></span></span><span style="display:flex;"><span><span style="color:#66d9ef">struct</span> <span style="color:#a6e22e">GroundTarget</span> <span style="color:#f92672">:</span> EntityBase {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">bool</span> strategicTarget <span style="color:#f92672">=</span> true;  <span style="color:#75715e">// shows on map/HUD when true
+</span></span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">takeDamage</span>(<span style="color:#66d9ef">float</span> amount);
+</span></span><span style="display:flex;"><span>};
+</span></span></code></pre></div><hr>
+<h2 id="4-objective-system">4. Objective System<a href="#4-objective-system" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h2>
+<h3 id="41-objective-types">4.1 Objective Types<a href="#41-objective-types" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span><span style="color:#75715e">// src/scenario/Objective.h
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#pragma once
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&#34;../entities/Entity.h&#34;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;string&gt;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">enum</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ObjectiveType</span> {
+</span></span><span style="display:flex;"><span>    DESTROY,          <span style="color:#75715e">// reduce target health to 0
+</span></span></span><span style="display:flex;"><span>    PHOTOGRAPH,       <span style="color:#75715e">// fly near target with camera pod equipped, within parameters
+</span></span></span><span style="display:flex;"><span>    NAVIGATE,         <span style="color:#75715e">// reach a waypoint within arrival radius
+</span></span></span><span style="display:flex;"><span>    INTERCEPT,        <span style="color:#75715e">// destroy a specific aircraft
+</span></span></span><span style="display:flex;"><span>    ESCORT,           <span style="color:#75715e">// keep a friendly entity alive until it reaches destination
+</span></span></span><span style="display:flex;"><span>    SEAD,             <span style="color:#75715e">// destroy all SAM/AAA in a zone (Suppression of Enemy Air Defense)
+</span></span></span><span style="display:flex;"><span>    SURVIVE           <span style="color:#75715e">// stay alive for a duration
+</span></span></span><span style="display:flex;"><span>};
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">enum</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ObjectiveStatus</span> {
+</span></span><span style="display:flex;"><span>    PENDING,          <span style="color:#75715e">// not yet attempted
+</span></span></span><span style="display:flex;"><span>    ACTIVE,           <span style="color:#75715e">// currently trackable (in range or triggered)
+</span></span></span><span style="display:flex;"><span>    COMPLETED,        <span style="color:#75715e">// done
+</span></span></span><span style="display:flex;"><span>    FAILED            <span style="color:#75715e">// no longer achievable
+</span></span></span><span style="display:flex;"><span>};
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">struct</span> <span style="color:#a6e22e">ObjectiveParams</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// for PHOTOGRAPH
+</span></span></span><span style="display:flex;"><span>    Meter minAltitude <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>;
+</span></span><span style="display:flex;"><span>    Meter maxAltitude <span style="color:#f92672">=</span> <span style="color:#ae81ff">99999</span>;
+</span></span><span style="display:flex;"><span>    Meter maxDistance <span style="color:#f92672">=</span> <span style="color:#ae81ff">500</span>;
+</span></span><span style="display:flex;"><span>    Degree requiredAngle <span style="color:#f92672">=</span> <span style="color:#ae81ff">30</span>;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// for NAVIGATE
+</span></span></span><span style="display:flex;"><span>    Meter arrivalRadius <span style="color:#f92672">=</span> <span style="color:#ae81ff">2000</span>;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// for SURVIVE
+</span></span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">float</span> durationSeconds <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// for ESCORT
+</span></span></span><span style="display:flex;"><span>    EntityId escortTarget;
+</span></span><span style="display:flex;"><span>    EntityId escortDestination;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// for SEAD
+</span></span></span><span style="display:flex;"><span>    Vector3 zoneCenter <span style="color:#f92672">=</span> {<span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">0</span>};
+</span></span><span style="display:flex;"><span>    Meter zoneRadius <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>;
+</span></span><span style="display:flex;"><span>};
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">struct</span> <span style="color:#a6e22e">Objective</span> {
+</span></span><span style="display:flex;"><span>    std<span style="color:#f92672">::</span>string id;
+</span></span><span style="display:flex;"><span>    ObjectiveType type;
+</span></span><span style="display:flex;"><span>    std<span style="color:#f92672">::</span>string label;           <span style="color:#75715e">// human-readable description
+</span></span></span><span style="display:flex;"><span>    EntityId targetEntityId;     <span style="color:#75715e">// what entity this relates to
+</span></span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">bool</span> required <span style="color:#f92672">=</span> true;        <span style="color:#75715e">// must complete for mission success
+</span></span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">int</span> displayOrder <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>;
+</span></span><span style="display:flex;"><span>    ObjectiveStatus status <span style="color:#f92672">=</span> ObjectiveStatus<span style="color:#f92672">::</span>PENDING;
+</span></span><span style="display:flex;"><span>    ObjectiveParams params;
+</span></span><span style="display:flex;"><span>};
+</span></span></code></pre></div><h3 id="42-objective-evaluator">4.2 Objective Evaluator<a href="#42-objective-evaluator" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h3>
+<p>Each objective type has evaluation logic. This is a pure function that checks whether conditions are met each frame.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span><span style="color:#75715e">// src/scenario/ObjectiveEvaluator.h
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#pragma once
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&#34;Objective.h&#34;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&#34;../entities/EntityRegistry.h&#34;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&#34;../core/AircraftStructs.h&#34;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">namespace</span> ObjectiveEvaluator {
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// called every frame for each active objective
+</span></span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">bool</span> <span style="color:#a6e22e">evaluate</span>(
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">const</span> Objective<span style="color:#f92672">&amp;</span> objective,
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">const</span> AircraftState<span style="color:#f92672">&amp;</span> playerState,
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">const</span> EntityRegistry<span style="color:#f92672">&amp;</span> entities,
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">float</span> missionElapsed
+</span></span><span style="display:flex;"><span>    );
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// type-specific checks:
+</span></span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">bool</span> <span style="color:#a6e22e">checkDestroy</span>(<span style="color:#66d9ef">const</span> Objective<span style="color:#f92672">&amp;</span> obj, <span style="color:#66d9ef">const</span> EntityRegistry<span style="color:#f92672">&amp;</span> entities);
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">bool</span> <span style="color:#a6e22e">checkPhotograph</span>(<span style="color:#66d9ef">const</span> Objective<span style="color:#f92672">&amp;</span> obj, <span style="color:#66d9ef">const</span> AircraftState<span style="color:#f92672">&amp;</span> player, <span style="color:#66d9ef">const</span> EntityRegistry<span style="color:#f92672">&amp;</span> entities);
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">bool</span> <span style="color:#a6e22e">checkNavigate</span>(<span style="color:#66d9ef">const</span> Objective<span style="color:#f92672">&amp;</span> obj, <span style="color:#66d9ef">const</span> AircraftState<span style="color:#f92672">&amp;</span> player, <span style="color:#66d9ef">const</span> EntityRegistry<span style="color:#f92672">&amp;</span> entities);
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">bool</span> <span style="color:#a6e22e">checkIntercept</span>(<span style="color:#66d9ef">const</span> Objective<span style="color:#f92672">&amp;</span> obj, <span style="color:#66d9ef">const</span> EntityRegistry<span style="color:#f92672">&amp;</span> entities);
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">bool</span> <span style="color:#a6e22e">checkSead</span>(<span style="color:#66d9ef">const</span> Objective<span style="color:#f92672">&amp;</span> obj, <span style="color:#66d9ef">const</span> EntityRegistry<span style="color:#f92672">&amp;</span> entities);
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">bool</span> <span style="color:#a6e22e">checkSurvive</span>(<span style="color:#66d9ef">const</span> Objective<span style="color:#f92672">&amp;</span> obj, <span style="color:#66d9ef">float</span> missionElapsed);
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><hr>
+<h2 id="5-trigger-system">5. Trigger System<a href="#5-trigger-system" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h2>
+<p>Triggers allow dynamic mission events — reinforcement spawns, radio messages, environmental changes — driven by in-game conditions.</p>
+<h3 id="51-trigger-types">5.1 Trigger Types<a href="#51-trigger-types" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span><span style="color:#75715e">// src/scenario/Trigger.h
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#pragma once
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&#34;../entities/Entity.h&#34;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;variant&gt;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;string&gt;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">enum</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">TriggerType</span> {
+</span></span><span style="display:flex;"><span>    ZONE_ENTER,           <span style="color:#75715e">// player enters a sphere
+</span></span></span><span style="display:flex;"><span>    ZONE_EXIT,            <span style="color:#75715e">// player leaves a sphere
+</span></span></span><span style="display:flex;"><span>    ENTITY_DESTROYED,     <span style="color:#75715e">// a specific entity dies
+</span></span></span><span style="display:flex;"><span>    ENTITY_DETECTS_PLAYER,<span style="color:#75715e">// an entity&#39;s sensor detects the player
+</span></span></span><span style="display:flex;"><span>    TIME_ELAPSED,         <span style="color:#75715e">// mission clock reaches N seconds
+</span></span></span><span style="display:flex;"><span>    OBJECTIVE_COMPLETE,   <span style="color:#75715e">// a specific objective is completed
+</span></span></span><span style="display:flex;"><span>    ALTITUDE_BELOW,       <span style="color:#75715e">// player drops below altitude
+</span></span></span><span style="display:flex;"><span>    ALTITUDE_ABOVE,       <span style="color:#75715e">// player climbs above altitude
+</span></span></span><span style="display:flex;"><span>    SPEED_BELOW,          <span style="color:#75715e">// player slows below speed
+</span></span></span><span style="display:flex;"><span>    DAMAGE_TAKEN          <span style="color:#75715e">// player takes damage
+</span></span></span><span style="display:flex;"><span>};
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">enum</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">TriggerActionType</span> {
+</span></span><span style="display:flex;"><span>    SPAWN_ENTITY,         <span style="color:#75715e">// add a new entity to the world
+</span></span></span><span style="display:flex;"><span>    DESTROY_ENTITY,       <span style="color:#75715e">// remove an entity
+</span></span></span><span style="display:flex;"><span>    RADIO_MESSAGE,        <span style="color:#75715e">// display a radio comms message
+</span></span></span><span style="display:flex;"><span>    UPDATE_OBJECTIVE,     <span style="color:#75715e">// change an objective&#39;s status or label
+</span></span></span><span style="display:flex;"><span>    PLAY_SOUND,           <span style="color:#75715e">// play an audio cue
+</span></span></span><span style="display:flex;"><span>    SET_WEATHER,          <span style="color:#75715e">// change weather conditions (future)
+</span></span></span><span style="display:flex;"><span>    ACTIVATE_TRIGGER      <span style="color:#75715e">// chain to another trigger
+</span></span></span><span style="display:flex;"><span>};
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">struct</span> <span style="color:#a6e22e">TriggerCondition</span> {
+</span></span><span style="display:flex;"><span>    TriggerType type;
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// parameters vary by type — stored as generic map or variant
+</span></span></span><span style="display:flex;"><span>    EntityId entityId;          <span style="color:#75715e">// for entity-related triggers
+</span></span></span><span style="display:flex;"><span>    Vector3 zoneCenter;         <span style="color:#75715e">// for zone triggers
+</span></span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">float</span> radius;               <span style="color:#75715e">// for zone triggers
+</span></span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">float</span> value;                <span style="color:#75715e">// for time/altitude/speed triggers
+</span></span></span><span style="display:flex;"><span>    std<span style="color:#f92672">::</span>string objectiveId;    <span style="color:#75715e">// for objective triggers
+</span></span></span><span style="display:flex;"><span>};
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">struct</span> <span style="color:#a6e22e">TriggerAction</span> {
+</span></span><span style="display:flex;"><span>    TriggerActionType type;
+</span></span><span style="display:flex;"><span>    std<span style="color:#f92672">::</span>string message;        <span style="color:#75715e">// for radio messages
+</span></span></span><span style="display:flex;"><span>    EntityId entityId;          <span style="color:#75715e">// for entity actions
+</span></span></span><span style="display:flex;"><span>    std<span style="color:#f92672">::</span>string objectiveId;    <span style="color:#75715e">// for objective updates
+</span></span></span><span style="display:flex;"><span>    std<span style="color:#f92672">::</span>string soundFile;      <span style="color:#75715e">// for audio
+</span></span></span><span style="display:flex;"><span>    <span style="color:#75715e">// for spawn — full entity definition loaded from JSON
+</span></span></span><span style="display:flex;"><span>    <span style="color:#75715e">// (stored as parsed data, spawned on activation)
+</span></span></span><span style="display:flex;"><span>};
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">struct</span> <span style="color:#a6e22e">Trigger</span> {
+</span></span><span style="display:flex;"><span>    std<span style="color:#f92672">::</span>string id;
+</span></span><span style="display:flex;"><span>    TriggerCondition condition;
+</span></span><span style="display:flex;"><span>    TriggerAction action;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">bool</span> once <span style="color:#f92672">=</span> true;           <span style="color:#75715e">// fire only once, or repeating?
+</span></span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">bool</span> fired <span style="color:#f92672">=</span> false;
+</span></span><span style="display:flex;"><span>};
+</span></span></code></pre></div><h3 id="52-trigger-evaluator">5.2 Trigger Evaluator<a href="#52-trigger-evaluator" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span><span style="color:#75715e">// src/scenario/TriggerEvaluator.h
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#pragma once
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&#34;Trigger.h&#34;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">namespace</span> TriggerEvaluator {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">bool</span> <span style="color:#a6e22e">evaluate</span>(
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">const</span> Trigger<span style="color:#f92672">&amp;</span> trigger,
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">const</span> AircraftState<span style="color:#f92672">&amp;</span> playerState,
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">const</span> EntityRegistry<span style="color:#f92672">&amp;</span> entities,
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">const</span> std<span style="color:#f92672">::</span>vector<span style="color:#f92672">&lt;</span>Objective<span style="color:#f92672">&gt;&amp;</span> objectives,
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">float</span> missionElapsed
+</span></span><span style="display:flex;"><span>    );
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><hr>
+<h2 id="6-mission-manager">6. Mission Manager<a href="#6-mission-manager" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h2>
+<p>The <strong>MissionManager</strong> is the top-level orchestrator that ties everything together. It lives inside <code>GameplayScreen</code> as a composed component, following the existing pattern.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span><span style="color:#75715e">// src/scenario/MissionManager.h
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#pragma once
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&#34;Scenario.h&#34;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&#34;Objective.h&#34;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&#34;Trigger.h&#34;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&#34;ObjectiveEvaluator.h&#34;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&#34;TriggerEvaluator.h&#34;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&#34;../entities/EntityRegistry.h&#34;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&#34;../core/AircraftStructs.h&#34;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">enum</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">MissionState</span> {
+</span></span><span style="display:flex;"><span>    STARTING,        <span style="color:#75715e">// initial setup, countdown
+</span></span></span><span style="display:flex;"><span>    ACTIVE,          <span style="color:#75715e">// mission in progress
+</span></span></span><span style="display:flex;"><span>    SUCCEEDED,       <span style="color:#75715e">// all required objectives met
+</span></span></span><span style="display:flex;"><span>    FAILED,          <span style="color:#75715e">// failure condition triggered
+</span></span></span><span style="display:flex;"><span>    ABORTED          <span style="color:#75715e">// player quit
+</span></span></span><span style="display:flex;"><span>};
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">struct</span> <span style="color:#a6e22e">MissionResult</span> {
+</span></span><span style="display:flex;"><span>    MissionState finalState;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">float</span> elapsedTime;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">float</span> fuelRemaining;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">int</span> score;
+</span></span><span style="display:flex;"><span>    std<span style="color:#f92672">::</span>vector<span style="color:#f92672">&lt;</span>Objective<span style="color:#f92672">&gt;</span> objectives;    <span style="color:#75715e">// with final statuses
+</span></span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">int</span> enemyAircraftKills;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">int</span> samDestroyed;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">int</span> aaaDestroyed;
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// ... extend as needed
+</span></span></span><span style="display:flex;"><span>};
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">MissionManager</span> {
+</span></span><span style="display:flex;"><span>    Scenario scenario;
+</span></span><span style="display:flex;"><span>    MissionState missionState <span style="color:#f92672">=</span> MissionState<span style="color:#f92672">::</span>STARTING;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">float</span> missionElapsed <span style="color:#f92672">=</span> <span style="color:#ae81ff">0.0f</span>;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// owned systems
+</span></span></span><span style="display:flex;"><span>    EntityRegistry entities;
+</span></span><span style="display:flex;"><span>    std<span style="color:#f92672">::</span>vector<span style="color:#f92672">&lt;</span>Objective<span style="color:#f92672">&gt;</span> objectives;
+</span></span><span style="display:flex;"><span>    std<span style="color:#f92672">::</span>vector<span style="color:#f92672">&lt;</span>Trigger<span style="color:#f92672">&gt;</span> triggers;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// scoring
+</span></span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">int</span> currentScore <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// internal
+</span></span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">evaluateObjectives</span>(<span style="color:#66d9ef">const</span> AircraftState<span style="color:#f92672">&amp;</span> playerState);
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">evaluateTriggers</span>(<span style="color:#66d9ef">const</span> AircraftState<span style="color:#f92672">&amp;</span> playerState);
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">executeTriggerAction</span>(<span style="color:#66d9ef">const</span> TriggerAction<span style="color:#f92672">&amp;</span> action);
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">checkMissionCompletion</span>(<span style="color:#66d9ef">const</span> AircraftState<span style="color:#f92672">&amp;</span> playerState);
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">spawnInitialEntities</span>();
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span><span style="color:#f92672">:</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">explicit</span> MissionManager(<span style="color:#66d9ef">const</span> Scenario<span style="color:#f92672">&amp;</span> scenario);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">update</span>(<span style="color:#66d9ef">const</span> AircraftState<span style="color:#f92672">&amp;</span> playerState, <span style="color:#66d9ef">float</span> dt);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// queries for views
+</span></span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">[[nodiscard]]</span> MissionState getState() <span style="color:#66d9ef">const</span>;
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">[[nodiscard]]</span> <span style="color:#66d9ef">const</span> std<span style="color:#f92672">::</span>vector<span style="color:#f92672">&lt;</span>Objective<span style="color:#f92672">&gt;&amp;</span> getObjectives() <span style="color:#66d9ef">const</span>;
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">[[nodiscard]]</span> <span style="color:#66d9ef">const</span> EntityRegistry<span style="color:#f92672">&amp;</span> getEntities() <span style="color:#66d9ef">const</span>;
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">[[nodiscard]]</span> EntityRegistry<span style="color:#f92672">&amp;</span> getEntitiesMut();
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">[[nodiscard]]</span> <span style="color:#66d9ef">float</span> getElapsedTime() <span style="color:#66d9ef">const</span>;
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">[[nodiscard]]</span> <span style="color:#66d9ef">int</span> getScore() <span style="color:#66d9ef">const</span>;
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">[[nodiscard]]</span> MissionResult buildResult() <span style="color:#66d9ef">const</span>;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// get the next objective waypoint for HUD/map display
+</span></span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">[[nodiscard]]</span> <span style="color:#66d9ef">const</span> Objective<span style="color:#f92672">*</span> getActiveObjective() <span style="color:#66d9ef">const</span>;
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">[[nodiscard]]</span> Vector3 getObjectiveWorldPosition(<span style="color:#66d9ef">const</span> Objective<span style="color:#f92672">&amp;</span> obj) <span style="color:#66d9ef">const</span>;
+</span></span><span style="display:flex;"><span>};
+</span></span></code></pre></div><h3 id="update-flow">Update Flow<a href="#update-flow" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h3>
+<pre tabindex="0"><code>MissionManager::update(playerState, dt)
+│
+├─ missionElapsed += dt
+│
+├─ entities.update(playerState, dt)       // AI, movement, firing
+│   ├─ each AirEntity::update()           // patrol/engage/evade
+│   ├─ each SamSite::update()             // detect/track/fire
+│   └─ each AAABattery::update()          // detect/fire
+│
+├─ evaluateTriggers(playerState)          // check all trigger conditions
+│   └─ executeTriggerAction()             // spawn, message, etc.
+│
+├─ evaluateObjectives(playerState)        // check completion criteria
+│
+└─ checkMissionCompletion(playerState)    // success? failure? continue?
+</code></pre><hr>
+<h2 id="7-scenario-loader">7. Scenario Loader<a href="#7-scenario-loader" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h2>
+<p>Parses scenario JSON files into the <code>Scenario</code> struct using the existing <code>nlohmann::json</code> library.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span><span style="color:#75715e">// src/scenario/Scenario.h
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#pragma once
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&#34;Objective.h&#34;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&#34;Trigger.h&#34;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&#34;../entities/Entity.h&#34;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;vector&gt;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;string&gt;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">struct</span> <span style="color:#a6e22e">WeaponLoadout</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">int</span> slots;
+</span></span><span style="display:flex;"><span>    std<span style="color:#f92672">::</span>vector<span style="color:#f92672">&lt;</span>std<span style="color:#f92672">::</span>string<span style="color:#f92672">&gt;</span> available;
+</span></span><span style="display:flex;"><span>    std<span style="color:#f92672">::</span>vector<span style="color:#f92672">&lt;</span>std<span style="color:#f92672">::</span>string<span style="color:#f92672">&gt;</span> defaultLoadout;
+</span></span><span style="display:flex;"><span>    std<span style="color:#f92672">::</span>vector<span style="color:#f92672">&lt;</span>std<span style="color:#f92672">::</span>string<span style="color:#f92672">&gt;</span> selectedLoadout;  <span style="color:#75715e">// player&#39;s choice from briefing
+</span></span></span><span style="display:flex;"><span>};
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">struct</span> <span style="color:#a6e22e">StartConditions</span> {
+</span></span><span style="display:flex;"><span>    Vector3 position;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">float</span> heading;
+</span></span><span style="display:flex;"><span>    MeterPerSecond speed;
+</span></span><span style="display:flex;"><span>    Meter altitude;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">float</span> fuel;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">bool</span> onCarrier;
+</span></span><span style="display:flex;"><span>};
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">struct</span> <span style="color:#a6e22e">ScenarioScoring</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">int</span> objectiveComplete <span style="color:#f92672">=</span> <span style="color:#ae81ff">1000</span>;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">int</span> bonusObjective <span style="color:#f92672">=</span> <span style="color:#ae81ff">500</span>;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">int</span> enemyAircraftKill <span style="color:#f92672">=</span> <span style="color:#ae81ff">250</span>;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">int</span> samDestroyed <span style="color:#f92672">=</span> <span style="color:#ae81ff">200</span>;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">int</span> aaaDestroyed <span style="color:#f92672">=</span> <span style="color:#ae81ff">100</span>;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">bool</span> timeBonus <span style="color:#f92672">=</span> true;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">bool</span> fuelBonus <span style="color:#f92672">=</span> true;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">int</span> noDamageBonus <span style="color:#f92672">=</span> <span style="color:#ae81ff">500</span>;
+</span></span><span style="display:flex;"><span>};
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">struct</span> <span style="color:#a6e22e">Scenario</span> {
+</span></span><span style="display:flex;"><span>    std<span style="color:#f92672">::</span>string id;
+</span></span><span style="display:flex;"><span>    std<span style="color:#f92672">::</span>string name;
+</span></span><span style="display:flex;"><span>    std<span style="color:#f92672">::</span>string description;
+</span></span><span style="display:flex;"><span>    std<span style="color:#f92672">::</span>string difficulty;
+</span></span><span style="display:flex;"><span>    std<span style="color:#f92672">::</span>string theater;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    StartConditions start;
+</span></span><span style="display:flex;"><span>    WeaponLoadout loadout;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    std<span style="color:#f92672">::</span>vector<span style="color:#f92672">&lt;</span>Objective<span style="color:#f92672">&gt;</span> objectives;
+</span></span><span style="display:flex;"><span>    std<span style="color:#f92672">::</span>vector<span style="color:#f92672">&lt;</span>EntityBase<span style="color:#f92672">&gt;</span> entityDefinitions;  <span style="color:#75715e">// templates — spawned at mission start
+</span></span></span><span style="display:flex;"><span>    std<span style="color:#f92672">::</span>vector<span style="color:#f92672">&lt;</span>Trigger<span style="color:#f92672">&gt;</span> triggers;
+</span></span><span style="display:flex;"><span>    ScenarioScoring scoring;
+</span></span><span style="display:flex;"><span>};
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// src/scenario/ScenarioLoader.h
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#pragma once
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&#34;Scenario.h&#34;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&#34;../lib/json.hpp&#34;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;string&gt;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ScenarioLoader</span> {
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span><span style="color:#f92672">:</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">static</span> Scenario load(<span style="color:#66d9ef">const</span> std<span style="color:#f92672">::</span>string<span style="color:#f92672">&amp;</span> path);
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">static</span> std<span style="color:#f92672">::</span>vector<span style="color:#f92672">&lt;</span>std<span style="color:#f92672">::</span>string<span style="color:#f92672">&gt;</span> listAvailable(<span style="color:#66d9ef">const</span> std<span style="color:#f92672">::</span>string<span style="color:#f92672">&amp;</span> scenariosDir);
+</span></span><span style="display:flex;"><span>};
+</span></span></code></pre></div><hr>
+<h2 id="8-weapon-system">8. Weapon System<a href="#8-weapon-system" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h2>
+<p>Weapons are carried by the player and some AI entities. They integrate with the entity/damage system.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span><span style="color:#75715e">// src/weapons/Weapon.h
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#pragma once
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&#34;../primitives/Types.h&#34;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;string&gt;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">enum</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">WeaponType</span> {
+</span></span><span style="display:flex;"><span>    AIR_TO_AIR_IR,     <span style="color:#75715e">// AIM-9 Sidewinder — heat-seeking
+</span></span></span><span style="display:flex;"><span>    AIR_TO_AIR_RADAR,  <span style="color:#75715e">// AIM-7 Sparrow — radar-guided
+</span></span></span><span style="display:flex;"><span>    BOMB_UNGUIDED,     <span style="color:#75715e">// Mk-82/Mk-84 — dumb bombs
+</span></span></span><span style="display:flex;"><span>    AIR_TO_GROUND,     <span style="color:#75715e">// AGM-65 Maverick — guided
+</span></span></span><span style="display:flex;"><span>    GUN,               <span style="color:#75715e">// M61 Vulcan cannon
+</span></span></span><span style="display:flex;"><span>    CAMERA_POD         <span style="color:#75715e">// reconnaissance camera (no damage, for photograph objectives)
+</span></span></span><span style="display:flex;"><span>};
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">enum</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">WeaponState</span> {
+</span></span><span style="display:flex;"><span>    READY,
+</span></span><span style="display:flex;"><span>    LOCKED,            <span style="color:#75715e">// has target lock (for guided weapons)
+</span></span></span><span style="display:flex;"><span>    FIRED,
+</span></span><span style="display:flex;"><span>    EXPENDED
+</span></span><span style="display:flex;"><span>};
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">struct</span> <span style="color:#a6e22e">WeaponDefinition</span> {
+</span></span><span style="display:flex;"><span>    std<span style="color:#f92672">::</span>string id;             <span style="color:#75715e">// &#34;aim9&#34;, &#34;mk82&#34;, etc.
+</span></span></span><span style="display:flex;"><span>    std<span style="color:#f92672">::</span>string name;           <span style="color:#75715e">// &#34;AIM-9 Sidewinder&#34;
+</span></span></span><span style="display:flex;"><span>    WeaponType type;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">float</span> damage <span style="color:#f92672">=</span> <span style="color:#ae81ff">100.0f</span>;
+</span></span><span style="display:flex;"><span>    Meter range <span style="color:#f92672">=</span> <span style="color:#ae81ff">10000</span>;
+</span></span><span style="display:flex;"><span>    MeterPerSecond speed <span style="color:#f92672">=</span> <span style="color:#ae81ff">800</span>; <span style="color:#75715e">// for missiles
+</span></span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">float</span> lockTime <span style="color:#f92672">=</span> <span style="color:#ae81ff">2.0f</span>;     <span style="color:#75715e">// seconds to lock (guided weapons)
+</span></span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">float</span> blastRadius <span style="color:#f92672">=</span> <span style="color:#ae81ff">0.0f</span>;  <span style="color:#75715e">// for bombs — area damage
+</span></span></span><span style="display:flex;"><span>};
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// Loaded from config — all weapon stats in res/config/weapons.jsonc
+</span></span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span><span style="color:#75715e">// src/weapons/WeaponManager.h
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#pragma once
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&#34;Weapon.h&#34;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;vector&gt;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">struct</span> <span style="color:#a6e22e">WeaponSlot</span> {
+</span></span><span style="display:flex;"><span>    WeaponDefinition definition;
+</span></span><span style="display:flex;"><span>    WeaponState state <span style="color:#f92672">=</span> WeaponState<span style="color:#f92672">::</span>READY;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">int</span> count <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span>;                 <span style="color:#75715e">// how many of this weapon on this pylon
+</span></span></span><span style="display:flex;"><span>};
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">WeaponManager</span> {
+</span></span><span style="display:flex;"><span>    std<span style="color:#f92672">::</span>vector<span style="color:#f92672">&lt;</span>WeaponSlot<span style="color:#f92672">&gt;</span> pylons;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">int</span> selectedPylon <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">float</span> lockTimer <span style="color:#f92672">=</span> <span style="color:#ae81ff">0.0f</span>;
+</span></span><span style="display:flex;"><span>    EntityId lockedTarget;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span><span style="color:#f92672">:</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">void</span> loadFromLoadout(<span style="color:#66d9ef">const</span> std<span style="color:#f92672">::</span>vector<span style="color:#f92672">&lt;</span>std<span style="color:#f92672">::</span>string<span style="color:#f92672">&gt;&amp;</span> loadout);
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">selectNext</span>();
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">selectPrevious</span>();
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// attempt to fire currently selected weapon
+</span></span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">bool</span> <span style="color:#a6e22e">fire</span>(<span style="color:#66d9ef">const</span> AircraftState<span style="color:#f92672">&amp;</span> playerState, <span style="color:#66d9ef">const</span> EntityRegistry<span style="color:#f92672">&amp;</span> entities);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// update lock-on timers
+</span></span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">update</span>(<span style="color:#66d9ef">const</span> AircraftState<span style="color:#f92672">&amp;</span> playerState, <span style="color:#66d9ef">const</span> EntityRegistry<span style="color:#f92672">&amp;</span> entities, <span style="color:#66d9ef">float</span> dt);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">[[nodiscard]]</span> <span style="color:#66d9ef">const</span> WeaponSlot<span style="color:#f92672">&amp;</span> getCurrentWeapon() <span style="color:#66d9ef">const</span>;
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">[[nodiscard]]</span> <span style="color:#66d9ef">int</span> getRemainingCount() <span style="color:#66d9ef">const</span>;
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">[[nodiscard]]</span> <span style="color:#66d9ef">bool</span> hasLock() <span style="color:#66d9ef">const</span>;
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">[[nodiscard]]</span> <span style="color:#66d9ef">float</span> getLockProgress() <span style="color:#66d9ef">const</span>;  <span style="color:#75715e">// 0.0 → 1.0
+</span></span></span><span style="display:flex;"><span>};
+</span></span></code></pre></div><hr>
+<h2 id="9-damage--projectile-system">9. Damage &amp; Projectile System<a href="#9-damage--projectile-system" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h2>
+<p>When weapons are fired, they become <strong>projectiles</strong> that travel through the world and resolve hits.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span><span style="color:#75715e">// src/weapons/Projectile.h
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#pragma once
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&#34;../entities/Entity.h&#34;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">enum</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ProjectileSource</span> { PLAYER, ENEMY_AIRCRAFT, SAM, AAA };
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">struct</span> <span style="color:#a6e22e">Projectile</span> {
+</span></span><span style="display:flex;"><span>    Vector3 position;
+</span></span><span style="display:flex;"><span>    Vector3 velocity;
+</span></span><span style="display:flex;"><span>    ProjectileSource source;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">float</span> damage;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">float</span> blastRadius;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">float</span> lifetime;          <span style="color:#75715e">// seconds remaining before self-destruct
+</span></span></span><span style="display:flex;"><span>    EntityId targetId;       <span style="color:#75715e">// for guided missiles — empty for unguided
+</span></span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">bool</span> active <span style="color:#f92672">=</span> true;
+</span></span><span style="display:flex;"><span>};
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ProjectileManager</span> {
+</span></span><span style="display:flex;"><span>    std<span style="color:#f92672">::</span>vector<span style="color:#f92672">&lt;</span>Projectile<span style="color:#f92672">&gt;</span> projectiles;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span><span style="color:#f92672">:</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">void</span> spawn(<span style="color:#66d9ef">const</span> Projectile<span style="color:#f92672">&amp;</span> p);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// move projectiles, check for hits, apply damage
+</span></span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">update</span>(
+</span></span><span style="display:flex;"><span>        AircraftState<span style="color:#f92672">&amp;</span> playerState,
+</span></span><span style="display:flex;"><span>        EntityRegistry<span style="color:#f92672">&amp;</span> entities,
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">float</span> dt
+</span></span><span style="display:flex;"><span>    );
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">draw</span>();
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">[[nodiscard]]</span> <span style="color:#66d9ef">const</span> std<span style="color:#f92672">::</span>vector<span style="color:#f92672">&lt;</span>Projectile<span style="color:#f92672">&gt;&amp;</span> getAll() <span style="color:#66d9ef">const</span>;
+</span></span><span style="display:flex;"><span>};
+</span></span></code></pre></div><hr>
+<h2 id="10-player-damage-model">10. Player Damage Model<a href="#10-player-damage-model" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h2>
+<p>The player aircraft needs a damage model to receive hits from enemy weapons.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span><span style="color:#75715e">// src/core/PlayerDamage.h
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#pragma once
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&#34;AircraftStructs.h&#34;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">struct</span> <span style="color:#a6e22e">DamageState</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">float</span> hullIntegrity <span style="color:#f92672">=</span> <span style="color:#ae81ff">100.0f</span>;     <span style="color:#75715e">// 0 = destroyed
+</span></span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">bool</span> engineDamaged <span style="color:#f92672">=</span> false;        <span style="color:#75715e">// reduced thrust
+</span></span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">bool</span> avionicsDamaged <span style="color:#f92672">=</span> false;      <span style="color:#75715e">// radar/HUD flicker
+</span></span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">bool</span> controlDamaged <span style="color:#f92672">=</span> false;       <span style="color:#75715e">// sluggish controls
+</span></span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">bool</span> fuelLeak <span style="color:#f92672">=</span> false;             <span style="color:#75715e">// fuel drains faster
+</span></span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">int</span> chaff <span style="color:#f92672">=</span> <span style="color:#ae81ff">30</span>;                    <span style="color:#75715e">// chaff countermeasures
+</span></span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">int</span> flares <span style="color:#f92672">=</span> <span style="color:#ae81ff">30</span>;                   <span style="color:#75715e">// flare countermeasures
+</span></span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">[[nodiscard]]</span> <span style="color:#66d9ef">bool</span> isDestroyed() <span style="color:#66d9ef">const</span> { <span style="color:#66d9ef">return</span> hullIntegrity <span style="color:#f92672">&lt;=</span> <span style="color:#ae81ff">0</span>; }
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">[[nodiscard]]</span> <span style="color:#66d9ef">float</span> thrustMultiplier() <span style="color:#66d9ef">const</span> { <span style="color:#66d9ef">return</span> engineDamaged <span style="color:#f92672">?</span> <span style="color:#ae81ff">0.5f</span> <span style="color:#f92672">:</span> <span style="color:#ae81ff">1.0f</span>; }
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">[[nodiscard]]</span> <span style="color:#66d9ef">float</span> controlMultiplier() <span style="color:#66d9ef">const</span> { <span style="color:#66d9ef">return</span> controlDamaged <span style="color:#f92672">?</span> <span style="color:#ae81ff">0.6f</span> <span style="color:#f92672">:</span> <span style="color:#ae81ff">1.0f</span>; }
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">[[nodiscard]]</span> <span style="color:#66d9ef">float</span> fuelDrainMultiplier() <span style="color:#66d9ef">const</span> { <span style="color:#66d9ef">return</span> fuelLeak <span style="color:#f92672">?</span> <span style="color:#ae81ff">3.0f</span> <span style="color:#f92672">:</span> <span style="color:#ae81ff">1.0f</span>; }
+</span></span><span style="display:flex;"><span>};
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">PlayerDamage</span> {
+</span></span><span style="display:flex;"><span>    DamageState damage;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span><span style="color:#f92672">:</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">void</span> takeDamage(<span style="color:#66d9ef">float</span> amount);
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">deployCountermeasure</span>(<span style="color:#66d9ef">bool</span> chaff);  <span style="color:#75715e">// true=chaff, false=flare
+</span></span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">update</span>(AircraftState<span style="color:#f92672">&amp;</span> state, <span style="color:#66d9ef">float</span> dt);  <span style="color:#75715e">// apply damage effects
+</span></span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">[[nodiscard]]</span> <span style="color:#66d9ef">const</span> DamageState<span style="color:#f92672">&amp;</span> getState() <span style="color:#66d9ef">const</span>;
+</span></span><span style="display:flex;"><span>};
+</span></span></code></pre></div><hr>
+<h2 id="11-radio--comms-system">11. Radio / Comms System<a href="#11-radio--comms-system" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h2>
+<p>Triggers and events produce radio messages displayed as a comms feed.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span><span style="color:#75715e">// src/scenario/RadioComms.h
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#pragma once
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;string&gt;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;deque&gt;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">struct</span> <span style="color:#a6e22e">RadioMessage</span> {
+</span></span><span style="display:flex;"><span>    std<span style="color:#f92672">::</span>string sender;       <span style="color:#75715e">// &#34;AWACS&#34;, &#34;Wingman&#34;, &#34;Tower&#34;, &#34;RWR&#34;
+</span></span></span><span style="display:flex;"><span>    std<span style="color:#f92672">::</span>string text;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">float</span> timestamp;          <span style="color:#75715e">// mission elapsed time
+</span></span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">float</span> displayDuration;    <span style="color:#75715e">// how long to show (seconds)
+</span></span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">float</span> age <span style="color:#f92672">=</span> <span style="color:#ae81ff">0.0f</span>;        <span style="color:#75715e">// time since displayed
+</span></span></span><span style="display:flex;"><span>};
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">RadioComms</span> {
+</span></span><span style="display:flex;"><span>    std<span style="color:#f92672">::</span>deque<span style="color:#f92672">&lt;</span>RadioMessage<span style="color:#f92672">&gt;</span> messages;     <span style="color:#75715e">// recent messages
+</span></span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">constexpr</span> <span style="color:#66d9ef">int</span> MAX_VISIBLE <span style="color:#f92672">=</span> <span style="color:#ae81ff">4</span>;  <span style="color:#75715e">// lines on screen
+</span></span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span><span style="color:#f92672">:</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">void</span> push(<span style="color:#66d9ef">const</span> std<span style="color:#f92672">::</span>string<span style="color:#f92672">&amp;</span> sender, <span style="color:#66d9ef">const</span> std<span style="color:#f92672">::</span>string<span style="color:#f92672">&amp;</span> text, <span style="color:#66d9ef">float</span> timestamp);
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">update</span>(<span style="color:#66d9ef">float</span> dt);
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">[[nodiscard]]</span> <span style="color:#66d9ef">const</span> std<span style="color:#f92672">::</span>deque<span style="color:#f92672">&lt;</span>RadioMessage<span style="color:#f92672">&gt;&amp;</span> getVisible() <span style="color:#66d9ef">const</span>;
+</span></span><span style="display:flex;"><span>};
+</span></span></code></pre></div><hr>
+<h2 id="12-new--modified-views">12. New &amp; Modified Views<a href="#12-new--modified-views" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h2>
+<h3 id="121-objectiveview-new">12.1 ObjectiveView (NEW)<a href="#121-objectiveview-new" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h3>
+<p>HUD overlay showing current objectives with status icons.</p>
+<pre tabindex="0"><code>┌─────────────────────────────────────────┐
+│  OBJECTIVES                             │
+│  ✓ Destroy northern bridge      [DONE]  │
+│  ► Destroy southern bridge    [ACTIVE]  │
+│  ○ Photograph supply depot   [PENDING]  │
+│  ○ Return to base            [PENDING]  │
+└─────────────────────────────────────────┘
+</code></pre><h3 id="122-threatview-new--rwr-radar-warning-receiver">12.2 ThreatView (NEW — RWR: Radar Warning Receiver)<a href="#122-threatview-new--rwr-radar-warning-receiver" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h3>
+<p>Circular display showing bearing of active radar threats (SAMs tracking the player).</p>
+<pre tabindex="0"><code>        N
+    ╭───┼───╮
+    │   │   │
+  W─┼───●───┼─E     ● = player
+    │  ▲│   │        ▲ = SAM radar (bearing)
+    ╰───┼───╯        ★ = missile inbound
+        S
+</code></pre><h3 id="123-weaponview-new">12.3 WeaponView (NEW)<a href="#123-weaponview-new" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h3>
+<p>Shows current weapon selection, remaining count, and lock status.</p>
+<pre tabindex="0"><code>  ┌──────────────────────┐
+  │ [AIM-9] ×2  READY    │
+  │  MK-84  ×4           │
+  │  AGM-65 ×2           │
+  │  CAM    ×1           │
+  └──────────────────────┘
+</code></pre><h3 id="124-commsview-new">12.4 CommsView (NEW)<a href="#124-commsview-new" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h3>
+<p>Displays recent radio messages from AWACS, wingman, tower.</p>
+<pre tabindex="0"><code>  ┌──────────────────────────────────────────┐
+  │ AWACS: Bandit, bearing 045, angels 15    │
+  │ RWR: WARNING — SAM radar lock detected!  │
+  └──────────────────────────────────────────┘
+</code></pre><h3 id="125-briefingview-new--used-in-briefingscreen">12.5 BriefingView (NEW — used in BriefingScreen)<a href="#125-briefingview-new--used-in-briefingscreen" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h3>
+<p>Full-screen mission briefing with map, objectives list, threat overview, and loadout selection.</p>
+<h3 id="126-debriefview-new--used-in-debriefscreen">12.6 DebriefView (NEW — used in DebriefScreen)<a href="#126-debriefview-new--used-in-debriefscreen" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h3>
+<p>Score breakdown, objective results, flight statistics.</p>
+<h3 id="127-modified-radarview">12.7 Modified: RadarView<a href="#127-modified-radarview" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h3>
+<p>Extended to show <strong>all</strong> entities from <code>EntityRegistry</code> within radar range, not just a single enemy. Different blip shapes for aircraft vs ground threats.</p>
+<h3 id="128-modified-mapview">12.8 Modified: MapView<a href="#128-modified-mapview" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h3>
+<p>Extended to render:</p>
+<ul>
+<li>Objective markers (diamonds for targets, circles for waypoints)</li>
+<li>Known threat circles (SAM detection radii)</li>
+<li>Entity positions (friendly/enemy icons)</li>
+<li>Player flight path breadcrumbs</li>
+</ul>
+<hr>
+<h2 id="13-integration-with-existing-systems">13. Integration with Existing Systems<a href="#13-integration-with-existing-systems" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h2>
+<h3 id="131-modified-gameplayscreen">13.1 Modified GameplayScreen<a href="#131-modified-gameplayscreen" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">GameplayScreen</span> <span style="color:#f92672">:</span> <span style="color:#66d9ef">public</span> GameScreen {
+</span></span><span style="display:flex;"><span>    GameData game;
+</span></span><span style="display:flex;"><span>    SceneManager scene;
+</span></span><span style="display:flex;"><span>    MissionManager mission;        <span style="color:#75715e">// NEW
+</span></span></span><span style="display:flex;"><span>    WeaponManager weapons;         <span style="color:#75715e">// NEW
+</span></span></span><span style="display:flex;"><span>    ProjectileManager projectiles; <span style="color:#75715e">// NEW
+</span></span></span><span style="display:flex;"><span>    PlayerDamage playerDamage;     <span style="color:#75715e">// NEW
+</span></span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// existing views
+</span></span></span><span style="display:flex;"><span>    CockpitView cockpitView;
+</span></span><span style="display:flex;"><span>    DebugView debugView;
+</span></span><span style="display:flex;"><span>    MinihudView minihudView;
+</span></span><span style="display:flex;"><span>    MapView mapView;
+</span></span><span style="display:flex;"><span>    RadarView radarView;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// new views
+</span></span></span><span style="display:flex;"><span>    ObjectiveView objectiveView;   <span style="color:#75715e">// NEW
+</span></span></span><span style="display:flex;"><span>    ThreatView threatView;         <span style="color:#75715e">// NEW
+</span></span></span><span style="display:flex;"><span>    WeaponView weaponView;         <span style="color:#75715e">// NEW
+</span></span></span><span style="display:flex;"><span>    CommsView commsView;           <span style="color:#75715e">// NEW
+</span></span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span><span style="color:#f92672">:</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">explicit</span> GameplayScreen(AppConfig<span style="color:#f92672">&amp;</span> config, <span style="color:#66d9ef">const</span> Scenario<span style="color:#f92672">&amp;</span> scenario);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    ScreenState <span style="color:#a6e22e">update</span>() <span style="color:#66d9ef">override</span>;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">run</span>() <span style="color:#66d9ef">override</span>;
+</span></span><span style="display:flex;"><span>};
+</span></span></code></pre></div><h3 id="132-modified-update-flow">13.2 Modified Update Flow<a href="#132-modified-update-flow" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h3>
+<pre tabindex="0"><code>GameplayScreen::update()
+│
+├─ handle pause (existing)
+├─ dt = GetFrameTime()
+│
+├─ game.update(dt)                    // player flight physics (existing)
+├─ scene.update(state, dt)            // terrain &amp; audio (existing)
+│
+├─ mission.update(state, dt)          // NEW — entities, objectives, triggers
+│   ├─ entities.update()              //   AI aircraft, SAMs, AAA
+│   ├─ evaluateTriggers()             //   check trigger conditions
+│   ├─ evaluateObjectives()           //   check completion
+│   └─ checkMissionCompletion()       //   success/failure
+│
+├─ weapons.update(state, entities, dt)// NEW — lock-on, weapon cycling
+├─ projectiles.update(state, entities, dt) // NEW — flight, hit detection
+├─ playerDamage.update(state, dt)     // NEW — apply damage effects
+│
+├─ views update (existing + new)
+│
+└─ if mission.getState() == SUCCEEDED or FAILED
+       return ScreenState::DEBRIEF
+</code></pre><h3 id="133-modified-maincpp-screen-transitions">13.3 Modified main.cpp Screen Transitions<a href="#133-modified-maincpp-screen-transitions" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span><span style="color:#66d9ef">case</span> ScreenState<span style="color:#f92672">::</span>BRIEFING:
+</span></span><span style="display:flex;"><span>    currentScreen <span style="color:#f92672">=</span> std<span style="color:#f92672">::</span>make_unique<span style="color:#f92672">&lt;</span>BriefingScreen<span style="color:#f92672">&gt;</span>(<span style="color:#f92672">*</span>config, selectedScenario);
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">break</span>;
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">case</span> ScreenState<span style="color:#f92672">::</span>GAMEPLAY:
+</span></span><span style="display:flex;"><span>    currentScreen <span style="color:#f92672">=</span> std<span style="color:#f92672">::</span>make_unique<span style="color:#f92672">&lt;</span>GameplayScreen<span style="color:#f92672">&gt;</span>(<span style="color:#f92672">*</span>config, selectedScenario);
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">break</span>;
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">case</span> ScreenState<span style="color:#f92672">::</span>DEBRIEF:
+</span></span><span style="display:flex;"><span>    currentScreen <span style="color:#f92672">=</span> std<span style="color:#f92672">::</span>make_unique<span style="color:#f92672">&lt;</span>DebriefScreen<span style="color:#f92672">&gt;</span>(<span style="color:#f92672">*</span>config, missionResult);
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">break</span>;
+</span></span></code></pre></div><hr>
+<h2 id="14-directory-structure">14. Directory Structure<a href="#14-directory-structure" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h2>
+<pre tabindex="0"><code>src/
+├── main.cpp
+├── GameScreen.h
+├── GameplayScreen.h/.cpp          // modified
+├── BriefingScreen.h/.cpp          // NEW
+├── DebriefScreen.h/.cpp           // NEW
+├── MainMenuScreen.h/.cpp          // modified (scenario selection)
+├── SplashScreen.h/.cpp
+│
+├── core/                          // existing — player aircraft sim
+│   ├── AircraftStructs.h          // add DamageState integration
+│   ├── AircraftControls.h/.cpp
+│   ├── AircraftPhysics.h/.cpp     // modified — damage multipliers
+│   ├── AircraftTransformation.h/.cpp
+│   ├── AircraftCamera.h/.cpp
+│   ├── GameData.h/.cpp
+│   ├── PlayerDamage.h/.cpp        // NEW
+│   └── SceneManager.h/.cpp
+│
+├── entities/                      // NEW — world entity system
+│   ├── Entity.h
+│   ├── EntityRegistry.h/.cpp
+│   ├── AirEntity.h/.cpp
+│   ├── SamSite.h/.cpp
+│   ├── AAABattery.h/.cpp
+│   ├── GroundTarget.h/.cpp
+│   ├── NavalEntity.h/.cpp
+│   └── Airbase.h/.cpp
+│
+├── scenario/                      // NEW — mission logic
+│   ├── Scenario.h
+│   ├── ScenarioLoader.h/.cpp
+│   ├── MissionManager.h/.cpp
+│   ├── Objective.h
+│   ├── ObjectiveEvaluator.h/.cpp
+│   ├── Trigger.h
+│   ├── TriggerEvaluator.h/.cpp
+│   └── RadioComms.h/.cpp
+│
+├── weapons/                       // NEW — weapon &amp; projectile system
+│   ├── Weapon.h
+│   ├── WeaponManager.h/.cpp
+│   ├── Projectile.h
+│   └── ProjectileManager.h/.cpp
+│
+├── views/                         // existing + new overlays
+│   ├── CockpitView.h/.cpp
+│   ├── DebugView.h/.cpp
+│   ├── MinihudView.h/.cpp
+│   ├── MapView.h/.cpp             // modified — entity/objective markers
+│   ├── RadarView.h/.cpp           // modified — multi-entity blips
+│   ├── ObjectiveView.h/.cpp       // NEW
+│   ├── ThreatView.h/.cpp          // NEW — RWR display
+│   ├── WeaponView.h/.cpp          // NEW
+│   ├── CommsView.h/.cpp           // NEW
+│   ├── BriefingView.h/.cpp        // NEW
+│   └── DebriefView.h/.cpp         // NEW
+│
+├── primitives/                    // existing
+│   ├── AppConfig.h/.cpp
+│   ├── Constants.h
+│   ├── Types.h                    // add weapon/entity type aliases
+│   ├── Resource.h
+│   └── Utils.h
+│
+├── services/
+│   └── TileManager.h/.cpp
+│
+└── lib/
+    ├── json.hpp
+    └── raygui.h
+
+res/
+├── config/
+│   ├── app.jsonc                  // existing
+│   └── weapons.jsonc              // NEW — weapon definitions
+│
+├── scenarios/                     // NEW — mission files
+│   ├── tutorial-01.jsonc
+│   ├── strike-bridges-01.jsonc
+│   ├── recon-depot.jsonc
+│   ├── air-superiority-01.jsonc
+│   └── deep-strike-01.jsonc
+│
+├── models/                        // NEW (or expand existing)
+│   ├── mig29.glb
+│   ├── mig21.glb
+│   ├── sam_launcher.glb
+│   ├── aaa_gun.glb
+│   ├── bridge.glb
+│   ├── depot.glb
+│   └── ...
+│
+└── ... (existing assets)
+</code></pre><hr>
+<h2 id="15-scenario-ideas-variety">15. Scenario Ideas (Variety)<a href="#15-scenario-ideas-variety" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h2>
+<table>
+  <thead>
+      <tr>
+          <th>#</th>
+          <th>Name</th>
+          <th>Primary Objective</th>
+          <th>Key Threats</th>
+          <th>Special</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>1</td>
+          <td><strong>First Strike</strong></td>
+          <td>Destroy radar installation</td>
+          <td>2× AAA</td>
+          <td>Tutorial mission, simple</td>
+      </tr>
+      <tr>
+          <td>2</td>
+          <td><strong>Bridge Busters</strong></td>
+          <td>Destroy 2 bridges</td>
+          <td>1× SA-6, 2× AAA, 2× MiG-21</td>
+          <td>Combined arms</td>
+      </tr>
+      <tr>
+          <td>3</td>
+          <td><strong>Photo Recon</strong></td>
+          <td>Photograph 3 targets</td>
+          <td>1× SA-2, 4× MiG-29</td>
+          <td>Camera pod required, no bombs</td>
+      </tr>
+      <tr>
+          <td>4</td>
+          <td><strong>Air Superiority</strong></td>
+          <td>Shoot down 4 bandits</td>
+          <td>4× MiG-29, 2× MiG-21</td>
+          <td>Air-to-air only</td>
+      </tr>
+      <tr>
+          <td>5</td>
+          <td><strong>Deep Strike</strong></td>
+          <td>Destroy chemical plant</td>
+          <td>2× SA-6, 1× SA-2, 4× AAA, 6× MiG</td>
+          <td>Full SEAD + strike</td>
+      </tr>
+      <tr>
+          <td>6</td>
+          <td><strong>Carrier Defense</strong></td>
+          <td>Intercept inbound bombers</td>
+          <td>6× Tu-22M bombers + 4× escorts</td>
+          <td>Time pressure</td>
+      </tr>
+      <tr>
+          <td>7</td>
+          <td><strong>SEAD Sweep</strong></td>
+          <td>Destroy all SAM sites in sector</td>
+          <td>4× SA-6, 2× SA-2, AAA</td>
+          <td>Specialized loadout</td>
+      </tr>
+      <tr>
+          <td>8</td>
+          <td><strong>Escort Duty</strong></td>
+          <td>Protect recon aircraft to target</td>
+          <td>Ambush fighters + SAMs</td>
+          <td>Must keep friendly alive</td>
+      </tr>
+      <tr>
+          <td>9</td>
+          <td><strong>Night Raid</strong></td>
+          <td>Destroy fuel depot at night</td>
+          <td>SA-2, AAA, patrol fighters</td>
+          <td>Reduced visibility</td>
+      </tr>
+      <tr>
+          <td>10</td>
+          <td><strong>Ace Duel</strong></td>
+          <td>1v1 vs ace pilot</td>
+          <td>1× Su-27 (ace skill)</td>
+          <td>Dogfight only</td>
+      </tr>
+  </tbody>
+</table>
+<hr>
+<h2 id="16-implementation-order">16. Implementation Order<a href="#16-implementation-order" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h2>
+<p>The system should be built incrementally, each phase delivering playable value:</p>
+<h3 id="phase-1--foundation">Phase 1 — Foundation<a href="#phase-1--foundation" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h3>
+<p>Scenario data structures, ScenarioLoader, EntityRegistry, basic entity types (GroundTarget). Load a scenario JSON → spawn static entities → render as cubes. BriefingScreen with text display.</p>
+<h3 id="phase-2--objectives--mission-flow">Phase 2 — Objectives &amp; Mission Flow<a href="#phase-2--objectives--mission-flow" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h3>
+<p>Objective struct, ObjectiveEvaluator (DESTROY and NAVIGATE), MissionManager orchestration, MissionState transitions, ObjectiveView HUD overlay. First playable: fly to target, drop bomb, return to base.</p>
+<h3 id="phase-3--air-threats">Phase 3 — Air Threats<a href="#phase-3--air-threats" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h3>
+<p>AirEntity with patrol/engage/flee AI. Extend RadarView for multiple contacts. CommsView for AWACS warnings. Enemy aircraft rendered and interactive.</p>
+<h3 id="phase-4--ground-threats">Phase 4 — Ground Threats<a href="#phase-4--ground-threats" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h3>
+<p>SamSite and AAABattery with detection/engagement logic. ThreatView (RWR). Player damage model. Chaff/flare countermeasures.</p>
+<h3 id="phase-5--weapons">Phase 5 — Weapons<a href="#phase-5--weapons" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h3>
+<p>WeaponManager, ProjectileManager, weapon definitions in JSON. Lock-on mechanics. WeaponView HUD. Bomb/missile delivery.</p>
+<h3 id="phase-6--triggers--events">Phase 6 — Triggers &amp; Events<a href="#phase-6--triggers--events" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h3>
+<p>Full trigger system. Dynamic spawns, radio messages, chained events. Complex multi-phase missions.</p>
+<h3 id="phase-7--polish">Phase 7 — Polish<a href="#phase-7--polish" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h3>
+<p>DebriefScreen with scoring. MapView enhancements (threat rings, objective markers, flight path). Sound effects for weapons/RWR/comms. Multiple scenario files.</p>
+<h3 id="phase-8--advanced">Phase 8 — Advanced<a href="#phase-8--advanced" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h3>
+<p>Photograph objective. Escort objective. SEAD objective. Weather effects. Night missions. Difficulty scaling (more enemies, better AI, tighter time limits).</p>
+
+      </div></div>
+
+  
+
+  
+    
+  
+</article>
+
+  </div>
+
+  
+    <footer class="footer">
+  <div class="footer__inner">
+    
+      <div class="copyright">
+        <span>© 2026 Powered by <a href="https://gohugo.io" target="_blank">Hugo</a></span>
+    
+      <span>:: Theme by <a href="https://github.com/mirus-ua" target="_blank">Mirus</a></span>
+      </div>
+  </div>
+</footer>
+
+
+
+
+
+
+<script type="text/javascript" src="/airborne/bundle.min.js"></script>
+
+
+
+
+
+
+
+
+  
+</div>
+
+</body>
+</html>
