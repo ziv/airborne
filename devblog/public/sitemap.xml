@@ -2,42 +2,45 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
-    <loc>http://localhost:1313/airborne/</loc>
+    <loc>https://ziv.github.io/airborne/</loc>
+    <lastmod>2026-03-29T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://ziv.github.io/airborne/posts/</loc>
+    <lastmod>2026-03-29T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://ziv.github.io/airborne/posts/009-textures/</loc>
+    <lastmod>2026-03-29T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://ziv.github.io/airborne/posts/008-some-colors/</loc>
     <lastmod>2026-03-28T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/airborne/posts/</loc>
-    <lastmod>2026-03-28T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>http://localhost:1313/airborne/posts/008-some-colors/</loc>
-    <lastmod>2026-03-28T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>http://localhost:1313/airborne/posts/007-the-world/</loc>
+    <loc>https://ziv.github.io/airborne/posts/007-the-world/</loc>
     <lastmod>2026-03-27T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/airborne/posts/006-camera-and-models/</loc>
+    <loc>https://ziv.github.io/airborne/posts/006-camera-and-models/</loc>
     <lastmod>2026-03-26T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/airborne/posts/005-yaw-rall-pitch/</loc>
+    <loc>https://ziv.github.io/airborne/posts/005-yaw-rall-pitch/</loc>
     <lastmod>2026-03-25T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/airborne/posts/004-movement/</loc>
+    <loc>https://ziv.github.io/airborne/posts/004-movement/</loc>
     <lastmod>2026-03-24T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/airborne/posts/003-window/</loc>
+    <loc>https://ziv.github.io/airborne/posts/003-window/</loc>
     <lastmod>2026-03-23T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/airborne/posts/002-tech-stack/</loc>
+    <loc>https://ziv.github.io/airborne/posts/002-tech-stack/</loc>
     <lastmod>2026-03-22T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/airborne/posts/001-getting-started/</loc>
+    <loc>https://ziv.github.io/airborne/posts/001-getting-started/</loc>
     <lastmod>2026-03-21T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/airborne/about/</loc>
+    <loc>https://ziv.github.io/airborne/about/</loc>
   </url><url>
-    <loc>http://localhost:1313/airborne/arch/</loc>
+    <loc>https://ziv.github.io/airborne/arch/</loc>
   </url><url>
-    <loc>http://localhost:1313/airborne/categories/</loc>
+    <loc>https://ziv.github.io/airborne/categories/</loc>
   </url><url>
-    <loc>http://localhost:1313/airborne/tags/</loc>
+    <loc>https://ziv.github.io/airborne/tags/</loc>
   </url>
 </urlset>

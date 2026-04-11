@@ -6,7 +6,35 @@
     <description>Recent content in Posts on Airborne</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Sat, 28 Mar 2026 00:00:00 +0000</lastBuildDate><atom:link href="https://ziv.github.io/airborne/posts/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Sun, 29 Mar 2026 00:00:00 +0000</lastBuildDate><atom:link href="https://ziv.github.io/airborne/posts/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Sattelite Imagery and Textures</title>
+      <link>https://ziv.github.io/airborne/posts/009-textures/</link>
+      <pubDate>Sun, 29 Mar 2026 00:00:00 +0000</pubDate>
+      
+      <guid>https://ziv.github.io/airborne/posts/009-textures/</guid>
+      <description>&lt;p&gt;&lt;img src=&#34;https://ziv.github.io/airborne/i8.png&#34; alt=&#34;Future fr&#34;&gt;&lt;/p&gt;
+&lt;p&gt;We left off the last post with a beautiful 3D terrain, but it had a bit of a flaw. We ran into a problem with coloring
+flat plains that happen to sit at or below sea level, they were incorrectly painted as water. In this post, we will
+solve that problem and apply the final texture to our terrain.&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://ziv.github.io/airborne/hm-and-hyps.png&#34; alt=&#34;heightmap and colormap&#34;&gt;&lt;/p&gt;
+&lt;p&gt;The main issue was that we tried to automatically generate the colors for our terrain based solely on the height of each
+point, without any context of whether it was actually sea or land.&lt;/p&gt;</description>
+      <content>&lt;p&gt;&lt;img src=&#34;https://ziv.github.io/airborne/i8.png&#34; alt=&#34;Future fr&#34;&gt;&lt;/p&gt;
+&lt;p&gt;We left off the last post with a beautiful 3D terrain, but it had a bit of a flaw. We ran into a problem with coloring
+flat plains that happen to sit at or below sea level, they were incorrectly painted as water. In this post, we will
+solve that problem and apply the final texture to our terrain.&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://ziv.github.io/airborne/hm-and-hyps.png&#34; alt=&#34;heightmap and colormap&#34;&gt;&lt;/p&gt;
+&lt;p&gt;The main issue was that we tried to automatically generate the colors for our terrain based solely on the height of each
+point, without any context of whether it was actually sea or land.&lt;/p&gt;
+&lt;p&gt;But I realized I don&amp;rsquo;t have to calculate that. We live in a world where we have access to high-quality satellite
+imagery, and we can use that to our advantage. I fired up QGIS and exported a beautiful satellite image (thanks to Bing
+Maps) of the area around Sardinia. I then used that real-world image as the texture for my terrain, and it looks
+significantly better.&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://ziv.github.io/airborne/textured-sardinia.png&#34; alt=&#34;Sardinia with texture&#34;&gt;&lt;/p&gt;
+</content>
+    </item>
+    
     <item>
       <title>Some Colors</title>
       <link>https://ziv.github.io/airborne/posts/008-some-colors/</link>

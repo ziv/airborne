@@ -2,20 +2,19 @@
 <html lang="en">
 <head>
   
-    <title>Tech Stack :: Airborne</title>
+    <title>Sattelite Imagery and Textures :: Airborne</title>
   
   <meta http-equiv="content-type" content="text/html; charset=utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="description" content="
-When I started this project, I didn&rsquo;t have a clear idea of the tech stack I would be using. I just knew I wanted to dive into low-level graphics programming and leverage my past experience with C&#43;&#43;.
-During my research, I discovered raylib, a simple and easy-to-use graphics library. It simplifies the starting point tremendously and saves me from having to build a rendering engine from scratch.
-I explored options like Rust, Go, and Zig, but since raylib is written in C, I ultimately chose C&#43;&#43; to take advantage of its native C compatibility.
+We left off the last post with a beautiful 3D terrain, but it had a bit of a flaw. We ran into a problem with coloring flat plains that happen to sit at or below sea level, they were incorrectly painted as water. In this post, we will solve that problem and apply the final texture to our terrain.
+The main issue was that we tried to automatically generate the colors for our terrain based solely on the height of each point, without any context of whether it was actually sea or land.
 " />
 <meta name="keywords" content="" />
 
   <meta name="robots" content="noodp" />
 
-<link rel="canonical" href="https://ziv.github.io/airborne/posts/002-tech-stack/" />
+<link rel="canonical" href="https://ziv.github.io/airborne/posts/009-textures/" />
 
 
       <script async src="https://www.googletagmanager.com/gtag/js?id=G-0GMMREP8RD"></script>
@@ -64,13 +63,12 @@ I explored options like Rust, Go, and Zig, but since raylib is written in C, I u
 
 <meta property="og:locale" content="en" />
 <meta property="og:type" content="article" />
-<meta property="og:title" content="Tech Stack">
+<meta property="og:title" content="Sattelite Imagery and Textures">
 <meta property="og:description" content="
-When I started this project, I didn&rsquo;t have a clear idea of the tech stack I would be using. I just knew I wanted to dive into low-level graphics programming and leverage my past experience with C&#43;&#43;.
-During my research, I discovered raylib, a simple and easy-to-use graphics library. It simplifies the starting point tremendously and saves me from having to build a rendering engine from scratch.
-I explored options like Rust, Go, and Zig, but since raylib is written in C, I ultimately chose C&#43;&#43; to take advantage of its native C compatibility.
+We left off the last post with a beautiful 3D terrain, but it had a bit of a flaw. We ran into a problem with coloring flat plains that happen to sit at or below sea level, they were incorrectly painted as water. In this post, we will solve that problem and apply the final texture to our terrain.
+The main issue was that we tried to automatically generate the colors for our terrain based solely on the height of each point, without any context of whether it was actually sea or land.
 " />
-<meta property="og:url" content="https://ziv.github.io/airborne/posts/002-tech-stack/" />
+<meta property="og:url" content="https://ziv.github.io/airborne/posts/009-textures/" />
 <meta property="og:site_name" content="Airborne" />
 
   
@@ -81,7 +79,7 @@ I explored options like Rust, Go, and Zig, but since raylib is written in C, I u
 <meta property="og:image:height" content="627">
 
 
-  <meta property="article:published_time" content="2026-03-22 00:00:00 &#43;0000 UTC" />
+  <meta property="article:published_time" content="2026-03-29 00:00:00 &#43;0000 UTC" />
 
 
 
@@ -178,9 +176,9 @@ I explored options like Rust, Go, and Zig, but since raylib is written in C, I u
     
 <article class="post">
   <h1 class="post-title">
-    <a href="https://ziv.github.io/airborne/posts/002-tech-stack/">Tech Stack</a>
+    <a href="https://ziv.github.io/airborne/posts/009-textures/">Sattelite Imagery and Textures</a>
   </h1>
-  <div class="post-meta"><time class="post-date">2026-03-22</time>
+  <div class="post-meta"><time class="post-date">2026-03-29</time>
     
 </div>
 
@@ -192,13 +190,18 @@ I explored options like Rust, Go, and Zig, but since raylib is written in C, I u
   
 
   <div class="post-content"><div>
-        <p><img src="/airborne/i1.png" alt="F16 fr"></p>
-<p>When I started this project, I didn&rsquo;t have a clear idea of the tech stack I would be using. I just knew I wanted to dive into low-level graphics programming and leverage my past experience with C++.</p>
-<p>During my research, I discovered <a href="https://github.com/raysan5/raylib">raylib</a>, a simple and easy-to-use graphics library. It simplifies the starting point tremendously and saves me from having to build a rendering engine from scratch.</p>
-<p>I explored options like Rust, Go, and Zig, but since raylib is written in C, I ultimately chose C++ to take advantage of its native C compatibility.</p>
-<p>Coming from languages with robust package managers, the lack of a standard one in C++ was a bit jarring at first. However, I&rsquo;ve gotten used to it, and I honestly don&rsquo;t miss it that much.</p>
-<p>I selected CMake as my build system. Aside from raylib, I have only one other dependency: nlohmann/json, which is the de facto standard for parsing JSON in the C++ world.</p>
-<p>C++ has evolved significantly, and I wanted to utilize its modern capabilities, so I chose C++20 (Concepts!!!) as the standard for this project. I&rsquo;m still learning the ropes, but I&rsquo;m excited to use it. I frequently stumble upon features I didn&rsquo;t know about; it&rsquo;s a great way to learn the language, and having LLMs around to help explain things makes the journey much smoother.</p>
+        <p><img src="/airborne/i8.png" alt="Future fr"></p>
+<p>We left off the last post with a beautiful 3D terrain, but it had a bit of a flaw. We ran into a problem with coloring
+flat plains that happen to sit at or below sea level, they were incorrectly painted as water. In this post, we will
+solve that problem and apply the final texture to our terrain.</p>
+<p><img src="/airborne/hm-and-hyps.png" alt="heightmap and colormap"></p>
+<p>The main issue was that we tried to automatically generate the colors for our terrain based solely on the height of each
+point, without any context of whether it was actually sea or land.</p>
+<p>But I realized I don&rsquo;t have to calculate that. We live in a world where we have access to high-quality satellite
+imagery, and we can use that to our advantage. I fired up QGIS and exported a beautiful satellite image (thanks to Bing
+Maps) of the area around Sardinia. I then used that real-world image as the texture for my terrain, and it looks
+significantly better.</p>
+<p><img src="/airborne/textured-sardinia.png" alt="Sardinia with texture"></p>
 
       </div></div>
 
@@ -211,17 +214,10 @@ I explored options like Rust, Go, and Zig, but since raylib is written in C, I u
     </div>
     <div class="pagination__buttons">
         
-        <span class="button previous">
-            <a href="https://ziv.github.io/airborne/posts/003-window/">
-                <span class="button__icon">←</span>
-                <span class="button__text">First Steps</span>
-            </a>
-        </span>
-        
         
         <span class="button next">
-            <a href="https://ziv.github.io/airborne/posts/001-getting-started/">
-                <span class="button__text">Getting Started</span>
+            <a href="https://ziv.github.io/airborne/posts/008-some-colors/">
+                <span class="button__text">Some Colors</span>
                 <span class="button__icon">→</span>
             </a>
         </span>

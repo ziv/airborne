@@ -3,10 +3,13 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
     <loc>https://ziv.github.io/airborne/</loc>
-    <lastmod>2026-03-28T00:00:00+00:00</lastmod>
+    <lastmod>2026-03-29T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://ziv.github.io/airborne/posts/</loc>
-    <lastmod>2026-03-28T00:00:00+00:00</lastmod>
+    <lastmod>2026-03-29T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://ziv.github.io/airborne/posts/009-textures/</loc>
+    <lastmod>2026-03-29T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://ziv.github.io/airborne/posts/008-some-colors/</loc>
     <lastmod>2026-03-28T00:00:00+00:00</lastmod>
@@ -33,6 +36,8 @@
     <lastmod>2026-03-21T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://ziv.github.io/airborne/about/</loc>
+  </url><url>
+    <loc>https://ziv.github.io/airborne/arch/</loc>
   </url><url>
     <loc>https://ziv.github.io/airborne/categories/</loc>
   </url><url>
