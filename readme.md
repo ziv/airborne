@@ -41,18 +41,44 @@ Only items currently in use in the compiled code:
 
 ## Keyboard Controls
 
+### Flight
+
 - `ARROW UP` - Pitch down
 - `ARROW DOWN` - Pitch up
 - `ARROW LEFT` - Roll left
 - `ARROW RIGHT` - Roll right
-- `+` - Increase throttle
+- `Q` - Yaw left
+- `E` - Yaw right
+- `=` - Increase throttle
 - `-` - Decrease throttle
-- `1-9` - Throttle presets (10% to 90%)
-- `A` - Afterburner
+- `0` - Throttle 0% (cut engines)
+- `1`–`9` - Throttle presets (10% to 90%)
+- `A` - Afterburner (120% throttle)
 - `B` - Toggle brakes
 - `G` - Toggle landing gear
 
+### Game
+
+- `P` - Pause / resume
+- `T` - Toggle autopilot
+- `SPACE` - Return to main menu (after crash)
+- `BACKSPACE` - Exit game
+
+### Navigation / Menus
+
+- `ARROW UP` / `ARROW DOWN` - Navigate menu items
+- `ENTER` / `SPACE` - Confirm selection
+- `ESCAPE` - Back / cancel
+- `/` - Open help screen
+
 ## Display Controls
 
-- `OPTION/ALT` + `H` - Toggle HUD colors (green/white/black)
-- `F1` - Display aircraft from outside
+- `F1` (hold) - External chase camera
+- `F2` - Cycle left cockpit pane
+- `F3` - Cycle center cockpit pane
+- `F4` - Cycle right cockpit pane
+- `R` - Toggle radar mode
+- `Z` - Map zoom in
+- `X` - Map zoom out
+- `ALT` + `H` - Toggle HUD colors (green / white / black)
+- `ALT` + `D` - Toggle debug overlay
