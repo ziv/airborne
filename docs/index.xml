@@ -17,13 +17,13 @@
 &lt;p&gt;In this post, we will continue building our world by adding colors and textures to our terrain. We will also explore how
 to use heightmaps to create a more compelling landscape.&lt;/p&gt;
 &lt;p&gt;First, I owe you a better render of the results from the previous post. I wasn&amp;rsquo;t entirely happy with the way the terrain
-looked in the video, so here it is again—this time as a high-quality image. The gray clouds you see are simply the raw
+looked in the video, so here it is again, this time as a high-quality image. The gray clouds you see are simply the raw
 heightmap applied as a texture directly onto the terrain:&lt;/p&gt;</description>
       <content>&lt;p&gt;&lt;img src=&#34;https://ziv.github.io/airborne/i7.png&#34; alt=&#34;Future fr&#34;&gt;&lt;/p&gt;
 &lt;p&gt;In this post, we will continue building our world by adding colors and textures to our terrain. We will also explore how
 to use heightmaps to create a more compelling landscape.&lt;/p&gt;
 &lt;p&gt;First, I owe you a better render of the results from the previous post. I wasn&amp;rsquo;t entirely happy with the way the terrain
-looked in the video, so here it is again—this time as a high-quality image. The gray clouds you see are simply the raw
+looked in the video, so here it is again, this time as a high-quality image. The gray clouds you see are simply the raw
 heightmap applied as a texture directly onto the terrain:&lt;/p&gt;
 &lt;p&gt;&lt;img src=&#34;https://ziv.github.io/airborne/hm-texture.png&#34; alt=&#34;Heightmap as texture&#34;&gt;&lt;/p&gt;
 &lt;p&gt;Since the original F-15 Strike Eagle II is always in the back of my mind, I wanted to keep the same aesthetic and color

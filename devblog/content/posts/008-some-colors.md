@@ -10,7 +10,7 @@ In this post, we will continue building our world by adding colors and textures 
 to use heightmaps to create a more compelling landscape.
 
 First, I owe you a better render of the results from the previous post. I wasn't entirely happy with the way the terrain
-looked in the video, so here it is again—this time as a high-quality image. The gray clouds you see are simply the raw
+looked in the video, so here it is again, this time as a high-quality image. The gray clouds you see are simply the raw
 heightmap applied as a texture directly onto the terrain:
 
 ![Heightmap as texture](/hm-texture.png)
