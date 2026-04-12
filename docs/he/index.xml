@@ -5,18 +5,6 @@
     <link>https://ziv.github.io/airborne/he/</link>
     <description>Recent content on איירבורן</description>
     <generator>Hugo -- gohugo.io</generator>
-    <language>he-il</language>
-    <lastBuildDate>Sat, 21 Mar 2026 00:00:00 +0000</lastBuildDate><atom:link href="https://ziv.github.io/airborne/he/index.xml" rel="self" type="application/rss+xml" />
-    <item>
-      <title>אודות</title>
-      <link>https://ziv.github.io/airborne/he/about/</link>
-      <pubDate>Sat, 21 Mar 2026 00:00:00 +0000</pubDate>
-      
-      <guid>https://ziv.github.io/airborne/he/about/</guid>
-      <description>&lt;p&gt;בקרוב&lt;/p&gt;</description>
-      <content>&lt;p&gt;בקרוב&lt;/p&gt;
-</content>
-    </item>
-    
+    <language>he-il</language><atom:link href="https://ziv.github.io/airborne/he/index.xml" rel="self" type="application/rss+xml" />
   </channel>
 </rss>

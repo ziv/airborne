@@ -14,7 +14,7 @@ services:
 params:
   themeColor: "pink"
   contentTypeName: "posts"
-  showLanguageSelector: true
+#  showLanguageSelector: true
   twitter:
     creator: "zivdev"
 
