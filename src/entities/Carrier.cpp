@@ -15,7 +15,7 @@ void Carrier::draw(const AircraftState &state) {
     rlPushMatrix();
     rlTranslatef(pos.x, pos.y, pos.z);
     rlRotatef(def.heading, 0.0f, 1.0f, 0.0f);
-    DrawCubeWires({0.0f, 0.0f, 0.0f}, landingBoxHeight, landingBoxHeight, landingBoxLength, VIOLET);
+    DrawCubeWires({0.0f, 0.0f, 0.0f}, landingBoxHeight, landingBoxHeight, landingBoxLength, YELLOW);
     rlPopMatrix();
     // DrawCubeWires(position(state), landingBoxLength, landingBoxHeight, landingBoxWidth, YELLOW);
 }
