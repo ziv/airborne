@@ -102,7 +102,7 @@ void SceneManager::update(AircraftState &state, float dt) {
         state.groundHeight = relativeHeight * r / 255.0f;
     }
     // tiles.update(state.position);
-    cloudModel->materials[0].maps[MATERIAL_MAP_DIFFUSE].color.r += 0.01f * GetFrameTime();
+    cloudModel->materials[0].maps[MATERIAL_MAP_DIFFUSE].color.r += 0.01f * dt;
 }
 
 

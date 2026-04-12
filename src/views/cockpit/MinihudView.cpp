@@ -13,8 +13,8 @@ MinihudView::MinihudView(const AppConfig &config) : ladderX(config.get<int>("/vi
                                                     ladderWidth(config.get<int>("/views/hudLadderWidth")),
                                                     ladderHeight(config.get<int>("/views/hudLadderHeight")),
                                                     fov(config.get<float>("/pilot/fov")),
-                                                    width(config.get<int>("/config/screenWidth")),
-                                                    height(config.get<int>("/config/screenHeight")),
+                                                    width(config.get<int>("/config/width")),
+                                                    height(config.get<int>("/config/height")),
                                                     ladderOffset(config.get<float>("/views/hudLadderOffset")) {
 }
 

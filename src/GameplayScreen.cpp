@@ -18,6 +18,7 @@ GameplayScreen::GameplayScreen(AppConfig &config, const Scenario &scenario)
 ScreenState GameplayScreen::update() {
     if (IsKeyPressed(KEY_P)) game.paused = !game.paused;
     if (game.paused) return ScreenState::GAMEPLAY;
+
     if (game.state.crashed && IsKeyPressed(KEY_SPACE)) return ScreenState::MAIN_MENU;
     if (game.state.crashed) return ScreenState::GAMEPLAY;
 
@@ -26,9 +27,20 @@ ScreenState GameplayScreen::update() {
 
     const auto dt = GetFrameTime();
 
-    game.update(dt);
-    scene.update(game.state, dt);
+    // reset state items
+    // todo make sure the entities update is really run
+    // game.state.landingZone = {false, false, 0.0f};
+
+    // update landing zone info, missiles, etc.
     EntityRegistry::get().update(game.state, dt);
+
+    // main aircraft behavior
+    game.update(dt);
+
+    // scene (sound, clouds, etc...)
+    scene.update(game.state, dt);
+
+    // views
     cockpitView.update(game.state, dt);
     debugView.update();
 

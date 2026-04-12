@@ -1,9 +1,9 @@
 {
   "version": "0.0.0",
-  "name": "airborne",
   "config": {
-    "screenWidth": 1200,
-    "screenHeight": 800,
+    "name": "airborne",
+    "width": 1200,
+    "height": 800,
     // rClipPlane: how far we see the world in 3d mode
     "nearPlane": 1,
     "farPlane": 150000

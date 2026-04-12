@@ -121,103 +121,11 @@ void EntityRegistry::despawn(const EntityId &id) {
 //     return result;
 // }
 
+/// not suppose to be const, update allow to change the state
 void EntityRegistry::update(AircraftState &state, float dt) {
-    // Phase 1: static entities only — no AI update needed
-    for (const auto &e: entities) {
-        e->update(state, dt);
-    }
+    for (const auto &e: entities) e->update(state, dt);
 }
 
 void EntityRegistry::draw(const AircraftState &state) const {
-    for (const auto &e: entities) {
-        e->draw(state);
-    }
-    // for (const auto &e: entities) {
-    //     if (!e->isAlive()) continue;
-    //
-    //     // convert entity world position into the camera's local coordinate frame
-    //     const Vector3 drawPos = {
-    //         e->position.x + state.mapOffset.x,
-    //         e->position.y,
-    //         e->position.z + state.mapOffset.y
-    //     };
-    //
-    //     if (state.tooFar2Draw(drawPos)) continue;
-    //
-    //     // --- draw the entity model (or fallback cube) ---
-    //     auto it = modelCache.find(e->modelId);
-    //     if (it != modelCache.end()) {
-    //         DrawModelEx(it->second, drawPos, {0, 1, 0}, e->heading, {1.0f, 1.0f, 1.0f}, WHITE);
-    //
-    //         // debug wireframe outline
-    //         Color color;
-    //         float size;
-    //         switch (e->faction) {
-    //             case Faction::ENEMY: color = RED;
-    //                 break;
-    //             case Faction::FRIENDLY: color = GREEN;
-    //                 break;
-    //             default: color = GRAY;
-    //                 break;
-    //         }
-    //         switch (e->type) {
-    //             case EntityType::STRUCTURE: size = 50.0f;
-    //                 break;
-    //             case EntityType::AIRBASE: size = 100.0f;
-    //                 break;
-    //             default: size = 30.0f;
-    //                 break;
-    //         }
-    //         // DrawCube(drawPos, size, size, size, color);
-    //         DrawCubeWires(drawPos, size, size, size, BLACK);
-    //     } else {
-    //         // fallback cube when no model loaded
-    //         Color color;
-    //         float size;
-    //         switch (e->faction) {
-    //             case Faction::ENEMY: color = RED;
-    //                 break;
-    //             case Faction::FRIENDLY: color = GREEN;
-    //                 break;
-    //             default: color = GRAY;
-    //                 break;
-    //         }
-    //         switch (e->type) {
-    //             case EntityType::STRUCTURE: size = 50.0f;
-    //                 break;
-    //             case EntityType::AIRBASE: size = 100.0f;
-    //                 break;
-    //             default: size = 30.0f;
-    //                 break;
-    //         }
-    //         DrawCube(drawPos, size, size, size, color);
-    //         DrawCubeWires(drawPos, size, size, size, BLACK);
-    //     }
-    //
-    //     // --- draw 3D landing-zone box for AIRBASE entities ---
-    //     // A semi-transparent wireframe cuboid marks the valid approach volume.
-    //     // Entering this box with gear down, level wings, and low speed = safe landing.
-    //     if (e->type == EntityType::AIRBASE) {
-    //         const bool isCarrier = (e->subtype == "carrier");
-    //
-    //         // dimensions: short side (width) across the heading, long side along it
-    //         const float stripWidth = isCarrier ? 200.0f : 400.0f;
-    //         const float stripLength = isCarrier ? 500.0f : 2000.0f;
-    //         const float boxHeight = 150.0f; // must match GameData::LANDING_BOX_HEIGHT
-    //
-    //         // box sits on the landing surface
-    //         const float surfaceY = isCarrier ? 8.0f : 0.0f;
-    //         // center the box vertically: bottom at surfaceY, top at surfaceY + boxHeight
-    //         const float boxCenterY = surfaceY + boxHeight * 0.5f;
-    //
-    //         // apply heading rotation, then draw a thin cuboid
-    //         rlPushMatrix();
-    //         rlTranslatef(drawPos.x, boxCenterY, drawPos.z);
-    //         rlRotatef(e->heading, 0, 1, 0);
-    //         // X = width (across heading), Y = box height, Z = length (along heading)
-    //         DrawCube({0, 0, 0}, stripWidth, boxHeight, stripLength, Fade(GREEN, 0.08f));
-    //         DrawCubeWires({0, 0, 0}, stripWidth, boxHeight, stripLength, GREEN);
-    //         rlPopMatrix();
-    //     }
-    // }
+    for (const auto &e: entities) e->draw(state);
 }

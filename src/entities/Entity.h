@@ -123,6 +123,7 @@ public:
     /// @brief Get the current world-space position of the entity, applying the large-world offset.
     Vector3 position(const AircraftState &state) const;
 
+    // todo should be const
     virtual void draw(const AircraftState &state);
 
     virtual void update(AircraftState &state, float dt) {

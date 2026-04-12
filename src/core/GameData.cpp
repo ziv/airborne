@@ -43,7 +43,7 @@ void GameData::update(const float dt) {
     // Check if aircraft is over a friendly airstrip or carrier deck.
     // state.landingZone = checkLandingZones();
     // first let the items of the game to provide their inputs
-    EntityRegistry::get().update(state, dt);
+    // EntityRegistry::get().update(state, dt);
 
     // --- 2. Effective floor height ---
     // The floor is the surface below us plus wheel clearance.

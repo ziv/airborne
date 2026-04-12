@@ -18,22 +18,32 @@
 #include "primitives/Logger.h"
 #include "scenario/Scenario.h"
 
+struct MainConfig {
+    int width;
+    int height;
+    std::string name;
+    float nearPlane;
+    float farPlane;
+};
+
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(MainConfig, width, height, name, nearPlane, farPlane);
+
 int main() {
     SetTraceLogCallback(CustomLogCallback);
     SetTraceLogLevel(LOG_DEBUG);
     SetConfigFlags(FLAG_WINDOW_RESIZABLE | FLAG_VSYNC_HINT);
-
 
     // todo make a check before changing the directory to avoid the warning
     // ChangeDirectory(TextFormat("%s../Resources", GetApplicationDirectory()));
     TraceLog(LOG_DEBUG, "Working directory is: %s", GetWorkingDirectory());
 
     const auto config = std::make_unique<AppConfig>();
-    const auto width = config->get<int>("/config/screenWidth");
-    const auto height = config->get<int>("/config/screenHeight");
+    const MainConfig mainConfig = config->get<MainConfig>("/config");
+    // const auto width = config->get<int>("/config/screenWidth");
+    // const auto height = config->get<int>("/config/screenHeight");
 
     InitAudioDevice();
-    InitWindow(width, height, config->get<std::string_view>("/name").data());
+    InitWindow(mainConfig.width, mainConfig.height, mainConfig.name.c_str());
     SetExitKey(KEY_BACKSPACE);
     // todo uncomment to support fullscreen
     // const int monitor = GetCurrentMonitor();
@@ -45,7 +55,7 @@ int main() {
 
     // SetTargetFPS(60);
     // set how far we can see in 3d mode
-    rlSetClipPlanes(config->get<float>("/config/nearPlane"), config->get<float>("/config/farPlane"));
+    rlSetClipPlanes(mainConfig.nearPlane, mainConfig.farPlane);
 
     Scenario activeScenario;
 
@@ -80,6 +90,8 @@ int main() {
         BeginDrawing();
         ClearBackground(BLACK);
         currentScreen->run();
+        DrawRectangle(1050, 775, 100, 25, BLACK);
+        DrawFPS(1050, 780);
         EndDrawing();
 
 
