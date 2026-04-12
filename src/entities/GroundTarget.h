@@ -6,7 +6,7 @@
 #include "Entity.h"
 
 /// @brief A static structure that can take damage and be destroyed.
-struct GroundTarget : EntityBase {
+struct GroundTarget : EntityStruct {
     bool strategicTarget = true;  ///< True if destroying this counts toward mission objectives.
 
     /// @brief Apply @p amount damage; transitions state to DAMAGED or DESTROYED.

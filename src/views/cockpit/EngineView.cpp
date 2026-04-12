@@ -73,17 +73,22 @@ void EngineView::draw(const AircraftState &state, const Vector2 &position) const
 
     // to keep the text in the middle of the gauge
     const auto padding = t > 99 ? 14 : t > 9 ? 10 : 6;
+    auto line = iy + 90;
 
     DrawText(TextFormat("%d%%", t), static_cast<int>(v1.x) - padding, static_cast<int>(v1.y) - 8, 15, Fade(WHITE, 0.5));
     DrawText(TextFormat("%d%%", t), static_cast<int>(v2.x) - padding, static_cast<int>(v2.y) - 8, 15, Fade(WHITE, 0.5));
 
-    DrawText("BRAKES", ix + 10, iy + 90, 10, Fade(WHITE, 0.3));
+    DrawText("BRAKES", ix + 10, line, 10, Fade(WHITE, 0.3));
+    if (state.controls.brakes) DrawText("ON", ix + 90, line, 10, Fade(WHITE, 0.9f));
+    else DrawText("OFF", ix + 90, line, 10, Fade(WHITE, 0.3f));
 
-    if (state.controls.brakes) DrawText("ON", ix + 90, iy + 90, 10, Fade(WHITE, 0.9f));
-    else DrawText("OFF", ix + 90, iy + 90, 10, Fade(WHITE, 0.3f));
+    line += 20;
 
+    DrawText("GEAR", ix + 10, line, 10, Fade(WHITE, 0.3));
+    if (state.controls.gear) DrawText("OUT", ix + 90, line, 10, Fade(WHITE, 0.9f));
+    else DrawText("IN", ix + 90, line, 10, Fade(WHITE, 0.3f));
 
-    DrawText("GEAR", ix + 10, iy + 110, 10, Fade(WHITE, 0.3));
-    if (state.controls.gear) DrawText("OUT", ix + 90, iy + 110, 10, Fade(WHITE, 0.9f));
-    else DrawText("IN", ix + 90, iy + 110, 10, Fade(WHITE, 0.3f));
+    line += 20;
+
+    DrawText("FUEL", ix  + 10,  line, 10, Fade(WHITE, 0.3f));
 }

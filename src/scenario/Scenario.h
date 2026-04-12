@@ -25,7 +25,7 @@ struct StartConditions {
     Vector3 position = {0.0f, 0.0f, 0.0f};
     float heading = 0.0f;
     MeterPerSecond speed = 0.0f;
-    Meter altitude = 100.0f;
+    Meter altitude = 0.0f;
     float fuel = 3500.0f; ///< Starting fuel in kilograms.
     bool carrier = false; ///< True for a carrier catapult launch.
 };
@@ -58,10 +58,10 @@ struct Scenario {
     StartConditions start;
     // WeaponLoadout loadout;
 
-    std::vector<EntityBase> entities; ///< Entities to spawn at mission start.
+    std::vector<EntityStruct> entities; ///< Entities to spawn at mission start.
     // std::vector<Objective> objectives; ///< Mission objectives (required + optional).
     // std::vector<Trigger> triggers; ///< Event-driven scripting triggers.
     // ScenarioScoring scoring;
 };
 
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Scenario, id, name, description, difficulty, theater, start, entities);
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(Scenario, id, name, description, difficulty, theater, start, entities);

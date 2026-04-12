@@ -63,6 +63,11 @@ void MinihudView::draw(const AircraftState &state) const {
         DrawText("A/B ON", 450, 390, 12, ORANGE);
     }
 
+    // -- autopilot warning --
+    if (state.autopilot) {
+        DrawText("A/P ON", 450, 390, 12, colors[color]);
+    }
+
     // --- low-altitude gear warning ---
     // If flying below 500 m AGL with gear retracted, flash a red GEAR alert
     // to remind the pilot to deploy gear before attempting to land.

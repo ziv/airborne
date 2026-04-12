@@ -19,7 +19,6 @@ struct RadarContact {
 };
 
 class RadarView {
-    GameData &game; ///< Reference to the main game data for access to entities.
     float displayRadius = 60.0f; ///< Screen-space radius of the radar circle (pixels).
 
     /// Selectable detection ranges in meters.
@@ -39,8 +38,6 @@ class RadarView {
     static void drawStructure(int x, int y, const Color &color);
 
 public:
-    explicit RadarView(GameData &gameData);
-
     /// @brief Handle the R key to cycle radar range.
     void update();
 

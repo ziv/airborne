@@ -85,5 +85,14 @@ add_executable(${PROJECT_NAME} src/main.cpp
         src/primitives/Session.h
         src/lib/json.h
         src/scenario/Payload.h
+        src/entities/Carrier.cpp
+        src/entities/Carrier.h
+        src/entities/Airbase.cpp
+        src/entities/Airbase.h
+        src/entities/Structure.cpp
+        src/entities/Structure.h
+        src/entities/Aaa.cpp
+        src/entities/Aaa.h
+        src/entities/Entity.cpp
 )
 target_link_libraries(${PROJECT_NAME} PRIVATE raylib)

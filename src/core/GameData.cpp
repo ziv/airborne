@@ -24,15 +24,20 @@ GameData::GameData(const AppConfig &config, const Scenario &scenario)
 
 void GameData::spawnInitialEntities() {
     for (const auto &def: scenario.entities) {
-        if (def.type == EntityType::STRUCTURE) {
-            auto gt = std::make_unique<GroundTarget>();
-            static_cast<EntityBase &>(*gt) = def;
-            gt->strategicTarget = true;
-            entities.spawn(std::move(gt));
-        } else {
-            auto e = std::make_unique<EntityBase>(def);
-            entities.spawn(std::move(e));
-        }
+        // if (def.type == EntityType::STRUCTURE) {
+        //     auto gt = std::make_unique<GroundTarget>();
+        //     static_cast<EntityBase &>(*gt) = def;
+        //     gt->strategicTarget = true;
+        //     entities.spawn(std::move(gt));
+        // } else {
+        //     auto e = std::make_unique<EntityBase>(def);
+        //     entities.spawn(std::move(e));
+        // }
+
+        // auto e = std::make_unique<EntityStruct>(def);
+        EntityRegistry::get().spawn(std::move(std::make_unique<EntityStruct>(def)));
+        EntityRegistry::get().spawn1(std::move(def));
+        // entities.spawn(def);
     }
 }
 
@@ -83,7 +88,7 @@ void GameData::update(const float dt) {
     // --- 7. Remaining subsystems ---
     aircraftTransformation.update(state, dt);
     aircraftCamera.update(state, dt);
-    entities.update(state, dt);
+    EntityRegistry::get().update(state, dt);
 }
 
 /// Scan all friendly AIRBASE entities and test whether the aircraft
@@ -97,7 +102,7 @@ void GameData::update(const float dt) {
 LandingZoneInfo GameData::checkLandingZones() const {
     // constexpr auto rangeSquared = 15000.f * 1500.0f;
 
-    for (const auto &e: entities.allEntities()) {
+    for (const auto &e: EntityRegistry::get().allEntities()) {
         // only consider alive, friendly airbases
         if (e->type != EntityType::AIRBASE) continue;
         if (e->faction != Faction::FRIENDLY) continue;

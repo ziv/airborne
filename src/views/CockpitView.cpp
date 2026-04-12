@@ -13,8 +13,7 @@ CockpitView::CockpitView(GameData &gameData, const AppConfig &config) : cockpitT
                                                                             nullptr, config.get<std::string_view>("/game/cockpitChroma").data())),
                                                                         sprites(LoadTexture(config.get<std::string_view>("/game/cockpitSprites").data())),
                                                                         minihud(config),
-                                                                        mapView(config),
-                                                                        radarView(gameData) {
+                                                                        mapView(config) {
     // chroma shader to make cockpit transparent
     constexpr float thresholdValue = 0.7f;
     SetShaderValue(cockpitShader, GetShaderLocation(cockpitShader, "threshold"), &thresholdValue, SHADER_UNIFORM_FLOAT);

@@ -13,6 +13,17 @@
 #include "../../core/AircraftStructs.h"
 #include "../../primitives/AppConfig.h"
 
+struct MinihudViewConfig {
+    int ladderX;
+    int ladderY;
+    int ladderWidth;
+    int ladderHeight;
+    float fov;
+    int width;
+    int height;
+    float ladderOffset;
+};
+
 class MinihudView {
     // layout configuration (from app.jsonc)
     int ladderX;

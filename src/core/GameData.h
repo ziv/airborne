@@ -57,7 +57,7 @@ public:
     bool paused = false;          ///< When true the simulation is frozen.
     AircraftState state;          ///< Central mutable aircraft state.
     Scenario scenario;            ///< Active mission definition.
-    EntityRegistry entities;      ///< All spawned game entities.
+    // EntityRegistry entities;      ///< All spawned game entities.
 
     // --- Aircraft simulation subsystems (executed in order) ---
     AircraftControls aircraftControls;

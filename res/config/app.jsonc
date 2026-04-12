@@ -57,7 +57,7 @@
     "scenarios": "res/config/scenarios.jsonc"
   },
   "game": {
-    "cockpitTexture": "res/cockpit-z.png",
+    "cockpitTexture": "res/images/cockpit-z.png",
     "cockpitChroma": "res/shaders/chromakey.fs",
     "cockpitSprites": "res/sprites.png",
     "engineSound": "res/engine.mp3",

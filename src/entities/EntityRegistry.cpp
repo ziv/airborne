@@ -7,6 +7,11 @@
 #include "rlgl.h"
 #include <cstdio>
 
+#include "Aaa.h"
+#include "Airbase.h"
+#include "Carrier.h"
+#include "Structure.h"
+
 EntityRegistry::~EntityRegistry() {
     for (auto &[path, model]: modelCache) {
         UnloadModel(model);
@@ -26,7 +31,7 @@ void EntityRegistry::ensureModelLoaded(const std::string &path) {
     TraceLog(LOG_INFO, "Model loaded: %s", path.c_str());
 }
 
-EntityBase *EntityRegistry::spawn(std::unique_ptr<EntityBase> entity) {
+EntityStruct *EntityRegistry::spawn(std::unique_ptr<EntityStruct> entity) {
     const auto &id = entity->id;
     ensureModelLoaded(entity->modelId);
     const size_t index = entities.size();
@@ -34,6 +39,32 @@ EntityBase *EntityRegistry::spawn(std::unique_ptr<EntityBase> entity) {
     idIndex[id] = index;
     TraceLog(LOG_INFO, "Entity spawned: %s", id.c_str());
     return entities.back().get();
+}
+
+void EntityRegistry::spawn1(const EntityStruct &def) {
+    ensureModelLoaded(def.modelId);
+    switch (def.type) {
+        default:
+        case EntityType::None:
+            TraceLog(LOG_WARNING, "Cannot spawn entity with type None: %s", def.id.c_str());
+            break;
+        case EntityType::CARRIER:
+            TraceLog(LOG_INFO, "Spawning carrier: %s", def.id.c_str());
+            entities1.push_back(std::make_unique<Carrier>(def));
+            break;;
+        case EntityType::AIRBASE:
+            TraceLog(LOG_INFO, "Spawning airbase: %s", def.id.c_str());
+            entities1.push_back(std::make_unique<Airbase>(def));
+            break;
+        case EntityType::STRUCTURE:
+            TraceLog(LOG_INFO, "Spawning structure: %s", def.id.c_str());
+            entities1.push_back(std::make_unique<Structure>(def));
+            break;
+        case EntityType::AAA:
+            TraceLog(LOG_INFO, "Spawning AAA: %s", def.id.c_str());
+            entities1.push_back(std::make_unique<Aaa>(def));
+            break;
+    }
 }
 
 void EntityRegistry::destroy(const EntityId &id) {
@@ -48,36 +79,36 @@ void EntityRegistry::despawn(const EntityId &id) {
     }
 }
 
-EntityBase *EntityRegistry::get(const EntityId &id) {
+EntityStruct *EntityRegistry::get(const EntityId &id) {
     const auto it = idIndex.find(id);
     if (it == idIndex.end()) return nullptr;
     return entities[it->second].get();
 }
 
-const EntityBase *EntityRegistry::get(const EntityId &id) const {
+const EntityStruct *EntityRegistry::get(const EntityId &id) const {
     const auto it = idIndex.find(id);
     if (it == idIndex.end()) return nullptr;
     return entities[it->second].get();
 }
 
-std::vector<EntityBase *> EntityRegistry::getByType(EntityType type) {
-    std::vector<EntityBase *> result;
+std::vector<EntityStruct *> EntityRegistry::getByType(EntityType type) {
+    std::vector<EntityStruct *> result;
     for (auto &e: entities) {
         if (e->type == type && e->isAlive()) result.push_back(e.get());
     }
     return result;
 }
 
-std::vector<EntityBase *> EntityRegistry::getByFaction(Faction faction) {
-    std::vector<EntityBase *> result;
+std::vector<EntityStruct *> EntityRegistry::getByFaction(Faction faction) {
+    std::vector<EntityStruct *> result;
     for (auto &e: entities) {
         if (e->faction == faction && e->isAlive()) result.push_back(e.get());
     }
     return result;
 }
 
-std::vector<EntityBase *> EntityRegistry::getInRadius(Vector3 center, float radius) {
-    std::vector<EntityBase *> result;
+std::vector<EntityStruct *> EntityRegistry::getInRadius(Vector3 center, float radius) {
+    std::vector<EntityStruct *> result;
     const float radiusSq = radius * radius;
     for (auto &e: entities) {
         if (!e->isAlive()) continue;
@@ -93,18 +124,18 @@ void EntityRegistry::update(const AircraftState & /*playerState*/, float /*dt*/)
     // Phase 1: static entities only — no AI update needed
 }
 
-void EntityRegistry::draw(const AircraftState &playerState) const {
+void EntityRegistry::draw(const AircraftState &state) const {
     for (const auto &e: entities) {
         if (!e->isAlive()) continue;
 
         // convert entity world position into the camera's local coordinate frame
         const Vector3 drawPos = {
-            e->position.x + playerState.mapOffset.x,
+            e->position.x + state.mapOffset.x,
             e->position.y,
-            e->position.z + playerState.mapOffset.y
+            e->position.z + state.mapOffset.y
         };
 
-        if (playerState.tooFar2Draw(drawPos)) continue;
+        if (state.tooFar2Draw(drawPos)) continue;
 
         // --- draw the entity model (or fallback cube) ---
         auto it = modelCache.find(e->modelId);

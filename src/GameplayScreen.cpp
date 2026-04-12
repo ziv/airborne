@@ -20,12 +20,15 @@ ScreenState GameplayScreen::update() {
     if (game.paused) return ScreenState::GAMEPLAY;
     if (game.state.crashed && IsKeyPressed(KEY_SPACE)) return ScreenState::MAIN_MENU;
     if (game.state.crashed) return ScreenState::GAMEPLAY;
+
     if (IsKeyPressed(KEY_T)) game.autopilot.toggle();
+    game.state.autopilot = game.autopilot.isActive();
+
     const auto dt = GetFrameTime();
 
     game.update(dt);
     scene.update(game.state, dt);
-    game.entities.update(game.state, dt);
+    EntityRegistry::get().update(game.state, dt);
     cockpitView.update(game.state, dt);
     debugView.update();
 
@@ -42,7 +45,7 @@ void GameplayScreen::run() {
         // the main scene
         scene.draw(state, camera);
         // all the entities in the scene
-        game.entities.draw(state);
+        EntityRegistry::get().draw(state);
     // @formatter:on
     EndMode3D();
 

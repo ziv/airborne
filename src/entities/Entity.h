@@ -8,6 +8,8 @@
 #include "../lib/json.h"
 #include <string>
 
+#include "../core/AircraftStructs.h"
+
 /// Unique string identifier for an entity instance.
 using EntityId = std::string;
 
@@ -46,6 +48,7 @@ enum class EntityType {
     STRUCTURE, ///< Static buildings: bridges, depots, radars, bunkers.
     NAVAL,
     AIRBASE, ///< Friendly or enemy airstrip / carrier.
+    CARRIER, ///< Friendly or enemy airstrip / carrier.
     WAYPOINT ///< Invisible navigation point.
 };
 
@@ -56,6 +59,7 @@ NLOHMANN_JSON_SERIALIZE_ENUM(EntityType, {
                              {EntityType::STRUCTURE, "structure"},
                              {EntityType::NAVAL, "naval"},
                              {EntityType::AIRBASE, "airbase"},
+                             {EntityType::CARRIER, "carrier"},
                              {EntityType::WAYPOINT, "waypoint"}
                              });
 
@@ -64,7 +68,7 @@ NLOHMANN_JSON_SERIALIZE_ENUM(EntityType, {
  *
  * Subclasses (e.g. GroundTarget) extend this with type-specific behavior.
  */
-struct EntityBase {
+struct EntityStruct {
     EntityId id = "";
     EntityType type = EntityType::None;
     std::string subtype = ""; ///< Optional subclassification (e.g. "carrier" for AIRBASE).
@@ -75,14 +79,36 @@ struct EntityBase {
     float heading = 0.0f; ///< Compass heading in degrees (0 = north/+Z).
     float health = 100.0f;
     float maxHealth = 100.0f;
+    float scale = 1.0f;
 
     std::string modelId = ""; ///< Path to the .glb model file, or empty for fallback cube.
+
+    std::map<std::string, float> params = {};
+
+    std::map<std::string, std::string> properties = {};
 
     [[nodiscard]] bool isAlive() const {
         return state == EntityState::ACTIVE || state == EntityState::DAMAGED;
     }
 
     [[nodiscard]] bool isEnemy() const { return faction == Faction::ENEMY; }
+    [[nodiscard]] bool isFriendly() const { return faction == Faction::FRIENDLY; }
 };
 
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(EntityBase, id, type, subtype, faction, state, position, heading, health, maxHealth, modelId);
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(EntityStruct, id, type, subtype, faction, state, position, heading, health, maxHealth, modelId);
+
+class EntityBase {
+protected:
+    EntityStruct et;
+    Color color = GRAY;
+
+public:
+    explicit EntityBase(EntityStruct _et) : et(std::move(_et)) {
+        if (et.isEnemy()) color = RED;
+        if (et.isFriendly()) color = GREEN;
+    }
+
+    virtual ~EntityBase() = default;
+
+    virtual void draw(const AircraftState &state);
+};

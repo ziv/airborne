@@ -7,9 +7,6 @@
 #include "CockpitViews.h"
 #include "../../primitives/Constants.h"
 
-RadarView::RadarView(GameData &gameData) : game(gameData) {
-}
-
 void RadarView::update() {
     if (IsKeyPressed(KEY_R)) {
         rangeIndex = (rangeIndex + 1) % RANGE_COUNT;
@@ -51,7 +48,7 @@ void RadarView::draw(const AircraftState &state,
     const Vector2 right = Vector2Normalize({state.orientation.right.x, state.orientation.right.z});
 
     // iterating items and if they are in range, display them on the radar
-    game.entities.forEachAlive([&](const EntityBase &e) {
+    EntityRegistry::get().forEachAlive([&](const EntityStruct &e) {
         const float dx = e.position.x - playerX;
         const float dz = e.position.z - playerZ;
 

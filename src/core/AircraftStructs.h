@@ -99,6 +99,8 @@ struct AircraftState {
     /// Set each frame by GameData before physics runs.
     float effectiveFloorHeight = 0.0f;
 
+    bool autopilot = false;
+
     /// Landing zone info for the current frame (set by GameData).
     LandingZoneInfo landingZone;
 
