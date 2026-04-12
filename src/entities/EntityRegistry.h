@@ -22,15 +22,16 @@
 class EntityRegistry {
     EntityRegistry() = default;
 
-    std::unordered_map<EntityId, size_t> idIndex{}; ///< Entity ID → vector index.
-    std::vector<std::unique_ptr<EntityStruct> > entities{}; ///< Owning storage for all entities.
-    std::vector<std::unique_ptr<EntityBase> > entities1{}; ///< Owning storage for all entities.
-    std::unordered_map<std::string, Model> modelCache{}; ///< Loaded 3D models keyed by file path.
+    // std::unordered_map<EntityId, size_t> idIndex{}; ///< Entity ID → vector index.
+    // std::vector<std::unique_ptr<EntityDef> > entities{}; ///< Owning storage for all entities.
+    std::vector<std::unique_ptr<EntityBase> > entities{}; ///< Owning storage for all entities.
 
     /// @brief Load a model from disk if not already in the cache.
     void ensureModelLoaded(const std::string &path);
 
 public:
+    std::unordered_map<std::string, Model> modelCache{}; ///< Loaded 3D models keyed by file path.
+
     ~EntityRegistry();
 
     EntityRegistry(const EntityRegistry &) = delete;
@@ -48,9 +49,9 @@ public:
 
     /// @brief Add a new entity to the registry and load its model.
     /// @return Raw pointer to the spawned entity (registry retains ownership).
-    EntityStruct *spawn(std::unique_ptr<EntityStruct> entity);
+    // EntityDef *spawn(std::unique_ptr<EntityDef> entity);
 
-    void spawn1(const EntityStruct &def);
+    void spawn(const EntityDef &def);
 
     /// @brief Mark an entity as DESTROYED (remains in registry for scoring).
     void destroy(const EntityId &id);
@@ -59,25 +60,25 @@ public:
     void despawn(const EntityId &id);
 
     /// @brief Look up an entity by its unique ID. Returns nullptr if not found.
-    EntityStruct *get(const EntityId &id);
+    // EntityDef *get(const EntityId &id);
 
-    [[nodiscard]] const EntityStruct *get(const EntityId &id) const;
+    // [[nodiscard]] const EntityDef *get(const EntityId &id) const;
 
     /// @brief Return all alive entities of a given type.
-    std::vector<EntityStruct *> getByType(EntityType type);
+    // std::vector<EntityDef *> getByType(EntityType type);
 
     /// @brief Return all alive entities belonging to a faction.
-    std::vector<EntityStruct *> getByFaction(Faction faction);
+    // std::vector<EntityDef *> getByFaction(Faction faction);
 
     /// @brief Return all alive entities within @p radius meters of @p center.
-    std::vector<EntityStruct *> getInRadius(Vector3 center, float radius);
+    // std::vector<EntityDef *> getInRadius(Vector3 center, float radius);
 
     /// Read-only access to the full entity list (for iteration without mutation).
-    [[nodiscard]] const std::vector<std::unique_ptr<EntityStruct> > &allEntities() const { return entities; }
+    [[nodiscard]] const std::vector<std::unique_ptr<EntityBase> > &allEntities() const { return entities; }
 
     /// @brief Invoke @p fn on every entity (including dead/despawned).
     /// this is template, notice the auto
-    void forEach(std::invocable<EntityStruct &> auto fn) {
+    void forEach(std::invocable<EntityDef &> auto fn) {
         for (auto &e: entities) {
             fn(*e);
         }
@@ -85,16 +86,16 @@ public:
 
     /// @brief Invoke @p fn only on entities in ACTIVE or DAMAGED state.
     /// this is template, notice the auto
-    void forEachAlive(std::invocable<EntityStruct &> auto fn) {
-        for (auto &e: entities) {
-            if (e->isAlive()) {
-                fn(*e);
-            }
-        }
+    void forEachAlive(std::invocable<EntityDef &> auto fn) {
+        // for (auto &e: entities) {
+        //     // if (e->()) {
+        //     fn(*e);
+        //     // }
+        // }
     }
 
     /// @brief Per-frame entity logic (currently a no-op for static entities).
-    void update(const AircraftState &playerState, float dt);
+    void update(AircraftState &playerState, float dt);
 
     /// @brief Draw all alive entities with their models (or fallback cubes) and landing-zone boxes.
     void draw(const AircraftState &state) const;

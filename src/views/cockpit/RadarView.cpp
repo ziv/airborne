@@ -48,7 +48,7 @@ void RadarView::draw(const AircraftState &state,
     const Vector2 right = Vector2Normalize({state.orientation.right.x, state.orientation.right.z});
 
     // iterating items and if they are in range, display them on the radar
-    EntityRegistry::get().forEachAlive([&](const EntityStruct &e) {
+    EntityRegistry::get().forEachAlive([&](const EntityDef &e) {
         const float dx = e.position.x - playerX;
         const float dz = e.position.z - playerZ;
 

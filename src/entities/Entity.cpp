@@ -3,9 +3,28 @@
 //
 #include "Entity.h"
 
-void EntityBase::draw(const AircraftState &state) {
-    if (!et.isAlive()) return;
+#include "EntityRegistry.h"
 
-    // todo draw the model if modelId is set, otherwise fallback to a cube
-    DrawCube(et.position, 20 * et.scale, 20 * et.scale, 20 * et.scale, et.isEnemy() ? RED : GREEN);
+Vector3 EntityBase::position(const AircraftState &state) const {
+    return (Vector3){
+        def.position.x + state.mapOffset.x,
+        def.position.y,
+        def.position.z + state.mapOffset.y
+    };
+}
+
+void EntityBase::draw(const AircraftState &state) {
+    if (!def.isAlive()) return;
+    const Vector3 drawPos = {
+        def.position.x + state.mapOffset.x,
+        def.position.y,
+        def.position.z + state.mapOffset.y
+    };
+
+    if (state.tooFar2Draw(drawPos)) return;
+    if (EntityRegistry::get().modelCache.contains(def.modelId)) {
+        DrawModelEx(EntityRegistry::get().modelCache[def.modelId], drawPos, {0, 1, 0}, def.heading, {1.0f, 1.0f, 1.0f}, WHITE);
+    } else {
+        DrawCube(drawPos, 100 * def.scale, 100 * def.scale, 100 * def.scale, def.isEnemy() ? RED : GREEN);
+    }
 }

@@ -7,7 +7,6 @@
 #include "raylib.h"
 #include "../lib/json.h"
 #include <string>
-
 #include "../core/AircraftStructs.h"
 
 /// Unique string identifier for an entity instance.
@@ -68,7 +67,7 @@ NLOHMANN_JSON_SERIALIZE_ENUM(EntityType, {
  *
  * Subclasses (e.g. GroundTarget) extend this with type-specific behavior.
  */
-struct EntityStruct {
+struct EntityDef {
     EntityId id = "";
     EntityType type = EntityType::None;
     std::string subtype = ""; ///< Optional subclassification (e.g. "carrier" for AIRBASE).
@@ -87,28 +86,54 @@ struct EntityStruct {
 
     std::map<std::string, std::string> properties = {};
 
+    float getParam(const std::string &key, const float defaultValue = 0.0f) const {
+        const auto it = params.find(key);
+        return it != params.end() ? it->second : defaultValue;
+    }
+
+    std::string getProperty(const std::string &key, const std::string &defaultValue = "") const {
+        const auto it = properties.find(key);
+        return it != properties.end() ? it->second : defaultValue;
+    }
+
     [[nodiscard]] bool isAlive() const {
         return state == EntityState::ACTIVE || state == EntityState::DAMAGED;
     }
 
     [[nodiscard]] bool isEnemy() const { return faction == Faction::ENEMY; }
+
     [[nodiscard]] bool isFriendly() const { return faction == Faction::FRIENDLY; }
 };
 
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(EntityStruct, id, type, subtype, faction, state, position, heading, health, maxHealth, modelId);
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(EntityDef, id, type, subtype, faction, state, position, heading, health, maxHealth, modelId, params);
 
 class EntityBase {
 protected:
-    EntityStruct et;
+    EntityDef def;
     Color color = GRAY;
 
 public:
-    explicit EntityBase(EntityStruct _et) : et(std::move(_et)) {
-        if (et.isEnemy()) color = RED;
-        if (et.isFriendly()) color = GREEN;
+    explicit EntityBase(EntityDef _et) : def(std::move(_et)) {
+        if (isEnemy()) color = RED;
+        if (isFriendly()) color = GREEN;
     }
 
     virtual ~EntityBase() = default;
 
+    /// @brief Get the current world-space position of the entity, applying the large-world offset.
+    Vector3 position(const AircraftState &state) const;
+
     virtual void draw(const AircraftState &state);
+
+    virtual void update(AircraftState &state, float dt) {
+        // default: no per-frame behavior
+    }
+
+    [[nodiscard]] bool isAlive() const {
+        return def.state == EntityState::ACTIVE || def.state == EntityState::DAMAGED;
+    }
+
+    [[nodiscard]] bool isEnemy() const { return def.faction == Faction::ENEMY; }
+
+    [[nodiscard]] bool isFriendly() const { return def.faction == Faction::FRIENDLY; }
 };

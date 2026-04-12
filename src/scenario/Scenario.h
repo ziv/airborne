@@ -58,7 +58,7 @@ struct Scenario {
     StartConditions start;
     // WeaponLoadout loadout;
 
-    std::vector<EntityStruct> entities; ///< Entities to spawn at mission start.
+    std::vector<EntityDef> entities; ///< Entities to spawn at mission start.
     // std::vector<Objective> objectives; ///< Mission objectives (required + optional).
     // std::vector<Trigger> triggers; ///< Event-driven scripting triggers.
     // ScenarioScoring scoring;

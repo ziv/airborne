@@ -18,38 +18,32 @@ GameData::GameData(const AppConfig &config, const Scenario &scenario)
       aircraftCamera(config) {
     // place the aircraft at the scenario start position
     state.position = scenario.start.position;
+    const auto yawRadians = scenario.start.heading * DEG2RAD;
+    const Quaternion yawRotation = QuaternionFromAxisAngle( { 0.0f, 1.0f, 0.0f }, yawRadians);
+    aircraftTransformation.updateOrientation(state, yawRotation);
     state.fuel = scenario.start.fuel;
     spawnInitialEntities();
 }
 
 void GameData::spawnInitialEntities() {
     for (const auto &def: scenario.entities) {
-        // if (def.type == EntityType::STRUCTURE) {
-        //     auto gt = std::make_unique<GroundTarget>();
-        //     static_cast<EntityBase &>(*gt) = def;
-        //     gt->strategicTarget = true;
-        //     entities.spawn(std::move(gt));
-        // } else {
-        //     auto e = std::make_unique<EntityBase>(def);
-        //     entities.spawn(std::move(e));
-        // }
-
-        // auto e = std::make_unique<EntityStruct>(def);
-        EntityRegistry::get().spawn(std::move(std::make_unique<EntityStruct>(def)));
-        EntityRegistry::get().spawn1(std::move(def));
-        // entities.spawn(def);
+        EntityRegistry::get().spawn(std::move(def));
     }
 }
 
 /// Main per-frame update — runs controls, physics, orientation, camera, entities.
 /// Handles landing-zone detection, ground collision, and crash logic.
 void GameData::update(const float dt) {
+    state.landingZone =  {true, true, 8.0f}; // reset landing zone info each frame
+    // state.landingZone = {false, false, 0.0f}; // {true, true, 8.0f}; // reset landing zone info each frame
     // once crashed, freeze everything
     if (state.crashed) return;
 
     // --- 1. Landing zone detection ---
     // Check if aircraft is over a friendly airstrip or carrier deck.
-    state.landingZone = checkLandingZones();
+    // state.landingZone = checkLandingZones();
+    // first let the items of the game to provide their inputs
+    EntityRegistry::get().update(state, dt);
 
     // --- 2. Effective floor height ---
     // The floor is the surface below us plus wheel clearance.
@@ -88,7 +82,6 @@ void GameData::update(const float dt) {
     // --- 7. Remaining subsystems ---
     aircraftTransformation.update(state, dt);
     aircraftCamera.update(state, dt);
-    EntityRegistry::get().update(state, dt);
 }
 
 /// Scan all friendly AIRBASE entities and test whether the aircraft
@@ -102,52 +95,53 @@ void GameData::update(const float dt) {
 LandingZoneInfo GameData::checkLandingZones() const {
     // constexpr auto rangeSquared = 15000.f * 1500.0f;
 
-    for (const auto &e: EntityRegistry::get().allEntities()) {
-        // only consider alive, friendly airbases
-        if (e->type != EntityType::AIRBASE) continue;
-        if (e->faction != Faction::FRIENDLY) continue;
-        if (!e->isAlive()) continue;
-
-        // convert entity world position into the aircraft's local coordinate frame
-        const float entityLocalX = e->position.x + state.mapOffset.x;
-        const float entityLocalZ = e->position.z + state.mapOffset.y;
-
-        // vector from entity center to aircraft (XZ plane)
-        const float dx = state.position.x - entityLocalX;
-        const float dz = state.position.z - entityLocalZ;
-
-        // todo make this test better
-        if (dx + dz > 10000) continue;
-
-        const bool isCarrier = (e->subtype == "carrier");
-
-        // half-extents: short side (width) across heading, long side along heading
-        // todo see EntityRegistry draw, GameData consts
-        const float halfWidth = isCarrier ? 100.0f : 200.0f; // 200/2  or 500/2
-        const float halfLength = isCarrier ? 250.0f : 2000.0f; // 500/2  or 2000/2
-        const float surfaceY = isCarrier ? 8.0f : 0.0f;
-
-
-        // rotate into the entity's heading-aligned frame
-        // heading 0 → forward = +Z, heading 90 → forward = +X
-        const float rad = e->heading * DEG2RAD;
-        const float cosH = cosf(rad);
-        const float sinH = sinf(rad);
-        const float localAlong = dx * sinH + dz * cosH; // along runway
-        const float localAcross = dx * cosH - dz * sinH; // across runway
-
-        // 2D footprint check
-        if (fabsf(localAlong) >= halfLength) continue;
-        if (fabsf(localAcross) >= halfWidth) continue;
-
-        // vertical check — aircraft must be inside the 3D box:
-        //   bottom = surfaceY,  top = surfaceY + LANDING_BOX_HEIGHT
-        if (state.position.y < surfaceY || state.position.y > surfaceY + LANDING_BOX_HEIGHT) continue;
-
-        // aircraft is inside this landing zone
-        return {true, isCarrier, surfaceY};
-    }
-    return {}; // not over any landing zone
+    // for (const auto &e: EntityRegistry::get().allEntities()) {
+    //     // only consider alive, friendly airbases
+    //     if (e->type != EntityType::AIRBASE) continue;
+    //     if (e->faction != Faction::FRIENDLY) continue;
+    //     if (!e->isAlive()) continue;
+    //
+    //     // convert entity world position into the aircraft's local coordinate frame
+    //     const float entityLocalX = e->position.x + state.mapOffset.x;
+    //     const float entityLocalZ = e->position.z + state.mapOffset.y;
+    //
+    //     // vector from entity center to aircraft (XZ plane)
+    //     const float dx = state.position.x - entityLocalX;
+    //     const float dz = state.position.z - entityLocalZ;
+    //
+    //     // todo make this test better
+    //     if (dx + dz > 10000) continue;
+    //
+    //     const bool isCarrier = (e->subtype == "carrier");
+    //
+    //     // half-extents: short side (width) across heading, long side along heading
+    //     // todo see EntityRegistry draw, GameData consts
+    //     const float halfWidth = isCarrier ? 100.0f : 200.0f; // 200/2  or 500/2
+    //     const float halfLength = isCarrier ? 250.0f : 2000.0f; // 500/2  or 2000/2
+    //     const float surfaceY = isCarrier ? 8.0f : 0.0f;
+    //
+    //
+    //     // rotate into the entity's heading-aligned frame
+    //     // heading 0 → forward = +Z, heading 90 → forward = +X
+    //     const float rad = e->heading * DEG2RAD;
+    //     const float cosH = cosf(rad);
+    //     const float sinH = sinf(rad);
+    //     const float localAlong = dx * sinH + dz * cosH; // along runway
+    //     const float localAcross = dx * cosH - dz * sinH; // across runway
+    //
+    //     // 2D footprint check
+    //     if (fabsf(localAlong) >= halfLength) continue;
+    //     if (fabsf(localAcross) >= halfWidth) continue;
+    //
+    //     // vertical check — aircraft must be inside the 3D box:
+    //     //   bottom = surfaceY,  top = surfaceY + LANDING_BOX_HEIGHT
+    //     if (state.position.y < surfaceY || state.position.y > surfaceY + LANDING_BOX_HEIGHT) continue;
+    //
+    //     // aircraft is inside this landing zone
+    //     return {true, isCarrier, surfaceY};
+    // }
+    // return {}; // not over any landing zone
+    return {true, true, 8.0f};
 }
 
 /// Landing quality check — called at the exact moment of touchdown.

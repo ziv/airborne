@@ -13,7 +13,7 @@
           60000
         ],
         // placeholder — carrier deck
-        "heading": 90,
+        "heading": 45,
         "speed": 0,
         "altitude": 8,
         "fuel": 3500,
@@ -59,7 +59,7 @@
       "entities": [
         {
           "id": "home-base",
-          "type": "airbase",
+          "type": "carrier",
           "subtype": "carrier",
           "faction": "friendly",
           "state": "active",
@@ -72,7 +72,13 @@
           "health": 100,
           "maxHealth": 100,
           "modelId": "res/models/carrier-s.glb",
-          "scale": 1
+          "scale": 1,
+          "params": {
+            "minx": 30000,
+            "maxx": 31000,
+            "minz": 59000,
+            "maxz": 61000
+          }
         },
         {
           "id": "abother-home-base",
@@ -84,10 +90,16 @@
             74000
           ],
           // placeholder
-          "heading": 90,
+          "heading": 0,
           "faction": "friendly",
           "model": "none",
-          "scale": 1
+          "scale": 1,
+          "params": {
+            "minx": 30000,
+            "maxx": 31000,
+            "minz": 59000,
+            "maxz": 61000
+          }
         },
         {
           "id": "radar-station",

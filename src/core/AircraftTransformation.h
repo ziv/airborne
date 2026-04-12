@@ -32,9 +32,6 @@ class AircraftTransformation {
     /// @brief Apply restricted orientation changes while on the ground.
     void groundOrientation(AircraftState &state, float dt) const;
 
-    /// @brief Apply a delta quaternion and re-derive basis vectors.
-    static void updateOrientation(AircraftState &state, const Quaternion &qDelta);
-
 public:
     explicit AircraftTransformation(const AppConfig &config);
 
@@ -42,4 +39,7 @@ public:
     /// @param state  Mutable aircraft state.
     /// @param dt     Frame delta time (seconds).
     void update(AircraftState &state, float dt) const;
+
+    /// @brief Apply a delta quaternion and re-derive basis vectors.
+    static void updateOrientation(AircraftState &state, const Quaternion &qDelta);
 };

@@ -94,5 +94,7 @@ add_executable(${PROJECT_NAME} src/main.cpp
         src/entities/Aaa.cpp
         src/entities/Aaa.h
         src/entities/Entity.cpp
+        src/primitives/Math.h
+        src/entities/EntitiesUtils.h
 )
 target_link_libraries(${PROJECT_NAME} PRIVATE raylib)
