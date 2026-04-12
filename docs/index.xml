@@ -32,7 +32,7 @@
 &lt;/ul&gt;
 &lt;p&gt;In order to simulate the physics of the aircraft, we need to calculate these forces and apply them to the plane.&lt;/p&gt;
 &lt;p&gt;I opened my physics book and started to write down the equations that I will need to implement in my game. I will not go into the details of the equations, but I will explain the basic idea behind them.&lt;/p&gt;
-&lt;p&gt;I started from the basics, Newton&amp;rsquo;s second law of motion—force equals mass times acceleration:&lt;/p&gt;
+&lt;p&gt;I started from the basics, Newton&amp;rsquo;s second law of motion, force equals mass times acceleration:&lt;/p&gt;
 &lt;p&gt;$$F = ma$$&lt;/p&gt;
 &lt;p&gt;Since I want to get the acceleration in a 3D space, I will use vectors to represent the forces:&lt;/p&gt;
 &lt;p&gt;$$\vec{F}_{net} = \vec{T} + \vec{L} + \vec{D} + \vec{W}$$&lt;/p&gt;

@@ -18,7 +18,7 @@ In order to simulate the physics of the aircraft, we need to calculate these for
 
 I opened my physics book and started to write down the equations that I will need to implement in my game. I will not go into the details of the equations, but I will explain the basic idea behind them.
 
-I started from the basics, Newton's second law of motion—force equals mass times acceleration:
+I started from the basics, Newton's second law of motion, force equals mass times acceleration:
 
 $$F = ma$$
 
