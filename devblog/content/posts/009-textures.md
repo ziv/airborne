@@ -2,7 +2,7 @@
 date = '2026-03-29T00:00:00+00:00'
 draft = false
 title = "Textures From The Sky"
-cover = "i8.png"
+cover = "cover/i8.png"
 +++
 
 We left off the last post with a beautiful 3D terrain, but it had a bit of a flaw. We ran into a problem with coloring

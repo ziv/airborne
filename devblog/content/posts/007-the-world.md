@@ -2,7 +2,7 @@
 date = '2026-03-27T00:00:00+00:00'
 draft = false
 title = "The World is Flat Enough"
-cover = "i6.png"
+cover = "cover/i6.png"
 +++
 
 Before we can move our camera in a 3D space, we need to define the world that we will be moving in.

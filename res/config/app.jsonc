@@ -62,7 +62,7 @@
     "cockpitSprites": "res/sprites.png",
     "engineSound": "res/engine.mp3",
     "mapTexture": "res/north-tx-2048.jpg",
-    "mapHeightmap": "res/north-hm.png",
+    "mapHeightmap": "res/images/north-hm.png",
     "fogShaderVs": "res/shaders/fog.vs",
     "fogShaderFs": "res/shaders/fog.fs",
     "mapSizeX": 128000,

@@ -2,7 +2,7 @@
 date = '2026-03-28T00:00:00+00:00'
 draft = false
 title = "Coloring Book"
-cover = "i7.png"
+cover = "cover/i7.png"
 +++
 
 In this post, we will continue building our world by adding colors and textures to our terrain. We will also explore how

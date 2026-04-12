@@ -2,7 +2,7 @@
 date = '2026-03-22T00:00:00+00:00'
 draft = false
 title = 'Tech Stack'
-cover = "i1.png"
+cover = "cover/i1.png"
 +++
 
 When I started this project, I didn't have a clear idea of the tech stack I would be using. I just knew I wanted to dive into low-level graphics programming and leverage my past experience with C++.

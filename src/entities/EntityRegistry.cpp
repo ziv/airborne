@@ -163,12 +163,12 @@ void EntityRegistry::draw(const AircraftState &playerState) const {
             const bool isCarrier = (e->subtype == "carrier");
 
             // dimensions: short side (width) across the heading, long side along it
-            const float stripWidth = 400.0f; // isCarrier ? 400.0f : 800.0f;
-            const float stripLength = 2000.0f; // isCarrier ? 2000.0f : 4000.0f;
+            const float stripWidth = isCarrier ? 200.0f : 400.0f;
+            const float stripLength = isCarrier ? 500.0f : 2000.0f;
             const float boxHeight = 150.0f; // must match GameData::LANDING_BOX_HEIGHT
 
             // box sits on the landing surface
-            const float surfaceY = isCarrier ? 150.0f : 0.0f;
+            const float surfaceY = isCarrier ? 8.0f : 0.0f;
             // center the box vertically: bottom at surfaceY, top at surfaceY + boxHeight
             const float boxCenterY = surfaceY + boxHeight * 0.5f;
 

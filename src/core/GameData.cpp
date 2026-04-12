@@ -50,8 +50,7 @@ void GameData::update(const float dt) {
     // The floor is the surface below us plus wheel clearance.
     // Over a carrier deck the surface is 150 m; otherwise use terrain height.
     if (state.landingZone.active) {
-        state.effectiveFloorHeight =
-                fmaxf(state.groundHeight, state.landingZone.surfaceHeight) + heightAboveGround;
+        state.effectiveFloorHeight = fmaxf(state.groundHeight, state.landingZone.surfaceHeight) + heightAboveGround;
     } else {
         state.effectiveFloorHeight = state.groundHeight + heightAboveGround;
     }
@@ -74,6 +73,11 @@ void GameData::update(const float dt) {
         // hit terrain / sea with no runway below → crash
         // landed on a strip but too fast, gear up, or wings not level → crash
         if (!state.landingZone.active || !isGoodLanding()) state.crashed = true;
+        if (!state.crashed && state.landingZone.isCarrier) {
+            // todo replace with physics of stoping and not like that
+            // todo stop aitcraft as it touch the ground
+            state.forces.velocity = {0.0f, 0.0f, 0.0f};
+        }
     }
 
     // --- 7. Remaining subsystems ---
@@ -114,9 +118,9 @@ LandingZoneInfo GameData::checkLandingZones() const {
 
         // half-extents: short side (width) across heading, long side along heading
         // todo see EntityRegistry draw, GameData consts
-        const float halfWidth = 200.f; // isCarrier ? 400.0f : 800.0f; // 200/2  or 500/2
-        const float halfLength = 1000.f; // isCarrier ? 2000.0f : 4000.0f; // 500/2  or 2000/2
-        const float surfaceY = isCarrier ? 150.0f : 0.0f;
+        const float halfWidth = isCarrier ? 100.0f : 200.0f; // 200/2  or 500/2
+        const float halfLength = isCarrier ? 250.0f : 2000.0f; // 500/2  or 2000/2
+        const float surfaceY = isCarrier ? 8.0f : 0.0f;
 
 
         // rotate into the entity's heading-aligned frame

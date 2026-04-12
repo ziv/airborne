@@ -14,6 +14,7 @@ void AircraftPhysics::update(AircraftState &state, const float dt) const {
     state.forces.drag = (state.forces.speed * state.forces.speed) * conf.dragCoefficient;
     state.forces.lift = (state.forces.speed * state.forces.speed) * conf.liftCoefficient;
 
+    // todo if touch carrier should stop immediately
 
     // fuel consumption: idle baseline + linear at military power, exponential in afterburner
     // todo should come from configuration
@@ -35,7 +36,7 @@ void AircraftPhysics::update(AircraftState &state, const float dt) const {
     // --- Airborne vs Ground drag model ---
     // todo move out?
     if (state.flying) {
-        if (state.controls.brakes) state.forces.drag *= conf.flyingBrakesDragRatio; // breaks increase drag by 600%
+        if (state.controls.brakes) state.forces.drag *= conf.flyingBrakesDragRatio; // breaks increase drag by 200%
         if (state.controls.gear) state.forces.drag *= conf.flyingGearDragRatio; // gear generate drag
         if (state.forces.speed < conf.stallSpeed) state.forces.lift *= conf.stallLiftRatio; // stall reduce lift by 90%
     } else {

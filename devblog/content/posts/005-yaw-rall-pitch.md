@@ -2,7 +2,7 @@
 date = '2026-03-25T00:00:00+00:00'
 draft = false
 title = "Orientation Is Everything"
-cover = "i4.png"
+cover = "cover/i4.png"
 +++
 
 Let's continue exploring model movement. In this example, we will take all three angles into account: roll, pitch, and yaw.

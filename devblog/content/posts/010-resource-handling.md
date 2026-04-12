@@ -2,7 +2,7 @@
 date = '2026-03-30T00:00:00+00:00'
 draft = false
 title = "Resource Micro Management"
-cover = "i9.png"
+cover = "cover/i9.png"
 +++
 
 In this post, I'm taking a brief break from graphics to talk about under-the-hood architecture-specifically, how I

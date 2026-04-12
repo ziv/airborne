@@ -9,7 +9,7 @@
       "start": {
         "position": [
           30000,
-          150,
+          8,
           60000
         ],
         // placeholder — carrier deck
@@ -72,7 +72,7 @@
           "state": "active",
           "health": 100,
           "maxHealth": 100,
-          "modelId": "res/models/carrier.glb",
+          "modelId": "res/models/carrier-s.glb",
           "scale": 0.5
         },
         {
@@ -87,7 +87,7 @@
           // placeholder
           "heading": 90,
           "faction": "friendly",
-          "model": "res/airport.glb"
+          "model": "none"
         }
 //        {
 //          "id": "radar-station",

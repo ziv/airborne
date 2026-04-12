@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Posts on איירבורן</title>
+    <link>http://localhost:1313/airborne/he/posts/</link>
+    <description>Recent content in Posts on איירבורן</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>he-il</language>
+    <lastBuildDate>Sat, 21 Mar 2026 00:00:00 +0000</lastBuildDate><atom:link href="http://localhost:1313/airborne/he/posts/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>התחלה</title>
+      <link>http://localhost:1313/airborne/he/posts/001-getting-started/</link>
+      <pubDate>Sat, 21 Mar 2026 00:00:00 +0000</pubDate>
+      
+      <guid>http://localhost:1313/airborne/he/posts/001-getting-started/</guid>
+      <description>&lt;p&gt;התחלתי פרוייקט שאין לי מושג איך הוא יסתיים. אני הולך לפתח גרסה מודרנית לסימולטורי הטיסה של MicroProse משנות ה-80.&lt;/p&gt;
+&lt;p&gt;מאפס.&lt;/p&gt;
+&lt;p&gt;בלי מנוע משחקים.&lt;/p&gt;
+&lt;p&gt;בלי LLM.&lt;/p&gt;
+&lt;p&gt;מתרגש ממש.&lt;/p&gt;
+&lt;p&gt;יאללה בואו נתחיל.&lt;/p&gt;</description>
+      <content>&lt;p&gt;התחלתי פרוייקט שאין לי מושג איך הוא יסתיים. אני הולך לפתח גרסה מודרנית לסימולטורי הטיסה של MicroProse משנות ה-80.&lt;/p&gt;
+&lt;p&gt;מאפס.&lt;/p&gt;
+&lt;p&gt;בלי מנוע משחקים.&lt;/p&gt;
+&lt;p&gt;בלי LLM.&lt;/p&gt;
+&lt;p&gt;מתרגש ממש.&lt;/p&gt;
+&lt;p&gt;יאללה בואו נתחיל.&lt;/p&gt;
+</content>
+    </item>
+    
+  </channel>
+</rss>
