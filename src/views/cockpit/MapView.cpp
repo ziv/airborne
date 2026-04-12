@@ -20,8 +20,9 @@ void MapView::update(const AircraftState &state, const float dt) {
 
     // todo find the ratio between the scene and the map...62.5f
     // map pos
-    const float mapX = (state.position.x - state.mapOffset.x) / 62.5f;
-    const float mapZ = (state.position.z - state.mapOffset.y) / 62.5f;
+    const auto aircraftPosition = state.pos();
+    const float mapX = aircraftPosition.x / 62.5f;
+    const float mapZ = aircraftPosition.z / 62.5f;
 
     // camera look at the player on the map
     mapCamera.target = (Vector2){mapX, mapZ};

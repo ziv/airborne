@@ -21,9 +21,8 @@ void Carrier::draw(const AircraftState &state) {
 }
 
 void Carrier::update(AircraftState &state, float dt) {
-    // EntityBase::update(state, dt);
-    const auto carrierPos = position(state);
     const auto aircraftPos = state.pos();
+    const auto carrierPos = position(state);
 
     if (SquareDistance(carrierPos, aircraftPos) < radiusSquare) {
         if (AircraftInLandingBox(carrierPos, aircraftPos, landingBoxLength, landingBoxWidth, def.heading)) {
