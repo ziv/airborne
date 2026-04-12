@@ -45,13 +45,12 @@ void CockpitView::draw(const AircraftState &state) {
     // mapView.draw(Views::PlanBPos);
     minihud.draw(state);
 
-    // mapView.draw(Views::PlanBPos);
-    // radarView.draw(state, Views::PlanCPos);
-    // radarView.draw()
-
     drawPane(state, paneA, Views::PlanAPos);
     drawPane(state, paneB, Views::PlanBPos);
     drawPane(state, paneC, Views::PlanCPos);
+
+    // message box
+    DrawText("TARGET A: 12X", 200, 600, 16, Fade(WHITE, 0.8f));
 }
 
 void CockpitView::drawPane(const AircraftState &state, const int pane, const Vector2 &position) {
