@@ -1,5 +1,5 @@
 +++
-date = '2026-03-30T00:00:00+00:00'
+date = '2026-03-31T00:00:00+00:00'
 draft = false
 title = "Thrust the Force"
 cover = "cover/i10.png"
