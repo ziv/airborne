@@ -10,13 +10,14 @@
  * @brief Physical constants and unit conversions used throughout the simulation.
  */
 namespace GamePhysics {
+    constexpr float g = 9.81f;
     /// World-space basis vectors (right-handed: +Z forward, +Y up, -X right).
     constexpr Vector3 WorldForward = {0.0f, 0.0f, 1.0f};
     constexpr Vector3 WorldUp = {0.0f, 1.0f, 0.0f};
     constexpr Vector3 WorldRight = {-1.0f, 0.0f, 0.0f};
 
     /// Gravitational acceleration vector (m/s²).
-    constexpr Vector3 Gravity = {0.0f, -9.81f, 0.0f};
+    constexpr Vector3 Gravity = {0.0f, -g, 0.0f};
 
     /// Unit conversion factors.
     constexpr float MS_TO_KNOTS = 1.94384f;          ///< Meters/second → knots.

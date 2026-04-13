@@ -32,7 +32,7 @@ struct PhysicsForces {
 };
 
 /// @brief Quaternion-based aircraft orientation with pre-computed basis vectors.
-struct Orientation {
+struct Orientation3D {
     Quaternion rotation;  ///< Master orientation quaternion.
     Vector3 forward;      ///< Unit vector pointing along the aircraft nose.
     Vector3 up;           ///< Unit vector pointing above the aircraft canopy.
@@ -77,7 +77,7 @@ struct AircraftState {
         0.0_mps,
         {0.0f, 0.0f, 0.0f}
     };
-    Orientation orientation = {
+    Orientation3D orientation = {
         {0.0f, 0.0f, 0.0f, 1.0f},
         GamePhysics::WorldForward,
         GamePhysics::WorldUp,

@@ -108,3 +108,4 @@ void AircraftPhysics::update(AircraftState &state, const float dt) const {
         state.mapOffset.y += ST;
     }
 }
+

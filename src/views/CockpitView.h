@@ -31,6 +31,8 @@ class CockpitView {
     int paneA = 1;
     int paneB = 0;
     int paneC = 3;
+
+    float tempTimer = 0;
     // Vector2 paneAPosition{};
     // Vector2 paneBPosition{};
     // Vector2 paneCPosition{};

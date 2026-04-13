@@ -16,6 +16,14 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(raylib)
 
+include(FetchContent)
+FetchContent_Declare(
+        entt
+        GIT_REPOSITORY https://github.com/skypjack/entt.git
+        GIT_TAG v3.16.0
+)
+FetchContent_MakeAvailable(entt)
+
 add_executable(${PROJECT_NAME} src/main.cpp
         src/lib/json.hpp
         src/primitives/AppConfig.h
@@ -96,5 +104,11 @@ add_executable(${PROJECT_NAME} src/main.cpp
         src/entities/Entity.cpp
         src/primitives/Math.h
         src/entities/EntitiesUtils.h
+        src/components/world.h
+        src/systems/physics.h
+        src/lib/entt.h
+        src/components/aircraft.h
+        src/prefabs/PlayerCreator.h
 )
 target_link_libraries(${PROJECT_NAME} PRIVATE raylib)
+target_link_libraries(${PROJECT_NAME} PRIVATE EnTT::EnTT)

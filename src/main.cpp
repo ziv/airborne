@@ -14,9 +14,11 @@
 #include "GameplayScreen.h"
 #include "BriefingScreen.h"
 #include "HelpScreen.h"
+#include "prefabs/PlayerCreator.h"
 #include "primitives/AppConfig.h"
 #include "primitives/Logger.h"
 #include "scenario/Scenario.h"
+#include <entt/entt.hpp>
 
 struct MainConfig {
     int width;
@@ -63,6 +65,8 @@ int main() {
     std::unique_ptr<GameScreen> currentScreen = std::make_unique<SplashScreen>(*config);
     auto currentState = ScreenState::SPLASH;
 
+    entt::registry registry;
+    const auto player = Factory::createPlayer(registry, *config);
 
     while (!WindowShouldClose()) {
         // screens state machine

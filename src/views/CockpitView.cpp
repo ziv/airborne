@@ -50,7 +50,29 @@ void CockpitView::draw(const AircraftState &state) {
     drawPane(state, paneC, Views::PlanCPos);
 
     // message box
-    DrawText("TARGET A: 12X", 200, 600, 16, Fade(WHITE, 0.8f));
+    tempTimer += GetFrameTime();
+    DrawText("TARGET A: 12X", 377, 488, 10, Fade(WHITE, 0.5f));
+    if (tempTimer < 1.0f) {
+        DrawText("W", 377, 500, 10, Fade(WHITE, 0.5f));
+    } else if (tempTimer < 1.5f) {
+        DrawText("WE", 377, 500, 10, Fade(WHITE, 0.5f));
+    } else if (tempTimer < 2.0f) {
+        DrawText("WEA", 377, 500, 10, Fade(WHITE, 0.5f));
+    } else if (tempTimer < 2.5f) {
+        DrawText("WEAP", 377, 500, 10, Fade(WHITE, 0.5f));
+    } else if (tempTimer < 3.0f) {
+        DrawText("WEAPO", 377, 500, 10, Fade(WHITE, 0.5f));
+    } else if (tempTimer < 3.5f) {
+        DrawText("WEAPON ", 377, 500, 10, Fade(WHITE, 0.5f));
+    } else if (tempTimer < 4.0f) {
+        DrawText("WEAPON S", 377, 500, 10, Fade(WHITE, 0.5f));
+    } else if (tempTimer < 4.5f) {
+        DrawText("WEAPON SY", 377, 500, 10, Fade(WHITE, 0.5f));
+    } else if (tempTimer < 5.0f) {
+        DrawText("WEAPON SYS", 377, 500, 10, Fade(WHITE, 0.5f));
+    } else if (tempTimer > 6.0f) {
+        tempTimer = 0;
+    }
 }
 
 void CockpitView::drawPane(const AircraftState &state, const int pane, const Vector2 &position) {
