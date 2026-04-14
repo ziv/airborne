@@ -13,6 +13,8 @@ GameplayScreen::GameplayScreen(AppConfig &config, const Scenario &scenario)
       scene(config),
       cockpitView(game, config),
       debugView(game) {
+
+    // JsonConfig scenarioX("res/config/scenario.jsonc");
 }
 
 ScreenState GameplayScreen::update() {

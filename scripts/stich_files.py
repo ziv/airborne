@@ -1,7 +1,7 @@
 import os
 from PIL import Image
 
-ZOOM_LEVEL_DIR = r"/Users/ziv.perry/Desktop/tmpp/12"
+ZOOM_LEVEL_DIR = r"/Users/ziv.perry/Desktop/tmpp/19"
 
 OUTPUT_FILENAME = "stitched_map.png"
 TILE_SIZE = 2048

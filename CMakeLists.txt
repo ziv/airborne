@@ -108,7 +108,13 @@ add_executable(${PROJECT_NAME} src/main.cpp
         src/systems/physics.h
         src/lib/entt.h
         src/components/aircraft.h
-        src/prefabs/PlayerCreator.h
+        src/prefabs/player_creator.h
 )
 target_link_libraries(${PROJECT_NAME} PRIVATE raylib)
 target_link_libraries(${PROJECT_NAME} PRIVATE EnTT::EnTT)
+
+#target_compile_options(${PROJECT_NAME} PRIVATE
+#        -Wall
+#        -Wextra
+#        -Wpedantic
+#)

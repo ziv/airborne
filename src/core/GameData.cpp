@@ -7,6 +7,8 @@
 #include "raymath.h"
 #include <cmath>
 
+#include "../prefabs/player_creator.h"
+
 GameData::GameData(const AppConfig &config, const Scenario &scenario)
     : heightAboveGround(config.get<float>("/airplane/heightAboveGround")),
       stallSpeed(config.get<float>("/airplane/stallSpeed")),
@@ -19,10 +21,15 @@ GameData::GameData(const AppConfig &config, const Scenario &scenario)
     // place the aircraft at the scenario start position
     state.position = scenario.start.position;
     const auto yawRadians = scenario.start.heading * DEG2RAD;
-    const Quaternion yawRotation = QuaternionFromAxisAngle( { 0.0f, 1.0f, 0.0f }, yawRadians);
+    const Quaternion yawRotation = QuaternionFromAxisAngle({0.0f, 1.0f, 0.0f}, yawRadians);
     aircraftTransformation.updateOrientation(state, yawRotation);
     state.fuel = scenario.start.fuel;
     spawnInitialEntities();
+
+
+    player = Factory::createPlayer(registry, config);
+
+    // const auto player = Factory::createPlayer(registry, *config);
 }
 
 void GameData::spawnInitialEntities() {
@@ -34,7 +41,7 @@ void GameData::spawnInitialEntities() {
 /// Main per-frame update — runs controls, physics, orientation, camera, entities.
 /// Handles landing-zone detection, ground collision, and crash logic.
 void GameData::update(const float dt) {
-    state.landingZone =  {true, true, 8.0f}; // reset landing zone info each frame
+    state.landingZone = {true, true, 8.0f}; // reset landing zone info each frame
     // state.landingZone = {false, false, 0.0f}; // {true, true, 8.0f}; // reset landing zone info each frame
     // once crashed, freeze everything
     if (state.crashed) return;

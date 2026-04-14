@@ -1,0 +1,183 @@
+{
+  "id": "first-strike",
+  "name": "First Strike",
+  "description": "Destroy the enemy radar installation to open a corridor for follow-up strikes.\nLow threat environment — ideal for your first combat sortie.",
+  "difficulty": "easy",
+  "theater": "north",
+  "start": {
+    "position": [
+      30000,
+      8,
+      60000
+    ],
+    // placeholder — carrier deck
+    "heading": 45,
+    "speed": 0,
+    "altitude": 8,
+    "fuel": 3500,
+    "carrier": true
+  },
+  //      "loadout": {
+  //        "slots": 6,
+  //        "available": [
+  //          "aim9",
+  //          "mk82",
+  //          "mk84"
+  //        ],
+  //        "defaults": [
+  //          "aim9",
+  //          "aim9",
+  //          "mk82",
+  //          "mk82",
+  //          "mk84",
+  //          "mk84"
+  //        ]
+  //      },
+  //      "objectives": [
+  //        {
+  //          "id": "obj-radar",
+  //          "type": "destroy",
+  //          "target": "radar-station",
+  //          "label": "Destroy the radar installation",
+  //          "required": true,
+  //          "order": 1
+  //        },
+  //        {
+  //          "id": "obj-rtb",
+  //          "type": "navigate",
+  //          "target": "home-base",
+  //          "label": "Return to base",
+  //          "required": true,
+  //          "order": 99,
+  //          "params": {
+  //            "arrivalRadius": 2000
+  //          }
+  //        }
+  //      ],
+  "entities": [
+    {
+      "id": "home-base",
+      "type": "carrier",
+      "subtype": "carrier",
+      "faction": "friendly",
+      "state": "active",
+      "position": [
+        30000,
+        0,
+        60000
+      ],
+      "heading": 90,
+      "health": 100,
+      "maxHealth": 100,
+      "modelId": "res/models/carrier-s.glb",
+      "scale": 1,
+      "params": {
+        "minx": 30000,
+        "maxx": 31000,
+        "minz": 59000,
+        "maxz": 61000
+      }
+    },
+    {
+      "id": "abother-home-base",
+      "type": "airbase",
+      "subtype": "international-airport",
+      "position": [
+        41000,
+        0,
+        74000
+      ],
+      // placeholder
+      "heading": 0,
+      "faction": "friendly",
+      "model": "none",
+      "scale": 1,
+      "params": {
+        "minx": 30000,
+        "maxx": 31000,
+        "minz": 59000,
+        "maxz": 61000
+      }
+    },
+    {
+      "id": "radar-station",
+      "type": "structure",
+      "subtype": "radar",
+      "position": [
+        32500,
+        0,
+        58000
+      ],
+      // placeholder — target area
+      "heading": 0,
+      "health": 100,
+      "faction": "enemy",
+      "model": "res/models/aa-radar.glb"
+    },
+    // light AAA defending the radar
+    {
+      "id": "aaa-01",
+      "type": "aaa",
+      "subtype": "zsu23",
+      "position": [
+        40000,
+        100,
+        60000
+      ],
+      // placeholder — near radar
+      "heading": 0,
+      "health": 50,
+      "faction": "enemy",
+      "model": "",
+      "params": {
+        "detectionRange": 5000,
+        "engagementRange": 3000,
+        "maxAltitude": 3000,
+        "fireRate": 10.0,
+        "accuracy": 0.2,
+        "burstDuration": 2.0
+      }
+    },
+    {
+      "id": "aaa-02",
+      "type": "aaa",
+      "subtype": "zsu23",
+      "position": [
+        30500,
+        0,
+        59500
+      ],
+      // placeholder — near radar
+      "heading": 0,
+      "health": 50,
+      "faction": "enemy",
+      "model": "",
+      "params": {
+        "detectionRange": 5000,
+        "engagementRange": 3000,
+        "maxAltitude": 3000,
+        "fireRate": 10.0,
+        "accuracy": 0.2,
+        "burstDuration": 2.0
+      }
+    }
+  ],
+  "triggers": [],
+  "completion": {
+    "success": "all_required_objectives",
+    "failure": [
+      "player_destroyed",
+      "player_ejected"
+    ]
+  }
+  //      "scoring": {
+  //        "objectiveComplete": 1000,
+  //        "bonusObjective": 500,
+  //        "enemyAircraftKill": 250,
+  //        "samDestroyed": 200,
+  //        "aaaDestroyed": 100,
+  //        "timeBonus": true,
+  //        "fuelBonus": true,
+  //        "noDamageBonus": 500
+  //      }
+}

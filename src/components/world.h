@@ -4,6 +4,14 @@
 struct Player {
 };
 
+struct Parent {
+    entt::entity parentId;
+};
+
+struct Child {
+    entt::entity childId;
+};
+
 struct View3D {
     float fov;
     float tilt;

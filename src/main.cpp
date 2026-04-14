@@ -14,18 +14,18 @@
 #include "GameplayScreen.h"
 #include "BriefingScreen.h"
 #include "HelpScreen.h"
-#include "prefabs/PlayerCreator.h"
+#include "prefabs/player_creator.h"
 #include "primitives/AppConfig.h"
 #include "primitives/Logger.h"
 #include "scenario/Scenario.h"
-#include <entt/entt.hpp>
+
 
 struct MainConfig {
-    int width;
-    int height;
+    int width = 0.0f;
+    int height = 0.0f;
     std::string name;
-    float nearPlane;
-    float farPlane;
+    float nearPlane = 0.1f;
+    float farPlane = 100.0f;
 };
 
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(MainConfig, width, height, name, nearPlane, farPlane);
@@ -39,8 +39,9 @@ int main() {
     // ChangeDirectory(TextFormat("%s../Resources", GetApplicationDirectory()));
     TraceLog(LOG_DEBUG, "Working directory is: %s", GetWorkingDirectory());
 
+    // const auto config = std::make_unique<JsonConfig>("res/config/app.jsonc");
     const auto config = std::make_unique<AppConfig>();
-    const MainConfig mainConfig = config->get<MainConfig>("/config");
+    const auto mainConfig = config->get<MainConfig>("/config");
     // const auto width = config->get<int>("/config/screenWidth");
     // const auto height = config->get<int>("/config/screenHeight");
 
@@ -64,9 +65,6 @@ int main() {
     // load first screen
     std::unique_ptr<GameScreen> currentScreen = std::make_unique<SplashScreen>(*config);
     auto currentState = ScreenState::SPLASH;
-
-    entt::registry registry;
-    const auto player = Factory::createPlayer(registry, *config);
 
     while (!WindowShouldClose()) {
         // screens state machine

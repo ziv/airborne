@@ -18,6 +18,7 @@
 #include "../scenario/Scenario.h"
 #include "../entities/EntityRegistry.h"
 #include "../entities/GroundTarget.h"
+#include <entt/entt.hpp>
 
 /**
  * @brief Orchestrates the per-frame aircraft simulation and entity management.
@@ -26,6 +27,9 @@
  * detection, ground collision, and crash logic as part of the update cycle.
  */
 class GameData {
+    entt::registry registry;
+    entt::entity player;
+
     Meter heightAboveGround;
     MeterPerSecond stallSpeed;
 
@@ -54,9 +58,9 @@ class GameData {
 
 public:
     Autopilot autopilot;
-    bool paused = false;          ///< When true the simulation is frozen.
-    AircraftState state;          ///< Central mutable aircraft state.
-    Scenario scenario;            ///< Active mission definition.
+    bool paused = false; ///< When true the simulation is frozen.
+    AircraftState state; ///< Central mutable aircraft state.
+    Scenario scenario; ///< Active mission definition.
     // EntityRegistry entities;      ///< All spawned game entities.
 
     // --- Aircraft simulation subsystems (executed in order) ---
