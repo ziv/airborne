@@ -8,11 +8,12 @@ import Components;
 
 constexpr auto PLAYER_ENTITY_CTX = entt::hashed_string("PlayerEntityID");
 // registry.ctx().emplace<PlayerEntity>(player_entity);
+// return registry.ctx().get<PlayerEntity>().id;
 // const auto player_entity = registry.ctx().get<entt::entity>(PLAYER_ENTITY_CTX);
 
-export void set_player(entt::registry &registry, entt::entity player_entity) {
-    registry.ctx().emplace_as<entt::entity>(PLAYER_ENTITY_CTX, player_entity);
-}
+// export void set_player(entt::registry &registry, entt::entity player_entity) {
+    // registry.ctx().emplace_as<entt::entity>(PLAYER_ENTITY_CTX, player_entity);
+// }
 
 export const entt::entity &get_player_entity(entt::registry &registry) {
     return registry.ctx().get<PlayerEntity>().id;
