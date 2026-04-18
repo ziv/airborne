@@ -6,7 +6,7 @@ export module Accessors;
 
 import Components;
 
-constexpr auto PLAYER_ENTITY_CTX = entt::hashed_string("PlayerEntityID");
+// constexpr auto PLAYER_ENTITY_CTX = entt::hashed_string("PlayerEntityID");
 // registry.ctx().emplace<PlayerEntity>(player_entity);
 // return registry.ctx().get<PlayerEntity>().id;
 // const auto player_entity = registry.ctx().get<entt::entity>(PLAYER_ENTITY_CTX);

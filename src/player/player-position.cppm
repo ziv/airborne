@@ -9,6 +9,7 @@ import Components;
 import Types;
 import Helpers;
 import ResourceManager;
+import Accessors;
 import :Config;
 
 struct LandingZoneRet {
@@ -104,11 +105,13 @@ public:
         heightmap(entt::hashed_string(conf.heightPath.data())) {}
 
   void update(entt::registry &registry, const float dt) const {
-    const auto entity = registry.ctx().get<PlayerEntity>().id;
-    auto [player, gh] = registry.get<Player, GroundHeight>(entity);
+    // const auto entity = registry.ctx().get<PlayerEntity>().id;
+    const auto entity = get_player_entity(registry);
+    auto [player, gh, inputs] =
+        registry.get<Player, GroundHeight, PlayerInputs>(entity);
 
     // current status
-    const auto wasFlying = player.pos.y > gh.effectiveGroundHeight;
+    // const auto wasFlying = player.pos.y > gh.effectiveGroundHeight;
 
     // update position
     player.pos = player.pos + (player.velocity * dt);
@@ -118,14 +121,16 @@ public:
     if (player.pos.x > THRESHOLD) {
       player.pos.x -= THRESHOLD;
       player.offset.x -= THRESHOLD;
-    } else if (player.pos.x < -THRESHOLD) {
+    }
+    if (player.pos.x < -THRESHOLD) {
       player.pos.x += THRESHOLD;
       player.offset.x += THRESHOLD;
     }
     if (player.pos.z > THRESHOLD) {
       player.pos.z -= THRESHOLD;
       player.offset.z -= THRESHOLD;
-    } else if (player.pos.z < -THRESHOLD) {
+    }
+    if (player.pos.z < -THRESHOLD) {
       player.pos.z += THRESHOLD;
       player.offset.z += THRESHOLD;
     }
@@ -139,7 +144,8 @@ public:
     // are we above a landing zone? (carrier is more than ground height - sea
     // level in this case)
     const LandingZoneRet lz =
-        get_landing_zone(registry, player.pos, player.offset);
+        inputs.gear ? get_landing_zone(registry, player.pos, player.offset)
+                    : LandingZoneRet{false, false, 0.0f};
 
     // if we are in a landing zone, add it to the player
     if (lz.isLandingZone && !registry.all_of<LandingZone>(entity)) {
