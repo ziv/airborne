@@ -9,12 +9,14 @@ import Components;
 void increase_minimap_zoom(entt::registry &registry) {
     for (const auto minimap_view = registry.view<MinimapWidget>(); const auto [entity, minimap]: minimap_view.each()) {
         minimap.zoom += 0.4f;
+      minimap.zoom = std::clamp(minimap.zoom, 0.2f, 5.0f);
     }
 }
 
 void decrease_minimap_zoom(entt::registry &registry) {
     for (const auto minimap_view = registry.view<MinimapWidget>(); const auto [entity, minimap]: minimap_view.each()) {
         minimap.zoom -= 0.4f;
+        minimap.zoom = std::clamp(minimap.zoom, 0.2f, 5.0f);
     }
 }
 
