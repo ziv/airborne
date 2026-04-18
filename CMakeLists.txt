@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.20)
-project(se LANGUAGES CXX)
+#project(se LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -104,11 +104,6 @@ add_executable(${PROJECT_NAME} src/main.cpp
         src/entities/Entity.cpp
         src/primitives/Math.h
         src/entities/EntitiesUtils.h
-        src/components/world.h
-        src/systems/physics.h
-        src/lib/entt.h
-        src/components/aircraft.h
-        src/prefabs/player_creator.h
 )
 target_link_libraries(${PROJECT_NAME} PRIVATE raylib)
 target_link_libraries(${PROJECT_NAME} PRIVATE EnTT::EnTT)

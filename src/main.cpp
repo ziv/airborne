@@ -14,7 +14,6 @@
 #include "GameplayScreen.h"
 #include "BriefingScreen.h"
 #include "HelpScreen.h"
-#include "prefabs/player_creator.h"
 #include "primitives/AppConfig.h"
 #include "primitives/Logger.h"
 #include "scenario/Scenario.h"

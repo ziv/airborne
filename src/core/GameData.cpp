@@ -7,8 +7,6 @@
 #include "raymath.h"
 #include <cmath>
 
-#include "../prefabs/player_creator.h"
-
 GameData::GameData(const AppConfig &config, const Scenario &scenario)
     : heightAboveGround(config.get<float>("/airplane/heightAboveGround")),
       stallSpeed(config.get<float>("/airplane/stallSpeed")),
@@ -27,7 +25,7 @@ GameData::GameData(const AppConfig &config, const Scenario &scenario)
     spawnInitialEntities();
 
 
-    player = Factory::createPlayer(registry, config);
+    // player = Factory::createPlayer(registry, config);
 
     // const auto player = Factory::createPlayer(registry, *config);
 }
