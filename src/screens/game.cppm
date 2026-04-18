@@ -8,22 +8,18 @@ import JsonConfig;
 import :Base;
 
 export class GameScreen : public BaseScreen {
-  JsonConfig config;
-  JsonConfig scenario;
-
   entt::registry registry;
   Game game;
 
 public:
   explicit GameScreen()
-      : config(JsonConfig("assets/config.jsonc")),
-        scenario(JsonConfig("assets/scenario.jsonc")),
-        game(config, scenario, registry) {}
+      : game(JsonConfig("assets/config.jsonc"),
+             JsonConfig("assets/scenario.jsonc"), registry) {}
 
   ScreenState update() override {
     game.update();
     return ScreenState::GAMEPLAY;
   }
 
-  void run() override { game.draw(); }
+  void draw() override { game.draw(); }
 };

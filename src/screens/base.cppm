@@ -24,5 +24,5 @@ public:
 
   virtual ScreenState update() = 0;
 
-  virtual void run() = 0;
+  virtual void draw() = 0;
 };

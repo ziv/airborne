@@ -22,8 +22,8 @@ export class SplashScreen : public BaseScreen {
   MusicHandle music;
 
 public:
-  explicit SplashScreen(const JsonConfig &c)
-      : conf(c.get<SplashScreenConfig>("/screens/splash")),
+  explicit SplashScreen()
+      : conf(JsonConfig("assets/config.jsonc").get<SplashScreenConfig>("/screens/splash")),
         tex(LoadTexture(conf.bg_tex_path.c_str())),
         music(LoadMusicStream(conf.bg_sound_path.c_str())) {
     PlayMusicStream(music);
@@ -35,7 +35,7 @@ public:
                                    : ScreenState::SPLASH;
   }
 
-  void run() override {
+  void draw() override {
     DrawTexture(tex, 0, 0, WHITE);
     DrawText("Created by Ziv Perry", 910, 640, 20, GOLD);
   }

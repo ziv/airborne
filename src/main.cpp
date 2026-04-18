@@ -7,17 +7,13 @@
 
 import JsonConfig;
 import Types;
-// import Game;
-// import ResourceManager;
-// import ResourcePreloader;
 import Screens;
 
-std::unique_ptr<BaseScreen> create_screen(const ScreenState &current,
-                                          const JsonConfig &config) {
+std::unique_ptr<BaseScreen> create_screen(const ScreenState &current) {
   switch (current) {
   default:
   case ScreenState::SPLASH:
-    return std::make_unique<SplashScreen>(config);
+    return std::make_unique<SplashScreen>();
 
   case ScreenState::GAMEPLAY:
     return std::make_unique<GameScreen>();
@@ -42,15 +38,16 @@ int main() {
     rlSetClipPlanes(conf.nearPlane, conf.farPlane);
 
     auto current = ScreenState::SPLASH;
-    std::unique_ptr<BaseScreen> screen = create_screen(current, config);
+    ScreenState next = current;
+    std::unique_ptr<BaseScreen> screen = create_screen(current);
 
     while (!WindowShouldClose()) {
-      if (const auto next = screen->update(); next != current) {
-        screen = create_screen(next, config);
+      if (next = screen->update(); next != current) {
+        screen = create_screen(next);
         current = next;
       }
       BeginDrawing();
-      screen->run();
+      screen->draw();
       EndDrawing();
     }
 
