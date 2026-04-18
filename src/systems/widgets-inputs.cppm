@@ -20,7 +20,7 @@ void decrease_minimap_zoom(entt::registry &registry) {
 
 void change_radar_range(entt::registry &registry) {
     for (const auto radar_view = registry.view<RadarWidget>(); const auto [entity, radar]: radar_view.each()) {
-        radar.rangeIndex = (radar.rangeIndex + 1) % radar.cfg.ranges.size();
+        radar.rangeIndex = (radar.rangeIndex + 1) % static_cast<int>(radar.cfg.ranges.size());
     }
 }
 
