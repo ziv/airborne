@@ -1,0 +1,136 @@
+{
+  "global": {
+    "title": "airborne",
+    "width": 1200,
+    "height": 800,
+    "fov": 85,
+    "tilt": 0.25,
+    "nearPlane": 1,
+    "farPlane": 30000
+  },
+  "window": {
+    "title": "airborne",
+    "width": 1200,
+    "height": 800,
+    "nearPlane": 1,
+    "farPlane": 30000
+  },
+  "player": {
+    "camera": {
+      // field of view a little bit wider than the human FOV for wider sight
+      "fov": 85,
+      // look down a little bit (I used 0.45 for better view)
+      "tilt": 0.45
+    },
+    "controls": {
+      "pitchRatio": 0.7,
+      "rollRatio": 2.1,
+      "yawRatio": 0.5
+    },
+    "aircraft": {
+      "weight": 120000,
+      // 130000 at max speed
+      "engineThrust": 108333,
+      "maxSpeed": 600,
+      "stallSpeed": 65,
+      "vleSpeed": 150,
+      "liftCoefficient": 1.92,
+      "dragCoefficient": 0.46,
+      "bankInduceYawRatio": 0.2,
+      "liftLossPitchRatio": 0.1,
+      "stallAngle": 15,
+      // $F = \mu \cdot N$
+      "frictionCoefficient": 2
+      //      "pitchRatio": 0.97,
+      //      "rollRatio": 0.98,
+      //      "yawRatio": 0.92
+    },
+    "position": {
+      "threshold": 5000,
+      "heightPath": "assets/images/north-hm.png",
+      "maxRelativeHeight": 5000,
+      "heightMapSizeRatio": 125.0,
+      "heightAboveGround": 3
+    },
+    "groundCheck": {
+      "stallSpeed": 65
+    }
+  },
+  "scene": {
+    "mapTexture": "assets/images/north-tx-2048.jpg",
+    "mapHeightmap": "assets/images/north-hm.png",
+    "mapSize": {
+      "x": 128000,
+      "y": 5000,
+      "z": 128000
+    },
+    "fogShaderVs": "assets/shaders/fog.vs",
+    "fogShaderFs": "assets/shaders/fog.fs"
+  },
+  "views": {
+    "hud": {
+      "ladder": {
+        "x": 440,
+        "y": 200,
+        "width": 320,
+        "height": 220,
+        "offset": 0.0
+      },
+      "roc": {
+        "x": 740,
+        "y": 318,
+        "width": 4,
+        "height": 220
+      },
+      "speedometer": {
+        "x": 430,
+        "y": 310,
+        "font": 14
+      },
+      "height": {
+        "x": 750,
+        "y": 310,
+        "font": 14
+      },
+      "boresight": {
+        "x": 600,
+        "y": 400,
+        "size": 24
+      },
+      "heading": {
+        "x": 600,
+        "y": 210,
+        "width": 300,
+        "font": 12
+      },
+      "warnings": {
+        "x": 450,
+        "y": 390,
+        "font": 12
+      }
+    },
+    "minimap": {
+      "mapTexture": "assets/images/north-map.jpg",
+      "size": 150,
+      "mapsRatio": 62.5
+    },
+    "cockpit": {
+      "texturePath": "assets/images/cockpit-z.png",
+      "shaderPath": "assets/shaders/chromakey.fs",
+      "tintColor": [
+        255,
+        255,
+        255,
+        255
+      ]
+    },
+    "radar": {
+      "size": 150,
+      "ranges": [
+        3000,
+        10000,
+        40000
+      ]
+    }
+  }
+}

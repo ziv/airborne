@@ -1,122 +1,59 @@
-/**
- * @file main.cpp
- * @brief Application entry point — initialises raylib, loads config, and runs
- *        the screen state machine (SPLASH → MAIN_MENU → BRIEFING → GAMEPLAY).
- */
-#include "raylib.h"
+#include <entt/entt.hpp>
+#include <raylib.h>
+#include <iostream>
+#include <string>
+#include "lib/ray-logger.hpp"
 #include "rlgl.h"
-#include <vector>
-#include <map>
-#include <memory>
-#include "GameScreen.h"
-#include "MainMenuScreen.h"
-#include "SplashScreen.h"
-#include "GameplayScreen.h"
-#include "BriefingScreen.h"
-#include "HelpScreen.h"
-#include "primitives/AppConfig.h"
-#include "primitives/Logger.h"
-#include "scenario/Scenario.h"
 
-
-struct MainConfig {
-    int width = 0.0f;
-    int height = 0.0f;
-    std::string name;
-    float nearPlane = 0.1f;
-    float farPlane = 100.0f;
-};
-
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(MainConfig, width, height, name, nearPlane, farPlane);
+import JsonConfig;
+import Types;
+import Game;
+import ResourceManager;
+import ResourcePreloader;
 
 int main() {
     SetTraceLogCallback(CustomLogCallback);
     SetTraceLogLevel(LOG_DEBUG);
     SetConfigFlags(FLAG_WINDOW_RESIZABLE | FLAG_VSYNC_HINT);
 
-    // todo make a check before changing the directory to avoid the warning
-    // ChangeDirectory(TextFormat("%s../Resources", GetApplicationDirectory()));
-    TraceLog(LOG_DEBUG, "Working directory is: %s", GetWorkingDirectory());
+    try {
+        const JsonConfig config("assets/config.jsonc");
+        const JsonConfig scenario_def("assets/scenario.jsonc");
 
-    // const auto config = std::make_unique<JsonConfig>("res/config/app.jsonc");
-    const auto config = std::make_unique<AppConfig>();
-    const auto mainConfig = config->get<MainConfig>("/config");
-    // const auto width = config->get<int>("/config/screenWidth");
-    // const auto height = config->get<int>("/config/screenHeight");
+        const auto conf = config.get<GlobalConfig>("/global");
 
-    InitAudioDevice();
-    InitWindow(mainConfig.width, mainConfig.height, mainConfig.name.c_str());
-    SetExitKey(KEY_BACKSPACE);
-    // todo uncomment to support fullscreen
-    // const int monitor = GetCurrentMonitor();
-    // SetWindowSize(GetMonitorWidth(monitor), GetMonitorHeight(monitor));
-    // ToggleBorderlessWindowed();
-    // const RenderTexture2D target = LoadRenderTexture(width, height);
-    // SetTextureFilter(target.texture, TEXTURE_FILTER_POINT); TEXTURE_FILTER_BILINEAR
+        InitWindow(conf.width, conf.height, conf.title.c_str());
+        InitAudioDevice();
+        // SetTargetFPS(60);
 
+        TraceLog(LOG_DEBUG, "Setting near plane to %f and far plane to %f", conf.nearPlane, conf.farPlane);
+        rlSetClipPlanes(conf.nearPlane, conf.farPlane);
 
-    // SetTargetFPS(60);
-    // set how far we can see in 3d mode
-    rlSetClipPlanes(mainConfig.nearPlane, mainConfig.farPlane);
+        // set registry & resource loader & global config
+        entt::registry registry;
+        create_resource_manager(registry);
+        registry.ctx().emplace<GlobalConfig>(conf);
 
-    Scenario activeScenario;
+        // preload all required resources
+        preload_resources(registry);
 
-    // load first screen
-    std::unique_ptr<GameScreen> currentScreen = std::make_unique<SplashScreen>(*config);
-    auto currentState = ScreenState::SPLASH;
+        Game game(config, scenario_def, registry);
 
-    while (!WindowShouldClose()) {
-        // screens state machine
-        if (const ScreenState nextState = currentScreen->update(); nextState != currentState) {
-            switch (nextState) {
-                case ScreenState::MAIN_MENU:
-                    currentScreen = std::make_unique<MainMenuScreen>(*config, activeScenario);
-                    break;
-                case ScreenState::BRIEFING:
-                    currentScreen = std::make_unique<BriefingScreen>(*config, activeScenario);
-                    break;
-                case ScreenState::GAMEPLAY:
-                    currentScreen = std::make_unique<GameplayScreen>(*config, activeScenario);
-                    break;
-                case ScreenState::HELP:
-                    currentScreen = std::make_unique<HelpScreen>(*config, activeScenario);
-                    break;
-                default:
-                    currentScreen = std::make_unique<SplashScreen>(*config);
-                    break;
-            }
-            currentState = nextState;
+        while (!WindowShouldClose()) {
+            game.update();
+            BeginDrawing();
+            game.draw();
+            EndDrawing();
         }
 
-        BeginDrawing();
-        ClearBackground(BLACK);
-        currentScreen->run();
-        DrawRectangle(1050, 775, 100, 25, BLACK);
-        DrawFPS(1050, 780);
-        EndDrawing();
+        registry.ctx().erase<ResourceManager>();
+        registry.clear();
 
-
-        // todo uncomment to support fullscreen
-        // BeginTextureMode(target);
-        // ClearBackground(BLACK);
-        // currentScreen->run();
-        // EndTextureMode();
-        //
-        // BeginDrawing();
-        // float scale = fmin((static_cast<float>((GetScreenWidth()) / width, (float) GetScreenHeight() / height);
-        // DrawTexturePro(target.texture,
-        //                {0.0f, 0.0f, (float) target.texture.width, (float) -target.texture.height}, // source (y is flipped because OpenGL flips textures)
-        //                {
-        //                    (GetScreenWidth() - ((float) width * scale)) * 0.5f, (GetScreenHeight() - ((float) height * scale)) * 0.5f,
-        //                    // centered position
-        //                    (float) width * scale, (float) height * scale
-        //                }, // stretched size
-        //                {0, 0}, 0.0f, WHITE
-        // );
-        // EndDrawing();
+        CloseAudioDevice();
+        CloseWindow();
+    } catch (std::exception &e) {
+        std::cerr << "Fatal Error: " << e.what() << std::endl;
+        return -1;
     }
-
-    CloseWindow();
-    CloseAudioDevice();
     return 0;
 }
