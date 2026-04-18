@@ -18,8 +18,8 @@ struct LandingZoneRet {
 };
 
 inline LandingZoneRet get_landing_zone(entt::registry &registry,
-                                     const Vector3 &position,
-                                     const Vector3 &offset) {
+                                       const Vector3 &position,
+                                       const Vector3 &offset) {
   // update ground height
   // if there is a carrier below us, the ground height will be 12
   const auto view = registry.view<Landable, Position3D, Heading>();
@@ -71,8 +71,8 @@ inline LandingZoneRet get_landing_zone(entt::registry &registry,
 }
 
 float get_effective_height(entt::registry &registry,
-                         const PlayerPositionConfig &conf,
-                         const Player &player) {
+                           const PlayerPositionConfig &conf,
+                           const Player &player) {
   // todo this is unsage access!!!!
   // auto &assets = registry.ctx().get<ResourceManager>();
   // const auto imageId = entt::hashed_string(conf.heightPath.c_str());
@@ -151,9 +151,11 @@ public:
     gh.effectiveGroundHeight =
         lz.isLandingZone ? fmaxf(gh.height, lz.surfaceY) : gh.height;
 
+    const auto ground_height =
+        gh.effectiveGroundHeight + conf.heightAboveGround;
     // limit going underground/underwater
-    if (player.pos.y < gh.effectiveGroundHeight + conf.heightAboveGround) {
-      player.pos.y = gh.effectiveGroundHeight + conf.heightAboveGround;
+    if (player.pos.y < ground_height) {
+      player.pos.y = ground_height;
 
       // on ground there is no more velocity down
       if (player.velocity.y < 0.0f)
@@ -166,7 +168,6 @@ public:
       if (!registry.all_of<Grounded>(entity)) {
         registry.emplace<Grounded>(entity);
         registry.emplace<TouchDown>(entity);
-        // registry.remove<Flying>(entity);
         TraceLog(LOG_WARNING, "[Grounded], [TouchDown] added to player");
       }
 
@@ -174,10 +175,10 @@ public:
         TraceLog(LOG_WARNING, "[Grounded] removed from player");
     }
 
-    if (player.pos.y >
-        gh.effectiveGroundHeight + conf.heightAboveGround + 1.0f) {
+    if (player.pos.y > ground_height + 1.0f) {
       if (registry.remove<Grounded>(entity))
         TraceLog(LOG_WARNING, "[Grounded] removed from player");
+
       if (registry.remove<TouchDown>(entity))
         TraceLog(LOG_WARNING, "[TouchDown] removed from player");
 
