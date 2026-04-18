@@ -55,9 +55,9 @@ target_sources(${PROJECT_NAME} PUBLIC
         src/core/helpers.cppm
         src/core/json-config.cppm
         src/core/types/config-types.cppm
-        src/core/raylib-resource.cppm
-        src/core/resource-manager.cppm
-        src/core/resource-preloader.cppm
+        src/core/resources/raylib-resource.cppm
+        src/components/resource-manager.cppm
+        src/components/resource-preloader.cppm
         src/components/components.cppm
         src/components/world.cppm
         src/components/data.cppm
