@@ -3,7 +3,7 @@ module;
 #include <vector>
 #include <string>
 #include <map>
-#include "../lib/ray.hpp"
+#include "../../lib/ray.hpp"
 
 export module Types:Scenario;
 

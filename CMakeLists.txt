@@ -49,12 +49,12 @@ target_sources(${PROJECT_NAME} PUBLIC
         src/player/player-rotation.cppm
         src/player/player-dispatcher.cppm
         src/player/ground-check.cppm
-        src/core/types.cppm
-        src/core/scenario-types.cppm
-        src/core/units-types.cppm
+        src/core/types/types.cppm
+        src/core/types/scenario-types.cppm
+        src/core/types/units-types.cppm
         src/core/helpers.cppm
         src/core/json-config.cppm
-        src/core/config-types.cppm
+        src/core/types/config-types.cppm
         src/core/raylib-resource.cppm
         src/core/resource-manager.cppm
         src/core/resource-preloader.cppm

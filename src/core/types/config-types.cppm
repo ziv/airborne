@@ -1,7 +1,7 @@
 module;
 #include <nlohmann/json.hpp>
 #include <string>
-#include "../lib/ray.hpp"
+#include "../../lib/ray.hpp"
 
 export module Types:Config;
 
