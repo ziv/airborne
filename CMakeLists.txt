@@ -82,6 +82,7 @@ target_sources(${PROJECT_NAME} PUBLIC
         src/systems/world-streamer.cppm
         src/systems/widgets-inputs.cppm
         src/utils/accessors.cppm
+        src/utils/loading.cppm
         src/screens/base.cppm
         src/screens/screens.cppm
         src/screens/splash.cppm

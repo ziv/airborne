@@ -5,25 +5,24 @@ export module Screens:Base;
 import JsonConfig;
 
 export enum class ScreenState {
-    SPLASH,
-    MAIN_MENU,
-    BRIEFING,
-    GAMEPLAY,
-    DEBRIEF,
-    HELP,
-    EXIT
+  SPLASH,
+  MAIN_MENU,
+  BRIEFING,
+  GAMEPLAY,
+  DEBRIEF,
+  HELP,
+  EXIT
 };
 
 export class BaseScreen {
-public :
-    const JsonConfig config;
+public:
+  // const JsonConfig &config;
 
-    explicit BaseScreen(const JsonConfig &c) : config(c) {
-    }
+  // explicit BaseScreen(const JsonConfig &c) : config(c) {}
 
-    virtual ~BaseScreen() = default;
+  virtual ~BaseScreen() = default;
 
-    virtual ScreenState update() = 0;
+  virtual ScreenState update() = 0;
 
-    virtual void run() = 0;
+  virtual void run() = 0;
 };

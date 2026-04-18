@@ -6,7 +6,8 @@
     "fov": 85,
     "tilt": 0.25,
     "nearPlane": 1,
-    "farPlane": 30000
+    "farPlane": 30000,
+    "resources": "assets/resources.jsonc"
   },
   "window": {
     "title": "airborne",
@@ -131,6 +132,12 @@
         10000,
         40000
       ]
+    }
+  },
+  "screens": {
+    "splash": {
+        "bg_tex_path": "assets/images/splash.png",
+        "bg_sound_path": "assets/sound/splash-1.mp3"
     }
   }
 }
