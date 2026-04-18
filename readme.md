@@ -42,7 +42,7 @@ Leftovers from the ESC refactoring:
 - [x] ~~move the scene into a view~~
 - [x] hud colors
 - [x] bring the radar widget
-- [ ] complete radar items
+- [x] complete radar items
 - [x] bring the clouds effect into scene view
 - [x] bring the sound into scene view
 - [ ] complete the debug view by type
