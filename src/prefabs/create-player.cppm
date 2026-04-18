@@ -21,7 +21,9 @@ entt::entity create_player(entt::registry &registry, const JsonConfig &config,
                            world_forward(),         // forward
                            world_up(),              // up
                            world_right(),           // right
-                           0.0f                     // speed
+                           0.0f,                    // speed
+                           0.0f,
+                           0.0f        // effective ground height
   );
   registry.emplace<PlayerInputs>(player, 0.0f, 0.0f, 0.0f, 0.0f, true, true,
                                  false);
