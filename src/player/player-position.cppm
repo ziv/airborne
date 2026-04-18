@@ -73,8 +73,7 @@ inline LandingZoneRet get_landing_zone(entt::registry &registry,
 
 float get_effective_height(entt::registry &registry, const int heatmap,
                            const Vector3 &position,
-                           const PlayerPositionConfig &conf,
-                           const Player &player) {
+                           const PlayerPositionConfig &conf) {
   const auto map = get_resource_manager(registry).images[heatmap]->res;
 
   // 125 is the ratio between the large area and the map we check the height
@@ -103,9 +102,6 @@ public:
     const auto entity = get_player_entity(registry);
     auto [player, gh, inputs] =
         registry.get<Player, GroundHeight, PlayerInputs>(entity);
-
-    // current status
-    // const auto wasFlying = player.pos.y > gh.effectiveGroundHeight;
 
     // update position
     player.pos = player.pos + (player.velocity * dt);
