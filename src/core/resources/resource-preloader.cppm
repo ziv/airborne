@@ -1,5 +1,5 @@
 module;
-#include "../lib/ray.hpp"
+#include "../../lib/ray.hpp"
 #include <entt/entt.hpp>
 #include <memory>
 #include <nlohmann/json.hpp>
