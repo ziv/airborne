@@ -37,6 +37,8 @@ got from this magic game, so this project has begun.
 
 ## TODOs
 
+Leftovers from the ESC refactoring:
+
 - [x] ~~move the scene into a view~~
 - [x] hud colors
 - [x] bring the radar widget
