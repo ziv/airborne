@@ -6,3 +6,4 @@ build/
 *.a
 cmake-build-debug/
 tmp/
+devblog/public
