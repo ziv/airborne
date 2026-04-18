@@ -13,80 +13,10 @@ import Accessors;
 import :Config;
 
 struct LandingZoneRet {
-  bool isLandingZone;
-  bool isCarrier;
-  float surfaceY;
+  bool is_landing_zone;
+  bool is_carrier;
+  float surface_y;
 };
-
-inline LandingZoneRet get_landing_zone(entt::registry &registry,
-                                       const Vector3 &position,
-                                       const Vector3 &offset) {
-  // update ground height
-  // if there is a carrier below us, the ground height will be 12
-  const auto view = registry.view<Landable, Position3D, Heading>();
-  for (const auto [entity, landable, pos, heading] : view.each()) {
-    // check if the carrier is below us
-
-    // airbase/carrier position in the aircraft coordinate frame
-    const auto landingPosition = pos.pos + offset;
-    // TraceLog(LOG_DEBUG, "Checking landing zone for entity %d at position:
-    // (%f, %f)", entity, landingPosition.x, landingPosition.z);
-
-    // vector from entity center to aircraft (XZ plane)
-    const float dx = position.x - landingPosition.x;
-    const float dz = position.z - landingPosition.z;
-    // TraceLog(LOG_DEBUG, "Relative position to entity %d: dx = %f, dz = %f",
-    // entity, dx, dz);
-
-    // half-extents: short side (width) across heading, long side along heading
-    const float halfWidth = landable.carrier ? 100.0f : 200.0f;
-    const float halfLength = landable.carrier ? 250.0f : 2000.0f;
-    const float surfaceY = landable.carrier ? 8.0f : 0.0f;
-
-    // rotate into the entity's heading-aligned frame
-    // heading 0 → forward = +Z, heading 90 → forward = +X
-    const float rad = heading.heading * DEG2RAD;
-    const float cosH = cosf(rad);
-    const float sinH = sinf(rad);
-    const float localAlong = dx * sinH + dz * cosH;  // along runway
-    const float localAcross = dx * cosH - dz * sinH; // across runway
-    // TraceLog(LOG_DEBUG, "Local coordinates relative to entity %d: along = %f,
-    // across = %f", entity, localAlong, localAcross);
-
-    // 2D footprint check
-    if (fabsf(localAlong) >= halfLength)
-      continue;
-    if (fabsf(localAcross) >= halfWidth)
-      continue;
-
-    // vertical check — aircraft must be inside the 3D box:
-    // bottom = surfaceY,  top = surfaceY + LANDING_BOX_HEIGHT
-    if (constexpr float LANDING_BOX_HEIGHT = 150.0f;
-        position.y > surfaceY + LANDING_BOX_HEIGHT)
-      continue;
-    // TraceLog(LOG_DEBUG, "Aircraft is inside landing zone of entity %d",
-    // entity);
-    return {true, landable.carrier, surfaceY};
-  }
-  return {false, false, 0.0f};
-}
-
-float get_effective_height(entt::registry &registry, const int heatmap,
-                           const Vector3 &position,
-                           const PlayerPositionConfig &conf) {
-  const auto map = get_resource_manager(registry).images[heatmap]->res;
-
-  // 125 is the ratio between the large area and the map we check the height
-  const auto x = static_cast<int>(position.x / conf.heightMapSizeRatio);
-  const auto z = static_cast<int>(position.z / conf.heightMapSizeRatio);
-  //
-  // if the x and z are in the image pixels range
-  if (x < 0 || z < 0 || x >= map.height || z >= map.width)
-    return 0.0f;
-
-  const auto r = static_cast<float>(GetImageColor(map, x, z).r);
-  return conf.maxRelativeHeight * r / 255.0f;
-}
 
 export class PlayerPosition {
   PlayerPositionConfig conf;
@@ -131,24 +61,26 @@ public:
     const auto absolute_position = player.pos - player.offset;
 
     // update ground height
-    gh.height = get_effective_height(registry, heightmap, absolute_position,
-                                     conf, player);
+    gh.height = get_effective_height(registry, absolute_position);
 
     // are we above a landing zone? (carrier is more than ground height - sea
     // level in this case)
     const LandingZoneRet lz =
-        inputs.gear ? get_landing_zone(registry, player.pos, player.offset)
+        inputs.gear ? get_landing_zone(registry, absolute_position)
                     : LandingZoneRet{false, false, 0.0f};
 
     // if we are in a landing zone, add it to the player
-    if (lz.isLandingZone && !registry.all_of<LandingZone>(entity)) {
-      registry.emplace<LandingZone>(entity, lz.isLandingZone, lz.isCarrier,
-                                    lz.surfaceY);
-    }
+    if (lz.is_landing_zone && !registry.all_of<LandingZone>(entity))
+      registry.emplace_or_replace<LandingZone>(entity, lz.is_landing_zone,
+                                               lz.is_carrier, lz.surface_y);
+
+    // if we are not in a landing zone, remove it from the user
+    if (!lz.is_landing_zone && registry.all_of<LandingZoneRet>(entity))
+      registry.remove<LandingZone>(entity);
 
     // update effective ground height
     gh.effectiveGroundHeight =
-        lz.isLandingZone ? fmaxf(gh.height, lz.surfaceY) : gh.height;
+        lz.is_landing_zone ? fmaxf(gh.height, lz.surface_y) : gh.height;
 
     const auto ground_height =
         gh.effectiveGroundHeight + conf.heightAboveGround;
@@ -186,5 +118,75 @@ public:
         TraceLog(LOG_WARNING, "[Flying] added to player");
       }
     }
+  }
+
+private:
+  float get_effective_height(entt::registry &registry,
+                             const Vector3 &position) const {
+    const auto map = get_resource_manager(registry).images[heightmap]->res;
+
+    // 125 is the ratio between the large area and the map we check the height
+    const auto x = static_cast<int>(position.x / conf.heightMapSizeRatio);
+    const auto z = static_cast<int>(position.z / conf.heightMapSizeRatio);
+    //
+    // if the x and z are in the image pixels range
+    if (x < 0 || z < 0 || x >= map.height || z >= map.width)
+      return 0.0f;
+
+    const auto r = static_cast<float>(GetImageColor(map, x, z).r);
+    return conf.maxRelativeHeight * r / 255.0f;
+  }
+
+  static LandingZoneRet get_landing_zone(entt::registry &registry,
+                                  const Vector3 &absolute_position) {
+    // update ground height
+    // if there is a carrier below us, the ground height will be 12
+    const auto view = registry.view<Landable, Position3D, Heading>();
+    for (const auto [entity, landable, pos, heading] : view.each()) {
+      // check if the carrier is below us
+
+      // airbase/carrier position in the aircraft coordinate frame
+      // const auto landingPosition = pos.pos + offset;
+      // TraceLog(LOG_DEBUG, "Checking landing zone for entity %d at position:
+      // (%f, %f)", entity, landingPosition.x, landingPosition.z);
+
+      // vector from entity center to aircraft (XZ plane)
+      const float dx = absolute_position.x - pos.pos.x;
+      const float dz = absolute_position.z - pos.pos.z;
+      // TraceLog(LOG_DEBUG, "Relative position to entity %d: dx = %f, dz = %f",
+      // entity, dx, dz);
+
+      // half-extents: short side (width) across heading, long side along
+      // heading
+      const float halfWidth = landable.carrier ? 100.0f : 200.0f;
+      const float halfLength = landable.carrier ? 250.0f : 2000.0f;
+      const float surfaceY = landable.carrier ? 8.0f : 0.0f;
+
+      // rotate into the entity's heading-aligned frame
+      // heading 0 → forward = +Z, heading 90 → forward = +X
+      const float rad = heading.heading * DEG2RAD;
+      const float cosH = cosf(rad);
+      const float sinH = sinf(rad);
+      const float localAlong = dx * sinH + dz * cosH;  // along runway
+      const float localAcross = dx * cosH - dz * sinH; // across runway
+      // TraceLog(LOG_DEBUG, "Local coordinates relative to entity %d: along =
+      // %f, across = %f", entity, localAlong, localAcross);
+
+      // 2D footprint check
+      if (fabsf(localAlong) >= halfLength)
+        continue;
+      if (fabsf(localAcross) >= halfWidth)
+        continue;
+
+      // vertical check — aircraft must be inside the 3D box:
+      // bottom = surfaceY,  top = surfaceY + LANDING_BOX_HEIGHT
+      if (constexpr float LANDING_BOX_HEIGHT = 150.0f;
+          absolute_position.y > surfaceY + LANDING_BOX_HEIGHT)
+        continue;
+      // TraceLog(LOG_DEBUG, "Aircraft is inside landing zone of entity %d",
+      // entity);
+      return {true, landable.carrier, surfaceY};
+    }
+    return {false, false, 0.0f};
   }
 };
