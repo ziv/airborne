@@ -14,7 +14,7 @@ export const WEAPON_CATEGORIES = ['air-to-air', 'agm', 'bomb', 'gun', 'sam', 'aa
 export const MISSILE_CATEGORIES = ['air-to-air', 'agm', 'sam'];
 
 // Entity types that can have weapons assigned
-export const ARMED_ENTITY_TYPES = ['aircraft', 'sam', 'aaa', 'naval'];
+export const ARMED_ENTITY_TYPES = ['aircraft', 'sam', 'aaa', 'naval', 'ship'];
 
 // Weapon category → which entity types can use them
 export const WEAPON_CATEGORY_USERS = {
@@ -22,8 +22,8 @@ export const WEAPON_CATEGORY_USERS = {
   'agm': ['aircraft'],
   'bomb': ['aircraft'],
   'gun': ['aircraft'],
-  'sam': ['sam'],
-  'aaa': ['aaa'],
+  'sam': ['sam', 'ship'],
+  'aaa': ['aaa', 'ship'],
 };
 
 export function makeDefaultWeapon() {
@@ -98,6 +98,18 @@ export const DEFAULT_WEAPONS = [
   { id: 'bofors-l70', name: 'Bofors 40mm L/70', category: 'aaa', range: 4000, damage: 25, ammoCapacity: 120, rateOfFire: 4, speed: 1005, maxVelocity: 1005, agility: { maxPitch: 0, maxYaw: 0, maxRoll: 0 }, effects: { areaOfEffect: 2, armorPenetration: 25 }, playerSelectable: false, playerDefault: false },
   { id: 'gepard', name: 'Flakpanzer Gepard (35mm)', category: 'aaa', range: 3500, damage: 20, ammoCapacity: 640, rateOfFire: 18, speed: 1175, maxVelocity: 1175, agility: { maxPitch: 0, maxYaw: 0, maxRoll: 0 }, effects: { areaOfEffect: 0, armorPenetration: 22 }, playerSelectable: false, playerDefault: false },
   { id: 'vulcan-m163', name: 'M163 VADS (20mm Vulcan)', category: 'aaa', range: 1800, damage: 10, ammoCapacity: 2100, rateOfFire: 50, speed: 1050, maxVelocity: 1050, agility: { maxPitch: 0, maxYaw: 0, maxRoll: 0 }, effects: { areaOfEffect: 0, armorPenetration: 12 }, playerSelectable: false, playerDefault: false },
+
+  // === Ship-mounted SAM Systems ===
+  { id: 'rim-66', name: 'RIM-66 Standard SM-1', category: 'sam', range: 46000, damage: 180, ammoCapacity: 40, rateOfFire: 0.2, speed: 1200, maxVelocity: 1300, agility: { maxPitch: 25, maxYaw: 25, maxRoll: 70 }, effects: { areaOfEffect: 30, armorPenetration: 0 }, playerSelectable: false, playerDefault: false },
+  { id: 'rim-67', name: 'RIM-67 Standard SM-2', category: 'sam', range: 167000, damage: 220, ammoCapacity: 60, rateOfFire: 0.15, speed: 1400, maxVelocity: 1500, agility: { maxPitch: 30, maxYaw: 30, maxRoll: 85 }, effects: { areaOfEffect: 40, armorPenetration: 0 }, playerSelectable: false, playerDefault: false },
+  { id: 'rim-7', name: 'RIM-7 Sea Sparrow', category: 'sam', range: 19000, damage: 130, ammoCapacity: 8, rateOfFire: 0.3, speed: 1000, maxVelocity: 1060, agility: { maxPitch: 28, maxYaw: 28, maxRoll: 80 }, effects: { areaOfEffect: 15, armorPenetration: 0 }, playerSelectable: false, playerDefault: false },
+  { id: 'sa-n-6', name: 'S-300F Fort (SA-N-6)', category: 'sam', range: 150000, damage: 250, ammoCapacity: 64, rateOfFire: 0.1, speed: 2000, maxVelocity: 2100, agility: { maxPitch: 30, maxYaw: 30, maxRoll: 90 }, effects: { areaOfEffect: 70, armorPenetration: 0 }, playerSelectable: false, playerDefault: false },
+  { id: 'sa-n-4', name: '9K33M Osa-M (SA-N-4)', category: 'sam', range: 10000, damage: 90, ammoCapacity: 20, rateOfFire: 0.25, speed: 700, maxVelocity: 740, agility: { maxPitch: 22, maxYaw: 22, maxRoll: 60 }, effects: { areaOfEffect: 15, armorPenetration: 0 }, playerSelectable: false, playerDefault: false },
+
+  // === Ship-mounted CIWS / Naval AAA ===
+  { id: 'ciws-20mm', name: 'Phalanx CIWS (20mm)', category: 'aaa', range: 1500, damage: 15, ammoCapacity: 1550, rateOfFire: 75, speed: 1100, maxVelocity: 1100, agility: { maxPitch: 0, maxYaw: 0, maxRoll: 0 }, effects: { areaOfEffect: 0, armorPenetration: 10 }, playerSelectable: false, playerDefault: false },
+  { id: 'ak-630', name: 'AK-630 (30mm)', category: 'aaa', range: 2500, damage: 20, ammoCapacity: 2000, rateOfFire: 83, speed: 900, maxVelocity: 900, agility: { maxPitch: 0, maxYaw: 0, maxRoll: 0 }, effects: { areaOfEffect: 0, armorPenetration: 18 }, playerSelectable: false, playerDefault: false },
+  { id: 'mk-38', name: 'Mk 38 (25mm Bushmaster)', category: 'aaa', range: 2800, damage: 18, ammoCapacity: 500, rateOfFire: 3, speed: 1100, maxVelocity: 1100, agility: { maxPitch: 0, maxYaw: 0, maxRoll: 0 }, effects: { areaOfEffect: 0, armorPenetration: 20 }, playerSelectable: false, playerDefault: false },
 ];
 
 // Aircraft subtype presets — apply via AIRCRAFT_PRESETS[subtype] to override default params
@@ -179,7 +191,7 @@ export const ENTITY_TYPES = {
     label: 'Carrier',
     short: 'CV',
     subtypes: ['carrier'],
-    defaults: { subtype: 'carrier', faction: 'friendly', health: 100, maxHealth: 100, scale: 1, modelId: 'assets/models/carrier-s.glb' },
+    defaults: { subtype: 'carrier', faction: 'friendly', health: 100, maxHealth: 100, scale: 1, modelId: 'carrier-s' },
     params: [
       { key: 'minx', label: 'Area Min X (m)', type: 'number', default: 0 },
       { key: 'maxx', label: 'Area Max X (m)', type: 'number', default: 0 },
@@ -193,6 +205,18 @@ export const ENTITY_TYPES = {
     subtypes: ['destroyer', 'cruiser', 'frigate'],
     defaults: { subtype: 'destroyer', faction: 'enemy', health: 100, maxHealth: 100, scale: 1, modelId: '' },
     params: [],
+  },
+  ship: {
+    label: 'Ship',
+    short: 'SH',
+    subtypes: ['destroyer', 'cruiser', 'frigate', 'corvette', 'patrol-boat'],
+    defaults: { subtype: 'destroyer', faction: 'enemy', health: 200, maxHealth: 200, scale: 1, modelId: '' },
+    params: [
+      { key: 'speed', label: 'Speed (m/s)', type: 'number', default: 15, min: 0 },
+      { key: 'detectionRange', label: 'Detection Range (m)', type: 'number', default: 20000, min: 0 },
+      { key: 'engagementRange', label: 'Engagement Range (m)', type: 'number', default: 15000, min: 0 },
+      { key: 'maxAltitude', label: 'Max Engagement Alt (m)', type: 'number', default: 8000, min: 0 },
+    ],
   },
   waypoint: {
     label: 'Waypoint',
@@ -249,6 +273,7 @@ export function drawEntityMarker(ctx, type, faction, x, y, size, selected, headi
     case 'airbase': _runway(ctx, size); break;
     case 'carrier': _diamond(ctx, size); break;
     case 'naval': _circle(ctx, size); break;
+    case 'ship': _shipMarker(ctx, size); break;
     case 'waypoint': _crosshair(ctx, size); break;
   }
 
@@ -312,6 +337,18 @@ function _diamond(ctx, s) {
 function _circle(ctx, s) {
   ctx.beginPath();
   ctx.arc(0, 0, s * 0.8, 0, Math.PI * 2);
+  ctx.fill();
+}
+
+// Ship: boat hull shape (pentagon pointing forward)
+function _shipMarker(ctx, s) {
+  ctx.beginPath();
+  ctx.moveTo(0, -s * 1.1);
+  ctx.lineTo(s * 0.6, -s * 0.2);
+  ctx.lineTo(s * 0.5, s * 0.8);
+  ctx.lineTo(-s * 0.5, s * 0.8);
+  ctx.lineTo(-s * 0.6, -s * 0.2);
+  ctx.closePath();
   ctx.fill();
 }
 

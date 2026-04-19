@@ -199,7 +199,7 @@ export class WeaponsPage {
 
   _bindDetail() {
     if (!this._selectedId) return;
-    const id = this._selectedId;
+    let id = this._selectedId;
 
     const bindField = (elId, key, transform) => {
       const el = this.el.querySelector(`#${elId}`);
@@ -225,6 +225,7 @@ export class WeaponsPage {
             }
             weapon.id = el.value;
             this._selectedId = el.value;
+            id = el.value;
             this.state.emit('weapons-changed');
           } else {
             this.state.updateWeapon(id, { [key]: v });

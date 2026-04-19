@@ -89,7 +89,7 @@ body {
   border-right: 1px solid var(--border);
   display: flex;
   flex-direction: column;
-  overflow-y: auto;
+  overflow: hidden;
 }
 
 #canvas-container {
@@ -191,13 +191,11 @@ body {
 
 .sidebar-section-grow {
   flex: 1;
-  min-height: 100px;
-  display: flex;
-  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
 }
 
 .sidebar-section-grow .item-list {
-  flex: 1;
   overflow-y: auto;
 }
 
@@ -845,24 +843,27 @@ body {
 }
 
 .btn-sm {
-  background: #333;
-  color: #ccc;
-  border: 1px solid #555;
-  border-radius: 3px;
-  width: 20px;
-  height: 20px;
-  font-size: 13px;
-  line-height: 1;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0;
+  padding: 4px 10px;
+  font-size: 12px;
 }
 
 .btn-sm:hover {
   background: #444;
   color: #fff;
+}
+
+/* Fixed-size quantity +/− buttons in weapon and loadout rows */
+.loadout-qty-group .btn-sm,
+.entity-weapons-list .btn-sm {
+  background: #333;
+  color: #ccc;
+  border: 1px solid #555;
+  border-radius: 3px;
+  width: 22px;
+  height: 22px;
+  font-size: 13px;
+  line-height: 1;
+  padding: 0;
 }
 
 .btn-wpn-remove-all {
@@ -962,6 +963,20 @@ body {
   font-weight: bold;
   color: var(--accent);
   min-width: 18px;
+}
+.wp-name-input {
+  width: 70px;
+  min-width: 50px;
+  padding: 1px 4px;
+  font-size: 12px;
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  background: var(--surface);
+  color: var(--text);
+}
+.wp-name-input:focus {
+  border-color: var(--accent);
+  outline: none;
 }
 .wp-coords {
   flex: 1;

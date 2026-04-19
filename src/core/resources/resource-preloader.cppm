@@ -8,16 +8,8 @@ module;
 export module ResourcePreloader;
 
 import ResourceManager;
+import Types;
 
-export struct ResourceDef {
-  std::string name;
-  std::string type;
-  std::string path;
-};
-
-export {
-  NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(ResourceDef, name, type, path)
-}
 
 export void preload_resource(ResourceManager &rm, const ResourceDef &def) {
   const auto [name, type, path] = def;

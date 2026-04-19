@@ -39,6 +39,7 @@ export {
     STRUCTURE, ///< Static buildings: bridges, depots, radars, bunkers.
     NAVAL,
     AIRBASE, ///< Friendly or enemy airstrip / carrier.
+    SHIP,
     CARRIER, ///< Friendly or enemy airstrip / carrier.
     WAYPOINT ///< Invisible navigation point.
   };
@@ -50,6 +51,7 @@ export {
                                 {EntityType::STRUCTURE, "structure"},
                                 {EntityType::NAVAL, "naval"},
                                 {EntityType::AIRBASE, "airbase"},
+                                {EntityType::SHIP, "ship"},
                                 {EntityType::CARRIER, "carrier"},
                                 {EntityType::WAYPOINT, "waypoint"}});
 
@@ -257,6 +259,14 @@ export {
   NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(StartConditions, position, heading, speed,
                                      altitude, fuel, carrier, weapons);
 
+  struct ResourceDef {
+    std::string name;
+    std::string type;
+    std::string path;
+  };
+
+  NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(ResourceDef, name, type, path)
+
   struct Scenario {
     std::string id;
     std::string name;
@@ -265,6 +275,7 @@ export {
     Weather weather = Weather::SUNNY;
     Season season = Season::SUMMER;
     TimeOfDay timeOfDay = TimeOfDay::DAY;
+    Color skyColor{BLUE};
     std::string theater; ///< Geographic region / map name.
 
     StartConditions start;
@@ -275,13 +286,10 @@ export {
         weapons; ///< Weapon type definitions used by entities.
     std::vector<Objective>
         objectives; ///< Mission objectives (required + optional).
-    Color skyColor{BLUE};
+    std::vector<ResourceDef> resources;
   };
 
-  NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(Scenario, id, name,
-                                                  description, difficulty,
-                                                  weather, season, timeOfDay,
-                                                  theater, start, entities,
-                                                  weapons, objectives,
-                                                  skyColor);
+  NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(
+      Scenario, id, name, description, difficulty, weather, season, timeOfDay,
+      skyColor, theater, start, entities, weapons, objectives, resources);
 }

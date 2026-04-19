@@ -12,15 +12,14 @@ import Screens;
 std::unique_ptr<BaseScreen> create_screen(const ScreenState &current,
                                           entt::registry &registry,
                                           const JsonConfig &config,
-                                          const JsonConfig &scenario,
-                                          const JsonConfig &resources) {
+                                          const JsonConfig &scenario) {
   switch (current) {
   default:
   case ScreenState::SPLASH:
     return std::make_unique<SplashScreen>();
 
   case ScreenState::LOADING:
-    return std::make_unique<LoadingScreen>(registry, resources);
+    return std::make_unique<LoadingScreen>(registry, scenario);
 
   case ScreenState::GAMEPLAY:
     return std::make_unique<GameScreen>(registry, config, scenario);
@@ -35,7 +34,6 @@ int main() {
   try {
     const auto config = JsonConfig("assets/config.jsonc");
     const auto scenario = JsonConfig("assets/scenario.jsonc");
-    const auto resources = JsonConfig("assets/resources.jsonc");
 
     const auto conf = config.get<GlobalConfig>("/global");
 
@@ -51,11 +49,11 @@ int main() {
     auto current = ScreenState::SPLASH;
     ScreenState next = current;
     std::unique_ptr<BaseScreen> screen =
-        create_screen(current, registry, config, scenario, resources);
+        create_screen(current, registry, config, scenario);
 
     while (!WindowShouldClose()) {
       if (next = screen->update(); next != current) {
-        screen = create_screen(next, registry, config, scenario, resources);
+        screen = create_screen(next, registry, config, scenario);
         current = next;
       }
       BeginDrawing();

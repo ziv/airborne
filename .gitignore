@@ -5,5 +5,6 @@ build/
 *.o
 *.a
 cmake-build-debug/
+cmake-build-release/
 tmp/
 devblog/public

@@ -28,12 +28,26 @@ export class Inspector {
   }
 
   render() {
+    // Save open/closed state of all collapsible sections before re-render
+    const openState = {};
+    this.el.querySelectorAll('details.collapsible[data-section]').forEach(d => {
+      openState[d.dataset.section] = d.open;
+    });
+    this._openState = Object.keys(openState).length ? openState : (this._openState || {});
+
     const tab = this.state.ui.inspectorTab;
     switch (tab) {
       case 'entity': this._renderEntity(); break;
       case 'objective': this._renderObjective(); break;
       default: this._renderScenario(); break;
     }
+
+    // Restore open/closed state
+    this.el.querySelectorAll('details.collapsible[data-section]').forEach(d => {
+      if (d.dataset.section in this._openState) {
+        d.open = this._openState[d.dataset.section];
+      }
+    });
   }
 
   // --- Scenario metadata + start conditions ---
@@ -45,7 +59,7 @@ export class Inspector {
     this.el.innerHTML = `
       <h3>Scenario</h3>
       <div class="inspector-form">
-        <details class="collapsible" open>
+        <details class="collapsible" data-section="metadata" open>
           <summary>Metadata</summary>
           <div class="collapsible-body">
             ${this._field('text', 'scenario-id', 'ID', s.id)}
@@ -62,7 +76,7 @@ export class Inspector {
           </div>
         </details>
 
-        <details class="collapsible" open>
+        <details class="collapsible" data-section="sky-color" open>
           <summary>Sky Color</summary>
           <div class="collapsible-body">
             <div class="sky-color-row">
@@ -78,7 +92,7 @@ export class Inspector {
           </div>
         </details>
 
-        <details class="collapsible" open>
+        <details class="collapsible" data-section="start-conditions" open>
           <summary>Start Conditions</summary>
           <div class="collapsible-body">
             ${this._renderStartBaseSelect()}
@@ -96,7 +110,7 @@ export class Inspector {
           </div>
         </details>
 
-        <details class="collapsible" open>
+        <details class="collapsible" data-section="player-loadout" open>
           <summary>Player Loadout</summary>
           <div class="collapsible-body">
             ${this._renderPlayerLoadout()}
@@ -259,9 +273,10 @@ export class Inspector {
         const entity = s.getEntity(baseSelect.value);
         if (!entity) return;
         const isCarrier = entity.type === 'carrier';
+        const startY = isCarrier ? 12 : 0;
         this._guarded(() => {
           s.updateStart({
-            position: { x: entity.position.x, y: entity.position.y, z: entity.position.z },
+            position: { x: entity.position.x, y: startY, z: entity.position.z },
             carrier: isCarrier,
           });
         });
@@ -338,7 +353,7 @@ export class Inspector {
         ${this._select('ent-faction', 'Faction', FACTIONS, entity.faction)}
         ${this._select('ent-state', 'State', ENTITY_STATES, entity.state)}
 
-        <details class="collapsible" open>
+        <details class="collapsible" data-section="ent-position" open>
           <summary>Position</summary>
           <div class="collapsible-body">
             <div class="field-row-multi">
@@ -352,7 +367,7 @@ export class Inspector {
         </details>
 
         ${!hideStats ? `
-          <details class="collapsible" open>
+          <details class="collapsible" data-section="ent-stats" open>
             <summary>Stats</summary>
             <div class="collapsible-body">
               ${this._field('number', 'ent-health', 'Health', entity.health, 0)}
@@ -364,7 +379,7 @@ export class Inspector {
         ` : ''}
 
         ${typeDef.params && typeDef.params.length > 0 ? `
-          <details class="collapsible">
+          <details class="collapsible" data-section="ent-params">
             <summary>Parameters</summary>
             <div class="collapsible-body">
               ${typeDef.params.map(p => p.type === 'text'
@@ -377,7 +392,7 @@ export class Inspector {
         ` : ''}
 
         ${typeDef.properties && typeDef.properties.length > 0 ? `
-          <details class="collapsible" open>
+          <details class="collapsible" data-section="ent-properties" open>
             <summary>Properties</summary>
             <div class="collapsible-body">
               ${typeDef.properties.map(p =>
@@ -388,14 +403,14 @@ export class Inspector {
         ` : ''}
 
         ${ARMED_ENTITY_TYPES.includes(entity.type) ? `
-          <details class="collapsible" open>
+          <details class="collapsible" data-section="ent-weapons" open>
             <summary>Weapons</summary>
             <div class="collapsible-body">${this._renderEntityWeapons(entity)}</div>
           </details>
         ` : ''}
 
         ${entity.type === 'aircraft' ? `
-          <details class="collapsible" open>
+          <details class="collapsible" data-section="ent-waypoints" open>
             <summary>Waypoints</summary>
             <div class="collapsible-body">${this._renderEntityWaypoints(entity)}</div>
           </details>
@@ -454,7 +469,7 @@ export class Inspector {
     const rows = wps.map((wp, i) => `
       <div class="waypoint-row" data-wp-idx="${i}">
         <span class="wp-index">${i + 1}</span>
-        <span class="wp-name">${wp.name ? this._esc(wp.name) : '<i>unnamed</i>'}</span>
+        <input class="wp-name-input" data-wp-idx="${i}" type="text" value="${wp.name ? this._esc(wp.name) : ''}" placeholder="unnamed" />
         <span class="wp-coords">X:${Math.round(wp.position.x)} Z:${Math.round(wp.position.z)} Alt:${Math.round(wp.position.y)}</span>
         <span class="wp-btns">
           <button class="btn-sm btn-wp-copy" data-wp-idx="${i}" title="Copy coordinates">📋</button>
@@ -491,7 +506,7 @@ export class Inspector {
 
   _bindEntity(entity, typeDef) {
     const state = this.state;
-    const eid = entity.id;
+    let eid = entity.id;
 
     this.el.querySelector('#btn-deselect').addEventListener('click', () => {
       state.selectEntity(null);
@@ -509,6 +524,7 @@ export class Inspector {
         if (key === 'id') {
           current.id = el.value;
           if (state.ui.selectedEntityId === eid) state.ui.selectedEntityId = el.value;
+          eid = el.value;
           state.emit('entities-changed');
           state.emit('canvas-redraw');
         } else {
@@ -667,6 +683,19 @@ export class Inspector {
 
     // Waypoint controls (aircraft only)
     if (entity.type === 'aircraft') {
+      // Waypoint name editing
+      this.el.querySelectorAll('.wp-name-input').forEach(input => {
+        input.addEventListener('input', () => {
+          const idx = parseInt(input.dataset.wpIdx);
+          const current = state.getEntity(eid);
+          if (!current || !current.waypoints || !current.waypoints[idx]) return;
+          this._guarded(() => {
+            current.waypoints[idx].name = input.value;
+            state.emit('entity-updated', eid);
+          });
+        });
+      });
+
       this.el.querySelector('.entity-waypoints-list')?.addEventListener('click', (e) => {
         const btn = e.target.closest('button');
         if (!btn) return;

@@ -16,6 +16,13 @@ export class Sidebar {
     state.on('tool-changed', () => this._highlightTool());
     state.on('map-changed', () => this._updateMapInfo());
     state.on('reset', () => { this._updateMapInfo(); this._renderEntityList(); this._renderObjectiveList(); });
+
+    // Resize entity list to fill available space
+    this._resizeEntityList();
+    window.addEventListener('resize', () => this._resizeEntityList());
+    this.el.querySelectorAll('details.collapsible').forEach(d => {
+      d.addEventListener('toggle', () => this._resizeEntityList());
+    });
   }
 
   _render() {
@@ -255,5 +262,18 @@ export class Sidebar {
     if (canvas) {
       canvas.style.cursor = tool === 'select' ? '' : 'crosshair';
     }
+  }
+
+  _resizeEntityList() {
+    const list = this.el.querySelector('#entity-list');
+    if (!list) return;
+    // Measure how much space everything else in the sidebar takes
+    const sidebarH = this.el.clientHeight;
+    const listTop = list.getBoundingClientRect().top - this.el.getBoundingClientRect().top;
+    // Reserve space for the objectives section below
+    const objSection = this.el.querySelector('.sidebar-section:last-child');
+    const objH = objSection ? objSection.offsetHeight : 80;
+    const available = sidebarH - listTop - objH - 4;
+    list.style.maxHeight = Math.max(60, available) + 'px';
   }
 }

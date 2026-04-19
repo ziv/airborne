@@ -8,6 +8,7 @@ import Game;
 import JsonConfig;
 import ResourceManager;
 import ResourcePreloader;
+import Types;
 import :Base;
 
 auto constexpr RESOURCES_PATH = "assets/resources.jsonc";
