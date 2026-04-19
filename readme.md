@@ -21,7 +21,7 @@ cmake --build cmake-build-debug
 
 ## The Rules
 
-- Do not use game engine
+- Do not use game engine and or LLM
 - I have to re-learn CPP and linear algebra (ohh, trigonometry)
 - To have fun
 
