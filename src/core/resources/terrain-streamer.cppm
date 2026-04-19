@@ -10,7 +10,9 @@ module;
 export module TerrainStreaming;
 
 import Components;
+import RaylibResource;
 import ResourceManager;
+import Accessors;
 
 inline constexpr float METERS_PER_PIXEL = 16.08f;
 inline constexpr float TILE_PIXELS = 2048.0f;
@@ -20,18 +22,60 @@ inline constexpr float TILE_WORLD_SIZE = TILE_PIXELS * METERS_PER_PIXEL;
 struct AsyncTileLoad {
   std::future<Image> texture_future;
   std::future<Image> heightmap_future;
-  int x;
-  int z;
+  int x = 0;
+  int z = 0;
 };
 
 struct TerrainChunk {
-  Model model;
-  float world_x;
-  float world_z;
+  ModelHandle model;
+  float world_x = 0.0f;
+  float world_z = 0.0f;
+
+  TerrainChunk(const Model& model, const float world_x, const float world_z) : model(model), world_x(world_x), world_z(world_z) {}
 };
 
-export int get_tile_id(const int x, const int z) {
-  return entt::hashed_string(TextFormat("tile_model_%d_%d", x, z));
+export int get_tile_id(const int x, const int z) { return entt::hashed_string(TextFormat("tile_model_%d_%d", x, z)); }
+
+export void process_async_loads(entt::registry& registry) {
+  auto& rm = get_resource_manager(registry);
+  for (const auto view = registry.view<AsyncTileLoad>(); const auto entity : view) {
+    auto& async_load = view.get<AsyncTileLoad>(entity);
+
+    const bool tex_ready = async_load.texture_future.wait_for(std::chrono::seconds(0)) == std::future_status::ready;
+    const bool height_ready = async_load.heightmap_future.wait_for(std::chrono::seconds(0)) == std::future_status::ready;
+
+    if (!tex_ready || !height_ready) continue;
+
+    TraceLog(LOG_WARNING, "processing loaded tile %d %d", async_load.x, async_load.z);
+
+    const Image tex_img = async_load.texture_future.get();
+    const Image height_img = async_load.heightmap_future.get();
+
+    Texture2D final_texture = LoadTextureFromImage(tex_img);
+
+    const Mesh mesh = GenMeshHeightmap(height_img, (Vector3){TILE_WORLD_SIZE, 1000.0f, TILE_WORLD_SIZE});
+    const Model model = LoadModelFromMesh(mesh);
+    model.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = final_texture;
+
+    // if the fog exists in the resource manager, use it
+    if (constexpr auto fog_id = entt::hashed_string("fog_shader"); rm.shaders.contains(fog_id)) {
+      model.materials[0].shader = rm.shaders[fog_id]->res;
+    }
+
+    // keeping the tile in the resource manager
+    rm.models.load(get_tile_id(async_load.x, async_load.z), model);
+
+    // unload images
+    UnloadImage(tex_img);
+    UnloadImage(height_img);
+
+    registry.remove<AsyncTileLoad>(entity);
+
+    float world_x = static_cast<float>(async_load.x) * TILE_WORLD_SIZE;
+    float world_z = static_cast<float>(async_load.z) * TILE_WORLD_SIZE;
+
+    registry.emplace<TerrainChunk>(entity, model, world_x, world_z);
+  }
 }
 
 export class TerrainStreamingSystem {
@@ -43,11 +87,15 @@ export class TerrainStreamingSystem {
   int last_tile_z = -9999;
 
  public:
-  void update(entt::registry &registry, const Vector3 player_pos) {
-    const int current_tile_x =
-        static_cast<int>(std::floor(player_pos.x / TILE_WORLD_SIZE));
-    const int current_tile_z =
-        static_cast<int>(std::floor(player_pos.z / TILE_WORLD_SIZE));
+  void update(entt::registry& registry) {
+    const auto& player = get_player(registry);
+
+    int current_tile_x = static_cast<int>(std::floor(player.pos.x / TILE_WORLD_SIZE));
+    int current_tile_z = static_cast<int>(std::floor(player.pos.z / TILE_WORLD_SIZE));
+
+    // todo those numbers should come from config (how many image we have -> 5x4=20)
+    current_tile_x = std::clamp(current_tile_x, 0, 4);
+    current_tile_z = std::clamp(current_tile_z, 0, 3);
 
     if (current_tile_x == last_tile_x && current_tile_z == last_tile_z) return;
 
@@ -70,10 +118,9 @@ export class TerrainStreamingSystem {
     }
 
     // iterate the required tile and find not loaded
-    for (const auto &coord : required_tiles) {
+    for (const auto& coord : required_tiles) {
       if (!active_tiles.contains(coord)) {
-        const entt::entity new_tile_entity =
-            spawn_tile(registry, coord.first, coord.second);
+        const entt::entity new_tile_entity = spawn_tile(registry, coord.first, coord.second);
         active_tiles[coord] = new_tile_entity;
       }
     }
@@ -83,76 +130,29 @@ export class TerrainStreamingSystem {
   }
 
  private:
-  entt::entity spawn_tile(entt::registry &registry, const int x, const int z) {
+  static entt::entity spawn_tile(entt::registry& registry, const int x, const int z) {
     const auto entity = registry.create();
 
     std::string tex_path = TextFormat("assets/world/tex-%d-%d.png", x, z);
     std::string height_path = TextFormat("assets/world/hm-%d-%d.png", x, z);
 
     auto tex_task = std::async(std::launch::async, [tex_path]() {
+      TraceLog(LOG_WARNING, "loading texture %s", tex_path.c_str());
       return LoadImage(tex_path.c_str());
     });
 
     auto height_task = std::async(std::launch::async, [height_path]() {
+      TraceLog(LOG_WARNING, "loading height %s", height_path.c_str());
       return LoadImage(height_path.c_str());
     });
 
-    float world_x = x * TILE_WORLD_SIZE;
-    float world_z = z * TILE_WORLD_SIZE;
+    const float world_x = static_cast<float>(x) * TILE_WORLD_SIZE;
+    const float world_z = static_cast<float>(z) * TILE_WORLD_SIZE;
 
-    registry.emplace<Position3D>(entity, (Vector3){world_x, 0, world_z},
-                                 Vector3{0, 0, 0});
+    registry.emplace<Position3D>(entity, (Vector3){world_x, 0, world_z}, Vector3{0, 0, 0});
 
-    registry.emplace<AsyncTileLoad>(entity, std::move(tex_task),
-                                    std::move(height_task), x, z);
+    registry.emplace<AsyncTileLoad>(entity, std::move(tex_task), std::move(height_task), x, z);
 
     return entity;
-  }
-
-  void process_async_loads(entt::registry &registry) {
-    auto &rm = get_resource_manager(registry);
-    for (const auto view = registry.view<AsyncTileLoad>();
-         const auto entity : view) {
-      auto &async_load = view.get<AsyncTileLoad>(entity);
-
-      const bool tex_ready =
-          async_load.texture_future.wait_for(std::chrono::seconds(0)) ==
-          std::future_status::ready;
-      const bool height_ready =
-          async_load.heightmap_future.wait_for(std::chrono::seconds(0)) ==
-          std::future_status::ready;
-
-      if (!tex_ready || !height_ready) continue;
-
-      const Image tex_img = async_load.texture_future.get();
-      const Image height_img = async_load.heightmap_future.get();
-
-      Texture2D final_texture = LoadTextureFromImage(tex_img);
-
-      const Mesh mesh = GenMeshHeightmap(
-          height_img, (Vector3){TILE_WORLD_SIZE, 1000.0f, TILE_WORLD_SIZE});
-      const Model model = LoadModelFromMesh(mesh);
-      model.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = final_texture;
-
-      // if the fog exists in the resource manager, use it
-      if (constexpr auto fog_id = entt::hashed_string("fog_shader");
-          rm.shaders.contains(fog_id)) {
-        model.materials[0].shader = rm.shaders[fog_id]->res;
-      }
-
-      // keeping the tile in the resource manager
-      rm.models.load(get_tile_id(async_load.x, async_load.z), model);
-
-      // unload images
-      UnloadImage(tex_img);
-      UnloadImage(height_img);
-
-      registry.remove<AsyncTileLoad>(entity);
-
-      float world_x = async_load.x * TILE_WORLD_SIZE;
-      float world_z = async_load.z * TILE_WORLD_SIZE;
-
-      registry.emplace<TerrainChunk>(entity, model, world_x, world_z);
-    }
   }
 };

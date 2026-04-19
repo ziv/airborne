@@ -58,6 +58,7 @@ target_sources(${PROJECT_NAME} PUBLIC
         src/core/resources/raylib-resource.cppm
         src/core/resources/resource-manager.cppm
         src/core/resources/resource-preloader.cppm
+        src/core/resources/terrain-streamer.cppm
         src/components/components.cppm
         src/components/world.cppm
         src/components/data.cppm
