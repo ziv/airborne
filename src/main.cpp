@@ -9,14 +9,18 @@ import JsonConfig;
 import Types;
 import Screens;
 
-std::unique_ptr<BaseScreen> create_screen(const ScreenState &current) {
+std::unique_ptr<BaseScreen> create_screen(const ScreenState &current,
+                                          entt::registry &registry) {
   switch (current) {
   default:
   case ScreenState::SPLASH:
     return std::make_unique<SplashScreen>();
 
+  case ScreenState::LOADING:
+    return std::make_unique<LoadingScreen>(registry);
+
   case ScreenState::GAMEPLAY:
-    return std::make_unique<GameScreen>();
+    return std::make_unique<GameScreen>(registry);
   }
 }
 
@@ -26,8 +30,8 @@ int main() {
   SetConfigFlags(FLAG_WINDOW_RESIZABLE | FLAG_VSYNC_HINT);
 
   try {
-    const JsonConfig config("assets/config.jsonc");
-    const auto conf = config.get<GlobalConfig>("/global");
+    const auto conf =
+        JsonConfig("assets/main.jsonc").get<GlobalConfig>("/global");
 
     InitWindow(conf.width, conf.height, conf.title.c_str());
     InitAudioDevice();
@@ -37,13 +41,14 @@ int main() {
              conf.nearPlane, conf.farPlane);
     rlSetClipPlanes(conf.nearPlane, conf.farPlane);
 
+    entt::registry registry;
     auto current = ScreenState::SPLASH;
     ScreenState next = current;
-    std::unique_ptr<BaseScreen> screen = create_screen(current);
+    std::unique_ptr<BaseScreen> screen = create_screen(current, registry);
 
     while (!WindowShouldClose()) {
       if (next = screen->update(); next != current) {
-        screen = create_screen(next);
+        screen = create_screen(next, registry);
         current = next;
       }
       BeginDrawing();

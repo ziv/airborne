@@ -31,7 +31,7 @@ public:
 
   ScreenState update() override {
     UpdateMusicStream(music);
-    return IsKeyPressed(KEY_SPACE) ? ScreenState::GAMEPLAY
+    return IsKeyPressed(KEY_SPACE) ? ScreenState::LOADING
                                    : ScreenState::SPLASH;
   }
 

@@ -6,6 +6,7 @@ import JsonConfig;
 
 export enum class ScreenState {
   SPLASH,
+  LOADING,
   MAIN_MENU,
   BRIEFING,
   GAMEPLAY,

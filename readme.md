@@ -38,6 +38,7 @@ got from this magic game, so this project has begun.
 
 Leftovers from the ESC refactoring:
 
+- [ ] performance optimizations: change read only view data to const reference
 - [x] ~~move the scene into a view~~
 - [x] hud colors
 - [x] bring the radar widget

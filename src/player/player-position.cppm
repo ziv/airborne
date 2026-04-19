@@ -31,7 +31,7 @@ public:
     // const auto entity = registry.ctx().get<PlayerEntity>().id;
     const auto entity = get_player_entity(registry);
     auto [player, gh, inputs] =
-        registry.get<Player, GroundHeight, PlayerInputs>(entity);
+        registry.get<Player, GroundHeight, const PlayerInputs>(entity);
 
     // update position
     player.pos = player.pos + (player.velocity * dt);

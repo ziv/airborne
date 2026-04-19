@@ -47,20 +47,14 @@ public:
     }
 
     template<typename T>
-    std::optional<T> optional(const std::string &path) const {
+    std::optional<T> optional(const std::string &path) const noexcept {
         if (config.contains(nlohmann::json::json_pointer(path))) return get<T>(path);
         return std::nullopt;
     }
 
     template<typename T>
-    T get_or(const std::string &path, const T &defaultValue) const {
+    T get_or(const std::string &path, const T &defaultValue) const noexcept {
         if (config.contains(nlohmann::json::json_pointer(path))) return get<T>(path);
         return defaultValue;
     }
 };
-
-
-// export template<typename T>
-// T readConf(const std::string &path) {
-//     return JsonConfig(path).get<T>();
-// }

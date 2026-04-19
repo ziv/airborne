@@ -22,15 +22,17 @@ export class Game {
   PlayerDispatcher dispatcher;
 
 public:
-  explicit Game(const JsonConfig &config, const JsonConfig &scenario_config,
+  explicit Game(const JsonConfig &config,
+                const JsonConfig &scenario_config,
                 entt::registry &reg)
-      : registry(reg), scenario(scenario_config.get<Scenario>("/data")),
+      : registry(reg),
+        scenario(scenario_config.get<Scenario>("/data")),
         dispatcher(config) {
 
-    create_resource_manager(registry);
+    // create_resource_manager(registry);
 
-    const JsonConfig resources(config.get<GlobalConfig>("/global").resources);
-    preload_resources(registry, resources);
+    // const JsonConfig resources(config.get<GlobalConfig>("/global").resources);
+    // preload_resources(registry, resources);
 
     registry.ctx().emplace<Offset>(Vector3Zero());
 

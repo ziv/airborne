@@ -1,0 +1,12 @@
+{
+  "global": {
+    "title": "airborne",
+    "width": 1200,
+    "height": 800,
+    "fov": 85,
+    "tilt": 0.25,
+    "nearPlane": 1,
+    "farPlane": 30000,
+    "resources": "assets/resources.jsonc"
+  }
+}

@@ -11,7 +11,7 @@ export void RenderCockpit(entt::registry &registry) {
     if (view.begin() == view.end()) return;
 
     const entt::entity entity = view.front();
-    const auto [fs, tx, pos] = registry.get<WithFsShader, WithTexture, Position2D>(entity);
+    auto [fs, tx, pos] = registry.get<const WithFsShader, const WithTexture, const Position2D>(entity);
 
     BeginShaderMode(fs.handle->res);
     DrawTextureV(tx.handle->res, pos.pos, WHITE);

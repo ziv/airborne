@@ -4,6 +4,7 @@ module;
 
 /// Only data & tags components
 export module Components:Data;
+import JsonConfig;
 
 // global tag of the player
 export struct PlayerEntity {
@@ -44,4 +45,11 @@ export struct GroundHeight {
 // global player map offset
 export struct Offset {
   Vector3 offset;
+};
+
+export struct LoadingContext {
+  JsonConfig items_to_load;
+  size_t current_index = 0;
+  size_t total_items = 0;
+  bool is_finished = false;
 };

@@ -14,7 +14,7 @@ export void RenderDebug(entt::registry &registry) {
     }
 
     const entt::entity entity = view.front();
-    auto [player, inputs, gh] = view.get<Player, PlayerInputs, GroundHeight>(entity);
+    auto [player, inputs, gh] = view.get<const Player, const PlayerInputs, const GroundHeight>(entity);
 
 
     const auto f = registry.ctx().get<Forces>();

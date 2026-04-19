@@ -95,17 +95,20 @@ entt::entity create_scene(entt::registry &registry, const JsonConfig &config) {
       config.get<SceneConfig>("/scene");
   auto &assets = get_resource_manager(registry);
 
+  TraceLog(LOG_DEBUG, "create fog shader");
   constexpr auto fog_id = entt::hashed_string("fog_shader");
   Shader fog = init_fog(fogShaderVs, fogShaderFs);
   if (!assets.shaders.contains(fog_id))
     assets.shaders.load(fog_id, fog);
 
+  TraceLog(LOG_DEBUG, "create world model");
   constexpr auto surface_id = entt::hashed_string("world_model");
   if (!assets.models.contains(surface_id)) {
     assets.models.load(surface_id, generate_world_model(
                                        mapTexture, mapHeightmap, mapSize, fog));
   }
 
+  TraceLog(LOG_DEBUG, "create cloud model");
   constexpr auto cloud_id = entt::hashed_string("cloud_model");
   if (!assets.models.contains(cloud_id)) {
     assets.models.load(cloud_id, init_clouds(fog));

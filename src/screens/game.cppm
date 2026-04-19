@@ -7,14 +7,15 @@ import Game;
 import JsonConfig;
 import :Base;
 
+auto constexpr CONF_PATH = "assets/config.jsonc";
+auto constexpr SCENE_PATH = "assets/scenario.jsonc";
+
 export class GameScreen : public BaseScreen {
-  entt::registry registry;
-  Game game;
+  entt::registry &registry;
+  Game game{JsonConfig(CONF_PATH),JsonConfig(SCENE_PATH),registry};
 
 public:
-  explicit GameScreen()
-      : game(JsonConfig("assets/config.jsonc"),
-             JsonConfig("assets/scenario.jsonc"), registry) {}
+  explicit GameScreen(entt::registry &r) : registry(r){};
 
   ScreenState update() override {
     game.update();

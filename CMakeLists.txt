@@ -87,6 +87,7 @@ target_sources(${PROJECT_NAME} PUBLIC
         src/screens/screens.cppm
         src/screens/splash.cppm
         src/screens/game.cppm
+        src/screens/loading.cppm
 )
 
 target_link_libraries(${PROJECT_NAME} PRIVATE raylib EnTT::EnTT nlohmann_json::nlohmann_json)
