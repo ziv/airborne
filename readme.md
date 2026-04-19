@@ -34,7 +34,6 @@ got from this magic game, so this project has begun.
 
 ![ia](assets/images/f15-se-ii.png)
 
-
 ## TODOs
 
 Leftovers from the ESC refactoring:
@@ -47,13 +46,13 @@ Leftovers from the ESC refactoring:
 - [x] bring the sound into scene view
 - [ ] complete the debug view by type
 - [ ] bring the autopilot controller
-- [ ] check safe landing mechanism
+- [x] check safe landing mechanism
 - [x] bring scene sounds
 - [ ] bring the navball widget
-- [ ] complete screens
+- [x] complete screens
 - [x] complete crash layout
 - [ ] refactor scene data into a scene config
--
+- [ ] add braking on landing
 
 ## Modules Rules
 
@@ -85,7 +84,14 @@ Style Rules
 - Use `kebab_case` for variables, methods, and functions
 - Systems functions should be named using `PascalCase` (see main rendering loop in the game)
 
+## Build
 
+The project require C++ compiler with support for C++20 modules, and CMake 3.25 or higher.
+
+I'm using LLVM. My configuration looks like this (macos):
 ```shell
+export CC=$(brew --prefix llvm)/bin/clang
+export CXX=$(brew --prefix llvm)/bin/clang++
+
 cmake -B cmake-build-debug -S . -DCMAKE_BUILD_TYPE=Debug -G Ninja
 ```
