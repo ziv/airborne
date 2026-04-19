@@ -80,6 +80,27 @@
         }
       },
       {
+        "id": "abother-home-base",
+        "type": "airbase",
+        "subtype": "international-airport",
+        "position": {
+          "x": 41000,
+          "y": 0,
+          "z": 74000
+        },
+        // placeholder
+        "heading": 0,
+        "faction": "friendly",
+        "model": "none",
+        "scale": 1,
+        "params": {
+          "minx": 30000,
+          "maxx": 31000,
+          "minz": 59000,
+          "maxz": 61000
+        }
+      },
+      {
         "id": "enemy-fighter-01",
         "type": "aircraft",
         "subtype": "mig29",
