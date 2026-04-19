@@ -25,7 +25,7 @@
     },
     "controls": {
       "pitchRatio": 0.7,
-      "rollRatio": 2.1,
+      "rollRatio": 1.1,
       "yawRatio": 0.5
     },
     "aircraft": {
@@ -40,11 +40,7 @@
       "bankInduceYawRatio": 0.2,
       "liftLossPitchRatio": 0.1,
       "stallAngle": 15,
-      // $F = \mu \cdot N$
       "frictionCoefficient": 2
-      //      "pitchRatio": 0.97,
-      //      "rollRatio": 0.98,
-      //      "yawRatio": 0.92
     },
     "position": {
       "threshold": 5000,

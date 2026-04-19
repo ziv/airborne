@@ -38,6 +38,7 @@ got from this magic game, so this project has begun.
 
 Leftovers from the ESC refactoring:
 
+- [ ] complete the terrain streaming
 - [ ] performance optimizations: change read only view data to const reference
 - [x] ~~move the scene into a view~~
 - [x] hud colors
@@ -99,4 +100,6 @@ cmake -B cmake-build-release -S . -DCMAKE_BUILD_TYPE=Release -G Ninja
 ```
 
 
-New tiles map, 4.02 meter to pixel.
+New tiles map, 16m/pixel (world under assets)
+Tile 2048x2048 pixels
+Tile hm map 512x512 pixels

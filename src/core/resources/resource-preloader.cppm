@@ -1,15 +1,15 @@
 module;
-#include "../../lib/ray.hpp"
 #include <entt/entt.hpp>
 #include <memory>
 #include <nlohmann/json.hpp>
 #include <string>
 
+#include "../../lib/ray.hpp"
+
 export module ResourcePreloader;
 
 import ResourceManager;
 import Types;
-
 
 export void preload_resource(ResourceManager &rm, const ResourceDef &def) {
   const auto [name, type, path] = def;
