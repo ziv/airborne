@@ -291,6 +291,16 @@ export class MapCanvas {
     const mmX = canvas.width - mmW - mmPad;
     const mmY = canvas.height - mmH - mmPad - 28; // above HUD bar
 
+    // store bounds for click handling
+    const imgW = state.map.width;
+    const imgH = state.map.height;
+    const scale = Math.min(mmW / imgW, mmH / imgH);
+    const dw = imgW * scale;
+    const dh = imgH * scale;
+    const dx = mmX + (mmW - dw) / 2;
+    const dy = mmY + (mmH - dh) / 2;
+    this._minimap = { mmX, mmY, mmW, mmH, dx, dy, dw, dh, imgW, imgH, scale };
+
     // background
     ctx.save();
     ctx.fillStyle = 'rgba(13, 17, 23, 0.8)';
@@ -307,14 +317,6 @@ export class MapCanvas {
     ctx.clip();
 
     // draw scaled map image
-    const imgW = state.map.width;
-    const imgH = state.map.height;
-    const scale = Math.min(mmW / imgW, mmH / imgH);
-    const dw = imgW * scale;
-    const dh = imgH * scale;
-    const dx = mmX + (mmW - dw) / 2;
-    const dy = mmY + (mmH - dh) / 2;
-
     if (state.ui.grayscale) ctx.filter = 'grayscale(1) brightness(0.6)';
     else ctx.filter = 'brightness(0.6)';
     ctx.drawImage(state.map.image, dx, dy, dw, dh);
@@ -372,6 +374,21 @@ export class MapCanvas {
       const mx = e.clientX - rect.left;
       const my = e.clientY - rect.top;
 
+      // Click on minimap → center main map to that position
+      if (e.button === 0 && this._minimap) {
+        const mm = this._minimap;
+        if (mx >= mm.mmX && mx <= mm.mmX + mm.mmW && my >= mm.mmY && my <= mm.mmY + mm.mmH) {
+          const imgX = (mx - mm.dx) / mm.scale - mm.imgW / 2;
+          const imgY = (my - mm.dy) / mm.scale - mm.imgH / 2;
+          this.state.camera.x = -imgX;
+          this.state.camera.y = -imgY;
+          this.state.clampCamera();
+          this.state.emit('camera-changed');
+          e.preventDefault();
+          return;
+        }
+      }
+
       // middle mouse, right-click, or alt+click → pan
       if (e.button === 1 || e.button === 2 || (e.button === 0 && e.altKey)) {
         this._panning = true;
@@ -412,6 +429,7 @@ export class MapCanvas {
         const dy = (my - this._panStart.y) / this.state.camera.zoom;
         this.state.camera.x = this._panStart.camX + dx;
         this.state.camera.y = this._panStart.camY + dy;
+        this.state.clampCamera();
         this.state.emit('camera-changed');
         return;
       }
@@ -542,6 +560,9 @@ export class MapCanvas {
     const parent = this.canvas.parentElement;
     this.canvas.width = parent.clientWidth;
     this.canvas.height = parent.clientHeight;
+    this.state.canvasSize.width = this.canvas.width;
+    this.state.canvasSize.height = this.canvas.height;
+    this.state.clampCamera();
     this.draw();
   }
 }

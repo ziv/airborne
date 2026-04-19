@@ -79,9 +79,8 @@ export class ScenarioState extends EventBus {
     };
 
     this.camera = { x: 0, y: 0, zoom: 1 };
+    this.canvasSize = { width: 0, height: 0 };
   }
-
-  // --- Map ---
 
   setMapImage(image, fileName, fileHandle = null) {
     this.map.image = image;
@@ -105,9 +104,20 @@ export class ScenarioState extends EventBus {
 
   // --- Camera ---
 
+  clampCamera() {
+    if (!this.map.image || !this.canvasSize.width) return;
+    const halfW = this.canvasSize.width / 2 / this.camera.zoom;
+    const halfH = this.canvasSize.height / 2 / this.camera.zoom;
+    const imgHalfW = this.map.width / 2;
+    const imgHalfH = this.map.height / 2;
+    this.camera.x = Math.max(-imgHalfW + halfW, Math.min(imgHalfW - halfW, this.camera.x));
+    this.camera.y = Math.max(-imgHalfH + halfH, Math.min(imgHalfH - halfH, this.camera.y));
+  }
+
   panCamera(dx, dy) {
     this.camera.x += dx;
     this.camera.y += dy;
+    this.clampCamera();
     this.emit('camera-changed');
   }
 
@@ -117,11 +127,13 @@ export class ScenarioState extends EventBus {
     const ratio = 1 - this.camera.zoom / oldZoom;
     this.camera.x += (pivotX - this.camera.x) * ratio;
     this.camera.y += (pivotY - this.camera.y) * ratio;
+    this.clampCamera();
     this.emit('camera-changed');
   }
 
   setZoom(zoom) {
     this.camera.zoom = Math.max(0.05, Math.min(20, zoom));
+    this.clampCamera();
     this.emit('camera-changed');
   }
 

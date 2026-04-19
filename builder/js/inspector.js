@@ -22,6 +22,7 @@ export class Inspector {
     state.on('objective-updated', (id) => { if (!this._selfUpdate && id === this.state.ui.selectedObjectiveId) this.render(); });
     state.on('reset', () => this.render());
     state.on('weapons-changed', () => { if (!this._selfUpdate) this.render(); });
+    state.on('models-changed', () => { if (!this._selfUpdate) this.render(); });
 
     this.render();
   }
@@ -80,6 +81,7 @@ export class Inspector {
         <details class="collapsible" open>
           <summary>Start Conditions</summary>
           <div class="collapsible-body">
+            ${this._renderStartBaseSelect()}
             <div class="field-row-multi">
               ${this._fieldInline('number', 'start-x', 'X', st.position.x)}
               ${this._fieldInline('number', 'start-y', 'Alt', st.position.y)}
@@ -104,6 +106,28 @@ export class Inspector {
     `;
 
     this._bindScenario();
+  }
+
+  _renderStartBaseSelect() {
+    const bases = this.state.scenario.entities.filter(e =>
+      (e.type === 'carrier' || e.type === 'airbase') &&
+      (e.faction === 'friendly' || e.faction === 'neutral')
+    );
+    if (bases.length === 0) {
+      return `<div class="info-text">No friendly/neutral airbases or carriers. Add one to pick a start location.</div>`;
+    }
+    const options = bases.map(e =>
+      `<option value="${this._esc(e.id)}">${this._esc(e.id)} (${e.type})</option>`
+    ).join('');
+    return `
+      <div class="field-group">
+        <label>Start from base</label>
+        <select id="start-base-select" class="input-full">
+          <option value="">— Select a base —</option>
+          ${options}
+        </select>
+      </div>
+    `;
   }
 
   _renderPlayerLoadout() {
@@ -228,6 +252,23 @@ export class Inspector {
       });
     }
 
+    // Start from base selector
+    const baseSelect = this.el.querySelector('#start-base-select');
+    if (baseSelect) {
+      baseSelect.addEventListener('change', () => {
+        const entity = s.getEntity(baseSelect.value);
+        if (!entity) return;
+        const isCarrier = entity.type === 'carrier';
+        this._guarded(() => {
+          s.updateStart({
+            position: { x: entity.position.x, y: entity.position.y, z: entity.position.z },
+            carrier: isCarrier,
+          });
+        });
+        this.render();
+      });
+    }
+
     // Player loadout quantity buttons
     this.el.querySelectorAll('.loadout-qty-row').forEach(row => {
       row.addEventListener('click', (e) => {
@@ -317,7 +358,7 @@ export class Inspector {
               ${this._field('number', 'ent-health', 'Health', entity.health, 0)}
               ${this._field('number', 'ent-max-health', 'Max Health', entity.maxHealth, 0)}
               ${this._field('number', 'ent-scale', 'Scale', entity.scale, 0.1, undefined, 0.1)}
-              ${this._field('text', 'ent-model', 'Model Path', entity.modelId)}
+              ${this._modelSelect(entity.modelId)}
             </div>
           </details>
         ` : ''}
@@ -508,7 +549,16 @@ export class Inspector {
     bindSimple('ent-health', 'health');
     bindSimple('ent-max-health', 'maxHealth');
     bindSimple('ent-scale', 'scale');
-    bindSimple('ent-model', 'modelId');
+
+    // Model select uses 'change' event
+    const modelEl = this.el.querySelector('#ent-model');
+    if (modelEl) {
+      modelEl.addEventListener('change', () => {
+        const current = state.getEntity(eid);
+        if (!current) return;
+        this._guarded(() => state.updateEntity(eid, { modelId: modelEl.value }));
+      });
+    }
 
     if (typeDef.params) {
       for (const p of typeDef.params) {
@@ -795,6 +845,21 @@ export class Inspector {
     return `<div class="field-group">
       <label for="${id}">${label}</label>
       <select id="${id}">${opts}</select>
+    </div>`;
+  }
+
+  _modelSelect(currentId) {
+    const models = this.state.getModels ? this.state.getModels() : [];
+    const opts = models.map(m => {
+      const display = m.label ? `${this._esc(m.label)} (${this._esc(m.file)})` : this._esc(m.file || m.id);
+      return `<option value="${this._esc(m.id)}" ${m.id === currentId ? 'selected' : ''}>${display}</option>`;
+    }).join('');
+    return `<div class="field-group">
+      <label for="ent-model">Model</label>
+      <select id="ent-model">
+        <option value="" ${!currentId ? 'selected' : ''}>— none —</option>
+        ${opts}
+      </select>
     </div>`;
   }
 

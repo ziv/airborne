@@ -1076,6 +1076,13 @@ body {
 
 .obj-detail-header h3 { font-size: 15px; }
 
+.obj-detail .inspector-form h4,
+.weapons-detail .inspector-form h4 {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+
 .obj-flags {
   display: flex;
   flex-direction: column;
@@ -1121,6 +1128,71 @@ body {
 }
 
 .input-full { width: 100%; box-sizing: border-box; }
+
+/* Models page — matches weapons/objectives page layout */
+#models-page {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+  background: var(--bg);
+}
+
+.models-sidebar {
+  width: 260px;
+  min-width: 200px;
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.models-sidebar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px;
+  border-bottom: 1px solid var(--border);
+}
+
+.models-sidebar-header h3 { font-size: 14px; }
+
+#models-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 4px 0;
+}
+
+.models-detail {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px 20px;
+}
+
+.models-detail .inspector-form h3 {
+  margin-bottom: 12px;
+  font-size: 15px;
+}
+
+.models-detail .inspector-form h4 {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+
+.models-detail .empty-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: var(--text-muted);
+  font-size: 14px;
+}
+
+.model-icon {
+  font-size: 16px;
+  flex-shrink: 0;
+}
 
 /* Settings page */
 #settings-page {

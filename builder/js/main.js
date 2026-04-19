@@ -7,6 +7,7 @@ import { Sidebar } from './sidebar.js';
 import { Inspector } from './inspector.js';
 import { WeaponsPage } from './weapons.js';
 import { ObjectivesPage } from './objectives.js';
+import { ModelsPage } from './models.js';
 import { SettingsPage } from './settings.js';
 import { validate } from './validation.js';
 import { downloadJSON } from './exporter.js';
@@ -24,6 +25,7 @@ const sidebar = new Sidebar(document.getElementById('sidebar'), state);
 const inspector = new Inspector(document.getElementById('inspector'), state);
 const weaponsPage = new WeaponsPage(document.getElementById('weapons-page'), state);
 const objectivesPage = new ObjectivesPage(document.getElementById('objectives-page'), state);
+const modelsPage = new ModelsPage(document.getElementById('models-page'), state);
 const settingsPage = new SettingsPage(document.getElementById('settings-page'), state);
 
 // --- Page navigation (Map ↔ Weapons) ---
@@ -31,14 +33,16 @@ const appEl = document.getElementById('app');
 const btnPageMap = document.getElementById('btn-page-map');
 const btnPageWeapons = document.getElementById('btn-page-weapons');
 const btnPageObjectives = document.getElementById('btn-page-objectives');
+const btnPageModels = document.getElementById('btn-page-models');
 const btnPageSettings = document.getElementById('btn-page-settings');
 
 function showPage(page) {
-  const btns = [btnPageMap, btnPageWeapons, btnPageObjectives, btnPageSettings];
+  const btns = [btnPageMap, btnPageWeapons, btnPageObjectives, btnPageModels, btnPageSettings];
   btns.forEach(b => b.classList.remove('tab-active'));
 
   weaponsPage.hide();
   objectivesPage.hide();
+  modelsPage.hide();
   settingsPage.hide();
 
   if (page === 'weapons') {
@@ -49,6 +53,10 @@ function showPage(page) {
     appEl.style.display = 'none';
     objectivesPage.show();
     btnPageObjectives.classList.add('tab-active');
+  } else if (page === 'models') {
+    appEl.style.display = 'none';
+    modelsPage.show();
+    btnPageModels.classList.add('tab-active');
   } else if (page === 'settings') {
     appEl.style.display = 'none';
     settingsPage.show();
@@ -63,6 +71,7 @@ function showPage(page) {
 btnPageMap.addEventListener('click', () => showPage('map'));
 btnPageWeapons.addEventListener('click', () => showPage('weapons'));
 btnPageObjectives.addEventListener('click', () => showPage('objectives'));
+btnPageModels.addEventListener('click', () => showPage('models'));
 btnPageSettings.addEventListener('click', () => showPage('settings'));
 
 // Grayscale toggle
@@ -195,7 +204,10 @@ document.getElementById('input-import-file').addEventListener('change', (e) => {
   const reader = new FileReader();
   reader.onload = () => {
     try {
-      const json = JSON.parse(reader.result);
+      const text = reader.result.split('\n')
+        .filter(line => !line.trimStart().startsWith('//'))
+        .join('\n');
+      const json = JSON.parse(text);
       state.importJSON(json);
       showToast('Scenario imported');
     } catch (err) {
@@ -221,51 +233,7 @@ document.getElementById('btn-export').addEventListener('click', () => {
   showToast('Scenario exported');
 });
 
-// Save to filesystem (uses File System Access API if available)
-import { exportScenario } from './exporter.js';
 
-document.getElementById('btn-save').addEventListener('click', async () => {
-  const json = exportScenario(state);
-  const text = JSON.stringify(json, null, 2);
-  try {
-    if (window.showSaveFilePicker) {
-      const handle = await window.showSaveFilePicker({
-        suggestedName: (state.scenario.id || 'scenario') + '.json',
-        types: [{ description: 'JSON', accept: { 'application/json': ['.json'] } }],
-      });
-      const writable = await handle.createWritable();
-      await writable.write(text);
-      await writable.close();
-      showToast('Scenario saved');
-    } else {
-      // fallback: download
-      downloadJSON(state);
-    }
-  } catch (err) {
-    if (err.name !== 'AbortError') showToast('Save failed: ' + err.message, 'error');
-  }
-});
-
-// Load from filesystem
-document.getElementById('btn-load').addEventListener('click', () => {
-  document.getElementById('input-load-file').click();
-});
-document.getElementById('input-load-file').addEventListener('change', (e) => {
-  const file = e.target.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = () => {
-    try {
-      const json = JSON.parse(reader.result);
-      state.importJSON(json);
-      showToast('Scenario loaded');
-    } catch (err) {
-      showToast('Load failed: ' + err.message, 'error');
-    }
-  };
-  reader.readAsText(file);
-  e.target.value = '';
-});
 
 // --- Validation dialog ---
 

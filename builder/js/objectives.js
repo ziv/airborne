@@ -29,7 +29,11 @@ export class ObjectivesPage {
   }
 
   _renderIfVisible() {
-    if (this.el.style.display !== 'none') this.render();
+    if (this.el.style.display === 'none') return;
+    // Don't re-render while user is editing a field in the detail pane
+    const active = document.activeElement;
+    if (active && this.el.querySelector('.obj-detail')?.contains(active)) return;
+    this.render();
   }
 
   render() {

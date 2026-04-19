@@ -2,6 +2,7 @@
 
 export function exportScenario(state) {
   const s = state.scenario;
+  const resolveModel = (id) => state.getModelPath ? state.getModelPath(id) : id;
 
   const entities = s.entities.map(e => {
     const out = {
@@ -14,7 +15,7 @@ export function exportScenario(state) {
       heading: e.heading,
       health: e.health,
       maxHealth: e.maxHealth,
-      modelId: e.modelId,
+      modelId: resolveModel(e.modelId),
       scale: e.scale,
     };
 

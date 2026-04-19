@@ -19,6 +19,7 @@
       <button id="btn-page-map" class="btn toolbar-btn tab-active" title="Map editor">Map</button>
       <button id="btn-page-weapons" class="btn toolbar-btn" title="Weapon types">Weapons</button>
       <button id="btn-page-objectives" class="btn toolbar-btn" title="Objectives manager">Objectives</button>
+      <button id="btn-page-models" class="btn toolbar-btn" title="Model resources">Models</button>
       <button id="btn-page-settings" class="btn toolbar-btn" title="Settings">⚙ Settings</button>
       <div class="toolbar-separator"></div>
       <button id="btn-toggle-grayscale" class="btn toolbar-btn tab-active" title="Toggle map grayscale">Grayscale</button>
@@ -31,9 +32,6 @@
       <button id="btn-redo" class="btn toolbar-btn" title="Redo (Ctrl+Y)" disabled>↪ Redo</button>
     </div>
     <div class="toolbar-right">
-      <button id="btn-save" class="btn toolbar-btn" title="Save to file">Save</button>
-      <button id="btn-load" class="btn toolbar-btn" title="Load from file">Load</button>
-      <input type="file" id="input-load-file" accept=".json,.jsonc" hidden>
       <button id="btn-validate" class="btn toolbar-btn" title="Validate scenario">Validate</button>
       <button id="btn-export" class="btn toolbar-btn btn-primary" title="Export JSON">Export</button>
     </div>
@@ -52,6 +50,9 @@
 
   <!-- Objectives page (hidden by default) -->
   <div id="objectives-page" style="display:none"></div>
+
+  <!-- Models page (hidden by default) -->
+  <div id="models-page" style="display:none"></div>
 
   <!-- Settings page (hidden by default) -->
   <div id="settings-page" style="display:none"></div>
