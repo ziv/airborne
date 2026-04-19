@@ -29,14 +29,9 @@ public:
         scenario(scenario_config.get<Scenario>("/data")),
         dispatcher(config) {
 
-    // create_resource_manager(registry);
-
-    // const JsonConfig resources(config.get<GlobalConfig>("/global").resources);
-    // preload_resources(registry, resources);
-
     registry.ctx().emplace<Offset>(Vector3Zero());
 
-    factories::create_player(registry, config, scenario);
+    factories::create_player(registry, config, scenario.start.position);
     factories::create_scene(registry, config);
     factories::create_cockpit(registry, config);
     factories::create_hud(registry, config);

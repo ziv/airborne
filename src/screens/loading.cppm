@@ -42,7 +42,7 @@ public:
   void draw() override {
     ClearBackground(BLACK);
     const int progress = (total == 0) ? 100 : (current * 100) / total;
-    DrawText(TextFormat("Loading Simulator %d%%", progress), 100, 100, 20,
+    DrawText(TextFormat("Loading resources %d%%", progress), 100, 100, 20,
              GREEN);
     DrawRectangle(100, 150, progress * 4, 30, GREEN);
   }

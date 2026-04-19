@@ -9,7 +9,7 @@ A scenario file defines a single mission: where the player starts, what entities
 * **description** — mission briefing text
 * **difficulty** — `"easy"` | `"medium"` | `"hard"`
 * **theater** — geographic region / map name (maps to scene config in `config.jsonc`)
-* **skyColor** — RGBA array `[r, g, b, a]` used as the clear color each frame
+* **skyColor** — RGBA object `{r, g, b, a}` used as the clear color each frame
 * **weather** — 
 * **day/night** — 
 

@@ -1,13 +1,15 @@
 # Copilot Instructions — Airborne
 
-A modern C++23 remake of F-15 Strike Eagle II using raylib, EnTT (ECS), and nlohmann/json. Not a full simulator, not an arcade — a gameplay-focused flight game.
+## Project Overview
+
+A modern remake of F-15 Strike Eagle II — not a full simulator, not an arcade, but something in between. Built from scratch with raylib (no game engine). The codebase uses C++23 modules and an ECS architecture (EnTT).
 
 ## Build
 
-Requires LLVM/Clang with C++20 modules support, CMake 4.2+, and Ninja.
+Requires LLVM/Clang with C++20 module support and CMake 4.2+. Uses Ninja generator and ccache.
 
 ```shell
-# Configure (one-time)
+# Configure (one-time, macOS with Homebrew LLVM)
 export CC=$(brew --prefix llvm)/bin/clang
 export CXX=$(brew --prefix llvm)/bin/clang++
 cmake -B cmake-build-debug -S . -DCMAKE_BUILD_TYPE=Debug -G Ninja
@@ -19,73 +21,99 @@ cmake --build cmake-build-debug
 ./cmake-build-debug/airborne
 ```
 
-Dependencies (raylib 5.5, EnTT 3.16, nlohmann/json 3.11) are fetched automatically via CMake `FetchContent`. No tests or linter exist.
+Dependencies (fetched automatically via CMake FetchContent): raylib 5.5, EnTT v3.16.0, nlohmann_json v3.11.3.
+
+There are no tests, linters, or CI pipelines.
 
 ## Architecture
 
-### Game loop
+### Screen State Machine
 
-`main.cpp` → screen state machine (`SplashScreen`, `GameScreen`). `GameScreen` owns an `entt::registry` and a `Game` instance. `Game` orchestrates the frame:
-
-- **Update**: `PlayerDispatcher` runs a pipeline of player subsystems (controls → physics → position → rotation → camera → ground-check), then `WidgetsInputs` handles cockpit widget toggling.
-- **Draw**: 3D pass (world streamer, models, debug) inside `BeginMode3D`, then 2D pass (cockpit, minimap, engine status, HUD, radar, crash layout).
+`main.cpp` runs a screen state machine: `SPLASH → LOADING → GAMEPLAY`. Each screen extends `BaseScreen` (virtual `update()` / `draw()`). The `update()` return value triggers transitions. A single `entt::registry` is created in `main()` and passed to screens that need it.
 
 ### ECS (EnTT)
 
-The project uses EnTT as its entity-component-system. Key patterns:
+Everything flows through a single `entt::registry`:
 
-- **Player entity** is stored in `registry.ctx()` as `PlayerEntity{id}`. Access it via `get_player_entity(registry)` from `Accessors`.
-- **Components** are plain structs in `src/components/` split into three module partitions: `World` (gameplay components), `Data` (player state, inputs, tags), `Render` (resource handles, widget configs).
-- **Tag components** like `Grounded`, `Flying`, `Crashed`, `TouchDown`, `Autopilot` represent states — added/removed rather than mutated.
-- **Global state** uses `registry.ctx()`: `Offset` (large-world offset), `Forces` (debug), `ResourceManager`.
-- **Prefabs** (`src/prefabs/`) are factory functions in the `factories` namespace that create entities with their component sets.
-- **Systems** are either free functions (renderers, world streamer) or classes with an `update(registry, dt)` method (player subsystems).
+- **Components** (`src/components/`) — plain structs, no methods. Split into three module partitions:
+  - `:World` — gameplay components (`Player`, `Aircraft`, `Position3D`, `Rotation`, `Orientation`, `LandingZone`, `Forces`, etc.)
+  - `:Data` — player state and global data (`PlayerEntity`, `PlayerInputs`, `GroundHeight`, `Offset`)
+  - `:Render` — resource handles and widget configs (`WithModel`, `WithTexture`, `HudWidget`, `RadarWidget`, etc.)
+- **Systems** (`src/systems/`) — free functions named in `PascalCase` (e.g., `RenderModels`, `WorldStreamerSystem`, `RenderCockpit`). Systems query the registry using `registry.view<...>()`.
+- **Prefabs** (`src/prefabs/`) — factory functions in the `factories` namespace that create entities with component bundles (e.g., `create_player`, `create_unit`, `create_scene`).
 
-### Resource management
+### Player Pipeline
 
-`ResourceManager` is stored in registry context and holds `entt::resource_cache` instances for textures, models, images, shaders, and music streams. Resources are preloaded at startup from `assets/resources.jsonc`.
+The player update is orchestrated by `PlayerDispatcher`, which chains subsystems in order:
+
+`PlayerControls → PlayerPhysics → PlayerPosition → PlayerRotation → PlayerCamera → PlayerGroundCheck`
+
+Each subsystem is a class with a config (loaded from JSON) and an `update(registry, dt)` method that queries the registry for `Player` + `PlayerInputs` components.
+
+### Game Loop
+
+`Game` class (`src/game.cppm`) owns the scenario and player dispatcher. Each frame:
+1. `update()`: dispatcher pipeline + widget inputs (if not crashed)
+2. `draw()`: 3D pass (world streamer, models, debug) → 2D pass (cockpit, minimap, HUD, radar, crash layout)
 
 ### Configuration
 
-All config is loaded from JSONC files via `JsonConfig` (wrapper around nlohmann/json with JSON pointer paths):
-- `assets/config.jsonc` — window, player physics, camera, HUD layout, cockpit, etc.
-- `assets/scenario.jsonc` — mission definition (start conditions, entities, theater).
-- `assets/resources.jsonc` — resource paths for preloading.
+All game configuration lives in JSONC files under `assets/`:
+- `main.jsonc` — global window/render settings
+- `config.jsonc` — player aircraft, cockpit, HUD, radar, scene configs
+- `scenario.jsonc` — mission definition (start conditions, entity spawns)
+- `resources.jsonc` — resource manifest for preloading models, textures, sounds
 
-Config structs use `NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE` for automatic serialization.
+Configs are loaded via `JsonConfig` (wrapper around nlohmann_json) using JSON pointer paths (e.g., `config.get<PlayerPhysicsConfig>("/player/aircraft")`). Config types use `NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE` macros for automatic serialization.
 
-### Large-world offset
+### Entity Spawning
 
-The world uses a re-centering strategy: `Offset` (in registry context) shifts all world-space positions so the player stays near the origin, avoiding floating-point precision issues at large coordinates.
+Scenario entities are defined in `scenario.jsonc` as `EntityDef` structs. The `create_unit` factory maps each def to ECS components: `Identify`, `IdentifyType`, `Position3D`, `Heading`, `FriendFoe`, and optionally `WithModel`, `Landable`, `Carrier`. See `scenario.md` for the full entity type specification.
 
-## C++ module structure
+## C++ Conventions
 
-All source files use C++23 modules (`.cppm` extension). The canonical module layout:
+### Module Structure
 
-```cpp
+Every `.cppm` file follows this layout:
+```c++
 module;
-#include <...>          // Only #includes go in the global module fragment
+// #include directives only here (before export)
+#include <vector>
 
-export module MyModule; // Or: export module Parent:Partition;
+export module MyModule;
 
-import OtherModule;     // Only imports go here
+// import directives only here (after export)
+import JsonConfig;
 
-export class/struct/function ...
+export class MyClass { ... };
 ```
 
-`#include` directives must only appear in the global module fragment (before `export module`). `import` statements must come after `export module`. Aggregate modules re-export partitions: `export import :Partition;`.
+Module partitions use the colon syntax (e.g., `export module Components:World;`, imported via `export import :World;`).
 
-All modules must be registered in `CMakeLists.txt` under `FILE_SET CXX_MODULES`.
+### Naming
 
-## Conventions
+- `PascalCase` — classes, structs, enums, and system functions
+- `snake_case` — variables, methods, member functions, factory functions
+- System free functions use `PascalCase` to distinguish them from regular functions
 
-- **Naming**: `PascalCase` for classes, structs, enums. `snake_case` for variables, methods, functions. System functions called from the game loop use `PascalCase` (e.g., `RenderCockpit`, `WorldStreamerSystem`).
-- **Unit type aliases**: Use semantic aliases from `units-types.cppm` — `Meter`, `Knot`, `Pixel`, `AngleDeg`, `Newton`, etc. — not raw `float`/`int`.
-- **No game engine**: This project intentionally uses raylib directly, not a game engine.
-- **Components are data-only structs**: No methods, no inheritance.
-- **Coordinate system**: raylib's right-handed Y-up. Forward is +Z, up is +Y, right is -X (see `helpers.cppm`).
-- **raylib wrapper**: `src/lib/ray.hpp` is used instead of including raylib headers directly in module files.
+### Modern C++ Style
 
-## Active migration
+- `static_cast` (never C-style casts)
+- `if-init` statements where applicable
+- `auto` for type inference
+- `constexpr` for compile-time constants
+- `nullptr` (never `NULL`)
+- Semantic type aliases for units: `Meter`, `Pixel`, `Newton`, `AngleDeg`, `AngleRad`, `MeterPerSecond`, etc. (defined in `Types:Units`)
 
-The project is undergoing an ECS migration (see `plan.md` at repo root). The player subsystems are currently classes in `src/player/` that operate on `Player` and `PlayerInputs` components. The plan is to convert them to free-function ECS systems and migrate remaining OOP patterns to pure ECS.
+### raylib Wrapping
+
+raylib headers are included via `src/lib/ray.hpp` (not directly). The project uses raylib's `Vector3`, `Quaternion`, `Color`, `Camera`, `Model`, `Texture`, `Shader` types throughout.
+
+## Key Files
+
+- `src/main.cpp` — entry point, screen state machine
+- `src/game.cppm` — game loop orchestration
+- `src/player/player-dispatcher.cppm` — player update pipeline
+- `src/components/` — all ECS components
+- `src/prefabs/create-unit.cppm` — entity factory (see `scenario.md` for entity types)
+- `plan.md` — active ECS migration plan (legacy OOP → full ECS)

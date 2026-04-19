@@ -17,10 +17,6 @@ export enum class ScreenState {
 
 export class BaseScreen {
 public:
-  // const JsonConfig &config;
-
-  // explicit BaseScreen(const JsonConfig &c) : config(c) {}
-
   virtual ~BaseScreen() = default;
 
   virtual ScreenState update() = 0;
