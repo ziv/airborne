@@ -35,6 +35,7 @@ public:
     current++;
     if (current >= total)
       return ScreenState::GAMEPLAY;
+
     return ScreenState::LOADING;
   }
 

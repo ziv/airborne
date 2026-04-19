@@ -5,11 +5,8 @@ module;
 #include <nlohmann/json.hpp>
 #include <string>
 
-// todo should be template
-
 export module ResourcePreloader;
 
-import JsonConfig;
 import ResourceManager;
 
 export struct ResourceDef {
@@ -44,35 +41,4 @@ export void preload_resource(ResourceManager &rm, const ResourceDef &def) {
              TextFormat("Unknown resource type '%s' for resource '%s'",
                         type.c_str(), name.c_str()));
   }
-}
-export void preload_resources(entt::registry &registry,
-                              const JsonConfig &resources) {
-  auto &rm = get_resource_manager(registry);
-
-  for (const auto items = resources.get<std::vector<ResourceDef>>("/resources");
-       const auto &def : items) {
-    preload_resource(rm, def);
-    // TraceLog(LOG_DEBUG,
-    //          TextFormat("preloading resource '%s' of type '%s' from path
-    //          '%s'",
-    //                     name.c_str(), type.c_str(), path.c_str()));
-    //
-    // const auto res_id = entt::hashed_string(path.data());
-    // if (type == "texture") {
-    //   rm.textures.load(res_id, path);
-    // } else if (type == "model") {
-    //   rm.models.load(res_id, path);
-    // } else if (type == "image") {
-    //   rm.images.load(res_id, path);
-    // } else if (type == "fragment") {
-    //   rm.shaders.load(res_id, path);
-    // } else if (type == "music") {
-    //   rm.music_streams.load(res_id, path);
-    // } else {
-    //   TraceLog(LOG_WARNING,
-    //            TextFormat("Unknown resource type '%s' for resource '%s'",
-    //                       type.c_str(), name.c_str()));
-    // }
-  }
-  TraceLog(LOG_INFO, "all resources loaded");
 }
