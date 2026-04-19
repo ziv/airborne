@@ -22,8 +22,8 @@ export class SplashScreen : public BaseScreen {
   MusicHandle music;
 
 public:
-  explicit SplashScreen()
-      : conf(JsonConfig("assets/config.jsonc").get<SplashScreenConfig>("/screens/splash")),
+  explicit SplashScreen(const JsonConfig &config)
+      : conf(config.get<SplashScreenConfig>("/screens/splash")),
         tex(LoadTexture(conf.bg_tex_path.c_str())),
         music(LoadMusicStream(conf.bg_sound_path.c_str())) {
     PlayMusicStream(music);
@@ -31,8 +31,7 @@ public:
 
   ScreenState update() override {
     UpdateMusicStream(music);
-    return IsKeyPressed(KEY_SPACE) ? ScreenState::LOADING
-                                   : ScreenState::SPLASH;
+    return IsKeyPressed(KEY_SPACE) ? ScreenState::LOADING : ScreenState::SPLASH;
   }
 
   void draw() override {

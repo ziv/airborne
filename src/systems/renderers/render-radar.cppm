@@ -23,7 +23,7 @@ void drawScope(const Vector2 &center, const float displayRadius,
   DrawLine(x, y, x, y - r, {0, 100, 0, 255});
 
   const float rangeNm = meter_to_nm(range);
-  DrawText(TextFormat("%.0f NM", rangeNm), x - r - 20, y + r + 4, 10,
+  DrawText(TextFormat("%.0f NM", rangeNm), x - r + 10, y + r - 10, 10,
            DARKGREEN);
 }
 
@@ -81,38 +81,38 @@ export void RenderRadar(entt::registry &registry) {
 
   // player absolute world position (accounting for large-world offset)
   const float playerX = player.pos.x - player.offset.x;
-  const float playerZ = player.pos.z - player.offset.y;
+  const float playerZ = player.pos.z - player.offset.z;
 
   // project orientation onto XZ plane for top-down radar
   const Vector2 fwd = Vector2Normalize({player.forward.x, player.forward.z});
   const Vector2 right = Vector2Normalize({player.right.x, player.right.z});
 
   // iterating items and if they are in range, display them on the radar
-  for (const auto blip =
-           registry.view<Identify, Position3D, FriendFoe, IdentifyType>();
-       auto [ent, id, position, faction, type] : blip.each()) {
-    const float dx = position.pos.x - playerX;
-    const float dz = position.pos.z - playerZ;
+  const auto blip_view =
+      registry.view<Identify, Position3D, IdentifyType, FriendFoe>();
+  for (const auto [en, id, pos, typ, ff] : blip_view.each()) {
 
-    // project onto player-relative heading frame (dot product)
+    const float dx = pos.pos.x - playerX;
+    const float dz = pos.pos.z - playerZ;
+
     const float alongFwd = dx * fwd.x + dz * fwd.y;
     const float alongRight = dx * right.x + dz * right.y;
 
     if (alongFwd * alongFwd + alongRight * alongRight > rangeSq)
-      return;
+      continue;
 
     const Vector2 blipPos = {center.x + alongRight * pixelsPerMeter,
-                       center.y - alongFwd * pixelsPerMeter};
+                             center.y - alongFwd * pixelsPerMeter};
     const auto bpx = static_cast<int>(blipPos.x);
     const auto bpy = static_cast<int>(blipPos.y);
 
     color = GRAY;
-    if (faction.faction == Faction::ENEMY)
+    if (ff.faction == Faction::ENEMY)
       color = RED;
-    else if (faction.faction == Faction::FRIENDLY)
+    else if (ff.faction == Faction::FRIENDLY)
       color = GREEN;
 
-    switch (type.type) {
+    switch (typ.type) {
     case EntityType::AIRCRAFT:
       drawAircraft(bpx, bpy, 0, color);
       break;
@@ -129,8 +129,7 @@ export void RenderRadar(entt::registry &registry) {
       drawStructure(bpx, bpy, color);
       break;
     }
-    // const int altFeet = static_cast<int>(e.position.y *
-    // GamePhysics::METERS_TO_FEET); DrawText(TextFormat("%d", altFeet), bpx +
-    // 5, bpy - 5, 10, WHITE);
+    const int altFeet = static_cast<int>(meter_to_feet(pos.pos.y));
+    DrawText(TextFormat("%d", altFeet), bpx + 5, bpy - 5, 8, WHITE);
   }
 }

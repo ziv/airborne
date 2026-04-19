@@ -94,7 +94,7 @@ export struct World {
 };
 
 export struct Identify {
-    std::string name;
+    std::string id;
 };
 
 export struct IdentifyType {

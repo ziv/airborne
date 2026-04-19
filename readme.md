@@ -97,3 +97,6 @@ export CXX=$(brew --prefix llvm)/bin/clang++
 cmake -B cmake-build-debug -S . -DCMAKE_BUILD_TYPE=Debug -G Ninja
 cmake -B cmake-build-release -S . -DCMAKE_BUILD_TYPE=Release -G Ninja
 ```
+
+
+New tiles map, 4.02 meter to pixel.

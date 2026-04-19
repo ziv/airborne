@@ -16,7 +16,7 @@ std::unique_ptr<BaseScreen> create_screen(const ScreenState &current,
   switch (current) {
   default:
   case ScreenState::SPLASH:
-    return std::make_unique<SplashScreen>();
+    return std::make_unique<SplashScreen>(config);
 
   case ScreenState::LOADING:
     return std::make_unique<LoadingScreen>(registry, scenario);
