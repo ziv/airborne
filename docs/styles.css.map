@@ -1,7 +1,7 @@
 {
 	"version": 3,
 	"file": "styles.css",
-	"sourceRoot": "/Users/ziv.perry/code/ziv/airborne/devblog",
+	"sourceRoot": "/Users/ziv.perry/code/ziv/airborne-devblog",
 	"sources": [
 		"css/base.scss",
 		"themes/re-terminal/assets/css/variables.scss",

@@ -6,7 +6,29 @@
     <description>Recent content in Posts on Airborne</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Tue, 31 Mar 2026 00:00:00 +0000</lastBuildDate><atom:link href="https://ziv.github.io/airborne/posts/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Sun, 19 Apr 2026 00:00:00 +0000</lastBuildDate><atom:link href="https://ziv.github.io/airborne/posts/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Refucktoring</title>
+      <link>https://ziv.github.io/airborne/posts/012-refactoring/</link>
+      <pubDate>Sun, 19 Apr 2026 00:00:00 +0000</pubDate>
+      
+      <guid>https://ziv.github.io/airborne/posts/012-refactoring/</guid>
+      <description>&lt;p&gt;I hit a dead end.&lt;/p&gt;
+&lt;p&gt;I defined various entities and started thinking about how I was going to manage them all. Do I need them all to implement a fixed API so I can handle every entity from a single loop? Slowly but surely, I started to realize the magnitude of the problem I had gotten myself into.&lt;/p&gt;
+&lt;p&gt;I opened a new chat with Gemini and brought up the issue. &amp;ldquo;What&amp;rsquo;s the problem?&amp;rdquo; it wondered, pointing out that the industry has been working with ECS for years. &amp;ldquo;Explain ECS to me,&amp;rdquo; I asked, and received more information than I needed, but with one key takeaway: I have to migrate to ECS.&lt;/p&gt;</description>
+      <content>&lt;p&gt;I hit a dead end.&lt;/p&gt;
+&lt;p&gt;I defined various entities and started thinking about how I was going to manage them all. Do I need them all to implement a fixed API so I can handle every entity from a single loop? Slowly but surely, I started to realize the magnitude of the problem I had gotten myself into.&lt;/p&gt;
+&lt;p&gt;I opened a new chat with Gemini and brought up the issue. &amp;ldquo;What&amp;rsquo;s the problem?&amp;rdquo; it wondered, pointing out that the industry has been working with ECS for years. &amp;ldquo;Explain ECS to me,&amp;rdquo; I asked, and received more information than I needed, but with one key takeaway: I have to migrate to ECS.&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;Entity component system (ECS) is a software architectural pattern. An ECS consists of entities composed of data components, along with systems that operate on those components. It is most associated with video game development for the representation of game world objects.
+(Wikipedia)&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;Among Gemini&amp;rsquo;s many stories, it mentioned the &lt;code&gt;entt&lt;/code&gt; library, which is designed for exactly this, and that even (so it claimed) the developers of Minecraft use it. I don&amp;rsquo;t argue with those greater than me, so I set off on my refactoring journey. Among the many trials and tribulations, I experienced segfaults for the first time since I started developing the game, weird errors I hadn&amp;rsquo;t encountered before, and a bunch of other troubles that fell on me.&lt;/p&gt;
+&lt;p&gt;I wrote and deleted code more than once just because I couldn&amp;rsquo;t identify the source of the problem. But I had invested too much time into this, so I decided not to give up and try to figure out what was really going on. I started flooding Gemini with my error messages, and step by step, I learned better through these errors than I would have through simple explanations. I learned about memory management, copying, how C++ behaves and why, and most importantly, I learned to appreciate the creators of the two libraries I&amp;rsquo;m currently using: &lt;code&gt;entt&lt;/code&gt; and &lt;code&gt;nlohmann&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;The refactoring was a success; my mental health, less so.&lt;/p&gt;
+</content>
+    </item>
+    
     <item>
       <title>Thrust the Force</title>
       <link>https://ziv.github.io/airborne/posts/011-blackboard/</link>
