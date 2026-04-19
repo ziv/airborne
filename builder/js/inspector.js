@@ -113,44 +113,31 @@ export class Inspector {
     if (playerWeapons.length === 0) {
       return `<div class="info-text">No aircraft weapons defined. Add them in the Weapons page.</div>`;
     }
-    const available = this.state.scenario.start.availableWeapons || [];
-    const defaults = this.state.scenario.start.defaultWeapons || [];
+    const weapons = this.state.scenario.start.weapons || [];
 
-    // count occurrences
-    const availCount = {};
-    for (const wid of available) availCount[wid] = (availCount[wid] || 0) + 1;
-    const defCount = {};
-    for (const wid of defaults) defCount[wid] = (defCount[wid] || 0) + 1;
-
-    // unique weapon IDs in loadout
-    const loadedIds = [...new Set(available)];
+    // count occurrences of each weapon ID
+    const wpnCount = {};
+    for (const wid of weapons) wpnCount[wid] = (wpnCount[wid] || 0) + 1;
+    const loadedIds = [...new Set(weapons)];
 
     const rows = loadedIds.map(wid => {
       const w = this.state.weapons.find(wp => wp.id === wid);
       const name = w ? (w.name || w.id) : wid;
-      const aq = availCount[wid] || 0;
-      const dq = defCount[wid] || 0;
+      const qty = wpnCount[wid] || 0;
       return `
         <div class="loadout-qty-row" data-wpn="${this._esc(wid)}">
           <span class="loadout-name">${this._esc(name)}</span>
           <span class="loadout-qty-group">
-            <label title="Available">Avl:</label>
-            <button class="btn-sm loadout-avail-minus">−</button>
-            <span class="loadout-qty-val">${aq}</span>
-            <button class="btn-sm loadout-avail-plus">+</button>
-          </span>
-          <span class="loadout-qty-group">
-            <label title="Default">Def:</label>
-            <button class="btn-sm loadout-def-minus">−</button>
-            <span class="loadout-qty-val">${dq}</span>
-            <button class="btn-sm loadout-def-plus">+</button>
+            <button class="btn-sm loadout-minus">−</button>
+            <span class="loadout-qty-val">${qty}</span>
+            <button class="btn-sm loadout-plus">+</button>
           </span>
           <button class="btn-sm loadout-remove" title="Remove from loadout">✕</button>
         </div>`;
     }).join('');
 
     // weapons not yet in loadout
-    const unusedWeapons = playerWeapons.filter(w => !availCount[w.id]);
+    const unusedWeapons = playerWeapons.filter(w => !wpnCount[w.id]);
 
     return `
       <div class="entity-weapons-list">${rows || '<div class="info-text">No weapons in loadout</div>'}</div>
@@ -186,10 +173,6 @@ export class Inspector {
           if (preview) preview.style.background = `rgba(${c[0]},${c[1]},${c[2]},${c[3]/255})`;
           const picker = this.el.querySelector('#sky-picker');
           if (picker) picker.value = '#' + _rgbHex(c);
-        } else if (path === 'completion.success') {
-          s.scenario.completion.success = el.value;
-        } else if (path === 'completion.failure') {
-          s.scenario.completion.failure = el.value.split(',').map(s => s.trim()).filter(Boolean);
         } else {
           s.updateScenario({ [path]: v });
         }
@@ -251,34 +234,18 @@ export class Inspector {
         const btn = e.target.closest('button');
         if (!btn) return;
         const wid = row.dataset.wpn;
-        const avail = [...(s.scenario.start.availableWeapons || [])];
-        const defs = [...(s.scenario.start.defaultWeapons || [])];
+        const weapons = [...(s.scenario.start.weapons || [])];
 
         this._guarded(() => {
-          if (btn.classList.contains('loadout-avail-plus')) {
-            avail.push(wid);
-            s.updateStart({ availableWeapons: avail });
-          } else if (btn.classList.contains('loadout-avail-minus')) {
-            const idx = avail.lastIndexOf(wid);
-            if (idx !== -1) avail.splice(idx, 1);
-            // remove excess defaults if avail dropped below default count
-            while (defs.filter(d => d === wid).length > avail.filter(a => a === wid).length) {
-              const di = defs.lastIndexOf(wid);
-              if (di !== -1) defs.splice(di, 1);
-            }
-            s.updateStart({ availableWeapons: avail, defaultWeapons: defs });
-          } else if (btn.classList.contains('loadout-def-plus')) {
-            const ac = avail.filter(a => a === wid).length;
-            const dc = defs.filter(d => d === wid).length;
-            if (dc < ac) { defs.push(wid); s.updateStart({ defaultWeapons: defs }); }
-          } else if (btn.classList.contains('loadout-def-minus')) {
-            const idx = defs.lastIndexOf(wid);
-            if (idx !== -1) { defs.splice(idx, 1); s.updateStart({ defaultWeapons: defs }); }
+          if (btn.classList.contains('loadout-plus')) {
+            weapons.push(wid);
+            s.updateStart({ weapons });
+          } else if (btn.classList.contains('loadout-minus')) {
+            const idx = weapons.lastIndexOf(wid);
+            if (idx !== -1) weapons.splice(idx, 1);
+            s.updateStart({ weapons });
           } else if (btn.classList.contains('loadout-remove')) {
-            s.updateStart({
-              availableWeapons: avail.filter(a => a !== wid),
-              defaultWeapons: defs.filter(d => d !== wid),
-            });
+            s.updateStart({ weapons: weapons.filter(w => w !== wid) });
           }
         });
         this.render();
@@ -289,9 +256,9 @@ export class Inspector {
     this.el.querySelector('#add-loadout-weapon')?.addEventListener('change', (e) => {
       const wid = e.target.value;
       if (!wid) return;
-      const avail = [...(s.scenario.start.availableWeapons || [])];
-      avail.push(wid);
-      this._guarded(() => s.updateStart({ availableWeapons: avail }));
+      const weapons = [...(s.scenario.start.weapons || [])];
+      weapons.push(wid);
+      this._guarded(() => s.updateStart({ weapons }));
       e.target.value = '';
       this.render();
     });
@@ -446,8 +413,8 @@ export class Inspector {
     const rows = wps.map((wp, i) => `
       <div class="waypoint-row" data-wp-idx="${i}">
         <span class="wp-index">${i + 1}</span>
-        <span class="wp-coords">X:${Math.round(wp.x)} Z:${Math.round(wp.z)} Alt:${Math.round(wp.y)}</span>
-        <span class="wp-speed">${wp.speed ? wp.speed + ' m/s' : '—'}</span>
+        <span class="wp-name">${wp.name ? this._esc(wp.name) : '<i>unnamed</i>'}</span>
+        <span class="wp-coords">X:${Math.round(wp.position.x)} Z:${Math.round(wp.position.z)} Alt:${Math.round(wp.position.y)}</span>
         <span class="wp-btns">
           <button class="btn-sm btn-wp-copy" data-wp-idx="${i}" title="Copy coordinates">📋</button>
           ${i > 0 ? `<button class="btn-sm btn-wp-up" data-wp-idx="${i}" title="Move up">↑</button>` : ''}
@@ -466,12 +433,12 @@ export class Inspector {
         <button class="btn btn-sm" id="btn-place-wp-map" title="Click map to place waypoints">📍 Place on Map</button>
       </div>
       <div class="wp-edit-fields" id="wp-edit-container" style="display:none">
+        ${this._field('text', 'wp-name', 'Name', '')}
         <div class="field-row-multi">
           ${this._fieldInline('number', 'wp-x', 'X', 0)}
           ${this._fieldInline('number', 'wp-y', 'Alt', 0)}
           ${this._fieldInline('number', 'wp-z', 'Z', 0)}
         </div>
-        ${this._field('number', 'wp-speed', 'Speed (m/s, 0 = keep)', 0, 0)}
         <div class="wp-form-btns">
           <button class="btn btn-primary btn-sm" id="btn-confirm-wp">Add</button>
           <button class="btn btn-sm" id="btn-paste-wp" title="Paste copied coordinates">📋 Paste</button>
@@ -659,7 +626,7 @@ export class Inspector {
 
         if (btn.classList.contains('btn-wp-copy')) {
           const wp = current.waypoints[idx];
-          if (wp) this._copiedPosition = { x: wp.x, y: wp.y, z: wp.z };
+          if (wp) this._copiedPosition = { x: wp.position.x, y: wp.position.y, z: wp.position.z };
           return;
         }
         this._guarded(() => {
@@ -707,12 +674,12 @@ export class Inspector {
         const current = state.getEntity(eid);
         if (!current) return;
         if (!current.waypoints) current.waypoints = [];
+        const name = this.el.querySelector('#wp-name')?.value || '';
         const x = parseFloat(this.el.querySelector('#wp-x')?.value) || 0;
         const y = parseFloat(this.el.querySelector('#wp-y')?.value) || 0;
         const z = parseFloat(this.el.querySelector('#wp-z')?.value) || 0;
-        const speed = parseFloat(this.el.querySelector('#wp-speed')?.value) || 0;
         this._guarded(() => {
-          current.waypoints.push({ x, y, z, speed });
+          current.waypoints.push({ name, position: { x, y, z } });
           state.emit('entity-updated', eid);
         });
         this.render();

@@ -86,17 +86,9 @@ export function validate(state) {
   }
 
   // Player loadout references
-  for (const wid of (scenario.start.availableWeapons || [])) {
+  for (const wid of (scenario.start.weapons || [])) {
     if (!weaponIds.has(wid)) {
       errors.push(`Player loadout references weapon "${wid}" which does not exist.`);
-    }
-  }
-  for (const wid of (scenario.start.defaultWeapons || [])) {
-    if (!weaponIds.has(wid)) {
-      errors.push(`Player default loadout references weapon "${wid}" which does not exist.`);
-    }
-    if (!(scenario.start.availableWeapons || []).includes(wid)) {
-      warnings.push(`Default weapon "${wid}" is not in the available weapons list.`);
     }
   }
 
@@ -115,7 +107,7 @@ export function validate(state) {
       if (e.waypoints && e.waypoints.length > 0) {
         for (let i = 0; i < e.waypoints.length; i++) {
           const wp = e.waypoints[i];
-          if (wp.x === 0 && wp.z === 0) {
+          if (wp.position.x === 0 && wp.position.z === 0) {
             warnings.push(`Aircraft "${e.id}" waypoint ${i + 1}: at origin (0,0).`);
           }
         }

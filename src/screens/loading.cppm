@@ -19,10 +19,8 @@ export class LoadingScreen : public BaseScreen {
   int current = 0;
 
 public:
-  explicit LoadingScreen(entt::registry &r)
-      : registry(r),
-        resources(JsonConfig(RESOURCES_PATH)
-                      .get<std::vector<ResourceDef>>("/resources")),
+  explicit LoadingScreen(entt::registry &r, const JsonConfig &res)
+      : registry(r), resources(res.get<std::vector<ResourceDef>>("/resources")),
         total(static_cast<int>(resources.size())) {
     create_resource_manager(registry);
   }

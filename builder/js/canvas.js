@@ -94,7 +94,7 @@ export class MapCanvas {
           const startPx = state.worldToPixel(entity.position.x, entity.position.z);
           ctx.moveTo(startPx.px, startPx.py);
           for (const wp of entity.waypoints) {
-            const wpPx = state.worldToPixel(wp.x, wp.z);
+            const wpPx = state.worldToPixel(wp.position.x, wp.position.z);
             ctx.lineTo(wpPx.px, wpPx.py);
           }
           ctx.stroke();
@@ -102,7 +102,7 @@ export class MapCanvas {
           const dotR = Math.max(3, 5 / state.camera.zoom);
           for (let i = 0; i < entity.waypoints.length; i++) {
             const wp = entity.waypoints[i];
-            const wpPx = state.worldToPixel(wp.x, wp.z);
+            const wpPx = state.worldToPixel(wp.position.x, wp.position.z);
             ctx.beginPath();
             ctx.arc(wpPx.px, wpPx.py, dotR, 0, Math.PI * 2);
             ctx.fillStyle = selected ? '#00E5FF' : 'rgba(0,200,255,0.5)';
@@ -520,7 +520,7 @@ export class MapCanvas {
       const entity = eid ? state.getEntity(eid) : null;
       if (entity && entity.type === 'aircraft') {
         if (!entity.waypoints) entity.waypoints = [];
-        entity.waypoints.push({ x: world.x, y: entity.params.altitude || 0, z: world.z, speed: 0 });
+        entity.waypoints.push({ name: '', position: { x: world.x, y: entity.params.altitude || 0, z: world.z } });
         state.emit('entity-updated', eid);
         state.emit('canvas-redraw');
       }

@@ -40,15 +40,10 @@ export class ScenarioState extends EventBus {
         altitude: 0,
         fuel: 3500,
         carrier: false,
-        availableWeapons: [],
-        defaultWeapons: [],
+        weapons: [],
       },
       entities: [],
       objectives: [],
-      completion: {
-        success: 'all_objectives',
-        failure: ['player_destroyed', 'player_ejected'],
-      },
     };
 
     this.weapons = [];  // weapon type definitions (shared across scenario)
@@ -365,11 +360,8 @@ export class ScenarioState extends EventBus {
       }
     }
     // Remove from player loadout
-    if (this.scenario.start.availableWeapons) {
-      this.scenario.start.availableWeapons = this.scenario.start.availableWeapons.filter(wid => wid !== id);
-    }
-    if (this.scenario.start.defaultWeapons) {
-      this.scenario.start.defaultWeapons = this.scenario.start.defaultWeapons.filter(wid => wid !== id);
+    if (this.scenario.start.weapons) {
+      this.scenario.start.weapons = this.scenario.start.weapons.filter(wid => wid !== id);
     }
     this.emit('weapons-changed');
     this.emit('entities-changed');
@@ -421,10 +413,9 @@ export class ScenarioState extends EventBus {
     this.scenario.timeOfDay = 'day';
     this.scenario.theater = '';
     this.scenario.skyColor = [0, 121, 241, 255];
-    this.scenario.start = { position: { x: 0, y: 0, z: 0 }, heading: 0, speed: 0, altitude: 0, fuel: 3500, carrier: false, availableWeapons: [], defaultWeapons: [] };
+    this.scenario.start = { position: { x: 0, y: 0, z: 0 }, heading: 0, speed: 0, altitude: 0, fuel: 3500, carrier: false, weapons: [] };
     this.scenario.entities = [];
     this.scenario.objectives = [];
-    this.scenario.completion = { success: 'all_objectives', failure: ['player_destroyed', 'player_ejected'] };
     this.weapons = [];
     this.map.image = null;
     this.map.fileHandle = null;
@@ -479,12 +470,16 @@ export class ScenarioState extends EventBus {
         params: e.params || {},
         properties: e.properties || {},
         weapons: e.weapons || [],
-        ...(e.type === 'aircraft' ? { waypoints: e.waypoints || [] } : {}),
+        ...(e.type === 'aircraft' ? {
+          waypoints: (e.waypoints || []).map(wp => ({
+            name: wp.name || '',
+            position: wp.position || { x: 0, y: 0, z: 0 },
+          })),
+        } : {}),
       }));
       _nextEntityNum = this.scenario.entities.length + 1;
     }
     if (data.objectives) this.scenario.objectives = data.objectives;
-    if (data.completion) this.scenario.completion = data.completion;
 
     // Weapons
     if (data.weapons) {
@@ -512,10 +507,9 @@ export class ScenarioState extends EventBus {
       }));
     }
 
-    // Start loadout
+    // Start weapons
     if (data.start) {
-      this.scenario.start.availableWeapons = data.start.availableWeapons || [];
-      this.scenario.start.defaultWeapons = data.start.defaultWeapons || [];
+      this.scenario.start.weapons = data.start.weapons || [];
     }
 
     this.emit('scenario-changed');
@@ -631,9 +625,8 @@ export async function restoreSession(state) {
     if (data.scenario?.entities) {
       _nextEntityNum = data.scenario.entities.length + 1;
     }
-    // Ensure loadout arrays exist
-    if (!state.scenario.start.availableWeapons) state.scenario.start.availableWeapons = [];
-    if (!state.scenario.start.defaultWeapons) state.scenario.start.defaultWeapons = [];
+    // Ensure loadout array exists
+    if (!state.scenario.start.weapons) state.scenario.start.weapons = [];
 
     // Restore weapons
     if (data.weapons) state.weapons = data.weapons;

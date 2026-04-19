@@ -12,10 +12,12 @@ auto constexpr SCENE_PATH = "assets/scenario.jsonc";
 
 export class GameScreen : public BaseScreen {
   entt::registry &registry;
-  Game game{JsonConfig(CONF_PATH),JsonConfig(SCENE_PATH),registry};
+  Game game;
 
 public:
-  explicit GameScreen(entt::registry &r) : registry(r){};
+  explicit GameScreen(entt::registry &r, const JsonConfig &conf,
+                      const JsonConfig &scene)
+      : registry(r), game(conf, scene, registry) {};
 
   ScreenState update() override {
     game.update();

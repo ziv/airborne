@@ -219,13 +219,9 @@ export class WeaponsPage {
             }
             // Update references in player loadout
             const start = this.state.scenario.start;
-            if (start.availableWeapons) {
-              const idx = start.availableWeapons.indexOf(id);
-              if (idx !== -1) start.availableWeapons[idx] = el.value;
-            }
-            if (start.defaultWeapons) {
-              const idx = start.defaultWeapons.indexOf(id);
-              if (idx !== -1) start.defaultWeapons[idx] = el.value;
+            if (start.weapons) {
+              const idx = start.weapons.indexOf(id);
+              if (idx !== -1) start.weapons[idx] = el.value;
             }
             weapon.id = el.value;
             this._selectedId = el.value;

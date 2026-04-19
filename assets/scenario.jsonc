@@ -16,45 +16,9 @@
       "speed": 0,
       "altitude": 8,
       "fuel": 3500,
-      "carrier": true
+      "carrier": true,
+      "weapons": []
     },
-    //      "loadout": {
-    //        "slots": 6,
-    //        "available": [
-    //          "aim9",
-    //          "mk82",
-    //          "mk84"
-    //        ],
-    //        "defaults": [
-    //          "aim9",
-    //          "aim9",
-    //          "mk82",
-    //          "mk82",
-    //          "mk84",
-    //          "mk84"
-    //        ]
-    //      },
-    //      "objectives": [
-    //        {
-    //          "id": "obj-radar",
-    //          "type": "destroy",
-    //          "target": "radar-station",
-    //          "label": "Destroy the radar installation",
-    //          "required": true,
-    //          "order": 1
-    //        },
-    //        {
-    //          "id": "obj-rtb",
-    //          "type": "navigate",
-    //          "target": "home-base",
-    //          "label": "Return to base",
-    //          "required": true,
-    //          "order": 99,
-    //          "params": {
-    //            "arrivalRadius": 2000
-    //          }
-    //        }
-    //      ],
     "entities": [
       {
         "id": "home-base",
@@ -77,7 +41,8 @@
           "maxx": 31000,
           "minz": 59000,
           "maxz": 61000
-        }
+        },
+        "weapons": []
       },
       {
         "id": "abother-home-base",
@@ -98,7 +63,8 @@
           "maxx": 31000,
           "minz": 59000,
           "maxz": 61000
-        }
+        },
+        "weapons": []
       },
       {
         "id": "enemy-fighter-01",
@@ -115,7 +81,8 @@
         "health": 100,
         "maxHealth": 100,
         "modelId": "assets/models/mig-29.glb",
-        "scale": 1
+        "scale": 1,
+        "weapons": []
       },
       {
         "id": "enemy-fighter-02",
@@ -132,7 +99,8 @@
         "health": 100,
         "maxHealth": 100,
         "modelId": "assets/models/mig-29.glb",
-        "scale": 1
+        "scale": 1,
+        "weapons": []
       },
       {
         "id": "abother-home-base",
@@ -153,7 +121,8 @@
           "maxx": 31000,
           "minz": 59000,
           "maxz": 61000
-        }
+        },
+        "weapons": []
       },
       {
         "id": "radar-station",
@@ -168,7 +137,8 @@
         "heading": 0,
         "health": 100,
         "faction": "enemy",
-        "model": "assets/models/aa-radar.glb"
+        "model": "assets/models/aa-radar.glb",
+        "weapons": []
       },
       // light AAA defending the radar
       {
@@ -192,7 +162,8 @@
           "fireRate": 10.0,
           "accuracy": 0.2,
           "burstDuration": 2.0
-        }
+        },
+        "weapons": []
       },
       {
         "id": "aaa-02",
@@ -215,10 +186,10 @@
           "fireRate": 10.0,
           "accuracy": 0.2,
           "burstDuration": 2.0
-        }
+        },
+        "weapons": []
       }
     ],
-    "triggers": [],
     "completion": {
       "success": "all_required_objectives",
       "failure": [
@@ -231,6 +202,8 @@
       121,
       241,
       255
-    ]
+    ],
+    "weapons": [],
+    "objectives": []
   }
 }

@@ -18,24 +18,23 @@ export function exportScenario(state) {
       scale: e.scale,
     };
 
-    // include params only if non-empty
     if (e.params && Object.keys(e.params).length > 0) {
       out.params = { ...e.params };
     }
 
-    // include properties only if non-empty
     if (e.properties && Object.keys(e.properties).length > 0) {
       out.properties = { ...e.properties };
     }
 
-    // include weapons only if assigned
     if (e.weapons && e.weapons.length > 0) {
       out.weapons = [...e.weapons];
     }
 
-    // include waypoints for aircraft
     if (e.waypoints && e.waypoints.length > 0) {
-      out.waypoints = e.waypoints.map(wp => ({ ...wp }));
+      out.waypoints = e.waypoints.map(wp => ({
+        name: wp.name || '',
+        position: { x: wp.position.x, y: wp.position.y, z: wp.position.z },
+      }));
     }
 
     return out;
@@ -57,8 +56,7 @@ export function exportScenario(state) {
       altitude: s.start.altitude,
       fuel: s.start.fuel,
       carrier: s.start.carrier,
-      availableWeapons: [...(s.start.availableWeapons || [])],
-      defaultWeapons: [...(s.start.defaultWeapons || [])],
+      weapons: [...(s.start.weapons || [])],
     },
     entities,
     skyColor: [...s.skyColor],
@@ -85,10 +83,6 @@ export function exportScenario(state) {
 
   if (s.objectives.length > 0) {
     data.objectives = s.objectives.map(o => ({ ...o }));
-  }
-
-  if (s.completion) {
-    data.completion = { ...s.completion };
   }
 
   return { data };

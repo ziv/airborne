@@ -10,17 +10,20 @@ import Types;
 import Screens;
 
 std::unique_ptr<BaseScreen> create_screen(const ScreenState &current,
-                                          entt::registry &registry) {
+                                          entt::registry &registry,
+                                          const JsonConfig &config,
+                                          const JsonConfig &scenario,
+                                          const JsonConfig &resources) {
   switch (current) {
   default:
   case ScreenState::SPLASH:
     return std::make_unique<SplashScreen>();
 
   case ScreenState::LOADING:
-    return std::make_unique<LoadingScreen>(registry);
+    return std::make_unique<LoadingScreen>(registry, resources);
 
   case ScreenState::GAMEPLAY:
-    return std::make_unique<GameScreen>(registry);
+    return std::make_unique<GameScreen>(registry, config, scenario);
   }
 }
 
@@ -30,8 +33,11 @@ int main() {
   SetConfigFlags(FLAG_WINDOW_RESIZABLE | FLAG_VSYNC_HINT);
 
   try {
-    const auto conf =
-        JsonConfig("assets/main.jsonc").get<GlobalConfig>("/global");
+    const auto config = JsonConfig("assets/config.jsonc");
+    const auto scenario = JsonConfig("assets/scenario.jsonc");
+    const auto resources = JsonConfig("assets/resources.jsonc");
+
+    const auto conf = config.get<GlobalConfig>("/global");
 
     InitWindow(conf.width, conf.height, conf.title.c_str());
     InitAudioDevice();
@@ -44,11 +50,12 @@ int main() {
     entt::registry registry;
     auto current = ScreenState::SPLASH;
     ScreenState next = current;
-    std::unique_ptr<BaseScreen> screen = create_screen(current, registry);
+    std::unique_ptr<BaseScreen> screen =
+        create_screen(current, registry, config, scenario, resources);
 
     while (!WindowShouldClose()) {
       if (next = screen->update(); next != current) {
-        screen = create_screen(next, registry);
+        screen = create_screen(next, registry, config, scenario, resources);
         current = next;
       }
       BeginDrawing();
