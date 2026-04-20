@@ -16,6 +16,7 @@ import WidgetsInputs;
 import Accessors;
 import ResourcePreloader;
 import EngineSoundSystem;
+import GearSoundSystem;
 
 export class Game {
   entt::registry &registry;
@@ -61,6 +62,7 @@ public:
 
     WidgetsInputs(registry);
     EngineSoundSystem(registry);
+    GearSoundSystem(registry);
   }
 
   void draw() {

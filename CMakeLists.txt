@@ -83,6 +83,7 @@ target_sources(${PROJECT_NAME} PUBLIC
         src/systems/world-streamer.cppm
         src/systems/widgets-inputs.cppm
         src/systems/sounds/engine-system.cppm
+        src/systems/sounds/gear-system.cppm
         src/utils/accessors.cppm
         src/utils/loading.cppm
         src/screens/base.cppm

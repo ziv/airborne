@@ -245,6 +245,11 @@
       "name": "engine-sound",
       "type": "music",
       "path": "assets/sound/engine.mp3"
+    },
+    {
+      "name": "gear-sound",
+      "type": "sound",
+      "path": "assets/sound/gear.wav"
     }
   ]
 }
