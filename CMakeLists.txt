@@ -82,6 +82,7 @@ target_sources(${PROJECT_NAME} PUBLIC
         src/systems/renderers/render-crash-layout.cppm
         src/systems/world-streamer.cppm
         src/systems/widgets-inputs.cppm
+        src/systems/sounds/engine-system.cppm
         src/utils/accessors.cppm
         src/utils/loading.cppm
         src/screens/base.cppm

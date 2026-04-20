@@ -1,12 +1,14 @@
 module;
+#include <entt/entt.hpp>
+
 #include "../lib/ray.hpp"
 #include "rlgl.h"
-#include <entt/entt.hpp>
 
 export module WorldStreamerSystem;
 
 import Components;
 import Accessors;
+import TerrainStreaming;
 
 export void WorldStreamerSystem(entt::registry &registry) {
   // is called streamer cause it original use was to stream
@@ -14,11 +16,8 @@ export void WorldStreamerSystem(entt::registry &registry) {
 
   // we are rendering the map at the offset of the player
   const auto &offset = get_offset(registry);
-  const auto &inputs = get_player_inputs(registry);
 
-  for (const auto view = registry.view<World, Position3D>();
-       auto [entity, world, pos] : view.each()) {
-
+  for (const auto view = registry.view<const World, const Position3D>(); auto [entity, world, pos] : view.each()) {
     // the "world"
     DrawModel(world.surface->res, offset, 1.0f, WHITE);
 
@@ -33,14 +32,5 @@ export void WorldStreamerSystem(entt::registry &registry) {
     rlDisableBackfaceCulling();
     DrawModel(world.clouds->res, cloud_position, 1.0f, WHITE);
     rlEnableBackfaceCulling();
-
-    // the "background"
-    if (inputs.throttle > 0 && world.streams) {
-      const float target_pitch = 0.8f + (inputs.throttle * 0.7f);
-      const float target_volume = 0.2f + (inputs.throttle * 0.9f);
-      SetMusicPitch(world.streams->res, target_pitch);
-      SetMusicVolume(world.streams->res, target_volume);
-      UpdateMusicStream(world.streams->res);
-    }
   }
 }

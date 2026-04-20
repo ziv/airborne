@@ -15,6 +15,7 @@ import ResourceManager;
 import WidgetsInputs;
 import Accessors;
 import ResourcePreloader;
+import EngineSoundSystem;
 
 export class Game {
   entt::registry &registry;
@@ -54,8 +55,12 @@ public:
   void update() {
     if (is_player_crashed(registry))
       return;
+
+    // player's systems in a single call
     dispatcher.update(registry, GetFrameTime());
+
     WidgetsInputs(registry);
+    EngineSoundSystem(registry);
   }
 
   void draw() {
