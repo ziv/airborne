@@ -60,9 +60,6 @@ target_sources(${PROJECT_NAME} PUBLIC
         src/core/resources/resource-preloader.cppm
         src/core/resources/terrain-streamer.cppm
         src/components/components.cppm
-        src/components/world.cppm
-        src/components/data.cppm
-        src/components/render.cppm
         src/prefabs/prefabs.cppm
         src/prefabs/create-player.cppm
         src/prefabs/create-scene.cppm

@@ -249,7 +249,7 @@
     {
       "name": "gear-sound",
       "type": "sound",
-      "path": "assets/sound/gear.wav"
+      "path": "assets/sound/gear-short.wav"
     }
   ]
 }

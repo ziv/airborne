@@ -82,7 +82,7 @@ public:
     RenderHud(registry);
     RenderRadar(registry);
     DrawFPS(1050, 780);
-    // RenderDebug(registry);
+    RenderDebug(registry);
     RenderCrashLayout(registry);
   }
 };
