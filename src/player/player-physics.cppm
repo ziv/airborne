@@ -11,15 +11,6 @@ import Components;
 import Accessors;
 import :Config;
 
-// todo move to conf
-constexpr RadSecSquared PITCH_POWER = 3.0f;
-constexpr RadSecSquared ROLL_POWER = 5.0f;
-constexpr RadSecSquared YAW_POWER = 1.0f;
-constexpr Ratio SKIP_YAW_FACTOR = 0.6f;
-constexpr Ratio PITCH_DOWN_FACTOR = 1.1f;
-constexpr Ratio AIR_DUMPING_FACTOR = 2.5f;
-constexpr Ratio MIN_AUTHORITY = 0.5f;
-
 export class PlayerPhysics {
   PlayerPhysicsConfig conf;
 
@@ -31,57 +22,83 @@ export class PlayerPhysics {
     const auto& inputs = get_player_inputs(registry);
 
     // angular velocity
-    auto speed_ratio = player.speed / (conf.maxSpeed * 0.7f);
+
+    // how much angular velocity we have in relation to the speed (more speed -> better steering)
+    auto speed_ratio = player.speed / (conf.maxSpeed * 0.8f);
     if (speed_ratio < 0.0f) speed_ratio = 0.0f;
     if (speed_ratio > 1.2f) speed_ratio = 1.2f;
     float control_authority = speed_ratio * speed_ratio;
 
-    if (control_authority < MIN_AUTHORITY) control_authority = MIN_AUTHORITY;
+    if (control_authority < conf.minAuthority) control_authority = conf.minAuthority;
 
     // some effects...
 
     // slip, bank angle induces a yaw moment toward the lowered wing.
-    const float induced_yaw = player.right.y * SKIP_YAW_FACTOR;
+    const float induced_yaw = player.right.y * conf.bankInduceYawRatio;
 
     // lift-loss pitch-down: when the lift vector is no longer purely vertical the
     // aircraft tends to pitch nose-down.
     const float lift_loss = 1.0f - player.up.y;
-    const float induced_pitch = -lift_loss * PITCH_DOWN_FACTOR;
+    const float induced_pitch = -lift_loss * conf.liftLossPitchRatio;
 
-    const Vector3 pitch_torque = Vector3Scale(player.right, (inputs.pitch * PITCH_POWER * control_authority + induced_pitch) * dt);
-    const Vector3 roll_torque = Vector3Scale(player.forward, inputs.roll * ROLL_POWER * control_authority * dt);
-    const Vector3 yaw_torque = Vector3Scale(player.up, (inputs.yaw * YAW_POWER * control_authority + induced_yaw) * dt);
+    // all together
+
+    const Vector3 pitch_torque = Vector3Scale(player.right, (inputs.pitch * conf.pitchRatio * control_authority + induced_pitch) * dt);
+    const Vector3 roll_torque = Vector3Scale(player.forward, inputs.roll * conf.rollRatio * control_authority * dt);
+    const Vector3 yaw_torque = Vector3Scale(player.up, (inputs.yaw * conf.yawRatio * control_authority + induced_yaw) * dt);
 
     player.angular_velocity = player.angular_velocity + pitch_torque + roll_torque + yaw_torque;
 
     // (2.5 is some air dumping factor)
-    float damping_factor = 1.0f - (AIR_DUMPING_FACTOR * dt);
+    float damping_factor = 1.0f - (conf.airDumpingFactor * dt);
     if (damping_factor < 0.0f) damping_factor = 0.0f;
     player.angular_velocity *= damping_factor;
 
     // linear velocity
-    const auto squareSpeed = player.speed * player.speed;
+
+    const auto square_speed = player.speed * player.speed;
+    const float mass = conf.weight / 9.81f;
 
     auto cd = conf.dragCoefficient;
     if (inputs.brakes) cd += cd * 3.0f;
     if (inputs.gear) cd += cd * 3.0f;
 
-    auto drag = squareSpeed * cd;
+    const auto drag = square_speed * cd;
     const auto thrust = inputs.throttle * conf.engineThrust;
-    const auto lift = squareSpeed * conf.liftCoefficient;
+    const auto lift = square_speed * conf.liftCoefficient;
 
-    // on ground there is a constant friction
-    // todo complete this add drag
-    // if (!registry.all_of<Grounded>(entity)) {
-    //   drag *= 10.0;
-    // }
+    // ground forces
+    if (!is_player_flying(registry)) {
+      auto normal_face = conf.weight - lift;
+      if (normal_face < 0.0f) {
+        normal_face = 0.0f;
+      }
+      const float friction_coefficient = inputs.brakes ? 0.6f : 0.02f;
+      const float max_braking_force = friction_coefficient * normal_face;
 
-    // todo complete me
-    // there is no such thing a negative drag
-    // if (drag > thrust)
-    //   drag = thrust;
+      const Vector3 ground_velocity = {player.velocity.x, 0.0f, player.velocity.z};
+      float ground_speed = Vector3Length(ground_velocity);
 
-    const float mass = conf.weight / 9.81f;
+      if (ground_speed > 0.1f) {
+        const Vector3 brakingDirection = ground_velocity * (-1.0f / ground_speed);
+        const float brakingAccelerationMag = max_braking_force / mass;
+        const Vector3 brakingAcceleration = brakingDirection * brakingAccelerationMag;
+
+        player.velocity = player.velocity + (brakingAcceleration * dt);
+
+        // don't go back...
+        const Vector3 new_ground_velocity = {player.velocity.x, 0.0f, player.velocity.z};
+        if (Vector3DotProduct(ground_velocity, new_ground_velocity) < 0.0f) {
+          player.velocity.x = 0.0f;
+          player.velocity.z = 0.0f;
+        }
+      } else {
+        if (inputs.brakes) {
+          player.velocity.x = 0.0f;
+          player.velocity.z = 0.0f;
+        }
+      }
+    }
 
     // --- Force vectors (world space) ---
     const auto thrustForce = player.forward * thrust;
@@ -110,7 +127,7 @@ export class PlayerPhysics {
     }
 
     // don't mess with near zero speed
-    if (player.speed < 0.18f) {
+    if (player.speed < 0.01f) {
       player.velocity = Vector3Zero();
       player.speed = 0.0f;
     }

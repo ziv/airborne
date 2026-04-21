@@ -17,6 +17,7 @@ import WidgetsInputs;
 import Accessors;
 import ResourcePreloader;
 import EngineSoundSystem;
+import UpdateLockSystem;
 import GearSoundSystem;
 import TerrainStreaming;
 
@@ -28,8 +29,6 @@ export class Game {
  public:
   explicit Game(const JsonConfig &config, const JsonConfig &scenario_config, entt::registry &reg)
       : registry(reg), scenario(scenario_config.get<Scenario>("/data")), dispatcher(config) {
-    registry.ctx().emplace<Offset>(Vector3Zero());
-
     factories::create_player(registry, config, scenario.start.position);
     factories::create_scene(registry, config);
     factories::create_cockpit(registry, config);
@@ -60,6 +59,7 @@ export class Game {
     dispatcher.update(registry, dt);
     // the rest
     WidgetsInputs(registry);
+    UpdateLockSystem(registry);
   }
 
   void draw() {

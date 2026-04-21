@@ -87,6 +87,8 @@ export void RenderRadar(entt::registry &registry) {
   const Vector2 fwd = Vector2Normalize({player.forward.x, player.forward.z});
   const Vector2 right = Vector2Normalize({player.right.x, player.right.z});
 
+  const auto& radar = registry.get<RadarState>(get_player_entity(registry));
+
   // iterating items and if they are in range, display them on the radar
   const auto blip_view =
       registry.view<Identify, Position3D, IdentifyType, FriendFoe>();
@@ -129,7 +131,9 @@ export void RenderRadar(entt::registry &registry) {
       drawStructure(bpx, bpy, color);
       break;
     }
-    const int altFeet = static_cast<int>(meter_to_feet(pos.pos.y));
-    DrawText(TextFormat("%d", altFeet), bpx + 5, bpy - 5, 8, WHITE);
+    if (radar.locked_target == en) {
+      const int altFeet = static_cast<int>(meter_to_feet(pos.pos.y));
+      DrawText(TextFormat("%d", altFeet), bpx + 5, bpy - 5, 8, WHITE);
+    }
   }
 }

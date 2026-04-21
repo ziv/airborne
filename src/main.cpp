@@ -1,28 +1,28 @@
-#include "lib/ray-logger.hpp"
-#include "rlgl.h"
+#include <raylib.h>
+
 #include <entt/entt.hpp>
 #include <iostream>
-#include <raylib.h>
 #include <string>
 
+#include "lib/ray-logger.hpp"
+#include "rlgl.h"
+
 import JsonConfig;
+import Accessors;
 import Types;
 import Screens;
 
-std::unique_ptr<BaseScreen> create_screen(const ScreenState &current,
-                                          entt::registry &registry,
-                                          const JsonConfig &config,
-                                          const JsonConfig &scenario) {
+std::unique_ptr<BaseScreen> create_screen(const ScreenState &current, entt::registry &registry, const JsonConfig &config, const JsonConfig &scenario) {
   switch (current) {
-  default:
-  case ScreenState::SPLASH:
-    return std::make_unique<SplashScreen>(config);
+    default:
+    case ScreenState::SPLASH:
+      return std::make_unique<SplashScreen>(config);
 
-  case ScreenState::LOADING:
-    return std::make_unique<LoadingScreen>(registry, scenario);
+    case ScreenState::LOADING:
+      return std::make_unique<LoadingScreen>(registry, scenario);
 
-  case ScreenState::GAMEPLAY:
-    return std::make_unique<GameScreen>(registry, config, scenario);
+    case ScreenState::GAMEPLAY:
+      return std::make_unique<GameScreen>(registry, config, scenario);
   }
 }
 
@@ -41,15 +41,15 @@ int main() {
     InitAudioDevice();
     // SetTargetFPS(60);
 
-    TraceLog(LOG_DEBUG, "Setting near plane to %f and far plane to %f",
-             conf.nearPlane, conf.farPlane);
+    TraceLog(LOG_DEBUG, "Setting near plane to %f and far plane to %f", conf.nearPlane, conf.farPlane);
     rlSetClipPlanes(conf.nearPlane, conf.farPlane);
 
     entt::registry registry;
+    set_initial_globals(registry);
+
     auto current = ScreenState::SPLASH;
     ScreenState next = current;
-    std::unique_ptr<BaseScreen> screen =
-        create_screen(current, registry, config, scenario);
+    std::unique_ptr<BaseScreen> screen = create_screen(current, registry, config, scenario);
 
     while (!WindowShouldClose()) {
       if (next = screen->update(); next != current) {

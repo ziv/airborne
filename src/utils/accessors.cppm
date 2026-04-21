@@ -6,6 +6,7 @@ module;
 export module Accessors;
 
 import Components;
+import ResourceManager;
 
 // constexpr auto PLAYER_ENTITY_CTX = entt::hashed_string("PlayerEntityID");
 // registry.ctx().emplace<PlayerEntity>(player_entity);
@@ -15,6 +16,12 @@ import Components;
 // export void set_player(entt::registry &registry, entt::entity player_entity) {
 // registry.ctx().emplace_as<entt::entity>(PLAYER_ENTITY_CTX, player_entity);
 // }
+
+export void set_initial_globals(entt::registry &registry) {
+  registry.ctx().emplace<GameState>(GameStatus::INITIALIZE);
+  registry.ctx().emplace<Offset>(Vector3Zero());
+  create_resource_manager(registry);
+}
 
 export const entt::entity &get_player_entity(entt::registry &registry) { return registry.ctx().get<PlayerEntity>().id; }
 

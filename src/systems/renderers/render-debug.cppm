@@ -25,6 +25,7 @@ export void RenderDebug(entt::registry& registry) {
   //
   const auto& player = get_player(registry);
   const auto& inputs = get_player_inputs(registry);
+  const auto& radar = registry.get<RadarState>(get_player_entity(registry));
 
   int y = 10;
   constexpr int margin = 15;
@@ -62,6 +63,24 @@ export void RenderDebug(entt::registry& registry) {
   DrawText(TextFormat("LVz: %f", player.velocity.z), margin, y, fs, BLACK);
   y += margin;
   DrawText(TextFormat("LVy: %f", player.velocity.y), margin, y, fs, BLACK);
+
+  y += margin;
+  DrawText(TextFormat("Ra: %d", radar.mode == RadarMode::AIR_TO_AIR), margin, y, fs, BLACK);
+  y += margin;
+  DrawText(TextFormat("Rg: %d", radar.mode == RadarMode::AIR_TO_GROUND), margin, y, fs, BLACK);
+  y += margin;
+  DrawText(TextFormat("Tr: %d", radar.locked_target != entt::null), margin, y, fs, BLACK);
+  y += margin;
+  if (radar.locked_target != entt::null) {
+    DrawText(TextFormat("Te: %d", static_cast<int>(radar.locked_target)), margin, y, fs, BLACK);
+    y += margin;
+    const auto target_position = registry.get<Position3D>(radar.locked_target);
+    DrawText(TextFormat("TPx: %0.00f", static_cast<float>(target_position.pos.x)), margin, y, fs, BLACK);
+    y += margin;
+    DrawText(TextFormat("TPz: %0.00f", target_position.pos.z), margin, y, fs, BLACK);
+    y += margin;
+    DrawText(TextFormat("TPy: %0.00f", target_position.pos.y), margin, y, fs, BLACK);
+  }
 
   // ground height
   // y += margin;

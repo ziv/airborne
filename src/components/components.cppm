@@ -10,6 +10,12 @@ import Types;
 import ResourceManager;
 import JsonConfig;
 
+export enum class GameStatus { INITIALIZE, LOADING, PLAYING, PAUSED, GAME_OVER };
+
+export struct GameState {
+  GameStatus status = GameStatus::INITIALIZE;
+};
+
 // global tag of the player
 export struct PlayerEntity {
   entt::entity id;
@@ -52,11 +58,13 @@ export struct Offset {
   Vector3 offset;
 };
 
+export enum class RadarMode { AIR_TO_AIR, AIR_TO_GROUND };
 
-
-
-
-
+export struct RadarState {
+  RadarMode mode = RadarMode::AIR_TO_AIR;
+  entt::entity locked_target = entt::null;
+  float max_range = 20000.0f;
+};
 
 // ---------------- todo need to make a hell of an order in this mess...
 
@@ -115,6 +123,8 @@ export struct MinimapWidget {
 };
 
 export struct EngineWidget {};
+
+export struct CameraWidget {};
 
 // area we can land on
 export struct Landable {
