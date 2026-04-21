@@ -11,6 +11,7 @@ import Components;
 import RaylibResource;
 import ResourceManager;
 import Types;
+import Accessors;
 
 export namespace updates {
 template <typename WidgetType>
@@ -31,25 +32,25 @@ void set_engine_status(const int slot, entt::registry &registry) {
   }
 }
 
-void set_radar(const int slot, entt::registry &registry, const JsonConfig &config) {
+void set_radar(const int slot, entt::registry &registry) {
   const auto view = registry.view<DashboardSlot>();
   for (const auto [entity, dashboard] : view.each()) {
     if (dashboard.slot_index != slot) continue;
 
-    const auto radar_cfg = config.get<RadarConfig>("/views/radar");
+    const auto radar_cfg = get_config(registry).views.radar;
     constexpr auto size = static_cast<int>(radar_cfg.ranges.size());
     registry.emplace_or_replace<RadarWidget>(entity, radar_cfg, size, 0);
     break;
   }
 }
 
-void set_minimap(const int slot, entt::registry &registry, const JsonConfig &config) {
+void set_minimap(const int slot, entt::registry &registry) {
   for (const auto view = registry.view<DashboardSlot>(); const auto [entity, dashboard] : view.each()) {
     if (dashboard.slot_index != slot) continue;
 
     auto &manager = get_resource_manager(registry);
 
-    const auto minimap_cfg = config.get<MinimapConfig>("/views/minimap");
+    const auto minimap_cfg = get_config(registry).views.minimap;
     registry.emplace_or_replace<MinimapWidget>(entity, minimap_cfg);
 
     if (const auto tex_id = entt::hashed_string(minimap_cfg.mapTexture.c_str()); manager.textures.contains(tex_id)) {

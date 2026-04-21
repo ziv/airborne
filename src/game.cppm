@@ -37,12 +37,12 @@ public:
     factories::create_player(registry, scenario.start.position);
     factories::create_scene(registry);
     factories::create_cockpit(registry);
-    factories::create_hud(registry, config);
+    factories::create_hud(registry);
     factories::create_cockpit_widgets(registry);
 
-    updates::set_minimap(0, registry, config);
+    updates::set_minimap(0, registry);
     updates::set_engine_status(1, registry);
-    updates::set_radar(2, registry, config);
+    updates::set_radar(2, registry);
 
     // spawn all items from scenario
     for (const auto& def : scenario.entities)
