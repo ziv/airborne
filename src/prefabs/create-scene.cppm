@@ -1,6 +1,7 @@
 module;
-#include "../lib/ray.hpp"
 #include <entt/entt.hpp>
+
+#include "../lib/ray.hpp"
 
 export module Prefabs:Scene;
 
@@ -8,10 +9,9 @@ import JsonConfig;
 import Components;
 import ResourceManager;
 import Types;
+import Resources;
 
-Model generate_world_model(const std::string &texture_path,
-                           const std::string &heightmap_path,
-                           const Vector3 &size, const Shader &fog) {
+Model generate_world_model(const std::string &texture_path, const std::string &heightmap_path, const Vector3 &size, const Shader &fog) {
   // our world texture
   const Image textureImage = LoadImage(texture_path.c_str());
   const Texture2D texture = LoadTextureFromImage(textureImage);
@@ -51,11 +51,10 @@ Model init_clouds(const Shader &fog) {
   for (int i = 0; i < noise_image.width * noise_image.height; i++) {
     if (const unsigned char intensity = pixels[i].r; intensity < 150) {
       // clear sky
-      pixels[i] = {255, 255, 255, 0}; // white, but fully transparent
+      pixels[i] = {255, 255, 255, 0};  // white, but fully transparent
     } else {
       // clouds
-      const auto alpha = static_cast<unsigned char>(
-          (static_cast<float>(intensity) - 150) * 1.8f);
+      const auto alpha = static_cast<unsigned char>((static_cast<float>(intensity) - 150) * 1.8f);
       pixels[i] = {255, 255, 255, alpha};
     }
   }
@@ -63,8 +62,7 @@ Model init_clouds(const Shader &fog) {
   const auto cloud_texture = LoadTextureFromImage(noise_image);
   UnloadImage(noise_image);
 
-  const auto clouds_model =
-      LoadModelFromMesh(GenMeshPlane(200000, 200000, 10, 10));
+  const auto clouds_model = LoadModelFromMesh(GenMeshPlane(200000, 200000, 10, 10));
   clouds_model.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = cloud_texture;
   clouds_model.materials[0].shader = fog;
   return clouds_model;
@@ -77,10 +75,9 @@ Shader init_fog(const std::string &vs_path, const std::string &fs_path) {
   const int fogNearLoc = GetShaderLocation(fog, "fogNear");
   const int fogFarLoc = GetShaderLocation(fog, "fogFar");
 
-  constexpr float fogNearValue = 20000.0f; // start at
-  constexpr float fogFarValue = 40000.0f;  // full fogs
-  constexpr Vector3 skyColorVec = {BLUE.r / 255.0f, BLUE.g / 255.0f,
-                                   BLUE.b / 255.0f};
+  constexpr float fogNearValue = 20000.0f;  // start at
+  constexpr float fogFarValue = 40000.0f;   // full fogs
+  constexpr Vector3 skyColorVec = {BLUE.r / 255.0f, BLUE.g / 255.0f, BLUE.b / 255.0f};
 
   SetShaderValue(fog, skyColorLoc, &skyColorVec, SHADER_UNIFORM_VEC3);
   SetShaderValue(fog, fogNearLoc, &fogNearValue, SHADER_UNIFORM_FLOAT);
@@ -91,47 +88,39 @@ Shader init_fog(const std::string &vs_path, const std::string &fs_path) {
 
 export namespace factories {
 entt::entity create_scene(entt::registry &registry, const JsonConfig &config) {
-  const auto [mapTexture, mapHeightmap, mapSize, fogShaderVs, fogShaderFs] =
-      config.get<SceneConfig>("/scene");
+  const auto [mapTexture, mapHeightmap, mapSize, fogShaderVs, fogShaderFs] = config.get<SceneConfig>("/scene");
   auto &assets = get_resource_manager(registry);
 
   TraceLog(LOG_DEBUG, "create fog shader");
   constexpr auto fog_id = entt::hashed_string("fog_shader");
   Shader fog = init_fog(fogShaderVs, fogShaderFs);
-  if (!assets.shaders.contains(fog_id))
-    assets.shaders.load(fog_id, fog);
+  if (!assets.shaders.contains(fog_id)) assets.shaders.load(fog_id, fog);
 
-  TraceLog(LOG_DEBUG, "create world model");
-  constexpr auto surface_id = entt::hashed_string("world_model");
-  if (!assets.models.contains(surface_id)) {
-    assets.models.load(surface_id, generate_world_model(
-                                       mapTexture, mapHeightmap, mapSize, fog));
+
+  if (!assets.models.contains(resources::world_model)) {
+    assets.models.load(resources::world_model, generate_world_model(mapTexture, mapHeightmap, mapSize, fog));
+    TraceLog(LOG_DEBUG, "world model created");
   }
 
-  TraceLog(LOG_DEBUG, "create cloud model");
-  constexpr auto cloud_id = entt::hashed_string("cloud_model");
-  if (!assets.models.contains(cloud_id)) {
-    assets.models.load(cloud_id, init_clouds(fog));
+
+  if (!assets.models.contains(resources::cloud_model)) {
+    assets.models.load(resources::cloud_model, init_clouds(fog));
+    TraceLog(LOG_DEBUG, "cloud model created");
   }
 
-  // todo path from config
-  constexpr auto engine_id = entt::hashed_string("assets/sound/engine.mp3");
-  if (assets.music_streams.contains(engine_id)) {
-    PlayMusicStream(assets.music_streams[engine_id]->res);
+  if (assets.music_streams.contains(resources::engine_sound)) {
+    PlayMusicStream(assets.music_streams[resources::engine_sound]->res);
+    TraceLog(LOG_DEBUG, "engine sound played");
   } else {
-    TraceLog(
-        LOG_WARNING,
-        "Engine sound resource not found for path 'assets/sound/engine.mp3'");
+    TraceLog(LOG_WARNING, "engine sound resource not found");
   }
 
   const auto entity = registry.create();
 
-  registry.emplace<World>(entity, assets.models[surface_id],
-                          assets.models[cloud_id],
-                          assets.music_streams[engine_id]);
+  registry.emplace<World>(entity, assets.models[resources::world_model], assets.models[resources::cloud_model], assets.music_streams[resources::engine_sound]);
   registry.emplace<Position3D>(entity, Vector3Zero(), Vector3Zero());
 
   TraceLog(LOG_DEBUG, "scene created");
   return entity;
 }
-} // namespace factories
+}  // namespace factories

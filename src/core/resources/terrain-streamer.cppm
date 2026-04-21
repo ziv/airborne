@@ -14,10 +14,12 @@ import RaylibResource;
 import ResourceManager;
 import Accessors;
 
-inline constexpr float METERS_PER_PIXEL = 16.08f;
-inline constexpr float TILE_PIXELS = 2048.0f;
+inline constexpr float METERS_PER_PIXEL = 8.05f;
+inline constexpr float TILE_PIXELS = 1024.0f;
 inline constexpr float HM_PIXELS = 512.0f;
 inline constexpr float TILE_WORLD_SIZE = TILE_PIXELS * METERS_PER_PIXEL;
+inline constexpr float LOWEST = -440.0f;   // Dead Sea
+inline constexpr float HIGHEST = 2814.0f;  // Mount Hermon
 
 export struct AsyncTileLoad {
   std::future<Image> texture_future;
@@ -29,12 +31,15 @@ export struct AsyncTileLoad {
 export struct TerrainChunk {
   Model model;
   float x = 0.0f;
+  float y = 0.0f;
   float z = 0.0f;
 
   // TerrainChunk(const Model& model, const float world_x, const float world_z) : model(model), world_x(world_x), world_z(world_z) {}
 };
 
-export int get_tile_id(const int x, const int z) { return entt::hashed_string(TextFormat("tile_model_%d_%d", x, z)); }
+// export int get_tile_id(const int x, const int z) { return entt::hashed_string(TextFormat("tile_model_%d_%d", x, z)); }
+
+// todo make sure to use RAII or the resource manager
 
 export void ProcessLoadedTerrainChunk(entt::registry& registry) {
   auto& rm = get_resource_manager(registry);
@@ -53,7 +58,7 @@ export void ProcessLoadedTerrainChunk(entt::registry& registry) {
 
     Texture2D final_texture = LoadTextureFromImage(tex_img);
 
-    const Mesh mesh = GenMeshHeightmap(height_img, (Vector3){TILE_WORLD_SIZE, 1000.0f, TILE_WORLD_SIZE});
+    const Mesh mesh = GenMeshHeightmap(height_img, (Vector3){TILE_WORLD_SIZE, HIGHEST - LOWEST, TILE_WORLD_SIZE});
     const Model model = LoadModelFromMesh(mesh);
     model.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = final_texture;
 
@@ -63,7 +68,7 @@ export void ProcessLoadedTerrainChunk(entt::registry& registry) {
     }
 
     // keeping the tile in the resource manager
-    rm.models.load(get_tile_id(x, z), model);
+    // rm.models.load(get_tile_id(x, z), model);
 
     // unload images
     UnloadImage(tex_img);
@@ -73,18 +78,16 @@ export void ProcessLoadedTerrainChunk(entt::registry& registry) {
     registry.remove<AsyncTileLoad>(entity);
 
     // add the terrain component (the model id in the resource manager)
-    float world_x = static_cast<float>(x) * TILE_WORLD_SIZE;
-    float world_z = static_cast<float>(z) * TILE_WORLD_SIZE;
+    const float world_x = static_cast<float>(x) * TILE_WORLD_SIZE;
+    const float world_z = static_cast<float>(z) * TILE_WORLD_SIZE;
 
-    registry.emplace<TerrainChunk>(entity, model, world_x, world_z);
+    registry.emplace<TerrainChunk>(entity, model, world_x, LOWEST, world_z);
   }
 }
 
 export class TerrainStreaming {
   using TileCoord = std::pair<int, int>;
-
   std::map<TileCoord, entt::entity> active_tiles;
-
   int last_tile_x = -9999;
   int last_tile_z = -9999;
 
@@ -110,7 +113,7 @@ export class TerrainStreaming {
         // todo only use the image we have, see todo above
         auto required_x = current_tile_x + dx;
         auto required_z = current_tile_z + dz;
-        if (required_x < 0 || required_x > 4 || required_z < 0 || required_z > 3) continue;
+        if (required_x < 0 || required_x > 32 || required_z < 0 || required_z > 26) continue;
         required_tiles.insert({required_x, required_z});
       }
     }
@@ -124,10 +127,11 @@ export class TerrainStreaming {
         ++it;
       }
     }
-
+    //
     // iterate the required tile and find not loaded
     for (const auto& coord : required_tiles) {
       if (!active_tiles.contains(coord)) {
+        TraceLog(LOG_WARNING, "spawning tile: %d %d", coord.first, coord.second);
         const entt::entity new_tile_entity = spawn_tile(registry, coord.first, coord.second);
         active_tiles[coord] = new_tile_entity;
       }
@@ -135,22 +139,23 @@ export class TerrainStreaming {
 
     last_tile_x = current_tile_x;
     last_tile_z = current_tile_z;
+    TraceLog(LOG_WARNING, "current tile: %d %d", current_tile_x, current_tile_z);
   }
 
  private:
-  static entt::entity spawn_tile(entt::registry& registry, const int x, const int z) {
-    const auto entity = registry.create();
+  entt::entity spawn_tile(entt::registry& registry, const int x, const int z) {
+    auto entity = registry.create();
 
-    std::string tex_path = TextFormat("assets/world/tex-%d-%d.png", x, z);
-    std::string height_path = TextFormat("assets/world/hm-%d-%d.png", x, z);
+    std::string tex_path = TextFormat("assets/tiles/tex-%d-%d.png", x, z);
+    std::string height_path = TextFormat("assets/tiles/hm-%d-%d.png", x, z);
 
     auto tex_task = std::async(std::launch::async, [tex_path]() {
-      TraceLog(LOG_WARNING, "loading texture %s", tex_path.c_str());
+      TraceLog(LOG_WARNING, "[thread] loading texture %s", tex_path.c_str());
       return LoadImage(tex_path.c_str());
     });
 
     auto height_task = std::async(std::launch::async, [height_path]() {
-      TraceLog(LOG_WARNING, "loading height %s", height_path.c_str());
+      TraceLog(LOG_WARNING, "[thread] loading height %s", height_path.c_str());
       return LoadImage(height_path.c_str());
     });
 
@@ -158,7 +163,6 @@ export class TerrainStreaming {
     const float world_z = static_cast<float>(z) * TILE_WORLD_SIZE;
 
     registry.emplace<Position3D>(entity, (Vector3){world_x, 0, world_z}, Vector3{0, 0, 0});
-
     registry.emplace<AsyncTileLoad>(entity, std::move(tex_task), std::move(height_task), x, z);
 
     return entity;

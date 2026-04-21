@@ -1,6 +1,7 @@
 module;
-#include "lib/ray.hpp"
 #include <entt/entt.hpp>
+
+#include "lib/ray.hpp"
 
 export module Game;
 
@@ -17,20 +18,16 @@ import Accessors;
 import ResourcePreloader;
 import EngineSoundSystem;
 import GearSoundSystem;
+import TerrainStreaming;
 
 export class Game {
   entt::registry &registry;
   Scenario scenario{};
   PlayerDispatcher dispatcher;
 
-public:
-  explicit Game(const JsonConfig &config,
-                const JsonConfig &scenario_config,
-                entt::registry &reg)
-      : registry(reg),
-        scenario(scenario_config.get<Scenario>("/data")),
-        dispatcher(config) {
-
+ public:
+  explicit Game(const JsonConfig &config, const JsonConfig &scenario_config, entt::registry &reg)
+      : registry(reg), scenario(scenario_config.get<Scenario>("/data")), dispatcher(config) {
     registry.ctx().emplace<Offset>(Vector3Zero());
 
     factories::create_player(registry, config, scenario.start.position);
@@ -44,8 +41,7 @@ public:
     updates::set_radar(2, registry, config);
 
     // spawn all items from scenario
-    for (const auto &def : scenario.entities)
-      factories::create_unit(registry, def);
+    for (const auto &def : scenario.entities) factories::create_unit(registry, def);
   }
 
   ~Game() {
@@ -54,15 +50,16 @@ public:
   }
 
   void update() {
-    if (is_player_crashed(registry))
-      return;
+    if (is_player_crashed(registry)) return;
 
+    const auto dt = GetFrameTime();
+    // inputs
+    EngineSystem(registry, dt);
+    GearSystem(registry);
     // player's systems in a single call
-    dispatcher.update(registry, GetFrameTime());
-
+    dispatcher.update(registry, dt);
+    // the rest
     WidgetsInputs(registry);
-    EngineSoundSystem(registry);
-    GearSoundSystem(registry);
   }
 
   void draw() {

@@ -55,6 +55,7 @@ target_sources(${PROJECT_NAME} PUBLIC
         src/core/helpers.cppm
         src/core/json-config.cppm
         src/core/types/config-types.cppm
+        src/core/resources/resources.cppm
         src/core/resources/raylib-resource.cppm
         src/core/resources/resource-manager.cppm
         src/core/resources/resource-preloader.cppm
@@ -79,8 +80,8 @@ target_sources(${PROJECT_NAME} PUBLIC
         src/systems/renderers/render-crash-layout.cppm
         src/systems/world-streamer.cppm
         src/systems/widgets-inputs.cppm
-        src/systems/sounds/engine-system.cppm
-        src/systems/sounds/gear-system.cppm
+        src/systems/engine-system.cppm
+        src/systems/gear-system.cppm
         src/utils/accessors.cppm
         src/utils/loading.cppm
         src/screens/base.cppm

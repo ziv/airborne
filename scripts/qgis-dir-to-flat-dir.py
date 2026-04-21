@@ -39,7 +39,7 @@ def normalize_tiles_to_grid(input_dir, output_dir):
         grid_x = orig_x - min_x
         grid_z = orig_y - min_y
 
-        new_filename = f"tex-{grid_x}-{grid_z}{file_path.suffix.lower()}"
+        new_filename = f"hm-{grid_x}-{grid_z}{file_path.suffix.lower()}"
         new_filepath = out_path / new_filename
 
         shutil.copy2(file_path, new_filepath)
@@ -51,7 +51,7 @@ def normalize_tiles_to_grid(input_dir, output_dir):
     print(f"Saved to: {out_path.absolute()}")
 
 if __name__ == "__main__":
-    INPUT_DIR = "/Users/ziv.perry/Desktop/tmpp/10-tex"
-    OUTPUT_DIR = "/Users/ziv.perry/code/ziv/airborne/assets/world"
+    INPUT_DIR = "/Users/ziv.perry/code/ziv/airborne/assets/world/12-hm-512"
+    OUTPUT_DIR = "/Users/ziv.perry/code/ziv/airborne/assets/tiles"
 
     normalize_tiles_to_grid(INPUT_DIR, OUTPUT_DIR)

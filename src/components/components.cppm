@@ -51,6 +51,14 @@ export struct Offset {
   Vector3 offset;
 };
 
+
+
+
+
+
+
+// ---------------- todo need to make a hell of an order in this mess...
+
 export struct LoadingContext {
   JsonConfig items_to_load;
   size_t current_index = 0;

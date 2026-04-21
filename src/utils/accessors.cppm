@@ -23,7 +23,7 @@ export const Player &get_player(entt::registry &registry) {
     return registry.get<Player>(get_player_entity(registry));
 }
 
-export const PlayerInputs &get_player_inputs(entt::registry &registry) {
+export PlayerInputs &get_player_inputs(entt::registry &registry) {
     return registry.get<PlayerInputs>(get_player_entity(registry));
 }
 
@@ -33,4 +33,8 @@ export Vector3 &get_offset(entt::registry &registry) {
 
 export bool is_player_crashed(entt::registry &registry) {
     return registry.all_of<Crashed>(get_player_entity(registry));
+}
+
+export bool is_player_flying(entt::registry &registry) {
+    return registry.all_of<Flying>(get_player_entity(registry));
 }

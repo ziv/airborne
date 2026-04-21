@@ -14,6 +14,13 @@ export void WorldStreamerSystem(entt::registry &registry) {
   // is called streamer cause it original use was to stream
   // the world tiles
 
+  // const auto view = registry.view<const TerrainChunk>();
+  // for (const auto [entity, chunk] : view.each()) {
+  //   // todo replace with resource manager
+  //   const auto pos = (Vector3){chunk.x, chunk.y, chunk.z};
+  //   // DrawModel(chunk.model, pos, 1.0f, WHITE);
+  // }
+
   // we are rendering the map at the offset of the player
   const auto &offset = get_offset(registry);
 
