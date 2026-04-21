@@ -21,6 +21,7 @@ export struct Player {
   Vector3 pos;
   Vector3 offset;
   Vector3 velocity;
+  Vector3 angular_velocity;  // angular velocity
   Vector3 forward;
   Vector3 up;
   Vector3 right;

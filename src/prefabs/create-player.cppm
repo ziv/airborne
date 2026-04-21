@@ -18,6 +18,7 @@ entt::entity create_player(entt::registry &registry, const JsonConfig &config,
                            start_position,  // position
                            Vector3Zero(),   // offset
                            Vector3Zero(),   // velocity
+                           Vector3Zero(),   // angular velocity
                            world_forward(), // forward
                            world_up(),      // up
                            world_right(),   // right
