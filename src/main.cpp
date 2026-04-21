@@ -12,8 +12,15 @@ import Accessors;
 import Types;
 import Screens;
 
-std::unique_ptr<BaseScreen> create_screen(const ScreenState &current, entt::registry &registry, const JsonConfig &config, const JsonConfig &scenario,
-                                          const AppConfig &app_config, const Scenario &scenario_config, const std::vector<ResourceDef> &resources) {
+std::unique_ptr<BaseScreen>
+create_screen(const ScreenState& current,
+              entt::registry& registry,
+              const JsonConfig& config,
+              const JsonConfig& scenario,
+              const AppConfig& app_config,
+              const Scenario& scenario_config,
+              const std::vector<ResourceDef>& resources)
+{
   switch (current) {
     default:
     case ScreenState::SPLASH:
@@ -27,7 +34,9 @@ std::unique_ptr<BaseScreen> create_screen(const ScreenState &current, entt::regi
   }
 }
 
-int main() {
+int
+main()
+{
   SetTraceLogCallback(CustomLogCallback);
   SetTraceLogLevel(LOG_DEBUG);
   SetConfigFlags(FLAG_WINDOW_RESIZABLE | FLAG_VSYNC_HINT);
@@ -72,7 +81,7 @@ int main() {
 
     CloseAudioDevice();
     CloseWindow();
-  } catch (std::exception &e) {
+  } catch (std::exception& e) {
     std::cerr << "Fatal Error: " << e.what() << std::endl;
     return -1;
   }

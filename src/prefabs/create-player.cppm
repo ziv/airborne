@@ -12,7 +12,7 @@ import Types;
 import Helpers;
 
 export namespace factories {
-entt::entity create_player(entt::registry &registry, const JsonConfig &config, const Vector3 &start_position) {
+entt::entity create_player(entt::registry &registry, const Vector3 &start_position) {
   const auto player = registry.create();
   registry.emplace<Player>(player, QuaternionIdentity(),
                            start_position,   // position

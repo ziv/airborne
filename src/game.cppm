@@ -20,16 +20,21 @@ import EngineSoundSystem;
 import UpdateLockSystem;
 import GearSoundSystem;
 import TerrainStreaming;
+import Accessors;
 
-export class Game {
-  entt::registry &registry;
+export class Game
+{
+  entt::registry& registry;
   Scenario scenario{};
   PlayerDispatcher dispatcher;
 
- public:
-  explicit Game(const JsonConfig &config, const Scenario &s, entt::registry &reg)
-      : registry(reg), scenario(s), dispatcher(config) {
-    factories::create_player(registry, config, scenario.start.position);
+public:
+  explicit Game(const JsonConfig& config, const Scenario& s, entt::registry& reg)
+    : registry(reg)
+    , scenario(get_scenario(reg))
+    , dispatcher(config)
+  {
+    factories::create_player(registry, scenario.start.position);
     factories::create_scene(registry, config);
     factories::create_cockpit(registry, config);
     factories::create_hud(registry, config);
@@ -40,16 +45,20 @@ export class Game {
     updates::set_radar(2, registry, config);
 
     // spawn all items from scenario
-    for (const auto &def : scenario.entities) factories::create_unit(registry, def);
+    for (const auto& def : scenario.entities)
+      factories::create_unit(registry, def);
   }
 
-  ~Game() {
+  ~Game()
+  {
     registry.ctx().erase<ResourceManager>();
     registry.clear();
   }
 
-  void update() {
-    if (is_player_crashed(registry)) return;
+  void update()
+  {
+    if (is_player_crashed(registry))
+      return;
 
     const auto dt = GetFrameTime();
     // inputs
@@ -62,7 +71,8 @@ export class Game {
     UpdateLockSystem(registry);
   }
 
-  void draw() {
+  void draw()
+  {
     ClearBackground(scenario.skyColor);
 
     // 3D
