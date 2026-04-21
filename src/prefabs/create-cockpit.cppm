@@ -10,11 +10,11 @@ import Components;
 import RaylibResource;
 import ResourceManager;
 import Types;
+import Accessors;
 
 export namespace factories {
-    void create_cockpit(entt::registry &registry,
-                       const JsonConfig &config) {
-        const auto conf = config.get<CockpitConfig>("/views/cockpit");
+    void create_cockpit(entt::registry &registry) {
+        const auto conf = get_config(registry).views.cockpit;
         auto &manager = get_resource_manager(registry);
 
         const auto cockpit = registry.create();

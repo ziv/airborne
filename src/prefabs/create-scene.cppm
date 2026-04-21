@@ -10,6 +10,7 @@ import Components;
 import ResourceManager;
 import Types;
 import Resources;
+import Accessors;
 
 Model generate_world_model(const std::string &texture_path, const std::string &heightmap_path, const Vector3 &size, const Shader &fog) {
   // our world texture
@@ -87,8 +88,8 @@ Shader init_fog(const std::string &vs_path, const std::string &fs_path) {
 }
 
 export namespace factories {
-entt::entity create_scene(entt::registry &registry, const JsonConfig &config) {
-  const auto [mapTexture, mapHeightmap, mapSize, fogShaderVs, fogShaderFs] = config.get<SceneConfig>("/scene");
+entt::entity create_scene(entt::registry &registry) {
+  const auto [mapTexture, mapHeightmap, mapSize, fogShaderVs, fogShaderFs] = get_config(registry).scene;
   auto &assets = get_resource_manager(registry);
 
   TraceLog(LOG_DEBUG, "create fog shader");

@@ -35,8 +35,8 @@ public:
     , dispatcher(config)
   {
     factories::create_player(registry, scenario.start.position);
-    factories::create_scene(registry, config);
-    factories::create_cockpit(registry, config);
+    factories::create_scene(registry);
+    factories::create_cockpit(registry);
     factories::create_hud(registry, config);
     factories::create_cockpit_widgets(registry);
 
