@@ -259,10 +259,11 @@ export {
   NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(StartConditions, position, heading, speed,
                                      altitude, fuel, carrier, weapons);
 
-  struct ResourceDef {
-    std::string name;
-    std::string type;
-    std::string path;
+  struct ResourceDef
+  {
+    std::string name{};
+    std::string type{};
+    std::string path{};
   };
 
   NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(ResourceDef, name, type, path)

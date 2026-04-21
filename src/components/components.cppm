@@ -13,6 +13,7 @@ import JsonConfig;
 export struct Configuration {
   AppConfig conf{};
   Scenario scenario{};
+  std::vector<ResourceDef> resources{};
 };
 
 // global game state

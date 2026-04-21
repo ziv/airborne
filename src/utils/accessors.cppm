@@ -18,16 +18,18 @@ import Types;
 // registry.ctx().emplace_as<entt::entity>(PLAYER_ENTITY_CTX, player_entity);
 // }
 
-export void set_initial_globals(entt::registry &registry, const AppConfig &config, const Scenario &scenario) {
+export void set_initial_globals(entt::registry &registry, const AppConfig &config, const Scenario &scenario, const std::vector<ResourceDef> &resources) {
   registry.ctx().emplace<GameState>(GameStatus::INITIALIZE);
   registry.ctx().emplace<Offset>(Vector3Zero());
-  registry.ctx().emplace<Configuration>(config, scenario);
+  registry.ctx().emplace<Configuration>(config, scenario, resources);
   create_resource_manager(registry);
 }
 
 export const AppConfig &get_config(entt::registry &registry) { return registry.ctx().get<Configuration>().conf; }
 
 export const Scenario &get_scenario(entt::registry &registry) { return registry.ctx().get<Configuration>().scenario; }
+
+export const std::vector<ResourceDef> &get_resources(entt::registry &registry) { return registry.ctx().get<Configuration>().resources; }
 
 export const entt::entity &get_player_entity(entt::registry &registry) { return registry.ctx().get<PlayerEntity>().id; }
 

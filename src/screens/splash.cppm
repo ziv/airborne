@@ -1,4 +1,6 @@
 module;
+#include <entt/entt.hpp>
+
 #include "../lib/ray.hpp"
 export module Screens:Splash;
 
@@ -13,7 +15,9 @@ export class SplashScreen : public BaseScreen {
   MusicHandle music;
 
  public:
-  explicit SplashScreen(const SplashScreenConfig& config) : tex(LoadTexture(config.bg_tex_path.c_str())), music(LoadMusicStream(config.bg_sound_path.c_str())) {
+  explicit SplashScreen(entt::registry& registry)
+      : tex(LoadTexture(get_config(registry).screens.splash.bg_tex_path.c_str())),
+        music(LoadMusicStream(get_config(registry).screens.splash.bg_sound_path.c_str())) {
     PlayMusicStream(music);
   }
 
