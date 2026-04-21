@@ -31,7 +31,6 @@ export class PlayerPhysics {
     const auto& inputs = get_player_inputs(registry);
 
     // angular velocity
-    // todo angular velocity size should be relative to the aircraft speed, more speed -> better steering
     auto speed_ratio = player.speed / (conf.maxSpeed * 0.7f);
     if (speed_ratio < 0.0f) speed_ratio = 0.0f;
     if (speed_ratio > 1.2f) speed_ratio = 1.2f;
