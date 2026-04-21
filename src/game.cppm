@@ -29,10 +29,10 @@ export class Game
   PlayerDispatcher dispatcher;
 
 public:
-  explicit Game(const JsonConfig& config, const Scenario& s, entt::registry& reg)
+  explicit Game(entt::registry& reg)
     : registry(reg)
     , scenario(get_scenario(reg))
-    , dispatcher(reg, config)
+    , dispatcher(reg)
   {
     factories::create_player(registry, scenario.start.position);
     factories::create_scene(registry);

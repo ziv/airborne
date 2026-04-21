@@ -13,13 +13,7 @@ import Types;
 import Screens;
 
 std::unique_ptr<BaseScreen>
-create_screen(const ScreenState& current,
-              entt::registry& registry,
-              const JsonConfig& config,
-              const JsonConfig& scenario,
-              const AppConfig& app_config,
-              const Scenario& scenario_config,
-              const std::vector<ResourceDef>& resources)
+create_screen(const ScreenState& current, entt::registry& registry)
 {
   switch (current) {
     default:
@@ -30,7 +24,7 @@ create_screen(const ScreenState& current,
       return std::make_unique<LoadingScreen>(registry);
 
     case ScreenState::GAMEPLAY:
-      return std::make_unique<GameScreen>(registry, config, scenario_config);
+      return std::make_unique<GameScreen>(registry);
   }
 }
 
@@ -48,30 +42,31 @@ main()
     ///    2.1. Entities and objectives
     ///    2.2. Resources list
     const auto json_config = JsonConfig("assets/config.jsonc");
-    const auto conf = json_config.get<AppConfig>("/config");
+    const auto app_conf = json_config.get<AppConfig>("/config");
+
     const auto json_scenario = JsonConfig("assets/scenario.jsonc");
     const auto scenario_conf = json_scenario.get<Scenario>("/data");
     const auto resources_conf = json_scenario.get<std::vector<ResourceDef>>("/resources");
 
-    InitWindow(conf.global.width, conf.global.height, conf.global.title.c_str());
+    InitWindow(app_conf.global.width, app_conf.global.height, app_conf.global.title.c_str());
     InitAudioDevice();
 
     // todo remove comment in production
     // SetTargetFPS(60);
 
-    TraceLog(LOG_DEBUG, "Setting near plane to %f and far plane to %f", conf.global.nearPlane, conf.global.farPlane);
-    rlSetClipPlanes(conf.global.nearPlane, conf.global.farPlane);
+    TraceLog(LOG_DEBUG, "Setting near plane to %f and far plane to %f", app_conf.global.nearPlane, app_conf.global.farPlane);
+    rlSetClipPlanes(app_conf.global.nearPlane, app_conf.global.farPlane);
 
     entt::registry registry;
-    set_initial_globals(registry, conf, scenario_conf, resources_conf);
+    set_initial_globals(registry, app_conf, scenario_conf, resources_conf);
 
     auto current = ScreenState::SPLASH;
     ScreenState next = current;
-    std::unique_ptr<BaseScreen> screen = create_screen(current, registry, json_config, json_scenario, conf, scenario_conf, resources_conf);
+    std::unique_ptr<BaseScreen> screen = create_screen(current, registry);
 
     while (!WindowShouldClose()) {
       if (next = screen->update(); next != current) {
-        screen = create_screen(next, registry, json_config, json_scenario, conf, scenario_conf, resources_conf);
+        screen = create_screen(next, registry);
         current = next;
       }
       BeginDrawing();

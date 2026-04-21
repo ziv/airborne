@@ -23,7 +23,7 @@ public:
   PlayerGroundCheck playerGroundCheck;
   PlayerRotation playerRotation;
 
-  explicit PlayerDispatcher(entt::registry& registry, const JsonConfig& cfg)
+  explicit PlayerDispatcher(entt::registry& registry)
     : playerPhysics(get_config(registry).player.aircraft)
     , playerPosition(get_config(registry).player.position)
     , playerCamera(get_config(registry).player.camera) {};
