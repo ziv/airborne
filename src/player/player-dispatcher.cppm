@@ -3,6 +3,8 @@ module;
 
 export module Player:Dispatcher;
 
+import Accessors;
+import Types;
 import :Config;
 import :Position;
 import :Rotation;
@@ -11,24 +13,24 @@ import :Controls;
 import :Physics;
 import :Camera;
 
-export class PlayerDispatcher {
- public:
-  PlayerControls playerControls;
+export class PlayerDispatcher
+{
+public:
   PlayerPhysics playerPhysics;
   PlayerPosition playerPosition;
-  PlayerRotation playerRotation;
+  PlayerControls playerControls;
   PlayerCamera playerCamera;
   PlayerGroundCheck playerGroundCheck;
+  PlayerRotation playerRotation;
 
-  explicit PlayerDispatcher(const JsonConfig &cfg)
-      : playerControls(),
-        playerPhysics(cfg.get<PlayerPhysicsConfig>("/player/aircraft")),
-        playerPosition(cfg.get<PlayerPositionConfig>("/player/position")),
-        playerRotation(),
-        playerCamera(cfg.get<PlayerCameraConfig>("/player/camera")),
-        playerGroundCheck(cfg.get<PlayerGroundCheckConfig>("/player/groundCheck")) {};
+  explicit PlayerDispatcher(entt::registry& registry, const JsonConfig& cfg)
+    : playerPhysics(get_config(registry).player.aircraft)
+    , playerPosition(get_config(registry).player.position)
+    , playerCamera(cfg.get<PlayerCameraConfig>("/player/camera"))
+    , playerGroundCheck(cfg.get<PlayerGroundCheckConfig>("/player/groundCheck")) {};
 
-  void update(entt::registry &reg, const float dt) {
+  void update(entt::registry& reg, const float dt)
+  {
     playerControls.update(reg, dt);
     playerPhysics.update(reg, dt);
     playerPosition.update(reg, dt);

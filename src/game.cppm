@@ -32,7 +32,7 @@ public:
   explicit Game(const JsonConfig& config, const Scenario& s, entt::registry& reg)
     : registry(reg)
     , scenario(get_scenario(reg))
-    , dispatcher(config)
+    , dispatcher(reg, config)
   {
     factories::create_player(registry, scenario.start.position);
     factories::create_scene(registry);
