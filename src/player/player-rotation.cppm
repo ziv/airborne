@@ -27,7 +27,7 @@ export class PlayerRotation {
         player.angular_velocity.z = 0.0f;
         // no nose down on ground
         // unless nose is already up
-        player.angular_velocity.x = player.angular_velocity.x < 0.0f || player.forward.y > 0.0f ? player.angular_velocity.x : 0.0f;
+        player.angular_velocity.x = player.angular_velocity.x <= 0.0f || player.forward.y >= 0.0f ? player.angular_velocity.x : 0.0f;
       }
 
       const float rotationAngle = angularSpeed * dt;

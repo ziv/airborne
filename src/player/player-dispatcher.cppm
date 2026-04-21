@@ -26,8 +26,7 @@ public:
   explicit PlayerDispatcher(entt::registry& registry, const JsonConfig& cfg)
     : playerPhysics(get_config(registry).player.aircraft)
     , playerPosition(get_config(registry).player.position)
-    , playerCamera(get_config(registry).player.camera)
-    , playerGroundCheck(cfg.get<PlayerGroundCheckConfig>("/player/groundCheck")) {};
+    , playerCamera(get_config(registry).player.camera) {};
 
   void update(entt::registry& reg, const float dt)
   {
