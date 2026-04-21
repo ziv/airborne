@@ -4,28 +4,16 @@ export module Screens:Splash;
 
 import RaylibResource;
 import JsonConfig;
+import Types;
+import Accessors;
 import :Base;
 
-export struct SplashScreenConfig {
-  std::string bg_tex_path = "res/images/splash.png";
-  std::string bg_sound_path = "res/audio/splash-1.mp3";
-};
-
-export {
-  NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(SplashScreenConfig,
-                                                  bg_tex_path, bg_sound_path);
-}
-
 export class SplashScreen : public BaseScreen {
-  SplashScreenConfig conf;
   TextureHandle tex;
   MusicHandle music;
 
-public:
-  explicit SplashScreen(const JsonConfig &config)
-      : conf(config.get<SplashScreenConfig>("/screens/splash")),
-        tex(LoadTexture(conf.bg_tex_path.c_str())),
-        music(LoadMusicStream(conf.bg_sound_path.c_str())) {
+ public:
+  explicit SplashScreen(const SplashScreenConfig& config) : tex(LoadTexture(config.bg_tex_path.c_str())), music(LoadMusicStream(config.bg_sound_path.c_str())) {
     PlayMusicStream(music);
   }
 

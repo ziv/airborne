@@ -21,11 +21,13 @@ export class LoadingScreen : public BaseScreen {
   int current = 0;
 
  public:
-  explicit LoadingScreen(entt::registry &r, const JsonConfig &res)
-      : registry(r), resources(res.get<std::vector<ResourceDef>>("/resources")), total(static_cast<int>(resources.size())) {}
+  explicit LoadingScreen(entt::registry &r, const std::vector<ResourceDef> &res)
+      : registry(r), resources(res), total(static_cast<int>(resources.size())) {}
 
   ScreenState update() override {
-    if (total == 0) return ScreenState::GAMEPLAY;
+    if (0 == total) {
+      return ScreenState::GAMEPLAY;
+    }
 
     preload_resource(get_resource_manager(registry), resources.at(current));
     current++;

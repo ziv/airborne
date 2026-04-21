@@ -27,8 +27,8 @@ export class Game {
   PlayerDispatcher dispatcher;
 
  public:
-  explicit Game(const JsonConfig &config, const JsonConfig &scenario_config, entt::registry &reg)
-      : registry(reg), scenario(scenario_config.get<Scenario>("/data")), dispatcher(config) {
+  explicit Game(const JsonConfig &config, const Scenario &s, entt::registry &reg)
+      : registry(reg), scenario(s), dispatcher(config) {
     factories::create_player(registry, config, scenario.start.position);
     factories::create_scene(registry, config);
     factories::create_cockpit(registry, config);

@@ -10,6 +10,13 @@ import Types;
 import ResourceManager;
 import JsonConfig;
 
+export struct Configuration {
+  AppConfig conf{};
+  Scenario scenario{};
+};
+
+// global game state
+// todo check if in use
 export enum class GameStatus { INITIALIZE, LOADING, PLAYING, PAUSED, GAME_OVER };
 
 export struct GameState {
