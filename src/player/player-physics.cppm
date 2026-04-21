@@ -11,7 +11,7 @@ import Components;
 import Accessors;
 import :Config;
 
-// angular velocity
+// todo move to conf
 constexpr RadSecSquared PITCH_POWER = 3.0f;
 constexpr RadSecSquared ROLL_POWER = 5.0f;
 constexpr RadSecSquared YAW_POWER = 1.0f;
