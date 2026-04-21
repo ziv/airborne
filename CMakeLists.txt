@@ -40,6 +40,7 @@ add_executable(${PROJECT_NAME} src/main.cpp)
 target_sources(${PROJECT_NAME} PUBLIC
         FILE_SET CXX_MODULES FILES
         src/game.cppm
+        src/utils/utils.cppm
         src/player/player.cppm
         src/player/player-camera.cppm
         src/player/player-config.cppm
@@ -68,6 +69,10 @@ target_sources(${PROJECT_NAME} PUBLIC
         src/prefabs/create-cockpit-widgets.cppm
         src/prefabs/create-cockpit.cppm
         src/prefabs/create-hud.cppm
+        src/systems/player/player.cppm
+        src/systems/player/player-controls.cppm
+        src/systems/player/player-physics.cppm
+        src/systems/player/player-position.cppm
         src/systems/renderers/render.cppm
         src/systems/renderers/render-models.cppm
         src/systems/renderers/render-cockpit.cppm

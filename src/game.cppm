@@ -6,6 +6,7 @@ module;
 export module Game;
 
 import JsonConfig;
+import PlayerSystems;
 import Player;
 import Components;
 import Prefabs;
@@ -64,6 +65,9 @@ public:
     // inputs
     EngineSystem(registry, dt);
     GearSystem(registry);
+    player_systems::controls(registry, dt);
+    player_systems::physics(registry, dt);
+    player_systems::position(registry, dt);
     // player's systems in a single call
     dispatcher.update(registry, dt);
     // the rest
