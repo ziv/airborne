@@ -71,14 +71,12 @@ export class Game {
     ClearBackground(scenario.skyColor);
 
     // 3D
-    rlDisableBackfaceCulling();
     BeginMode3D(camera);
     // WorldStreamerSystem(registry);
     terrain_streamer::stream(registry);
     RenderModels(registry);
     RenderDebugging(registry);
     EndMode3D();
-    rlEnableBackfaceCulling();
 
     // 2D
     RenderCockpit(registry);
