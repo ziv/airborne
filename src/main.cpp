@@ -10,6 +10,7 @@
 import JsonConfig;
 import Accessors;
 import Types;
+import ResourceManager;
 import Screens;
 
 std::unique_ptr<BaseScreen> create_screen(const ScreenState& current, entt::registry& registry) {
@@ -70,6 +71,8 @@ int main() {
       EndDrawing();
     }
 
+    // todo clean all resources
+    get_resource_manager(registry).models.clear();
     CloseAudioDevice();
     CloseWindow();
   } catch (std::exception& e) {

@@ -2,6 +2,7 @@ module;
 #include <entt/entt.hpp>
 
 #include "lib/ray.hpp"
+#include "rlgl.h"
 
 export module Game;
 
@@ -11,6 +12,7 @@ import PlayerSystems;
 import AircraftSystems;
 import Prefabs;
 import WorldStreamerSystem;
+import TerrainStreaming;
 import RenderSystem;
 import ResourceManager;
 import Helpers;
@@ -20,6 +22,7 @@ export class Game {
   entt::registry& registry;
   Scenario scenario{};
   Camera camera = {};
+  terrain_streamer::streamer streamer;
 
  public:
   explicit Game(entt::registry& reg) : registry(reg), scenario(get_scenario(reg)) {
@@ -60,17 +63,22 @@ export class Game {
     player_systems::ground_check(registry, dt);
     aircraft_systems::widgets_inputs(registry);
     aircraft_systems::update_lock(registry);
+    streamer.update(registry);
+    terrain_streamer::process_loaded_chunks(registry);
   }
 
   void draw() const {
     ClearBackground(scenario.skyColor);
 
     // 3D
+    rlDisableBackfaceCulling();
     BeginMode3D(camera);
-    WorldStreamerSystem(registry);
+    // WorldStreamerSystem(registry);
+    terrain_streamer::stream(registry);
     RenderModels(registry);
     RenderDebugging(registry);
     EndMode3D();
+    rlEnableBackfaceCulling();
 
     // 2D
     RenderCockpit(registry);

@@ -7,6 +7,8 @@ export module RenderSystem:Debug;
 
 import Components;
 import Accessors;
+import ResourceManager;
+import TerrainStreaming;
 
 export void RenderDebug(entt::registry& registry) {
   // auto view = registry.view<Player, PlayerInputs, GroundHeight>();
@@ -30,7 +32,7 @@ export void RenderDebug(entt::registry& registry) {
   int y = 10;
   constexpr int margin = 15;
   constexpr int fs = 10;
-  DrawRectangle(5, 5, 150, 340, BEIGE);
+  DrawRectangle(5, 5, 150, 400, BEIGE);
 
   // relative position
   DrawText(TextFormat("Px: %0.00f", player.pos.x), margin, y, fs, BLACK);
@@ -80,6 +82,13 @@ export void RenderDebug(entt::registry& registry) {
     DrawText(TextFormat("TPz: %0.00f", target_position.pos.z), margin, y, fs, BLACK);
     y += margin;
     DrawText(TextFormat("TPy: %0.00f", target_position.pos.y), margin, y, fs, BLACK);
+  }
+
+  const auto& rm = get_resource_manager(registry);
+  for (const auto view = registry.view<TerrainChunk, Position3D>(); const auto entity : view) {
+    const auto& [chunk, pos] = view.get<const TerrainChunk, const Position3D>(entity);
+    y += margin;
+    DrawText(TextFormat("CHUNK %.2f,%.2f,%.2f", pos.pos.x, pos.pos.y, pos.pos.z), margin, y, fs, BLACK);
   }
 
   // ground height
