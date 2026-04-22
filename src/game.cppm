@@ -70,6 +70,7 @@ public:
     player_systems::position(registry, dt);
     player_systems::rotation(registry, dt);
     dispatcher.update(registry, dt);
+    player_systems::camera(registry, dispatcher.playerCamera.getCamera());
     player_systems::ground_check(registry, dt);
     // the rest
     WidgetsInputs(registry);

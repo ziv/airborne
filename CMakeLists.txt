@@ -71,6 +71,7 @@ target_sources(${PROJECT_NAME} PUBLIC
         src/prefabs/create-hud.cppm
         src/systems/player/player.cppm
         src/systems/player/player-controls.cppm
+        src/systems/player/player-camera.cppm
         src/systems/player/player-ground-check.cppm
         src/systems/player/player-physics.cppm
         src/systems/player/player-position.cppm
