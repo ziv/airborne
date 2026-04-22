@@ -13,7 +13,6 @@ import Prefabs;
 import WorldStreamerSystem;
 import RenderSystem;
 import ResourceManager;
-import WidgetsInputs;
 import Helpers;
 import Types;
 
@@ -51,7 +50,6 @@ export class Game {
     if (is_player_crashed(registry)) return;
 
     const auto dt = GetFrameTime();
-    // inputs
     aircraft_systems::engine(registry, dt);
     aircraft_systems::gear(registry);
     player_systems::controls(registry, dt);
@@ -60,8 +58,7 @@ export class Game {
     player_systems::rotation(registry, dt);
     player_systems::camera(registry, camera);
     player_systems::ground_check(registry, dt);
-    // the rest
-    WidgetsInputs(registry);
+    aircraft_systems::widgets_inputs(registry);
     aircraft_systems::update_lock(registry);
   }
 
