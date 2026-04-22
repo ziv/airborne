@@ -1,0 +1,1754 @@
+{
+  "prefabs": {
+    "__comment_aircraft__": "=== AIRCRAFT ===",
+    "ac_us_f15c": {
+      "components": {
+        "identity": {
+          "name": "F-15C Eagle",
+          "origin": "USA",
+          "type": "aircraft"
+        },
+        "physics_profile": {
+          "empty_mass_kg": 12700,
+          "max_thrust_n": 212000,
+          "wing_area_sqm": 56.5,
+          "drag_coefficient": 0.021,
+          "max_speed_m_s": 680,
+          "max_g_load": 9.0
+        },
+        "radar": {
+          "detection_range_m": 160000,
+          "tracking_targets": 10
+        },
+        "health": {
+          "max": 400
+        },
+        "loadout": {
+          "weapons": [
+            "missile_aim7m",
+            "missile_aim9l",
+            "gun_m61"
+          ]
+        }
+      }
+    },
+    "ac_us_f14a": {
+      "components": {
+        "identity": {
+          "name": "F-14A Tomcat",
+          "origin": "USA",
+          "type": "aircraft"
+        },
+        "physics_profile": {
+          "empty_mass_kg": 19800,
+          "max_thrust_n": 186000,
+          "wing_area_sqm": 52.5,
+          "drag_coefficient": 0.022,
+          "max_speed_m_s": 640,
+          "max_g_load": 7.5
+        },
+        "radar": {
+          "detection_range_m": 190000,
+          "tracking_targets": 24
+        },
+        "health": {
+          "max": 450
+        },
+        "loadout": {
+          "weapons": [
+            "missile_aim54",
+            "missile_aim7m",
+            "missile_aim9l"
+          ]
+        }
+      }
+    },
+    "ac_us_f4e": {
+      "components": {
+        "identity": {
+          "name": "F-4E Phantom II",
+          "origin": "USA",
+          "type": "aircraft"
+        },
+        "physics_profile": {
+          "empty_mass_kg": 13700,
+          "max_thrust_n": 158000,
+          "wing_area_sqm": 49.2,
+          "drag_coefficient": 0.024,
+          "max_speed_m_s": 600,
+          "max_g_load": 8.0
+        },
+        "radar": {
+          "detection_range_m": 75000,
+          "tracking_targets": 4
+        },
+        "health": {
+          "max": 380
+        },
+        "loadout": {
+          "weapons": [
+            "missile_aim7m",
+            "missile_aim9l"
+          ]
+        }
+      }
+    },
+    "ac_sov_su27": {
+      "components": {
+        "identity": {
+          "name": "Su-27 Flanker",
+          "origin": "USSR",
+          "type": "aircraft"
+        },
+        "physics_profile": {
+          "empty_mass_kg": 16380,
+          "max_thrust_n": 245000,
+          "wing_area_sqm": 62.0,
+          "drag_coefficient": 0.019,
+          "max_speed_m_s": 650,
+          "max_g_load": 9.0
+        },
+        "radar": {
+          "detection_range_m": 140000,
+          "tracking_targets": 10
+        },
+        "health": {
+          "max": 420
+        },
+        "loadout": {
+          "weapons": [
+            "missile_r27",
+            "missile_r73",
+            "gun_gsh301"
+          ]
+        }
+      }
+    },
+    "ac_sov_mig29": {
+      "components": {
+        "identity": {
+          "name": "MiG-29 Fulcrum",
+          "origin": "USSR",
+          "type": "aircraft"
+        },
+        "physics_profile": {
+          "empty_mass_kg": 11000,
+          "max_thrust_n": 162000,
+          "wing_area_sqm": 38.0,
+          "drag_coefficient": 0.02,
+          "max_speed_m_s": 660,
+          "max_g_load": 9.0
+        },
+        "radar": {
+          "detection_range_m": 100000,
+          "tracking_targets": 10
+        },
+        "health": {
+          "max": 350
+        },
+        "loadout": {
+          "weapons": [
+            "missile_r27",
+            "missile_r73",
+            "gun_gsh301"
+          ]
+        }
+      }
+    },
+    "ac_sov_mig21bis": {
+      "components": {
+        "identity": {
+          "name": "MiG-21bis Fishbed",
+          "origin": "USSR",
+          "type": "aircraft"
+        },
+        "physics_profile": {
+          "empty_mass_kg": 5339,
+          "max_thrust_n": 69600,
+          "wing_area_sqm": 23.0,
+          "drag_coefficient": 0.028,
+          "max_speed_m_s": 590,
+          "max_g_load": 8.5
+        },
+        "radar": {
+          "detection_range_m": 30000,
+          "tracking_targets": 2
+        },
+        "health": {
+          "max": 250
+        },
+        "loadout": {
+          "weapons": [
+            "missile_r60"
+          ]
+        }
+      }
+    },
+    "ac_eur_tornado_adv": {
+      "components": {
+        "identity": {
+          "name": "Panavia Tornado ADV",
+          "origin": "Europe",
+          "type": "aircraft"
+        },
+        "physics_profile": {
+          "empty_mass_kg": 14500,
+          "max_thrust_n": 146000,
+          "wing_area_sqm": 26.6,
+          "drag_coefficient": 0.026,
+          "max_speed_m_s": 620,
+          "max_g_load": 7.5
+        },
+        "radar": {
+          "detection_range_m": 160000,
+          "tracking_targets": 20
+        },
+        "health": {
+          "max": 390
+        },
+        "loadout": {
+          "weapons": [
+            "missile_skyflash",
+            "missile_aim9l"
+          ]
+        }
+      }
+    },
+    "ac_il_lavi": {
+      "components": {
+        "identity": {
+          "name": "IAI Lavi",
+          "origin": "Israel",
+          "type": "aircraft"
+        },
+        "physics_profile": {
+          "empty_mass_kg": 7031,
+          "max_thrust_n": 91700,
+          "wing_area_sqm": 33.05,
+          "drag_coefficient": 0.021,
+          "max_speed_m_s": 560,
+          "max_g_load": 9.0
+        },
+        "radar": {
+          "detection_range_m": 100000,
+          "tracking_targets": 8
+        },
+        "health": {
+          "max": 320
+        },
+        "loadout": {
+          "weapons": [
+            "missile_python3",
+            "missile_aim9l",
+            "gun_defa553"
+          ]
+        }
+      }
+    },
+    "ac_il_kfir_c7": {
+      "components": {
+        "identity": {
+          "name": "IAI Kfir C7",
+          "origin": "Israel",
+          "type": "aircraft"
+        },
+        "physics_profile": {
+          "empty_mass_kg": 7285,
+          "max_thrust_n": 83400,
+          "wing_area_sqm": 34.8,
+          "drag_coefficient": 0.023,
+          "max_speed_m_s": 640,
+          "max_g_load": 8.5
+        },
+        "radar": {
+          "detection_range_m": 60000,
+          "tracking_targets": 4
+        },
+        "health": {
+          "max": 300
+        },
+        "loadout": {
+          "weapons": [
+            "missile_shafrir2",
+            "missile_python3",
+            "gun_defa553"
+          ]
+        }
+      }
+    },
+    "ac_us_f16a": {
+      "components": {
+        "identity": {
+          "name": "F-16A Fighting Falcon",
+          "origin": "USA",
+          "type": "aircraft"
+        },
+        "physics_profile": {
+          "empty_mass_kg": 8570,
+          "max_thrust_n": 106000,
+          "wing_area_sqm": 27.87,
+          "drag_coefficient": 0.019,
+          "max_speed_m_s": 600,
+          "max_g_load": 9.0
+        },
+        "radar": {
+          "detection_range_m": 75000,
+          "tracking_targets": 6
+        },
+        "health": {
+          "max": 320
+        },
+        "loadout": {
+          "weapons": [
+            "missile_aim9l",
+            "missile_aim7m",
+            "gun_m61"
+          ]
+        }
+      }
+    },
+    "ac_us_fa18a": {
+      "components": {
+        "identity": {
+          "name": "F/A-18A Hornet",
+          "origin": "USA",
+          "type": "aircraft"
+        },
+        "physics_profile": {
+          "empty_mass_kg": 10455,
+          "max_thrust_n": 142000,
+          "wing_area_sqm": 37.16,
+          "drag_coefficient": 0.022,
+          "max_speed_m_s": 560,
+          "max_g_load": 7.5
+        },
+        "radar": {
+          "detection_range_m": 80000,
+          "tracking_targets": 8
+        },
+        "health": {
+          "max": 370
+        },
+        "loadout": {
+          "weapons": [
+            "missile_aim9l",
+            "missile_aim7m",
+            "gun_m61"
+          ]
+        }
+      }
+    },
+    "ac_fr_mirage2000c": {
+      "components": {
+        "identity": {
+          "name": "Dassault Mirage 2000C",
+          "origin": "France",
+          "type": "aircraft"
+        },
+        "physics_profile": {
+          "empty_mass_kg": 7500,
+          "max_thrust_n": 95100,
+          "wing_area_sqm": 41.0,
+          "drag_coefficient": 0.02,
+          "max_speed_m_s": 660,
+          "max_g_load": 9.0
+        },
+        "radar": {
+          "detection_range_m": 100000,
+          "tracking_targets": 8
+        },
+        "health": {
+          "max": 330
+        },
+        "loadout": {
+          "weapons": [
+            "missile_super530d",
+            "missile_magic2",
+            "gun_defa554"
+          ]
+        }
+      }
+    },
+    "ac_sov_mig23mld": {
+      "components": {
+        "identity": {
+          "name": "MiG-23MLD Flogger",
+          "origin": "USSR",
+          "type": "aircraft"
+        },
+        "physics_profile": {
+          "empty_mass_kg": 10400,
+          "max_thrust_n": 127500,
+          "wing_area_sqm": 37.35,
+          "drag_coefficient": 0.024,
+          "max_speed_m_s": 720,
+          "max_g_load": 8.5
+        },
+        "radar": {
+          "detection_range_m": 85000,
+          "tracking_targets": 6
+        },
+        "health": {
+          "max": 340
+        },
+        "loadout": {
+          "weapons": [
+            "missile_r24r",
+            "missile_r60",
+            "gun_gsh23"
+          ]
+        }
+      }
+    },
+    "ac_sov_mig25pd": {
+      "components": {
+        "identity": {
+          "name": "MiG-25PD Foxbat",
+          "origin": "USSR",
+          "type": "aircraft"
+        },
+        "physics_profile": {
+          "empty_mass_kg": 20000,
+          "max_thrust_n": 200000,
+          "wing_area_sqm": 61.4,
+          "drag_coefficient": 0.025,
+          "max_speed_m_s": 890,
+          "max_g_load": 5.0
+        },
+        "radar": {
+          "detection_range_m": 100000,
+          "tracking_targets": 6
+        },
+        "health": {
+          "max": 400
+        },
+        "loadout": {
+          "weapons": [
+            "missile_r40",
+            "missile_r60"
+          ]
+        }
+      }
+    },
+    "__comment_transports__": "=== TRANSPORT & SUPPORT ===",
+    "ac_us_c130h": {
+      "components": {
+        "identity": {
+          "name": "C-130H Hercules",
+          "origin": "USA",
+          "type": "transport"
+        },
+        "physics_profile": {
+          "empty_mass_kg": 34274,
+          "max_thrust_n": 76200,
+          "wing_area_sqm": 162.12,
+          "drag_coefficient": 0.03,
+          "max_speed_m_s": 165,
+          "max_g_load": 3.0
+        },
+        "radar": {
+          "detection_range_m": 50000,
+          "tracking_targets": 0
+        },
+        "health": {
+          "max": 600
+        },
+        "loadout": {
+          "weapons": []
+        }
+      }
+    },
+    "ac_sov_il76md": {
+      "components": {
+        "identity": {
+          "name": "Il-76MD Candid",
+          "origin": "USSR",
+          "type": "transport"
+        },
+        "physics_profile": {
+          "empty_mass_kg": 72000,
+          "max_thrust_n": 470800,
+          "wing_area_sqm": 300.0,
+          "drag_coefficient": 0.032,
+          "max_speed_m_s": 236,
+          "max_g_load": 2.5
+        },
+        "radar": {
+          "detection_range_m": 50000,
+          "tracking_targets": 0
+        },
+        "health": {
+          "max": 1000
+        },
+        "loadout": {
+          "weapons": []
+        }
+      }
+    },
+    "ac_us_e3a": {
+      "components": {
+        "identity": {
+          "name": "E-3A Sentry (AWACS)",
+          "origin": "USA",
+          "type": "awacs"
+        },
+        "physics_profile": {
+          "empty_mass_kg": 77996,
+          "max_thrust_n": 374000,
+          "wing_area_sqm": 283.4,
+          "drag_coefficient": 0.031,
+          "max_speed_m_s": 230,
+          "max_g_load": 2.5
+        },
+        "radar": {
+          "detection_range_m": 375000,
+          "tracking_targets": 200
+        },
+        "health": {
+          "max": 1200
+        },
+        "loadout": {
+          "weapons": []
+        }
+      }
+    },
+    "ac_sov_a50": {
+      "components": {
+        "identity": {
+          "name": "A-50 Mainstay (AWACS)",
+          "origin": "USSR",
+          "type": "awacs"
+        },
+        "physics_profile": {
+          "empty_mass_kg": 75000,
+          "max_thrust_n": 470800,
+          "wing_area_sqm": 300.0,
+          "drag_coefficient": 0.033,
+          "max_speed_m_s": 220,
+          "max_g_load": 2.5
+        },
+        "radar": {
+          "detection_range_m": 300000,
+          "tracking_targets": 150
+        },
+        "health": {
+          "max": 1100
+        },
+        "loadout": {
+          "weapons": []
+        }
+      }
+    },
+    "__comment_helicopters__": "=== HELICOPTERS ===",
+    "helo_us_ah64a": {
+      "components": {
+        "identity": {
+          "name": "AH-64A Apache",
+          "origin": "USA",
+          "type": "helicopter"
+        },
+        "physics_profile": {
+          "empty_mass_kg": 5165,
+          "max_thrust_n": 28000,
+          "rotor_disc_area_sqm": 168.11,
+          "drag_coefficient": 0.045,
+          "max_speed_m_s": 83,
+          "max_g_load": 3.5
+        },
+        "radar": {
+          "detection_range_m": 8000,
+          "tracking_targets": 4
+        },
+        "health": {
+          "max": 280
+        },
+        "loadout": {
+          "weapons": [
+            "missile_hellfire",
+            "rocket_hydra70",
+            "gun_m230"
+          ]
+        }
+      }
+    },
+    "helo_us_ah1s": {
+      "components": {
+        "identity": {
+          "name": "AH-1S Cobra",
+          "origin": "USA",
+          "type": "helicopter"
+        },
+        "physics_profile": {
+          "empty_mass_kg": 2993,
+          "max_thrust_n": 13000,
+          "rotor_disc_area_sqm": 168.11,
+          "drag_coefficient": 0.04,
+          "max_speed_m_s": 75,
+          "max_g_load": 3.0
+        },
+        "radar": {
+          "detection_range_m": 5000,
+          "tracking_targets": 2
+        },
+        "health": {
+          "max": 200
+        },
+        "loadout": {
+          "weapons": [
+            "missile_tow",
+            "rocket_hydra70",
+            "gun_m197"
+          ]
+        }
+      }
+    },
+    "helo_sov_mi24v": {
+      "components": {
+        "identity": {
+          "name": "Mi-24V Hind",
+          "origin": "USSR",
+          "type": "helicopter"
+        },
+        "physics_profile": {
+          "empty_mass_kg": 8570,
+          "max_thrust_n": 44000,
+          "rotor_disc_area_sqm": 176.71,
+          "drag_coefficient": 0.048,
+          "max_speed_m_s": 92,
+          "max_g_load": 3.0
+        },
+        "radar": {
+          "detection_range_m": 6000,
+          "tracking_targets": 2
+        },
+        "health": {
+          "max": 350
+        },
+        "loadout": {
+          "weapons": [
+            "missile_ataka",
+            "rocket_s8",
+            "gun_yak_b"
+          ]
+        }
+      }
+    },
+    "helo_sov_ka50": {
+      "components": {
+        "identity": {
+          "name": "Ka-50 Hokum",
+          "origin": "USSR",
+          "type": "helicopter"
+        },
+        "physics_profile": {
+          "empty_mass_kg": 7700,
+          "max_thrust_n": 44000,
+          "rotor_disc_area_sqm": 227.0,
+          "drag_coefficient": 0.042,
+          "max_speed_m_s": 86,
+          "max_g_load": 3.5
+        },
+        "radar": {
+          "detection_range_m": 15000,
+          "tracking_targets": 4
+        },
+        "health": {
+          "max": 300
+        },
+        "loadout": {
+          "weapons": [
+            "missile_ataka",
+            "rocket_s8",
+            "gun_2a42"
+          ]
+        }
+      }
+    },
+    "helo_fr_gazelle": {
+      "components": {
+        "identity": {
+          "name": "Aerospatiale SA 342 Gazelle",
+          "origin": "France",
+          "type": "helicopter"
+        },
+        "physics_profile": {
+          "empty_mass_kg": 970,
+          "max_thrust_n": 6400,
+          "rotor_disc_area_sqm": 78.5,
+          "drag_coefficient": 0.038,
+          "max_speed_m_s": 78,
+          "max_g_load": 2.5
+        },
+        "radar": {
+          "detection_range_m": 4000,
+          "tracking_targets": 1
+        },
+        "health": {
+          "max": 120
+        },
+        "loadout": {
+          "weapons": [
+            "missile_hot",
+            "gun_m621"
+          ]
+        }
+      }
+    },
+    "__comment_sam_aaa__": "=== SAM & AAA SYSTEMS ===",
+    "sam_us_hawk": {
+      "components": {
+        "identity": {
+          "name": "MIM-23 Hawk",
+          "origin": "USA",
+          "type": "sam"
+        },
+        "radar": {
+          "detection_range_m": 100000,
+          "engagement_range_m": 40000
+        },
+        "health": {
+          "max": 200
+        },
+        "weapon_launcher": {
+          "weapon_prefab_id": "missile_mim23",
+          "fire_rate_rpm": 6,
+          "capacity": 3
+        }
+      }
+    },
+    "sam_sov_sa6": {
+      "components": {
+        "identity": {
+          "name": "2K12 Kub (SA-6)",
+          "origin": "USSR",
+          "type": "sam"
+        },
+        "radar": {
+          "detection_range_m": 75000,
+          "engagement_range_m": 24000
+        },
+        "health": {
+          "max": 180
+        },
+        "weapon_launcher": {
+          "weapon_prefab_id": "missile_3m9",
+          "fire_rate_rpm": 10,
+          "capacity": 3
+        }
+      }
+    },
+    "aaa_us_m163": {
+      "components": {
+        "identity": {
+          "name": "M163 VADS",
+          "origin": "USA",
+          "type": "aaa"
+        },
+        "radar": {
+          "detection_range_m": 5000,
+          "engagement_range_m": 1200
+        },
+        "health": {
+          "max": 100
+        },
+        "weapon_launcher": {
+          "weapon_prefab_id": "proj_20mm",
+          "fire_rate_rpm": 3000
+        }
+      }
+    },
+    "aaa_sov_shilka": {
+      "components": {
+        "identity": {
+          "name": "ZSU-23-4 Shilka",
+          "origin": "USSR",
+          "type": "aaa"
+        },
+        "radar": {
+          "detection_range_m": 20000,
+          "engagement_range_m": 2500
+        },
+        "health": {
+          "max": 120
+        },
+        "weapon_launcher": {
+          "weapon_prefab_id": "proj_23mm",
+          "fire_rate_rpm": 3400
+        }
+      }
+    },
+    "sam_sov_sa8": {
+      "components": {
+        "identity": {
+          "name": "9K33 Osa (SA-8 Gecko)",
+          "origin": "USSR",
+          "type": "sam"
+        },
+        "radar": {
+          "detection_range_m": 30000,
+          "engagement_range_m": 12000
+        },
+        "health": {
+          "max": 140
+        },
+        "weapon_launcher": {
+          "weapon_prefab_id": "missile_9m33",
+          "fire_rate_rpm": 8,
+          "capacity": 6
+        }
+      }
+    },
+    "sam_sov_sa10": {
+      "components": {
+        "identity": {
+          "name": "S-300PT (SA-10 Grumble)",
+          "origin": "USSR",
+          "type": "sam"
+        },
+        "radar": {
+          "detection_range_m": 300000,
+          "engagement_range_m": 150000
+        },
+        "health": {
+          "max": 300
+        },
+        "weapon_launcher": {
+          "weapon_prefab_id": "missile_5v55",
+          "fire_rate_rpm": 4,
+          "capacity": 4
+        }
+      }
+    },
+    "sam_sov_sa11": {
+      "components": {
+        "identity": {
+          "name": "9K37 Buk (SA-11 Gadfly)",
+          "origin": "USSR",
+          "type": "sam"
+        },
+        "radar": {
+          "detection_range_m": 85000,
+          "engagement_range_m": 35000
+        },
+        "health": {
+          "max": 200
+        },
+        "weapon_launcher": {
+          "weapon_prefab_id": "missile_9m38",
+          "fire_rate_rpm": 6,
+          "capacity": 4
+        }
+      }
+    },
+    "sam_us_patriot": {
+      "components": {
+        "identity": {
+          "name": "MIM-104 Patriot",
+          "origin": "USA",
+          "type": "sam"
+        },
+        "radar": {
+          "detection_range_m": 170000,
+          "engagement_range_m": 70000
+        },
+        "health": {
+          "max": 250
+        },
+        "weapon_launcher": {
+          "weapon_prefab_id": "missile_mim104",
+          "fire_rate_rpm": 4,
+          "capacity": 4
+        }
+      }
+    },
+    "aaa_sov_tunguska": {
+      "components": {
+        "identity": {
+          "name": "2K22 Tunguska (SA-19 Grison)",
+          "origin": "USSR",
+          "type": "aaa"
+        },
+        "radar": {
+          "detection_range_m": 18000,
+          "engagement_range_m": 4000
+        },
+        "health": {
+          "max": 150
+        },
+        "weapon_launcher": {
+          "weapon_prefab_id": "proj_30mm",
+          "fire_rate_rpm": 5000
+        }
+      }
+    },
+    "__comment_ships__": "=== NAVAL VESSELS ===",
+    "ship_us_ticonderoga": {
+      "components": {
+        "identity": {
+          "name": "Ticonderoga-class Cruiser",
+          "origin": "USA",
+          "type": "ship"
+        },
+        "physics_profile": {
+          "mass_kg": 9600000,
+          "max_speed_m_s": 16.5,
+          "turn_rate_deg_s": 1.2
+        },
+        "radar": {
+          "detection_range_m": 300000,
+          "engagement_range_m": 160000,
+          "notes": "AEGIS SPY-1"
+        },
+        "health": {
+          "max": 15000
+        },
+        "weapon_launcher": {
+          "weapon_prefab_id": "missile_sm2",
+          "capacity": 122
+        }
+      }
+    },
+    "ship_us_perry": {
+      "components": {
+        "identity": {
+          "name": "Oliver Hazard Perry-class",
+          "origin": "USA",
+          "type": "ship"
+        },
+        "physics_profile": {
+          "mass_kg": 4100000,
+          "max_speed_m_s": 15.0,
+          "turn_rate_deg_s": 2.0
+        },
+        "radar": {
+          "detection_range_m": 150000,
+          "engagement_range_m": 40000
+        },
+        "health": {
+          "max": 6000
+        },
+        "weapon_launcher": {
+          "weapon_prefab_id": "missile_sm1",
+          "capacity": 40
+        }
+      }
+    },
+    "ship_sov_slava": {
+      "components": {
+        "identity": {
+          "name": "Slava-class Cruiser",
+          "origin": "USSR",
+          "type": "ship"
+        },
+        "physics_profile": {
+          "mass_kg": 11400000,
+          "max_speed_m_s": 16.5,
+          "turn_rate_deg_s": 1.0
+        },
+        "radar": {
+          "detection_range_m": 300000,
+          "engagement_range_m": 90000
+        },
+        "health": {
+          "max": 16000
+        },
+        "weapon_launcher": {
+          "weapon_prefab_id": "missile_sa_n_6",
+          "capacity": 64
+        }
+      }
+    },
+    "ship_sov_krivak": {
+      "components": {
+        "identity": {
+          "name": "Krivak-class Frigate",
+          "origin": "USSR",
+          "type": "ship"
+        },
+        "physics_profile": {
+          "mass_kg": 3200000,
+          "max_speed_m_s": 16.0,
+          "turn_rate_deg_s": 2.5
+        },
+        "radar": {
+          "detection_range_m": 100000,
+          "engagement_range_m": 15000
+        },
+        "health": {
+          "max": 5000
+        },
+        "weapon_launcher": {
+          "weapon_prefab_id": "missile_osa_m",
+          "capacity": 40
+        }
+      }
+    },
+    "carrier_us_nimitz": {
+      "components": {
+        "identity": {
+          "name": "Nimitz-class Aircraft Carrier",
+          "origin": "USA",
+          "type": "carrier"
+        },
+        "physics_profile": {
+          "mass_kg": 100000000,
+          "max_speed_m_s": 15.4,
+          "turn_rate_deg_s": 0.5
+        },
+        "radar": {
+          "detection_range_m": 250000,
+          "engagement_range_m": 20000
+        },
+        "health": {
+          "max": 50000
+        },
+        "weapon_launcher": {
+          "weapon_prefab_id": "missile_sea_sparrow",
+          "capacity": 24
+        }
+      }
+    },
+    "__comment_airbases__": "=== AIRBASES ===",
+    "airbase_il_ramat_david": {
+      "components": {
+        "identity": {
+          "name": "Ramat David AFB",
+          "origin": "Israel",
+          "type": "airbase"
+        },
+        "health": {
+          "max": 5000
+        },
+        "landing_zone": {
+          "runway_length_m": 2700,
+          "runway_width_m": 45,
+          "elevation_m": 50
+        }
+      }
+    },
+    "airbase_us_nellis": {
+      "components": {
+        "identity": {
+          "name": "Nellis AFB",
+          "origin": "USA",
+          "type": "airbase"
+        },
+        "health": {
+          "max": 6000
+        },
+        "landing_zone": {
+          "runway_length_m": 3050,
+          "runway_width_m": 60,
+          "elevation_m": 570
+        }
+      }
+    },
+    "airbase_nato_incirlik": {
+      "components": {
+        "identity": {
+          "name": "Incirlik AB",
+          "origin": "NATO",
+          "type": "airbase"
+        },
+        "health": {
+          "max": 5500
+        },
+        "landing_zone": {
+          "runway_length_m": 3048,
+          "runway_width_m": 45,
+          "elevation_m": 73
+        }
+      }
+    },
+    "airbase_sov_kubinka": {
+      "components": {
+        "identity": {
+          "name": "Kubinka AB",
+          "origin": "USSR",
+          "type": "airbase"
+        },
+        "health": {
+          "max": 5000
+        },
+        "landing_zone": {
+          "runway_length_m": 2500,
+          "runway_width_m": 42,
+          "elevation_m": 186
+        }
+      }
+    },
+    "airbase_sa_dhahran": {
+      "components": {
+        "identity": {
+          "name": "King Abdulaziz AB (Dhahran)",
+          "origin": "Saudi Arabia",
+          "type": "airbase"
+        },
+        "health": {
+          "max": 5500
+        },
+        "landing_zone": {
+          "runway_length_m": 3660,
+          "runway_width_m": 60,
+          "elevation_m": 22
+        }
+      }
+    },
+    "__comment_missiles__": "=== MISSILES (AIR & SURFACE) ===",
+    "missile_aim9l": {
+      "components": {
+        "identity": {
+          "name": "AIM-9L Sidewinder",
+          "origin": "USA",
+          "type": "missile_air_to_air"
+        },
+        "physics_profile": {
+          "mass_kg": 85,
+          "max_thrust_n": 17000,
+          "burn_time_s": 5.0,
+          "drag_coefficient": 0.015,
+          "max_speed_m_s": 850,
+          "max_g_load": 30.0
+        },
+        "guidance": {
+          "type": "IR_all_aspect",
+          "seeker_fov_deg": 3.0
+        },
+        "warhead": {
+          "damage": 200,
+          "blast_radius_m": 5,
+          "accuracy_percent": 80
+        }
+      }
+    },
+    "missile_aim7m": {
+      "components": {
+        "identity": {
+          "name": "AIM-7M Sparrow",
+          "origin": "USA",
+          "type": "missile_air_to_air"
+        },
+        "physics_profile": {
+          "mass_kg": 230,
+          "max_thrust_n": 25000,
+          "burn_time_s": 11.0,
+          "drag_coefficient": 0.012,
+          "max_speed_m_s": 1360,
+          "max_g_load": 25.0
+        },
+        "guidance": {
+          "type": "SARH"
+        },
+        "warhead": {
+          "damage": 400,
+          "blast_radius_m": 12,
+          "accuracy_percent": 70
+        }
+      }
+    },
+    "missile_aim54": {
+      "components": {
+        "identity": {
+          "name": "AIM-54 Phoenix",
+          "origin": "USA",
+          "type": "missile_air_to_air"
+        },
+        "physics_profile": {
+          "mass_kg": 460,
+          "max_thrust_n": 30000,
+          "burn_time_s": 27.0,
+          "drag_coefficient": 0.018,
+          "max_speed_m_s": 1450,
+          "max_g_load": 17.0
+        },
+        "guidance": {
+          "type": "Active_Radar"
+        },
+        "warhead": {
+          "damage": 600,
+          "blast_radius_m": 20,
+          "accuracy_percent": 65
+        }
+      }
+    },
+    "missile_r73": {
+      "components": {
+        "identity": {
+          "name": "R-73 (AA-11 Archer)",
+          "origin": "USSR",
+          "type": "missile_air_to_air"
+        },
+        "physics_profile": {
+          "mass_kg": 105,
+          "max_thrust_n": 19000,
+          "burn_time_s": 5.5,
+          "drag_coefficient": 0.016,
+          "max_speed_m_s": 850,
+          "max_g_load": 40.0
+        },
+        "guidance": {
+          "type": "IR_all_aspect",
+          "seeker_fov_deg": 5.0
+        },
+        "warhead": {
+          "damage": 220,
+          "blast_radius_m": 6,
+          "accuracy_percent": 85
+        }
+      }
+    },
+    "missile_r27": {
+      "components": {
+        "identity": {
+          "name": "R-27R (AA-10 Alamo)",
+          "origin": "USSR",
+          "type": "missile_air_to_air"
+        },
+        "physics_profile": {
+          "mass_kg": 253,
+          "max_thrust_n": 28000,
+          "burn_time_s": 10.0,
+          "drag_coefficient": 0.014,
+          "max_speed_m_s": 1300,
+          "max_g_load": 24.0
+        },
+        "guidance": {
+          "type": "SARH"
+        },
+        "warhead": {
+          "damage": 450,
+          "blast_radius_m": 14,
+          "accuracy_percent": 68
+        }
+      }
+    },
+    "missile_r60": {
+      "components": {
+        "identity": {
+          "name": "R-60 (AA-8 Aphid)",
+          "origin": "USSR",
+          "type": "missile_air_to_air"
+        },
+        "physics_profile": {
+          "mass_kg": 43,
+          "max_thrust_n": 11000,
+          "burn_time_s": 3.0,
+          "drag_coefficient": 0.013,
+          "max_speed_m_s": 700,
+          "max_g_load": 35.0
+        },
+        "guidance": {
+          "type": "IR"
+        },
+        "warhead": {
+          "damage": 100,
+          "blast_radius_m": 3,
+          "accuracy_percent": 60
+        }
+      }
+    },
+    "missile_skyflash": {
+      "components": {
+        "identity": {
+          "name": "Skyflash",
+          "origin": "Europe",
+          "type": "missile_air_to_air"
+        },
+        "physics_profile": {
+          "mass_kg": 193,
+          "max_thrust_n": 24000,
+          "burn_time_s": 10.0,
+          "drag_coefficient": 0.012,
+          "max_speed_m_s": 1360,
+          "max_g_load": 25.0
+        },
+        "guidance": {
+          "type": "SARH"
+        },
+        "warhead": {
+          "damage": 380,
+          "blast_radius_m": 10,
+          "accuracy_percent": 75
+        }
+      }
+    },
+    "missile_mim23": {
+      "components": {
+        "identity": {
+          "name": "MIM-23 Hawk Missile",
+          "origin": "USA",
+          "type": "missile_sam"
+        },
+        "physics_profile": {
+          "mass_kg": 590,
+          "max_thrust_n": 45000,
+          "burn_time_s": 22.0,
+          "drag_coefficient": 0.025,
+          "max_speed_m_s": 800,
+          "max_g_load": 15.0
+        },
+        "guidance": {
+          "type": "SARH"
+        },
+        "warhead": {
+          "damage": 800,
+          "blast_radius_m": 35,
+          "accuracy_percent": 85
+        }
+      }
+    },
+    "missile_3m9": {
+      "components": {
+        "identity": {
+          "name": "3M9 (SA-6 Missile)",
+          "origin": "USSR",
+          "type": "missile_sam"
+        },
+        "physics_profile": {
+          "mass_kg": 599,
+          "max_thrust_n": 48000,
+          "burn_time_s": 20.0,
+          "drag_coefficient": 0.026,
+          "max_speed_m_s": 950,
+          "max_g_load": 18.0
+        },
+        "guidance": {
+          "type": "SARH"
+        },
+        "warhead": {
+          "damage": 750,
+          "blast_radius_m": 30,
+          "accuracy_percent": 80
+        }
+      }
+    },
+    "missile_sm2": {
+      "components": {
+        "identity": {
+          "name": "RIM-66 SM-2MR",
+          "origin": "USA",
+          "type": "missile_ship_aa"
+        },
+        "physics_profile": {
+          "mass_kg": 708,
+          "max_thrust_n": 60000,
+          "burn_time_s": 25.0,
+          "drag_coefficient": 0.022,
+          "max_speed_m_s": 1100,
+          "max_g_load": 20.0
+        },
+        "guidance": {
+          "type": "SARH_Inertial"
+        },
+        "warhead": {
+          "damage": 900,
+          "blast_radius_m": 40,
+          "accuracy_percent": 90
+        }
+      }
+    },
+    "missile_sa_n_6": {
+      "components": {
+        "identity": {
+          "name": "S-300F (SA-N-6)",
+          "origin": "USSR",
+          "type": "missile_ship_aa"
+        },
+        "physics_profile": {
+          "mass_kg": 1480,
+          "max_thrust_n": 110000,
+          "burn_time_s": 35.0,
+          "drag_coefficient": 0.03,
+          "max_speed_m_s": 1800,
+          "max_g_load": 22.0
+        },
+        "guidance": {
+          "type": "TVM"
+        },
+        "warhead": {
+          "damage": 1200,
+          "blast_radius_m": 60,
+          "accuracy_percent": 88
+        }
+      }
+    },
+    "missile_python3": {
+      "components": {
+        "identity": {
+          "name": "Python 3",
+          "origin": "Israel",
+          "type": "missile_air_to_air"
+        },
+        "physics_profile": {
+          "mass_kg": 120,
+          "max_thrust_n": 22000,
+          "burn_time_s": 6.0,
+          "drag_coefficient": 0.014,
+          "max_speed_m_s": 1050,
+          "max_g_load": 40.0
+        },
+        "guidance": {
+          "type": "IR_all_aspect",
+          "seeker_fov_deg": 4.0
+        },
+        "warhead": {
+          "damage": 250,
+          "blast_radius_m": 7,
+          "accuracy_percent": 88
+        }
+      }
+    },
+    "missile_shafrir2": {
+      "components": {
+        "identity": {
+          "name": "Shafrir 2",
+          "origin": "Israel",
+          "type": "missile_air_to_air"
+        },
+        "physics_profile": {
+          "mass_kg": 93,
+          "max_thrust_n": 15000,
+          "burn_time_s": 4.0,
+          "drag_coefficient": 0.016,
+          "max_speed_m_s": 750,
+          "max_g_load": 25.0
+        },
+        "guidance": {
+          "type": "IR"
+        },
+        "warhead": {
+          "damage": 160,
+          "blast_radius_m": 4,
+          "accuracy_percent": 65
+        }
+      }
+    },
+    "missile_aim120a": {
+      "components": {
+        "identity": {
+          "name": "AIM-120A AMRAAM",
+          "origin": "USA",
+          "type": "missile_air_to_air"
+        },
+        "physics_profile": {
+          "mass_kg": 152,
+          "max_thrust_n": 26000,
+          "burn_time_s": 8.0,
+          "drag_coefficient": 0.011,
+          "max_speed_m_s": 1370,
+          "max_g_load": 35.0
+        },
+        "guidance": {
+          "type": "Active_Radar"
+        },
+        "warhead": {
+          "damage": 350,
+          "blast_radius_m": 10,
+          "accuracy_percent": 85
+        }
+      }
+    },
+    "missile_super530d": {
+      "components": {
+        "identity": {
+          "name": "Super 530D",
+          "origin": "France",
+          "type": "missile_air_to_air"
+        },
+        "physics_profile": {
+          "mass_kg": 270,
+          "max_thrust_n": 30000,
+          "burn_time_s": 12.0,
+          "drag_coefficient": 0.013,
+          "max_speed_m_s": 1500,
+          "max_g_load": 20.0
+        },
+        "guidance": {
+          "type": "SARH"
+        },
+        "warhead": {
+          "damage": 420,
+          "blast_radius_m": 13,
+          "accuracy_percent": 72
+        }
+      }
+    },
+    "missile_magic2": {
+      "components": {
+        "identity": {
+          "name": "R.550 Magic 2",
+          "origin": "France",
+          "type": "missile_air_to_air"
+        },
+        "physics_profile": {
+          "mass_kg": 89,
+          "max_thrust_n": 18000,
+          "burn_time_s": 5.0,
+          "drag_coefficient": 0.015,
+          "max_speed_m_s": 900,
+          "max_g_load": 35.0
+        },
+        "guidance": {
+          "type": "IR_all_aspect",
+          "seeker_fov_deg": 3.5
+        },
+        "warhead": {
+          "damage": 210,
+          "blast_radius_m": 5,
+          "accuracy_percent": 82
+        }
+      }
+    },
+    "missile_9m33": {
+      "components": {
+        "identity": {
+          "name": "9M33 (SA-8 Missile)",
+          "origin": "USSR",
+          "type": "missile_sam"
+        },
+        "physics_profile": {
+          "mass_kg": 170,
+          "max_thrust_n": 32000,
+          "burn_time_s": 15.0,
+          "drag_coefficient": 0.024,
+          "max_speed_m_s": 700,
+          "max_g_load": 16.0
+        },
+        "guidance": {
+          "type": "Radio_Command"
+        },
+        "warhead": {
+          "damage": 500,
+          "blast_radius_m": 20,
+          "accuracy_percent": 75
+        }
+      }
+    },
+    "missile_5v55": {
+      "components": {
+        "identity": {
+          "name": "5V55 (SA-10 Missile)",
+          "origin": "USSR",
+          "type": "missile_sam"
+        },
+        "physics_profile": {
+          "mass_kg": 1470,
+          "max_thrust_n": 110000,
+          "burn_time_s": 35.0,
+          "drag_coefficient": 0.03,
+          "max_speed_m_s": 1800,
+          "max_g_load": 22.0
+        },
+        "guidance": {
+          "type": "TVM"
+        },
+        "warhead": {
+          "damage": 1200,
+          "blast_radius_m": 60,
+          "accuracy_percent": 88
+        }
+      }
+    },
+    "missile_9m38": {
+      "components": {
+        "identity": {
+          "name": "9M38 (SA-11 Missile)",
+          "origin": "USSR",
+          "type": "missile_sam"
+        },
+        "physics_profile": {
+          "mass_kg": 685,
+          "max_thrust_n": 55000,
+          "burn_time_s": 22.0,
+          "drag_coefficient": 0.025,
+          "max_speed_m_s": 1000,
+          "max_g_load": 19.0
+        },
+        "guidance": {
+          "type": "SARH"
+        },
+        "warhead": {
+          "damage": 850,
+          "blast_radius_m": 35,
+          "accuracy_percent": 82
+        }
+      }
+    },
+    "missile_mim104": {
+      "components": {
+        "identity": {
+          "name": "MIM-104 Patriot Missile",
+          "origin": "USA",
+          "type": "missile_sam"
+        },
+        "physics_profile": {
+          "mass_kg": 914,
+          "max_thrust_n": 70000,
+          "burn_time_s": 30.0,
+          "drag_coefficient": 0.023,
+          "max_speed_m_s": 1600,
+          "max_g_load": 20.0
+        },
+        "guidance": {
+          "type": "TVM"
+        },
+        "warhead": {
+          "damage": 1000,
+          "blast_radius_m": 45,
+          "accuracy_percent": 90
+        }
+      }
+    },
+    "missile_hellfire": {
+      "components": {
+        "identity": {
+          "name": "AGM-114A Hellfire",
+          "origin": "USA",
+          "type": "missile_atgm"
+        },
+        "physics_profile": {
+          "mass_kg": 45,
+          "max_thrust_n": 8000,
+          "burn_time_s": 7.0,
+          "drag_coefficient": 0.02,
+          "max_speed_m_s": 475,
+          "max_g_load": 12.0
+        },
+        "guidance": {
+          "type": "Laser"
+        },
+        "warhead": {
+          "damage": 600,
+          "blast_radius_m": 3,
+          "accuracy_percent": 90
+        }
+      }
+    },
+    "missile_tow": {
+      "components": {
+        "identity": {
+          "name": "BGM-71 TOW",
+          "origin": "USA",
+          "type": "missile_atgm"
+        },
+        "physics_profile": {
+          "mass_kg": 21,
+          "max_thrust_n": 4000,
+          "burn_time_s": 12.0,
+          "drag_coefficient": 0.025,
+          "max_speed_m_s": 280,
+          "max_g_load": 8.0
+        },
+        "guidance": {
+          "type": "SACLOS"
+        },
+        "warhead": {
+          "damage": 500,
+          "blast_radius_m": 2,
+          "accuracy_percent": 85
+        }
+      }
+    },
+    "missile_ataka": {
+      "components": {
+        "identity": {
+          "name": "9M120 Ataka",
+          "origin": "USSR",
+          "type": "missile_atgm"
+        },
+        "physics_profile": {
+          "mass_kg": 42,
+          "max_thrust_n": 7500,
+          "burn_time_s": 8.0,
+          "drag_coefficient": 0.022,
+          "max_speed_m_s": 450,
+          "max_g_load": 10.0
+        },
+        "guidance": {
+          "type": "Radio_Command"
+        },
+        "warhead": {
+          "damage": 550,
+          "blast_radius_m": 3,
+          "accuracy_percent": 82
+        }
+      }
+    },
+    "missile_hot": {
+      "components": {
+        "identity": {
+          "name": "HOT ATGM",
+          "origin": "France",
+          "type": "missile_atgm"
+        },
+        "physics_profile": {
+          "mass_kg": 24,
+          "max_thrust_n": 3800,
+          "burn_time_s": 10.0,
+          "drag_coefficient": 0.024,
+          "max_speed_m_s": 260,
+          "max_g_load": 7.0
+        },
+        "guidance": {
+          "type": "SACLOS"
+        },
+        "warhead": {
+          "damage": 480,
+          "blast_radius_m": 2,
+          "accuracy_percent": 83
+        }
+      }
+    },
+    "missile_r24r": {
+      "components": {
+        "identity": {
+          "name": "R-24R (AA-7 Apex)",
+          "origin": "USSR",
+          "type": "missile_air_to_air"
+        },
+        "physics_profile": {
+          "mass_kg": 247,
+          "max_thrust_n": 27000,
+          "burn_time_s": 10.0,
+          "drag_coefficient": 0.014,
+          "max_speed_m_s": 1150,
+          "max_g_load": 22.0
+        },
+        "guidance": {
+          "type": "SARH"
+        },
+        "warhead": {
+          "damage": 380,
+          "blast_radius_m": 12,
+          "accuracy_percent": 65
+        }
+      }
+    },
+    "missile_r40": {
+      "components": {
+        "identity": {
+          "name": "R-40R (AA-6 Acrid)",
+          "origin": "USSR",
+          "type": "missile_air_to_air"
+        },
+        "physics_profile": {
+          "mass_kg": 470,
+          "max_thrust_n": 35000,
+          "burn_time_s": 18.0,
+          "drag_coefficient": 0.02,
+          "max_speed_m_s": 1400,
+          "max_g_load": 12.0
+        },
+        "guidance": {
+          "type": "SARH"
+        },
+        "warhead": {
+          "damage": 550,
+          "blast_radius_m": 18,
+          "accuracy_percent": 55
+        }
+      }
+    },
+    "__comment_helicopter_weapons__": "=== HELICOPTER WEAPONS ==="
+  }
+}
