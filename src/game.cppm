@@ -7,7 +7,6 @@ export module Game;
 
 import JsonConfig;
 import PlayerSystems;
-import Player;
 import Components;
 import Prefabs;
 import WorldStreamerSystem;
@@ -21,20 +20,23 @@ import EngineSoundSystem;
 import UpdateLockSystem;
 import GearSoundSystem;
 import TerrainStreaming;
-import Accessors;
+import Helpers;
 
 export class Game
 {
   entt::registry& registry;
   Scenario scenario{};
-  PlayerDispatcher dispatcher;
+  Camera camera = {};
 
 public:
   explicit Game(entt::registry& reg)
     : registry(reg)
     , scenario(get_scenario(reg))
-    , dispatcher(reg)
   {
+    camera.up = world_up();
+    camera.fovy = get_config(registry).player.camera.fov;
+    camera.projection = CAMERA_PERSPECTIVE;
+
     factories::create_player(registry, scenario.start.position);
     factories::create_scene(registry);
     factories::create_cockpit(registry);
@@ -69,8 +71,7 @@ public:
     player_systems::physics(registry, dt);
     player_systems::position(registry, dt);
     player_systems::rotation(registry, dt);
-    dispatcher.update(registry, dt);
-    player_systems::camera(registry, dispatcher.playerCamera.getCamera());
+    player_systems::camera(registry, camera);
     player_systems::ground_check(registry, dt);
     // the rest
     WidgetsInputs(registry);
@@ -82,7 +83,7 @@ public:
     ClearBackground(scenario.skyColor);
 
     // 3D
-    BeginMode3D(dispatcher.playerCamera.getCamera());
+    BeginMode3D(camera);
     WorldStreamerSystem(registry);
     RenderModels(registry);
     RenderDebugging(registry);

@@ -6,6 +6,7 @@ build/
 *.a
 cmake-build-debug/
 cmake-build-release/
+cmake-build-asan/
 tmp/
 devblog/public
 /assets/tiles

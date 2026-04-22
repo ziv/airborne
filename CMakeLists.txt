@@ -41,15 +41,6 @@ target_sources(${PROJECT_NAME} PUBLIC
         FILE_SET CXX_MODULES FILES
         src/game.cppm
         src/utils/utils.cppm
-        src/player/player.cppm
-        src/player/player-camera.cppm
-        src/player/player-config.cppm
-        src/player/player-controls.cppm
-        src/player/player-position.cppm
-        src/player/player-physics.cppm
-        src/player/player-rotation.cppm
-        src/player/player-dispatcher.cppm
-        src/player/ground-check.cppm
         src/core/types/types.cppm
         src/core/types/scenario-types.cppm
         src/core/types/units-types.cppm
