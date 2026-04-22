@@ -1,16 +1,17 @@
 module;
 #include <entt/entt.hpp>
 
-#include "../lib/ray.hpp"
+#include "../../lib/ray.hpp"
 
-export module EngineSoundSystem;
+export module AircraftSystems:Engine;
 
 import Components;
 import Accessors;
 import ResourceManager;
 import Resources;
 
-export void EngineSystem(entt::registry &registry, const float dt) {
+export namespace aircraft_systems {
+void engine(entt::registry &registry, const float dt) {
   auto &inputs = get_player_inputs(registry);
 
   // inputs
@@ -46,3 +47,4 @@ export void EngineSystem(entt::registry &registry, const float dt) {
   SetMusicVolume(res, target_volume);
   UpdateMusicStream(res);
 }
+}  // namespace aircraft_systems

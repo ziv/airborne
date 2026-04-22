@@ -6,21 +6,17 @@ module;
 export module Game;
 
 import JsonConfig;
+import Accessors;
 import PlayerSystems;
-import Components;
+import AircraftSystems;
 import Prefabs;
 import WorldStreamerSystem;
 import RenderSystem;
-import Types;
 import ResourceManager;
 import WidgetsInputs;
-import Accessors;
-import ResourcePreloader;
-import EngineSoundSystem;
 import UpdateLockSystem;
-import GearSoundSystem;
-import TerrainStreaming;
 import Helpers;
+import Types;
 
 export class Game {
   entt::registry& registry;
@@ -57,8 +53,8 @@ export class Game {
 
     const auto dt = GetFrameTime();
     // inputs
-    EngineSystem(registry, dt);
-    GearSystem(registry);
+    aircraft_systems::engine(registry, dt);
+    aircraft_systems::gear(registry);
     player_systems::controls(registry, dt);
     player_systems::physics(registry, dt);
     player_systems::position(registry, dt);
@@ -70,7 +66,7 @@ export class Game {
     UpdateLockSystem(registry);
   }
 
-  void draw() {
+  void draw() const {
     ClearBackground(scenario.skyColor);
 
     // 3D
