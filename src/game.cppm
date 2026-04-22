@@ -22,17 +22,13 @@ import GearSoundSystem;
 import TerrainStreaming;
 import Helpers;
 
-export class Game
-{
+export class Game {
   entt::registry& registry;
   Scenario scenario{};
   Camera camera = {};
 
-public:
-  explicit Game(entt::registry& reg)
-    : registry(reg)
-    , scenario(get_scenario(reg))
-  {
+ public:
+  explicit Game(entt::registry& reg) : registry(reg), scenario(get_scenario(reg)) {
     camera.up = world_up();
     camera.fovy = get_config(registry).player.camera.fov;
     camera.projection = CAMERA_PERSPECTIVE;
@@ -48,20 +44,16 @@ public:
     updates::set_radar(2, registry);
 
     // spawn all items from scenario
-    for (const auto& def : scenario.entities)
-      factories::create_unit(registry, def);
+    for (const auto& def : scenario.entities) factories::create_unit(registry, def);
   }
 
-  ~Game()
-  {
+  ~Game() {
     registry.ctx().erase<ResourceManager>();
     registry.clear();
   }
 
-  void update()
-  {
-    if (is_player_crashed(registry))
-      return;
+  void update() {
+    if (is_player_crashed(registry)) return;
 
     const auto dt = GetFrameTime();
     // inputs
@@ -78,8 +70,7 @@ public:
     UpdateLockSystem(registry);
   }
 
-  void draw()
-  {
+  void draw() {
     ClearBackground(scenario.skyColor);
 
     // 3D
