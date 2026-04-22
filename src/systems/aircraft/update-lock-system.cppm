@@ -1,15 +1,16 @@
 module;
 #include <entt/entt.hpp>
 
-#include "../lib/ray.hpp"
+#include "../../lib/ray.hpp"
 
-export module UpdateLockSystem;
+export module AircraftSystems:UpdateLock;
 
 import Accessors;
 import Components;
 import Types;
 
-export void UpdateLockSystem(entt::registry& registry) {
+export namespace aircraft_systems {
+void update_lock(entt::registry& registry) {
   const auto player = get_player(registry);
   auto& radar_state = registry.get<RadarState>(get_player_entity(registry));
 
@@ -50,8 +51,6 @@ export void UpdateLockSystem(entt::registry& registry) {
 
     bool is_valid_type = false;
 
-
-
     if (radar_state.mode == RadarMode::AIR_TO_AIR) {
       is_valid_type = type_comp == EntityType::AIRCRAFT;
     }
@@ -61,8 +60,6 @@ export void UpdateLockSystem(entt::registry& registry) {
         is_valid_type = true;
       }
     }
-
-
 
     if (is_valid_type) {
       float dist = Vector3Distance(player_abs_position, target_pos);
@@ -108,3 +105,4 @@ export void UpdateLockSystem(entt::registry& registry) {
     radar_state.locked_target = valid_targets.front();
   }
 }
+}  // namespace aircraft_systems

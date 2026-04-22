@@ -79,10 +79,11 @@ target_sources(${PROJECT_NAME} PUBLIC
         src/systems/renderers/render-crash-layout.cppm
         src/systems/renderers/render-target-camera.cppm
         src/systems/world-streamer.cppm
-        src/systems/widgets-inputs.cppm
-        src/systems/engine-system.cppm
-        src/systems/gear-system.cppm
-        src/systems/update-lock-system.cppm
+        src/systems/aircraft/widgets-inputs.cppm
+        src/systems/aircraft/aircraft.cppm
+        src/systems/aircraft/engine-system.cppm
+        src/systems/aircraft/gear-system.cppm
+        src/systems/aircraft/update-lock-system.cppm
         src/utils/accessors.cppm
         src/utils/loading.cppm
         src/screens/base.cppm
