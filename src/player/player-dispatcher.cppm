@@ -13,27 +13,14 @@ import :Controls;
 import :Physics;
 import :Camera;
 
-export class PlayerDispatcher
-{
-public:
-  PlayerPhysics playerPhysics;
-  PlayerPosition playerPosition;
-  PlayerControls playerControls;
+export class PlayerDispatcher {
+ public:
   PlayerCamera playerCamera;
   PlayerGroundCheck playerGroundCheck;
-  PlayerRotation playerRotation;
 
-  explicit PlayerDispatcher(entt::registry& registry)
-    : playerPhysics(get_config(registry).player.aircraft)
-    , playerPosition(get_config(registry).player.position)
-    , playerCamera(get_config(registry).player.camera) {};
+  explicit PlayerDispatcher(entt::registry& registry) : playerCamera(get_config(registry).player.camera) {};
 
-  void update(entt::registry& reg, const float dt)
-  {
-    // playerControls.update(reg, dt);
-    // playerPhysics.update(reg, dt);
-    // playerPosition.update(reg, dt);
-    // playerRotation.update(reg, dt);
+  void update(entt::registry& reg, const float dt) {
     playerCamera.update(reg, dt);
     playerGroundCheck.update(reg, dt);
   }
