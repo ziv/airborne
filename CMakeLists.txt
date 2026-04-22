@@ -73,6 +73,7 @@ target_sources(${PROJECT_NAME} PUBLIC
         src/systems/player/player-controls.cppm
         src/systems/player/player-physics.cppm
         src/systems/player/player-position.cppm
+        src/systems/player/player-rotation.cppm
         src/systems/renderers/render.cppm
         src/systems/renderers/render-models.cppm
         src/systems/renderers/render-cockpit.cppm

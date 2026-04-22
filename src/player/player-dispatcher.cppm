@@ -33,7 +33,7 @@ public:
     // playerControls.update(reg, dt);
     // playerPhysics.update(reg, dt);
     // playerPosition.update(reg, dt);
-    playerRotation.update(reg, dt);
+    // playerRotation.update(reg, dt);
     playerCamera.update(reg, dt);
     playerGroundCheck.update(reg, dt);
   }
