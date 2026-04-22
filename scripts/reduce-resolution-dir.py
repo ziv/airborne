@@ -40,7 +40,7 @@ def resize_heightmap_tiles(input_dir, output_dir, target_size=512):
     print(f"Done! Resized tiles saved to: {out_path.absolute()}")
 
 if __name__ == "__main__":
-    INPUT_DIRECTORY = "/Users/ziv.perry/Desktop/tmpp/12-hm"
-    OUTPUT_DIRECTORY = "/Users/ziv.perry/Desktop/tmpp/12-hm-512"
+    INPUT_DIRECTORY = "/Users/ziv.perry/Desktop/tmpp/12-hm-greece"
+    OUTPUT_DIRECTORY = "/Users/ziv.perry/Desktop/tmpp/12-hm-greece-512"
 
     resize_heightmap_tiles(INPUT_DIRECTORY, OUTPUT_DIRECTORY)

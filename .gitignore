@@ -10,3 +10,4 @@ cmake-build-asan/
 tmp/
 devblog/public
 /assets/tiles
+/assets/tiles-greece

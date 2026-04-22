@@ -19,6 +19,7 @@ inline constexpr float METERS_PER_PIXEL = 8.05f;
 inline constexpr float TILE_PIXELS = 1024.0f;
 // inline constexpr float HM_PIXELS = 512.0f;
 inline constexpr float TILE_WORLD_SIZE = TILE_PIXELS * METERS_PER_PIXEL;
+inline constexpr float TILE_OVERLAP = TILE_WORLD_SIZE / 255.0;
 inline constexpr float LOWEST = -440.0f;   // Dead Sea
 inline constexpr float HIGHEST = 2814.0f;  // Mount Hermon
 inline constexpr int X_TILES = 33;
@@ -35,12 +36,11 @@ export struct TerrainChunk {
   int model;
 };
 
-int get_tile_id(const int x, const int z) { return entt::hashed_string(TextFormat("tile_model_%d_%d", x, z)); }
-
-// todo make sure to use RAII or the resource manager
+inline int get_tile_id(const int x, const int z) { return entt::hashed_string(TextFormat("tile_model_%d_%d", x, z)); }
 
 export namespace terrain_streamer {
 using TileCoord = std::pair<int, int>;
+
 void stream(entt::registry& registry) {
   const auto& models = get_resource_manager(registry).models;
   const auto& offset = get_player(registry).offset;
@@ -63,44 +63,38 @@ void process_loaded_chunks(entt::registry& registry) {
     if (!tex_ready || !height_ready) continue;
 
     TraceLog(LOG_WARNING, "processing loaded tile %d %d", x, z);
+    auto& rm = get_resource_manager(registry);
+    const auto id = get_tile_id(x, z);
 
     const Image tex_img = texture_future.get();
-    Image height_img = heightmap_future.get();
+    const Image height_img = heightmap_future.get();
 
     // create the texture
-    Texture2D final_texture = LoadTextureFromImage(tex_img);
-    ImageResize(&height_img, 256, 256);
+    const Texture2D final_texture = LoadTextureFromImage(tex_img);
+
+    // keeping the texture in the resource manager
+    // rm.textures.load(id, texture_future);
+
     // create the heightmap mesh and convert to model and apply texture
-    const Mesh mesh = GenMeshHeightmap(height_img, (Vector3){TILE_WORLD_SIZE, HIGHEST - LOWEST, TILE_WORLD_SIZE});
+    const Mesh mesh = GenMeshHeightmap(height_img, (Vector3){TILE_WORLD_SIZE + TILE_OVERLAP, HIGHEST - LOWEST, TILE_WORLD_SIZE + TILE_OVERLAP});
     const Model model = LoadModelFromMesh(mesh);
     model.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = final_texture;
 
-    TraceLog(LOG_WARNING, "loadig fog");
     // if the fog exists in the resource manager, use it
-    auto& rm = get_resource_manager(registry);
+
     if (constexpr auto fog_id = entt::hashed_string("fog_shader"); rm.shaders.contains(fog_id)) {
       model.materials[0].shader = rm.shaders[fog_id]->res;
     }
 
     // keeping the tile in the resource manager
-    TraceLog(LOG_WARNING, "set model in resource manager");
-    const auto id = get_tile_id(x, z);
     rm.models.load(id, model);
 
     // unload images
-    TraceLog(LOG_WARNING, "unload images");
     UnloadImage(tex_img);
     UnloadImage(height_img);
 
-    // remove the async component
     registry.remove<AsyncTileLoad>(entity);
-
-    // add the terrain component (the model id in the resource manager)
-    // const float world_x = static_cast<float>(x) * TILE_WORLD_SIZE;
-    // const float world_z = static_cast<float>(z) * TILE_WORLD_SIZE;
-
     registry.emplace<TerrainChunk>(entity, id);
-
     break; // to free the loop and let the next chunk load on the next frame
   }
 }
@@ -128,8 +122,6 @@ class streamer {
     // we are on the same tile as before, bye bye...
     if (current_tile_x == last_tile_x && current_tile_z == last_tile_z) return;
 
-    TraceLog(LOG_WARNING, "tile replaced: %d %d", current_tile_x, current_tile_z);
-
     // prepare list of required tiles
     std::set<TileCoord> required_tiles;
     for (int dx = -3; dx <= 3; ++dx) {
@@ -141,14 +133,14 @@ class streamer {
       }
     }
 
-    TraceLog(LOG_WARNING, "required %d", required_tiles.size());
-
     // iterating active and remove tiles not on required
     for (auto it = active_tiles.begin(); it != active_tiles.end();) {
       if (!required_tiles.contains(it->first)) {
         registry.destroy(it->second);
-        TraceLog(LOG_WARNING, "unloading tile model: %d %d", it->first.first, it->first.second);
-        rm.models.erase(get_tile_id(it->first.first, it->first.second));
+        // UnloadTexture(rm.models[get_tile_id(it->first.first, it->first.second)]->res.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture);
+        const auto id = get_tile_id(it->first.first, it->first.second);
+        // rm.textures.erase(id);
+        rm.models.erase(id);
         it = active_tiles.erase(it);
 
       } else {
@@ -156,7 +148,6 @@ class streamer {
       }
     }
 
-    TraceLog(LOG_WARNING, "active %d", active_tiles.size());
     // iterate the required tile and find not loaded
     for (const auto& coord : required_tiles) {
       if (!active_tiles.contains(coord)) {
@@ -168,7 +159,6 @@ class streamer {
 
     last_tile_x = current_tile_x;
     last_tile_z = current_tile_z;
-    // TraceLog(LOG_WARNING, "current tile: %d %d", current_tile_x, current_tile_z);
   }
 
  private:
