@@ -1,10 +1,8 @@
-export module Player;
+export module PlayerSystems;
 
-export import :Camera;
-export import :Config;
 export import :Controls;
 export import :Physics;
 export import :Position;
 export import :Rotation;
 export import :GroundCheck;
-export import :Dispatcher;
+export import :Camera;
