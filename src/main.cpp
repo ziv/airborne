@@ -12,9 +12,7 @@ import Accessors;
 import Types;
 import Screens;
 
-std::unique_ptr<BaseScreen>
-create_screen(const ScreenState& current, entt::registry& registry)
-{
+std::unique_ptr<BaseScreen> create_screen(const ScreenState& current, entt::registry& registry) {
   switch (current) {
     default:
     case ScreenState::SPLASH:
@@ -28,9 +26,7 @@ create_screen(const ScreenState& current, entt::registry& registry)
   }
 }
 
-int
-main()
-{
+int main() {
   SetTraceLogCallback(CustomLogCallback);
   SetTraceLogLevel(LOG_DEBUG);
   SetConfigFlags(FLAG_WINDOW_RESIZABLE | FLAG_VSYNC_HINT);
