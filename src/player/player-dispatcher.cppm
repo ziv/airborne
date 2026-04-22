@@ -16,12 +16,8 @@ import :Camera;
 export class PlayerDispatcher {
  public:
   PlayerCamera playerCamera;
-  PlayerGroundCheck playerGroundCheck;
 
   explicit PlayerDispatcher(entt::registry& registry) : playerCamera(get_config(registry).player.camera) {};
 
-  void update(entt::registry& reg, const float dt) {
-    playerCamera.update(reg, dt);
-    playerGroundCheck.update(reg, dt);
-  }
+  void update(entt::registry& reg, const float dt) { playerCamera.update(reg, dt); }
 };

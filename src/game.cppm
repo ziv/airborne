@@ -69,8 +69,8 @@ public:
     player_systems::physics(registry, dt);
     player_systems::position(registry, dt);
     player_systems::rotation(registry, dt);
-    // player's systems in a single call
     dispatcher.update(registry, dt);
+    player_systems::ground_check(registry, dt);
     // the rest
     WidgetsInputs(registry);
     UpdateLockSystem(registry);
