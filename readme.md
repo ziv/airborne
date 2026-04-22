@@ -38,7 +38,7 @@ got from this magic game, so this project has begun.
 
 Leftovers from the ESC refactoring:
 
-- [ ] complete the terrain streaming
+- [ ] complete the terrain streaming (see scenario config - tiles greece)
 - [ ] performance optimizations: change read only view data to const reference
 - [x] ~~move the scene into a view~~
 - [x] hud colors
@@ -91,6 +91,7 @@ Style Rules
 The project require C++ compiler with support for C++20 modules, and CMake 3.25 or higher.
 
 I'm using LLVM. My configuration looks like this (macos):
+
 ```shell
 export CC=$(brew --prefix llvm)/bin/clang
 export CXX=$(brew --prefix llvm)/bin/clang++
@@ -101,7 +102,6 @@ cmake -B cmake-build-release -S . -DCMAKE_BUILD_TYPE=Release -G Ninja
 # clean builds
 cmake --build cmake-build-debug --target clean && cmake --build cmake-build-debug
 ```
-
 
 New tiles map, 16m/pixel (world under assets)
 Tile 2048x2048 pixels
