@@ -83,7 +83,7 @@ target_sources(${PROJECT_NAME} PUBLIC
         src/systems/aircraft/aircraft.cppm
         src/systems/aircraft/engine-system.cppm
         src/systems/aircraft/gear-system.cppm
-        src/systems/update-lock-system.cppm
+        src/systems/aircraft/update-lock-system.cppm
         src/utils/accessors.cppm
         src/utils/loading.cppm
         src/screens/base.cppm

@@ -14,7 +14,6 @@ import WorldStreamerSystem;
 import RenderSystem;
 import ResourceManager;
 import WidgetsInputs;
-import UpdateLockSystem;
 import Helpers;
 import Types;
 
@@ -63,7 +62,7 @@ export class Game {
     player_systems::ground_check(registry, dt);
     // the rest
     WidgetsInputs(registry);
-    UpdateLockSystem(registry);
+    aircraft_systems::update_lock(registry);
   }
 
   void draw() const {
