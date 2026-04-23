@@ -54,6 +54,7 @@ int main() {
     TraceLog(LOG_DEBUG, "Setting near plane to %f and far plane to %f", app_conf.global.nearPlane, app_conf.global.farPlane);
     rlSetClipPlanes(app_conf.global.nearPlane, app_conf.global.farPlane);
 
+    TraceLog(LOG_DEBUG, "Setting");
     entt::registry registry;
     set_initial_globals(registry, app_conf, scenario_conf, resources_conf);
 
@@ -73,6 +74,7 @@ int main() {
 
     // todo clean all resources
     get_resource_manager(registry).models.clear();
+    get_resource_manager(registry).textures.clear();
     CloseAudioDevice();
     CloseWindow();
   } catch (std::exception& e) {

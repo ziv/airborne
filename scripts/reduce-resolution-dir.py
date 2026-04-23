@@ -41,6 +41,6 @@ def resize_heightmap_tiles(input_dir, output_dir, target_size=256):
 
 if __name__ == "__main__":
     INPUT_DIRECTORY = "/Users/ziv.perry/code/ziv/airborne/assets/tiles/north/z12-hmp"
-    OUTPUT_DIRECTORY = "/Users/ziv.perry/code/ziv/airborne/assets/tiles/north/z12-hmp-521"
+    OUTPUT_DIRECTORY = "/Users/ziv.perry/code/ziv/airborne/assets/tiles/north/z12-hmp-512"
 
     resize_heightmap_tiles(INPUT_DIRECTORY, OUTPUT_DIRECTORY)

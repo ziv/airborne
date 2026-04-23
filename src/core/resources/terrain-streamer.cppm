@@ -13,6 +13,7 @@ import Components;
 import RaylibResource;
 import ResourceManager;
 import Accessors;
+import Types;
 
 // zoom 12/north tile
 inline constexpr float METERS_PER_PIXEL = 8.05f;
@@ -24,12 +25,14 @@ inline constexpr float LOWEST = -440.0f;   // Dead Sea
 inline constexpr float HIGHEST = 2814.0f;  // Mount Hermon
 // inline constexpr int X_TILES = 33;
 // inline constexpr int Z_TILES = 27;
-inline constexpr int X_TILES = 17;
-inline constexpr int Z_TILES = 15;
+inline constexpr int X_TILES = 13;
+inline constexpr int Z_TILES = 13;
+inline constexpr int MIN_X = 2444;
+inline constexpr int MIN_Z = 1644;
 // inline const std::string texture_path = "assets/tiles/tex-%d-%d.png";
 // inline const std::string heightmap_path = "assets/tiles/hm-%d-%d.png";
-inline const std::string texture_path = "assets/tiles-greece/tex-%d-%d.png";
-inline const std::string heightmap_path = "assets/tiles-greece/hm-%d-%d.png";
+inline const std::string texture_path = "assets/tiles/north/z12-tex-bing/%d/%d.png";
+inline const std::string heightmap_path = "assets/tiles/north/z12-hmp-512/%d/%d.png";
 
 export struct AsyncTileLoad {
   std::future<Image> texture_future;
@@ -57,60 +60,15 @@ void stream(entt::registry& registry) {
   }
 }
 
-void process_loaded_chunks(entt::registry& registry) {
-  for (const auto view = registry.view<AsyncTileLoad>(); const auto entity : view) {
-    auto& [texture_future, heightmap_future, x, z] = view.get<AsyncTileLoad>(entity);
-
-    // zero wait check if the threads done
-    const bool tex_ready = texture_future.wait_for(std::chrono::seconds(0)) == std::future_status::ready;
-    const bool height_ready = heightmap_future.wait_for(std::chrono::seconds(0)) == std::future_status::ready;
-
-    // if not, we'll try again next tick
-    if (!tex_ready || !height_ready) continue;
-
-    TraceLog(LOG_WARNING, "processing loaded tile %d %d", x, z);
-    auto& rm = get_resource_manager(registry);
-    const auto id = get_tile_id(x, z);
-
-    const Image tex_img = texture_future.get();
-    const Image height_img = heightmap_future.get();
-
-    // create the texture
-    const Texture2D final_texture = LoadTextureFromImage(tex_img);
-
-    // keeping the texture in the resource manager
-    // rm.textures.load(id, texture_future);
-
-    // create the heightmap mesh and convert to model and apply texture
-    const Mesh mesh = GenMeshHeightmap(height_img, (Vector3){TILE_WORLD_SIZE + TILE_OVERLAP, HIGHEST - LOWEST, TILE_WORLD_SIZE + TILE_OVERLAP});
-    const Model model = LoadModelFromMesh(mesh);
-    model.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = final_texture;
-
-    // if the fog exists in the resource manager, use it
-
-    if (constexpr auto fog_id = entt::hashed_string("fog_shader"); rm.shaders.contains(fog_id)) {
-      model.materials[0].shader = rm.shaders[fog_id]->res;
-    }
-
-    // keeping the tile in the resource manager
-    rm.models.load(id, model);
-
-    // unload images
-    UnloadImage(tex_img);
-    UnloadImage(height_img);
-
-    registry.remove<AsyncTileLoad>(entity);
-    registry.emplace<TerrainChunk>(entity, id);
-    break;  // to free the loop and let the next chunk load on the next frame
-  }
-}
-
 class streamer {
+  // const TilesDef tiles;
   std::map<TileCoord, entt::entity> active_tiles;
   int last_tile_x = -9999;
   int last_tile_z = -9999;
 
  public:
+  // explicit streamer(const TilesDef& tls) : tiles(tls) {}
+
   void update(entt::registry& registry) {
     const auto& player = get_player(registry);
     auto& rm = get_resource_manager(registry);
@@ -126,6 +84,7 @@ class streamer {
     current_tile_z = std::clamp(current_tile_z, 0, Z_TILES - 1);
 
     // we are on the same tile as before, bye bye...
+    // but before we return, we need to measure the height below us...
     if (current_tile_x == last_tile_x && current_tile_z == last_tile_z) return;
 
     // prepare list of required tiles
@@ -145,8 +104,8 @@ class streamer {
         registry.destroy(it->second);
         // UnloadTexture(rm.models[get_tile_id(it->first.first, it->first.second)]->res.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture);
         const auto id = get_tile_id(it->first.first, it->first.second);
-        // rm.textures.erase(id);
         rm.models.erase(id);
+        rm.textures.erase(id);
         it = active_tiles.erase(it);
 
       } else {
@@ -167,12 +126,58 @@ class streamer {
     last_tile_z = current_tile_z;
   }
 
+  void process_loaded_chunks(entt::registry& registry) {
+    for (const auto view = registry.view<AsyncTileLoad>(); const auto entity : view) {
+      auto& [texture_future, heightmap_future, x, z] = view.get<AsyncTileLoad>(entity);
+
+      // zero wait check if the threads done
+      const bool tex_ready = texture_future.wait_for(std::chrono::seconds(0)) == std::future_status::ready;
+      const bool height_ready = heightmap_future.wait_for(std::chrono::seconds(0)) == std::future_status::ready;
+
+      // if not, we'll try again next tick
+      if (!tex_ready || !height_ready) continue;
+
+      TraceLog(LOG_WARNING, "processing loaded tile %d %d", x, z);
+      auto& rm = get_resource_manager(registry);
+      const auto id = get_tile_id(x, z);
+
+      const Image tex_img = texture_future.get();
+      const Image height_img = heightmap_future.get();
+
+      // create the texture
+      const Texture2D final_texture = LoadTextureFromImage(tex_img);
+
+      // create the heightmap mesh and convert to model and apply texture
+      const Mesh mesh = GenMeshHeightmap(height_img, (Vector3){TILE_WORLD_SIZE + TILE_OVERLAP, HIGHEST - LOWEST, TILE_WORLD_SIZE + TILE_OVERLAP});
+      const Model model = LoadModelFromMesh(mesh);
+      model.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = final_texture;
+
+      // if the fog exists in the resource manager, use it
+
+      if (constexpr auto fog_id = entt::hashed_string("fog_shader"); rm.shaders.contains(fog_id)) {
+        model.materials[0].shader = rm.shaders[fog_id]->res;
+      }
+
+      // keeping the tile in the resource manager
+      rm.models.load(id, model);
+      rm.textures.load(id, final_texture);
+
+      // unload images
+      UnloadImage(tex_img);
+      UnloadImage(height_img);
+
+      registry.remove<AsyncTileLoad>(entity);
+      registry.emplace<TerrainChunk>(entity, id);
+      break;  // to free the loop and let the next chunk load on the next frame
+    }
+  }
+
  private:
   entt::entity spawn_tile(entt::registry& registry, const int x, const int z) {
     const auto entity = registry.create();
 
-    std::string tex_path = TextFormat(texture_path.c_str(), x, z);
-    std::string height_path = TextFormat(heightmap_path.c_str(), x, z);
+    std::string tex_path = TextFormat(texture_path.c_str(), x + MIN_X, z + MIN_Z);
+    std::string height_path = TextFormat(heightmap_path.c_str(), x + MIN_X, z + MIN_Z);
 
     auto tex_task = std::async(std::launch::async, [tex_path]() {
       TraceLog(LOG_WARNING, "[thread] loading texture %s", tex_path.c_str());

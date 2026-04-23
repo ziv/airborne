@@ -38,7 +38,9 @@ got from this magic game, so this project has begun.
 
 Leftovers from the ESC refactoring:
 
-- [ ] complete the terrain streaming (see scenario config - tiles greece)
+- [x] complete the terrain streaming
+- [ ] move fog shader into terrain streamer
+- [ ] complete configuring the terrain streamer 
 - [ ] performance optimizations: change read only view data to const reference
 - [x] ~~move the scene into a view~~
 - [x] hud colors

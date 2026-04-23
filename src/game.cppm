@@ -64,7 +64,7 @@ export class Game {
     aircraft_systems::widgets_inputs(registry);
     aircraft_systems::update_lock(registry);
     streamer.update(registry);
-    terrain_streamer::process_loaded_chunks(registry);
+    streamer.process_loaded_chunks(registry);
   }
 
   void draw() const {

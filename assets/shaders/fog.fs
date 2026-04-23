@@ -9,7 +9,6 @@ in float fragDistance;
 // base texture of the terrain
 uniform sampler2D texture0;
 
-
 // vars from our code
 uniform vec3 skyColor;
 uniform float fogNear;

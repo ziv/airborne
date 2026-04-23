@@ -9,15 +9,15 @@
     "timeOfDay": "day",
     "theater": "north",
     "tiles": {
-      "tex": "assets/tiles-greece/tex-%d-%d.png",
-      "hm": "assets/tiles-greece/hm-%d-%d.png",
-      "m2pixel": 8.05,
-      "texSize": 1024,
-      "hmSize": 512,
+      "tex_path": "assets/tiles-greece/tex-%d-%d.png",
+      "hmp_path": "assets/tiles-greece/hm-%d-%d.png",
+      "meter_to_pixel": 8.05,
+      "tex_size": 1024,
+      "hmp_size": 512,
       "lowest": 0,
       "highest": 5000,
-      "xCount": 17,
-      "zCount": 15
+      "x_count": 17,
+      "z_count": 15
     },
     "start": {
       "position": {

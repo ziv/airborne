@@ -26,7 +26,6 @@ void main()
     // absolute world position of the vertex
     vec4 worldPosition = matModel * vec4(vertexPosition, 1.0);
 
-
     // distance = sqrt(x^2 + z^2)
     fragDistance = length(worldPosition.xz);
 }
