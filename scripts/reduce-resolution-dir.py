@@ -40,7 +40,7 @@ def resize_heightmap_tiles(input_dir, output_dir, target_size=256):
     print(f"Done! Resized tiles saved to: {out_path.absolute()}")
 
 if __name__ == "__main__":
-    INPUT_DIRECTORY = "/Users/ziv.perry/code/ziv/airborne/assets/tiles/north/z12-hmp"
-    OUTPUT_DIRECTORY = "/Users/ziv.perry/code/ziv/airborne/assets/tiles/north/z12-hmp-512"
+    INPUT_DIRECTORY = "/Users/ziv.perry/Desktop/tmpp/10-hmp-alps"
+    OUTPUT_DIRECTORY = "/Users/ziv.perry/Desktop/tmpp/10-hmp-alps-512"
 
     resize_heightmap_tiles(INPUT_DIRECTORY, OUTPUT_DIRECTORY)

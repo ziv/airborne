@@ -1,14 +1,14 @@
 {
   "tiles": {
-    "tex_path": "assets/tiles/north/z12-tex-bing/%d/%d.png",
+    "tex_path": "assets/tiles/north/z12-tex-esri/%d/%d.png",
     "hmp_path": "assets/tiles/north/z12-hmp-512/%d/%d.png",
     "meter_to_pixel": 8.05,
     "tex_size": 1024,
-    "hmp_size": 512,
+    "hmp_size": 1024,
     "lowest": -735,
     "highest": 2814,
-    "x_count": 17,
-    "z_count": 15,
+    "x_count": 13,
+    "z_count": 13,
     "min_x": 2444,
     "min_z": 1644
   },
@@ -25,7 +25,7 @@
       "position": {
         "x": 20000,
         "y": 12,
-        "z": 21000
+        "z": 60001
       },
       "heading": 45,
       "speed": 0,
@@ -76,7 +76,7 @@
         "position": {
           "x": 20000,
           "y": 0,
-          "z": 21000
+          "z": 60001
         },
         "heading": 90,
         "health": 100,
@@ -1238,7 +1238,7 @@
     {
       "name": "minimap-tex",
       "type": "texture",
-      "path": "assets/images/north-map.jpg"
+      "path": "assets/tiles/north/map.png"
     },
     {
       "name": "cockpit-tex",

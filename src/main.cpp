@@ -61,7 +61,7 @@ int main() {
     auto current = ScreenState::SPLASH;
     ScreenState next = current;
     std::unique_ptr<BaseScreen> screen = create_screen(current, registry);
-    TraceLog(LOG_DEBUG, "Setting>>");
+
     while (!WindowShouldClose()) {
       if (next = screen->update(); next != current) {
         screen = create_screen(next, registry);

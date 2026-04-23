@@ -231,21 +231,32 @@ export {
 
   NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(ResourceDef, name, type, path)
 
+  /*
+  * "tex_path": "assets/tiles/north/z12-tex-bing/%d/%d.png",
+    "hmp_path": "assets/tiles/north/z12-hmp-512/%d/%d.png",
+    "meter_to_pixel": 8.05,
+    "tex_size": 1024,
+    "lowest": -735,
+    "highest": 2814,
+    "x_count": 17,
+    "z_count": 15,
+    "min_x": 2444,
+    "min_z": 1644
+   */
   struct TilesDef {
     std::string tex_path;
     std::string hmp_path;
-    Ratio meter_to_pixel;
-    Pixel tex_size;
-    Pixel hmp_size;
-    Meter lowest;
-    Meter highest;
-    int x_count;
-    int z_count;
-    int min_x;
-    int min_z;
+    float meter_to_pixel = 0.0f;
+    int tex_size = 0;
+    float lowest = 0.0f;
+    float highest = 0.0f;
+    int x_count = 0;
+    int z_count = 0;
+    int min_x = 0;
+    int min_z = 0;
   };
 
-  NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(TilesDef, tex_path, hmp_path, meter_to_pixel, tex_size, hmp_size, lowest, highest, x_count, z_count, min_x, min_z);
+  NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(TilesDef, tex_path, hmp_path, meter_to_pixel, tex_size, lowest, highest, x_count, z_count, min_x, min_z);
 
   struct Scenario {
     std::string id;

@@ -99,6 +99,7 @@ export CXX=$(brew --prefix llvm)/bin/clang++
 
 cmake -B cmake-build-debug -S . -DCMAKE_BUILD_TYPE=Debug -G Ninja
 cmake -B cmake-build-release -S . -DCMAKE_BUILD_TYPE=Release -G Ninja
+cmake -S . -B cmake-build-asan -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_FLAGS="-fsanitize=address -g -fno-omit-frame-pointer" -DCMAKE_EXE_LINKER_FLAGS="-fsanitize=address"
 
 # clean builds
 cmake --build cmake-build-debug --target clean && cmake --build cmake-build-debug

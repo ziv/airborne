@@ -52,6 +52,6 @@ def normalize_tiles_to_grid(input_dir, output_dir):
 
 if __name__ == "__main__":
     INPUT_DIR = "/Users/ziv.perry/Desktop/tmpp/12-tex-greece"
-    OUTPUT_DIR = "/Users/ziv.perry/code/ziv/airborne/assets/tiles-greece"
+    OUTPUT_DIR = "/Users/ziv.perry/code/ziv/airborne/assets/greece"
 
     normalize_tiles_to_grid(INPUT_DIR, OUTPUT_DIR)

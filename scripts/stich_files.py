@@ -59,7 +59,7 @@ def stitch_tiles(directory, output_filename="stitched_map.png", tile_size=1024):
     print("Done! Image successfully created.")
 
 if __name__ == "__main__":
-    TARGET_DIRECTORY = "/Users/ziv.perry/Desktop/tmpp/tex/12"
-    OUTPUT_FILE = "final_qgis_map.png"
+    TARGET_DIRECTORY = "/Users/ziv.perry/Desktop/tmpp/10-roads-alps"
+    OUTPUT_FILE = "/Users/ziv.perry/Desktop/tmpp/map.png"
 
     stitch_tiles(TARGET_DIRECTORY, OUTPUT_FILE, tile_size=1024)

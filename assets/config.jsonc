@@ -7,7 +7,7 @@
       "fov": 85,
       "tilt": 0.25,
       "nearPlane": 1,
-      "farPlane": 25000,
+      "farPlane": 30000,
       "resources": "assets/resources.jsonc"
     },
     "window": {
@@ -15,7 +15,7 @@
       "width": 1200,
       "height": 800,
       "nearPlane": 1,
-      "farPlane": 25000
+      "farPlane": 30000
     },
     "player": {
       "camera": {
@@ -113,9 +113,9 @@
         }
       },
       "minimap": {
-        "mapTexture": "assets/images/north-map.jpg",
+        "mapTexture": "assets/tiles/north/map.png",
         "size": 150,
-        "mapsRatio": 62.5
+        "mapsRatio": 64
       },
       "cockpit": {
         "texturePath": "assets/images/cockpit-z.png",
