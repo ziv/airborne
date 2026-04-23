@@ -16,23 +16,23 @@ import Accessors;
 import Types;
 
 // zoom 12/north tile
-inline constexpr float METERS_PER_PIXEL = 8.05f;
-inline constexpr float TILE_PIXELS = 1024.0f;
+// inline constexpr float METERS_PER_PIXEL = 8.05f;
+// inline constexpr float TILE_PIXELS = 1024.0f;
 // inline constexpr float HM_PIXELS = 512.0f;
-inline constexpr float TILE_WORLD_SIZE = TILE_PIXELS * METERS_PER_PIXEL;
-inline constexpr float TILE_OVERLAP = TILE_WORLD_SIZE / 255.0;
-inline constexpr float LOWEST = -440.0f;   // Dead Sea
-inline constexpr float HIGHEST = 2814.0f;  // Mount Hermon
+// inline constexpr float TILE_WORLD_SIZE = TILE_PIXELS * METERS_PER_PIXEL;
+// inline constexpr float TILE_OVERLAP = TILE_WORLD_SIZE / 255.0;
+// inline constexpr float LOWEST = -440.0f;   // Dead Sea
+// inline constexpr float HIGHEST = 2814.0f;  // Mount Hermon
 // inline constexpr int X_TILES = 33;
 // inline constexpr int Z_TILES = 27;
-inline constexpr int X_TILES = 13;
-inline constexpr int Z_TILES = 13;
+// inline constexpr int X_TILES = 13;
+// inline constexpr int Z_TILES = 13;
 inline constexpr int MIN_X = 2444;
 inline constexpr int MIN_Z = 1644;
 // inline const std::string texture_path = "assets/tiles/tex-%d-%d.png";
 // inline const std::string heightmap_path = "assets/tiles/hm-%d-%d.png";
-inline const std::string texture_path = "assets/tiles/north/z12-tex-bing/%d/%d.png";
-inline const std::string heightmap_path = "assets/tiles/north/z12-hmp-512/%d/%d.png";
+// inline const std::string texture_path = "assets/tiles/north/z12-tex-bing/%d/%d.png";
+// inline const std::string heightmap_path = "assets/tiles/north/z12-hmp-512/%d/%d.png";
 
 export struct AsyncTileLoad {
   std::future<Image> texture_future;
@@ -61,27 +61,29 @@ void stream(entt::registry& registry) {
 }
 
 class streamer {
-  // const TilesDef tiles;
+  // TilesDef& tiles;
   std::map<TileCoord, entt::entity> active_tiles;
   int last_tile_x = -9999;
   int last_tile_z = -9999;
 
  public:
-  // explicit streamer(const TilesDef& tls) : tiles(tls) {}
+  // explicit streamer(TilesDef& tls) : tiles(tls) {}
 
   void update(entt::registry& registry) {
     const auto& player = get_player(registry);
+    const TilesDef& scenario = get_scenario(registry).tiles;
     auto& rm = get_resource_manager(registry);
 
     // player absolute position
     const auto position = player.pos - player.offset;
 
     // the current tile based on position
-    int current_tile_x = static_cast<int>(std::floor(position.x / TILE_WORLD_SIZE));
-    int current_tile_z = static_cast<int>(std::floor(position.z / TILE_WORLD_SIZE));
+    const auto tile_world_size = scenario.meter_to_pixel * scenario.tex_size;
+    int current_tile_x = static_cast<int>(std::floor(position.x / tile_world_size));
+    int current_tile_z = static_cast<int>(std::floor(position.z / tile_world_size));
 
-    current_tile_x = std::clamp(current_tile_x, 0, X_TILES - 1);
-    current_tile_z = std::clamp(current_tile_z, 0, Z_TILES - 1);
+    current_tile_x = std::clamp(current_tile_x, 0, scenario.x_count - 1);
+    current_tile_z = std::clamp(current_tile_z, 0, scenario.z_count - 1);
 
     // we are on the same tile as before, bye bye...
     // but before we return, we need to measure the height below us...
@@ -93,7 +95,7 @@ class streamer {
       for (int dz = -3; dz <= 3; ++dz) {
         auto required_x = current_tile_x + dx;
         auto required_z = current_tile_z + dz;
-        if (required_x < 0 || required_x >= X_TILES || required_z < 0 || required_z >= Z_TILES) continue;
+        if (required_x < 0 || required_x >= scenario.x_count || required_z < 0 || required_z >= scenario.z_count) continue;
         required_tiles.insert({required_x, required_z});
       }
     }
@@ -117,7 +119,7 @@ class streamer {
     for (const auto& coord : required_tiles) {
       if (!active_tiles.contains(coord)) {
         TraceLog(LOG_WARNING, "spawning tile: %d %d", coord.first, coord.second);
-        const entt::entity new_tile_entity = spawn_tile(registry, coord.first, coord.second);
+        const entt::entity new_tile_entity = spawn_tile(registry, coord.first, coord.second, scenario);
         active_tiles[coord] = new_tile_entity;
       }
     }
@@ -129,6 +131,7 @@ class streamer {
   void process_loaded_chunks(entt::registry& registry) {
     for (const auto view = registry.view<AsyncTileLoad>(); const auto entity : view) {
       auto& [texture_future, heightmap_future, x, z] = view.get<AsyncTileLoad>(entity);
+      const TilesDef& scenario = get_scenario(registry).tiles;
 
       // zero wait check if the threads done
       const bool tex_ready = texture_future.wait_for(std::chrono::seconds(0)) == std::future_status::ready;
@@ -148,15 +151,18 @@ class streamer {
       const Texture2D final_texture = LoadTextureFromImage(tex_img);
 
       // create the heightmap mesh and convert to model and apply texture
-      const Mesh mesh = GenMeshHeightmap(height_img, (Vector3){TILE_WORLD_SIZE + TILE_OVERLAP, HIGHEST - LOWEST, TILE_WORLD_SIZE + TILE_OVERLAP});
+      const auto tile_world_size = scenario.meter_to_pixel * scenario.tex_size;
+      const auto tile_overlap = tile_world_size / 255.0f;
+      const Mesh mesh =
+          GenMeshHeightmap(height_img, (Vector3){tile_world_size + tile_overlap, scenario.highest - scenario.lowest, tile_world_size + tile_overlap});
       const Model model = LoadModelFromMesh(mesh);
       model.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = final_texture;
 
       // if the fog exists in the resource manager, use it
 
-      if (constexpr auto fog_id = entt::hashed_string("fog_shader"); rm.shaders.contains(fog_id)) {
-        model.materials[0].shader = rm.shaders[fog_id]->res;
-      }
+      // if (constexpr auto fog_id = entt::hashed_string("fog_shader"); rm.shaders.contains(fog_id)) {
+      // model.materials[0].shader = rm.shaders[fog_id]->res;
+      // }
 
       // keeping the tile in the resource manager
       rm.models.load(id, model);
@@ -173,11 +179,11 @@ class streamer {
   }
 
  private:
-  entt::entity spawn_tile(entt::registry& registry, const int x, const int z) {
+  entt::entity spawn_tile(entt::registry& registry, const int x, const int z, const TilesDef& tiles) {
     const auto entity = registry.create();
 
-    std::string tex_path = TextFormat(texture_path.c_str(), x + MIN_X, z + MIN_Z);
-    std::string height_path = TextFormat(heightmap_path.c_str(), x + MIN_X, z + MIN_Z);
+    std::string tex_path = TextFormat(tiles.tex_path.c_str(), x + MIN_X, z + MIN_Z);
+    std::string height_path = TextFormat(tiles.hmp_path.c_str(), x + MIN_X, z + MIN_Z);
 
     auto tex_task = std::async(std::launch::async, [tex_path]() {
       TraceLog(LOG_WARNING, "[thread] loading texture %s", tex_path.c_str());
@@ -191,10 +197,11 @@ class streamer {
       return height_img;
     });
 
-    const float world_x = static_cast<float>(x) * TILE_WORLD_SIZE;
-    const float world_z = static_cast<float>(z) * TILE_WORLD_SIZE;
+    const auto tile_world_size = tiles.meter_to_pixel * tiles.tex_size;
+    const float world_x = static_cast<float>(x) * tile_world_size;
+    const float world_z = static_cast<float>(z) * tile_world_size;
 
-    registry.emplace<Position3D>(entity, (Vector3){world_x, LOWEST, world_z}, Vector3Zero());
+    registry.emplace<Position3D>(entity, (Vector3){world_x, tiles.lowest, world_z}, Vector3Zero());
     registry.emplace<AsyncTileLoad>(entity, std::move(tex_task), std::move(height_task), x, z);
 
     return entity;

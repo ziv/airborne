@@ -75,6 +75,9 @@ int main() {
     // todo clean all resources
     get_resource_manager(registry).models.clear();
     get_resource_manager(registry).textures.clear();
+    get_resource_manager(registry).shaders.clear();
+    get_resource_manager(registry).music_streams.clear();
+    get_resource_manager(registry).sounds.clear();
     CloseAudioDevice();
     CloseWindow();
   } catch (std::exception& e) {

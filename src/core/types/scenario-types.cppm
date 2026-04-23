@@ -241,6 +241,8 @@ export {
     Meter highest;
     int x_count;
     int z_count;
+    // int min_x;
+    // int min_z;
   };
 
   NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(TilesDef, tex_path, hmp_path, meter_to_pixel, tex_size, hmp_size, lowest, highest, x_count, z_count);
