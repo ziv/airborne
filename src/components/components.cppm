@@ -13,6 +13,7 @@ import JsonConfig;
 export struct Configuration {
   AppConfig conf{};
   Scenario scenario{};
+  TilesDef tiles{};
   std::vector<ResourceDef> resources{};
 };
 
@@ -66,12 +67,19 @@ export struct Offset {
   Vector3 offset;
 };
 
+// global tiles
+
+
 export enum class RadarMode { AIR_TO_AIR, AIR_TO_GROUND };
 
 export struct RadarState {
   RadarMode mode = RadarMode::AIR_TO_AIR;
   entt::entity locked_target = entt::null;
   float max_range = 20000.0f;
+};
+
+export struct EngineState {
+  entt::entity engine_stream;
 };
 
 // ---------------- todo need to make a hell of an order in this mess...
@@ -98,6 +106,8 @@ export struct WithImage {
 export struct WithFsShader {
   entt::resource<ShaderLoader> handle;
 };
+
+
 
 // screen slots
 
@@ -207,9 +217,9 @@ export struct LandingZone {
 // specific player/world structures
 
 export struct World {
-  entt::resource<ModelResourceLoader> surface;
-  entt::resource<ModelResourceLoader> clouds;
-  entt::resource<MusicStreamResourceLoader> streams;
+  // entt::resource<ModelResourceLoader> surface;
+  // entt::resource<ModelResourceLoader> clouds;
+  // entt::resource<MusicStreamResourceLoader> streams;
 };
 
 export struct Identify {

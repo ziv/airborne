@@ -43,6 +43,7 @@ int main() {
 
     const auto json_scenario = JsonConfig("assets/scenario.jsonc");
     const auto scenario_conf = json_scenario.get<Scenario>("/data");
+    const auto tiles_conf = json_scenario.get<TilesDef>("/tiles");
     const auto resources_conf = json_scenario.get<std::vector<ResourceDef>>("/resources");
 
     InitWindow(app_conf.global.width, app_conf.global.height, app_conf.global.title.c_str());
@@ -54,14 +55,13 @@ int main() {
     TraceLog(LOG_DEBUG, "Setting near plane to %f and far plane to %f", app_conf.global.nearPlane, app_conf.global.farPlane);
     rlSetClipPlanes(app_conf.global.nearPlane, app_conf.global.farPlane);
 
-    TraceLog(LOG_DEBUG, "Setting");
     entt::registry registry;
-    set_initial_globals(registry, app_conf, scenario_conf, resources_conf);
+    set_initial_globals(registry, app_conf, scenario_conf, resources_conf, tiles_conf);
 
     auto current = ScreenState::SPLASH;
     ScreenState next = current;
     std::unique_ptr<BaseScreen> screen = create_screen(current, registry);
-
+    TraceLog(LOG_DEBUG, "Setting>>");
     while (!WindowShouldClose()) {
       if (next = screen->update(); next != current) {
         screen = create_screen(next, registry);

@@ -89,25 +89,25 @@ Shader init_fog(const std::string &vs_path, const std::string &fs_path) {
 
 export namespace factories {
 entt::entity create_scene(entt::registry &registry) {
-  const auto [mapTexture, mapHeightmap, mapSize, fogShaderVs, fogShaderFs] = get_config(registry).scene;
+  // const auto [mapTexture, mapHeightmap, mapSize, fogShaderVs, fogShaderFs] = get_config(registry).scene;
   auto &assets = get_resource_manager(registry);
-
-  TraceLog(LOG_DEBUG, "create fog shader");
-  constexpr auto fog_id = entt::hashed_string("fog_shader");
-  Shader fog = init_fog(fogShaderVs, fogShaderFs);
-  if (!assets.shaders.contains(fog_id)) assets.shaders.load(fog_id, fog);
-
-
-  if (!assets.models.contains(resources::world_model)) {
-    assets.models.load(resources::world_model, generate_world_model(mapTexture, mapHeightmap, mapSize, fog));
-    TraceLog(LOG_DEBUG, "world model created");
-  }
-
-
-  if (!assets.models.contains(resources::cloud_model)) {
-    assets.models.load(resources::cloud_model, init_clouds(fog));
-    TraceLog(LOG_DEBUG, "cloud model created");
-  }
+  //
+  // TraceLog(LOG_DEBUG, "create fog shader");
+  // constexpr auto fog_id = entt::hashed_string("fog_shader");
+  // Shader fog = init_fog(fogShaderVs, fogShaderFs);
+  // if (!assets.shaders.contains(fog_id)) assets.shaders.load(fog_id, fog);
+  //
+  //
+  // if (!assets.models.contains(resources::world_model)) {
+  //   assets.models.load(resources::world_model, generate_world_model(mapTexture, mapHeightmap, mapSize, fog));
+  //   TraceLog(LOG_DEBUG, "world model created");
+  // }
+  //
+  //
+  // if (!assets.models.contains(resources::cloud_model)) {
+  //   assets.models.load(resources::cloud_model, init_clouds(fog));
+  //   TraceLog(LOG_DEBUG, "cloud model created");
+  // }
 
   if (assets.music_streams.contains(resources::engine_sound)) {
     PlayMusicStream(assets.music_streams[resources::engine_sound]->res);
@@ -118,9 +118,10 @@ entt::entity create_scene(entt::registry &registry) {
 
   const auto entity = registry.create();
 
-  registry.emplace<World>(entity, assets.models[resources::world_model], assets.models[resources::cloud_model], assets.music_streams[resources::engine_sound]);
-  registry.emplace<Position3D>(entity, Vector3Zero(), Vector3Zero());
+  // registry.emplace<World>(entity, assets.models[resources::world_model], assets.models[resources::cloud_model], assets.music_streams[resources::engine_sound]);
+  // registry.emplace<Position3D>(entity, Vector3Zero(), Vector3Zero());
 
+  // registry.emplace<EngineState>(entity, )
   TraceLog(LOG_DEBUG, "scene created");
   return entity;
 }

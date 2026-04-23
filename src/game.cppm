@@ -31,7 +31,7 @@ export class Game {
     camera.projection = CAMERA_PERSPECTIVE;
 
     factories::create_player(registry, scenario.start.position);
-    // factories::create_scene(registry);
+    factories::create_scene(registry);
     factories::create_cockpit(registry);
     factories::create_hud(registry);
     factories::create_cockpit_widgets(registry);
@@ -72,7 +72,6 @@ export class Game {
 
     // 3D
     BeginMode3D(camera);
-    // WorldStreamerSystem(registry);
     terrain_streamer::stream(registry);
     RenderModels(registry);
     RenderDebugging(registry);

@@ -15,24 +15,8 @@ import ResourceManager;
 import Accessors;
 import Types;
 
-// zoom 12/north tile
-// inline constexpr float METERS_PER_PIXEL = 8.05f;
-// inline constexpr float TILE_PIXELS = 1024.0f;
-// inline constexpr float HM_PIXELS = 512.0f;
-// inline constexpr float TILE_WORLD_SIZE = TILE_PIXELS * METERS_PER_PIXEL;
-// inline constexpr float TILE_OVERLAP = TILE_WORLD_SIZE / 255.0;
-// inline constexpr float LOWEST = -440.0f;   // Dead Sea
-// inline constexpr float HIGHEST = 2814.0f;  // Mount Hermon
-// inline constexpr int X_TILES = 33;
-// inline constexpr int Z_TILES = 27;
-// inline constexpr int X_TILES = 13;
-// inline constexpr int Z_TILES = 13;
 inline constexpr int MIN_X = 2444;
 inline constexpr int MIN_Z = 1644;
-// inline const std::string texture_path = "assets/tiles/tex-%d-%d.png";
-// inline const std::string heightmap_path = "assets/tiles/hm-%d-%d.png";
-// inline const std::string texture_path = "assets/tiles/north/z12-tex-bing/%d/%d.png";
-// inline const std::string heightmap_path = "assets/tiles/north/z12-hmp-512/%d/%d.png";
 
 export struct AsyncTileLoad {
   std::future<Image> texture_future;
@@ -71,7 +55,7 @@ class streamer {
 
   void update(entt::registry& registry) {
     const auto& player = get_player(registry);
-    const TilesDef& scenario = get_scenario(registry).tiles;
+    const TilesDef& scenario = get_tiles_def(registry);
     auto& rm = get_resource_manager(registry);
 
     // player absolute position
@@ -131,7 +115,7 @@ class streamer {
   void process_loaded_chunks(entt::registry& registry) {
     for (const auto view = registry.view<AsyncTileLoad>(); const auto entity : view) {
       auto& [texture_future, heightmap_future, x, z] = view.get<AsyncTileLoad>(entity);
-      const TilesDef& scenario = get_scenario(registry).tiles;
+      const TilesDef& scenario = get_tiles_def(registry);
 
       // zero wait check if the threads done
       const bool tex_ready = texture_future.wait_for(std::chrono::seconds(0)) == std::future_status::ready;

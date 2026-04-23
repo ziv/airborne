@@ -241,11 +241,11 @@ export {
     Meter highest;
     int x_count;
     int z_count;
-    // int min_x;
-    // int min_z;
+    int min_x;
+    int min_z;
   };
 
-  NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(TilesDef, tex_path, hmp_path, meter_to_pixel, tex_size, hmp_size, lowest, highest, x_count, z_count);
+  NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(TilesDef, tex_path, hmp_path, meter_to_pixel, tex_size, hmp_size, lowest, highest, x_count, z_count, min_x, min_z);
 
   struct Scenario {
     std::string id;
@@ -257,9 +257,7 @@ export {
     TimeOfDay timeOfDay = TimeOfDay::DAY;
     Color skyColor{BLUE};
     std::string theater;  ///< Geographic region / map name.
-    TilesDef tiles;
     StartConditions start;
-    // WeaponLoadout loadout;
 
     std::vector<EntityDef> entities;    ///< Entities to spawn at mission start.
     std::vector<WeaponDef> weapons;     ///< Weapon type definitions used by entities.
@@ -267,6 +265,6 @@ export {
     std::vector<ResourceDef> resources;
   };
 
-  NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(Scenario, id, name, description, difficulty, weather, season, timeOfDay, skyColor, theater, tiles, start,
-                                                  entities, weapons, objectives, resources);
+  NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(Scenario, id, name, description, difficulty, weather, season, timeOfDay, skyColor, theater, start, entities,
+                                                  weapons, objectives, resources);
 }
