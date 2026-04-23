@@ -83,8 +83,7 @@ export class MyClass { ... };
 Style Rules
 
 - Use `PascalCase` for class names, structs, and enums
-- Use `kebab_case` for variables, methods, and functions
-- Systems functions should be named using `PascalCase` (see main rendering loop in the game)
+- Use `snake_case` for variables, methods, and functions
 
 ## Build
 

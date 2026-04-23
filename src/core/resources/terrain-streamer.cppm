@@ -22,8 +22,14 @@ inline constexpr float TILE_WORLD_SIZE = TILE_PIXELS * METERS_PER_PIXEL;
 inline constexpr float TILE_OVERLAP = TILE_WORLD_SIZE / 255.0;
 inline constexpr float LOWEST = -440.0f;   // Dead Sea
 inline constexpr float HIGHEST = 2814.0f;  // Mount Hermon
-inline constexpr int X_TILES = 33;
-inline constexpr int Z_TILES = 27;
+// inline constexpr int X_TILES = 33;
+// inline constexpr int Z_TILES = 27;
+inline constexpr int X_TILES = 17;
+inline constexpr int Z_TILES = 15;
+// inline const std::string texture_path = "assets/tiles/tex-%d-%d.png";
+// inline const std::string heightmap_path = "assets/tiles/hm-%d-%d.png";
+inline const std::string texture_path = "assets/tiles-greece/tex-%d-%d.png";
+inline const std::string heightmap_path = "assets/tiles-greece/hm-%d-%d.png";
 
 export struct AsyncTileLoad {
   std::future<Image> texture_future;
@@ -95,7 +101,7 @@ void process_loaded_chunks(entt::registry& registry) {
 
     registry.remove<AsyncTileLoad>(entity);
     registry.emplace<TerrainChunk>(entity, id);
-    break; // to free the loop and let the next chunk load on the next frame
+    break;  // to free the loop and let the next chunk load on the next frame
   }
 }
 
@@ -165,8 +171,8 @@ class streamer {
   entt::entity spawn_tile(entt::registry& registry, const int x, const int z) {
     const auto entity = registry.create();
 
-    std::string tex_path = TextFormat("assets/tiles/tex-%d-%d.png", x, z);
-    std::string height_path = TextFormat("assets/tiles/hm-%d-%d.png", x, z);
+    std::string tex_path = TextFormat(texture_path.c_str(), x, z);
+    std::string height_path = TextFormat(heightmap_path.c_str(), x, z);
 
     auto tex_task = std::async(std::launch::async, [tex_path]() {
       TraceLog(LOG_WARNING, "[thread] loading texture %s", tex_path.c_str());

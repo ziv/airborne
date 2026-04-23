@@ -88,7 +88,7 @@ export void RenderDebug(entt::registry& registry) {
   for (const auto view = registry.view<TerrainChunk, Position3D>(); const auto entity : view) {
     const auto& [chunk, pos] = view.get<const TerrainChunk, const Position3D>(entity);
     y += margin;
-    DrawText(TextFormat("CHUNK %.2f,%.2f,%.2f", pos.pos.x, pos.pos.y, pos.pos.z), margin, y, 8, BLACK);
+    DrawText(TextFormat("CHUNK %.2f,%.2f", pos.pos.x, pos.pos.z), margin, y, 5, BLACK);
   }
 
   // ground height

@@ -21,9 +21,9 @@
     },
     "start": {
       "position": {
-        "x": 110000,
-        "y": 638,
-        "z": 90000
+        "x": 20000,
+        "y": 12,
+        "z": 20000
       },
       "heading": 45,
       "speed": 0,
@@ -72,9 +72,9 @@
         "faction": "friendly",
         "state": "active",
         "position": {
-          "x": 110000,
-          "y": 635,
-          "z": 90000
+          "x": 20000,
+          "y": 0,
+          "z": 20000
         },
         "heading": 90,
         "health": 100,
