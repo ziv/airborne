@@ -15,8 +15,8 @@ import ResourceManager;
 import Accessors;
 import Types;
 
-inline constexpr int MIN_X = 2444;
-inline constexpr int MIN_Z = 1644;
+// inline constexpr int MIN_X = 2444;
+// inline constexpr int MIN_Z = 1644;
 
 export struct AsyncTileLoad {
   std::future<Image> texture_future;
@@ -166,8 +166,8 @@ class streamer {
   entt::entity spawn_tile(entt::registry& registry, const int x, const int z, const TilesDef& tiles) {
     const auto entity = registry.create();
 
-    std::string tex_path = TextFormat(tiles.tex_path.c_str(), x + MIN_X, z + MIN_Z);
-    std::string height_path = TextFormat(tiles.hmp_path.c_str(), x + MIN_X, z + MIN_Z);
+    std::string tex_path = TextFormat(tiles.tex_path.c_str(), x + tiles.min_x, z + tiles.min_z);
+    std::string height_path = TextFormat(tiles.hmp_path.c_str(), x + tiles.min_x, z + tiles.min_z);
 
     auto tex_task = std::async(std::launch::async, [tex_path]() {
       TraceLog(LOG_WARNING, "[thread] loading texture %s", tex_path.c_str());
