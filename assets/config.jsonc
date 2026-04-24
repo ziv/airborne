@@ -49,9 +49,9 @@
       },
       "position": {
         "threshold": 5000,
-        "heightPath": "assets/images/north-hm.png",
+        "heightPath": "world-hm",
         "maxRelativeHeight": 5000,
-        "heightMapSizeRatio": 125.0,
+        "heightMapSizeRatio": 105, // 104.65
         "heightAboveGround": 3
       },
       // todo not needed anymore, but still used for stall warning
