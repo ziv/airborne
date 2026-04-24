@@ -143,6 +143,7 @@ export struct MinimapWidget {
 export struct EngineWidget {};
 
 export struct CameraWidget {};
+export struct TargetCameraWidget {};
 
 // area we can land on
 export struct Landable {

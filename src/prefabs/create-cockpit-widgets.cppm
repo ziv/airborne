@@ -70,6 +70,15 @@ void set_minicam(const int slot, entt::registry &registry) {
     break;
   }
 }
+
+void set_target_camera(const int slot, entt::registry &registry) {
+  const auto view = registry.view<DashboardSlot>();
+  for (const auto [entity, dashboard] : view.each()) {
+    if (dashboard.slot_index != slot) continue;
+    registry.get_or_emplace<TargetCameraWidget>(entity);
+    break;
+  }
+}
 }  // namespace updates
 
 export namespace factories {

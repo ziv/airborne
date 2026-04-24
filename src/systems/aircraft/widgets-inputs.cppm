@@ -6,6 +6,7 @@ module;
 export module AircraftSystems:WidgetsInputs;
 
 import Components;
+import Prefabs;
 
 void increase_minimap_zoom(entt::registry &registry) {
   for (const auto minimap_view = registry.view<MinimapWidget>(); const auto [entity, minimap] : minimap_view.each()) {
@@ -41,18 +42,26 @@ void change_slot_widget(entt::registry &registry, const int slotIndex) {
     if (registry.all_of<MinimapWidget>(entity)) {
       registry.remove<MinimapWidget>(entity);
       // set radar
+      updates::set_radar(slotIndex, registry);
       continue;
-      ;
     }
     if (registry.all_of<RadarWidget>(entity)) {
       registry.remove<RadarWidget>(entity);
       // set engine status
+      updates::set_engine_status(slotIndex, registry);
       continue;
-      ;
     }
     if (registry.all_of<EngineWidget>(entity)) {
       registry.remove<EngineWidget>(entity);
+      // set target camera
+      updates::set_target_camera(slotIndex, registry);
+      continue;
+    }
+    if (registry.all_of<TargetCameraWidget>(entity)) {
+      registry.remove<TargetCameraWidget>(entity);
       // set minimap
+      updates::set_minimap(slotIndex, registry);
+      continue;
     }
   }
 }
