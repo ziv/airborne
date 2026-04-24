@@ -49,9 +49,9 @@
       },
       "position": {
         "threshold": 5000,
-        "heightPath": "assets/images/north-hm.png",
+        "heightPath": "world-hm",
         "maxRelativeHeight": 5000,
-        "heightMapSizeRatio": 125.0,
+        "heightMapSizeRatio": 105, // 104.65
         "heightAboveGround": 3
       },
       // todo not needed anymore, but still used for stall warning
@@ -61,7 +61,7 @@
     },
     "scene": {
       "mapTexture": "assets/images/north-tx-2048.jpg",
-      "mapHeightmap": "assets/images/north-hm.png",
+      "mapHeightmap": "assets/tiles/north/heightmap.png",
       "mapSize": {
         "x": 128000,
         "y": 5000,
@@ -113,13 +113,13 @@
         }
       },
       "minimap": {
-        "mapTexture": "assets/tiles/north/map.png",
+        "mapTexture": "minimap-tex",
         "size": 150,
         "mapsRatio": 64
       },
       "cockpit": {
-        "texturePath": "assets/images/cockpit-z.png",
-        "shaderPath": "assets/shaders/chromakey.fs",
+        "texturePath": "cockpit-tex",
+        "shaderPath": "cockpit-chroma",
         "tintColor": [
           255,
           255,

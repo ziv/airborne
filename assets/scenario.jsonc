@@ -81,7 +81,7 @@
         "heading": 90,
         "health": 100,
         "maxHealth": 100,
-        "modelId": "assets/models/carrier-s.glb",
+        "modelId": "carrier-model",
         "scale": 1,
         "params": {
           "minx": 0,
@@ -209,13 +209,13 @@
         "state": "active",
         "position": {
           "x": 53166.66666666646,
-          "y": 0,
+          "y": 5000,
           "z": 14531.249999999985
         },
         "heading": 0,
         "health": 100,
         "maxHealth": 100,
-        "modelId": "assets/models/mig-29.glb",
+        "modelId": "mig29-model",
         "scale": 1,
         "params": {
           "speed": 250,
@@ -286,13 +286,13 @@
         "state": "active",
         "position": {
           "x": 54979.16666666648,
-          "y": 0,
+          "y": 5000,
           "z": 17218.750000000015
         },
         "heading": 0,
         "health": 100,
         "maxHealth": 100,
-        "modelId": "assets/models/mig-29.glb",
+        "modelId": "mig29-model",
         "scale": 1,
         "params": {
           "speed": 250,
@@ -1233,7 +1233,7 @@
     {
       "name": "world-hm",
       "type": "image",
-      "path": "assets/images/north-hm.png"
+      "path": "assets/tiles/north/heightmap.png"
     },
     {
       "name": "minimap-tex",

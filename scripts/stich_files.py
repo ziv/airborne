@@ -59,7 +59,7 @@ def stitch_tiles(directory, output_filename="stitched_map.png", tile_size=1024):
     print("Done! Image successfully created.")
 
 if __name__ == "__main__":
-    TARGET_DIRECTORY = "/Users/ziv.perry/Desktop/tmpp/10-roads-alps"
-    OUTPUT_FILE = "/Users/ziv.perry/Desktop/tmpp/map.png"
+    TARGET_DIRECTORY = "/Users/ziv.perry/code/ziv/airborne/assets/tiles/north/z12-hmp"
+    OUTPUT_FILE = "/Users/ziv.perry/code/ziv/airborne/assets/tiles/north/height-map.png"
 
     stitch_tiles(TARGET_DIRECTORY, OUTPUT_FILE, tile_size=1024)

@@ -50,7 +50,7 @@ void set_minimap(const int slot, entt::registry &registry) {
 
     auto &manager = get_resource_manager(registry);
 
-    const auto minimap_cfg = get_config(registry).views.minimap;
+    const MinimapConfig minimap_cfg = get_config(registry).views.minimap;
     registry.emplace_or_replace<MinimapWidget>(entity, minimap_cfg);
 
     if (const auto tex_id = entt::hashed_string(minimap_cfg.mapTexture.c_str()); manager.textures.contains(tex_id)) {

@@ -89,14 +89,14 @@ Shader init_fog(const std::string &vs_path, const std::string &fs_path) {
 
 export namespace factories {
 entt::entity create_scene(entt::registry &registry) {
-  // const auto [mapTexture, mapHeightmap, mapSize, fogShaderVs, fogShaderFs] = get_config(registry).scene;
+  const auto [mapTexture, mapHeightmap, mapSize, fogShaderVs, fogShaderFs] = get_config(registry).scene;
   auto &assets = get_resource_manager(registry);
   //
-  // TraceLog(LOG_DEBUG, "create fog shader");
-  // constexpr auto fog_id = entt::hashed_string("fog_shader");
-  // Shader fog = init_fog(fogShaderVs, fogShaderFs);
-  // if (!assets.shaders.contains(fog_id)) assets.shaders.load(fog_id, fog);
-  //
+  TraceLog(LOG_DEBUG, "create fog shader");
+  constexpr auto fog_id = entt::hashed_string("fog_shader");
+  Shader fog = init_fog(fogShaderVs, fogShaderFs);
+  if (!assets.shaders.contains(fog_id)) assets.shaders.load(fog_id, fog);
+
   //
   // if (!assets.models.contains(resources::world_model)) {
   //   assets.models.load(resources::world_model, generate_world_model(mapTexture, mapHeightmap, mapSize, fog));

@@ -15,7 +15,7 @@ export void preload_resource(ResourceManager &rm, const ResourceDef &def) {
   const auto [name, type, path] = def;
   TraceLog(LOG_DEBUG, TextFormat("preloading resource '%s' of type '%s' from path '%s'", name.c_str(), type.c_str(), path.c_str()));
 
-  const auto res_id = entt::hashed_string(path.data());
+  const auto res_id = entt::hashed_string(name.data());
   if (type == "texture") {
     rm.textures.load(res_id, path);
   } else if (type == "model") {

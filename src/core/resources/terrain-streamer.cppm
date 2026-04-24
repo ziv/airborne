@@ -144,6 +144,9 @@ class streamer {
       const Model model = LoadModelFromMesh(mesh);
       model.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = final_texture;
 
+      constexpr auto fog_id = entt::hashed_string("fog_shader");
+      model.materials[0].shader = rm.shaders[fog_id]->res;
+
       // if the fog exists in the resource manager, use it
 
       // if (constexpr auto fog_id = entt::hashed_string("fog_shader"); rm.shaders.contains(fog_id)) {

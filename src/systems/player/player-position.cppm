@@ -29,8 +29,13 @@ float get_effective_height(entt::registry &registry, const PlayerPositionConfig 
   // if the x and z are in the image pixels range
   if (x < 0 || z < 0 || x >= map.height || z >= map.width) return 0.0f;
 
+
   const auto r = static_cast<float>(GetImageColor(map, x, z).r);
-  return conf.maxRelativeHeight * r / 255.0f;
+
+  // this magic is the sea level in the north map
+  // todo should enter to the configuration
+  return conf.maxRelativeHeight * (r / 255.0f - 0.203922);
+  // return 0.0f;
 }
 
 static LandingZoneRet get_landing_zone(entt::registry &registry, const Vector3 &absolute_position) {
