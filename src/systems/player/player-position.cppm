@@ -20,17 +20,18 @@ struct LandingZoneRet {
 
 float get_effective_height(entt::registry &registry, const PlayerPositionConfig &conf, const Vector3 &position, const entt::hashed_string &heightmap) {
   // todo make static?
-  const auto map = get_resource_manager(registry).images[heightmap]->res;
-
-  // 125 is the ratio between the large area and the map we check the height
-  const auto x = static_cast<int>(position.x / conf.heightMapSizeRatio);
-  const auto z = static_cast<int>(position.z / conf.heightMapSizeRatio);
+  // const auto map = get_resource_manager(registry).images[heightmap]->res;
   //
-  // if the x and z are in the image pixels range
-  if (x < 0 || z < 0 || x >= map.height || z >= map.width) return 0.0f;
-
-  const auto r = static_cast<float>(GetImageColor(map, x, z).r);
-  return conf.maxRelativeHeight * r / 255.0f;
+  // // 125 is the ratio between the large area and the map we check the height
+  // const auto x = static_cast<int>(position.x / conf.heightMapSizeRatio);
+  // const auto z = static_cast<int>(position.z / conf.heightMapSizeRatio);
+  // //
+  // // if the x and z are in the image pixels range
+  // if (x < 0 || z < 0 || x >= map.height || z >= map.width) return 0.0f;
+  //
+  // const auto r = static_cast<float>(GetImageColor(map, x, z).r);
+  // return conf.maxRelativeHeight * r / 255.0f;
+  return 0.0f;
 }
 
 static LandingZoneRet get_landing_zone(entt::registry &registry, const Vector3 &absolute_position) {
