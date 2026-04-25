@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  
+    <title>Greener Grass! :: Airborne</title>
+  
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Is the grass greener on the other side? Maybe.
+I went to play with a real game engine.
+I tried Bevy, which is written in Rust and has a thriving community around it. The engine is essentially a combination of an ECS and a rendering engine, the two parts that even in my C&#43;&#43; version I didn&rsquo;t write myself (raylib for rendering and entt for ECS).
+With the kind help of an LLM that explained and guided me step by step (thanks Gemini), and with the help of the avian plugin (a physics engine), I reached a result in a few hours that is close to what took me weeks, sweat, and tears to achieve working with raylib and C&#43;&#43;.
+" />
+<meta name="keywords" content="" />
+
+  <meta name="robots" content="noodp" />
+
+<link rel="canonical" href="https://ziv.github.io/airborne/posts/013-greener-grass/" />
+
+
+      <script async src="https://www.googletagmanager.com/gtag/js?id=G-0GMMREP8RD"></script>
+      <script>
+        var doNotTrack = false;
+        if ( true ) {
+          var dnt = (navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack);
+          var doNotTrack = (dnt == "1" || dnt == "yes");
+        }
+        if (!doNotTrack) {
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+          gtag('config', 'G-0GMMREP8RD');
+        }
+      </script>
+
+
+
+
+
+  
+  
+  
+  
+  
+  <link rel="stylesheet" href="https://ziv.github.io/airborne/styles.css">
+
+
+
+<link rel="stylesheet" href="https://ziv.github.io/airborne/style.css">
+
+
+
+  <link rel="shortcut icon" href="https://ziv.github.io/airborne/img/theme-colors/pink.png">
+  <link rel="apple-touch-icon" href="https://ziv.github.io/airborne/img/theme-colors/pink.png">
+
+
+
+<meta name="twitter:card" content="summary" />
+
+  
+    <meta name="twitter:creator" content="" />
+
+
+
+<meta property="og:locale" content="en" />
+<meta property="og:type" content="article" />
+<meta property="og:title" content="Greener Grass!">
+<meta property="og:description" content="Is the grass greener on the other side? Maybe.
+I went to play with a real game engine.
+I tried Bevy, which is written in Rust and has a thriving community around it. The engine is essentially a combination of an ECS and a rendering engine, the two parts that even in my C&#43;&#43; version I didn&rsquo;t write myself (raylib for rendering and entt for ECS).
+With the kind help of an LLM that explained and guided me step by step (thanks Gemini), and with the help of the avian plugin (a physics engine), I reached a result in a few hours that is close to what took me weeks, sweat, and tears to achieve working with raylib and C&#43;&#43;.
+" />
+<meta property="og:url" content="https://ziv.github.io/airborne/posts/013-greener-grass/" />
+<meta property="og:site_name" content="Airborne" />
+
+  
+  
+  <meta property="og:image" content="https://ziv.github.io/airborne/cover/i12.png">
+
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="627">
+
+
+  <meta property="article:published_time" content="2026-04-25 00:00:00 &#43;0000 UTC" />
+
+
+
+
+
+
+
+
+
+
+
+
+<script>
+    MathJax = {
+        tex: {
+            inlineMath: [['$', '$'], ['\\(', '\\)']],
+            displayMath: [['$$', '$$'], ['\\[', '\\]']],
+            processEscapes: true,
+            processEnvironments: true
+        },
+        options: {
+            skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+        }
+    };
+</script>
+<script src="https://polyfill.io"></script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+  
+
+
+</head>
+<body class="pink">
+
+
+
+
+<div class="container center headings--one-size">
+
+  <header class="header">
+  <div class="header__inner">
+    <div class="header__logo">
+      <a href="/airborne/">
+  <div class="logo">
+    AIRBORNE
+  </div>
+</a>
+
+    </div>
+    
+      <ul class="menu menu--mobile">
+  <li class="menu__trigger">Menu&nbsp;▾</li>
+  <li>
+    <ul class="menu__dropdown">
+      
+        
+          <li><a href="/airborne/about">About</a></li>
+        
+      
+        
+          <li><a href="https://github.com/ziv/airborne">Repository</a></li>
+        
+      
+      
+    </ul>
+  </li>
+</ul>
+
+    
+    
+  </div>
+  
+    <nav class="navigation-menu">
+  <ul class="navigation-menu__inner menu--desktop">
+    
+      
+        
+          <li><a href="/airborne/about" >About</a></li>
+        
+      
+        
+          <li><a href="https://github.com/ziv/airborne" >Repository</a></li>
+        
+      
+    
+  </ul>
+</nav>
+
+  
+</header>
+
+
+  <div class="content">
+    
+<article class="post">
+  <h1 class="post-title">
+    <a href="https://ziv.github.io/airborne/posts/013-greener-grass/">Greener Grass!</a>
+  </h1>
+  <div class="post-meta"><time class="post-date">2026-04-25</time>
+    
+</div>
+
+  
+  
+    
+    <img src="https://ziv.github.io/airborne/cover/i12.png"
+      class="post-cover"
+      alt=" "
+      title="Cover Image" />
+  
+
+
+
+  
+
+  <div class="post-content"><div>
+        <p>Is the grass greener on the other side? Maybe.</p>
+<p>I went to play with a real game engine.</p>
+<p>I tried Bevy, which is written in Rust and has a thriving community around it. The engine is essentially a combination
+of an ECS and a rendering engine, the two parts that even in my C++ version I didn&rsquo;t write myself (raylib for rendering
+and entt for ECS).</p>
+<p>With the kind help of an LLM that explained and guided me step by step (thanks Gemini), and with the help of the avian
+plugin (a physics engine), I reached a result in a few hours that is close to what took me weeks, sweat, and tears to
+achieve working with raylib and C++.</p>
+<p>Am I tempted to switch to a game engine? Not yet. I really enjoy writing the physics, the rules, and the conditions, and
+at some point, if I decide to abandon C++ in favor of Rust (is it time?!), then I&rsquo;ll consider moving to a game engine,
+even though there are similar libraries to raylib for Rust, and even a version of raylib itself for Rust.</p>
+<p>Working with C++ demands discipline from me (and yes, frustrations too), and it seems to me that after C++, the
+transition to Rust will be easier.</p>
+<p>So for now, I&rsquo;ll maintain a side project in Rust whose sole purpose is learning, so that when the day comes, the
+transition will be smooth.</p>
+
+      </div></div>
+
+  
+    
+<div class="pagination">
+    <div class="pagination__title">
+        <span class="pagination__title-h"></span>
+        <hr />
+    </div>
+    <div class="pagination__buttons">
+        
+        
+        <span class="button next">
+            <a href="https://ziv.github.io/airborne/posts/012-refactoring/">
+                <span class="button__text">Refucktoring</span>
+                <span class="button__icon">→</span>
+            </a>
+        </span>
+        
+    </div>
+</div>
+
+  
+
+  
+    
+  
+</article>
+
+  </div>
+
+  
+    <footer class="footer">
+  <div class="footer__inner">
+    
+      <div class="copyright">
+        <span>© 2026 Powered by <a href="https://gohugo.io" target="_blank">Hugo</a></span>
+    
+      <span>:: Theme by <a href="https://github.com/mirus-ua" target="_blank">Mirus</a></span>
+      </div>
+  </div>
+</footer>
+
+
+
+
+
+
+<script type="text/javascript" src="/airborne/bundle.min.js"></script>
+
+
+
+
+
+
+
+
+  
+</div>
+
+</body>
+</html>

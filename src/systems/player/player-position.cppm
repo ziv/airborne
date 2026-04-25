@@ -130,11 +130,11 @@ void position(entt::registry &registry, const float dt) {
   const LandingZoneRet lz = inputs.gear ? get_landing_zone(registry, absolute_position) : LandingZoneRet{false, false, 0.0f};
 
   // if we are in a landing zone, add it to the player
-  if (lz.is_landing_zone && !registry.all_of<LandingZone>(entity))
-    registry.emplace_or_replace<LandingZone>(entity, lz.is_landing_zone, lz.is_carrier, lz.surface_y);
+  if (lz.is_landing_zone && !registry.all_of<LandingZoneDef>(entity))
+    registry.emplace_or_replace<LandingZoneDef>(entity, lz.is_landing_zone, lz.is_carrier, lz.surface_y);
 
   // if we are not in a landing zone, remove it from the user
-  if (!lz.is_landing_zone && registry.all_of<LandingZoneRet>(entity)) registry.remove<LandingZone>(entity);
+  if (!lz.is_landing_zone && registry.all_of<LandingZoneRet>(entity)) registry.remove<LandingZoneDef>(entity);
 
   // update effective ground height
   gh.effectiveGroundHeight = lz.is_landing_zone ? fmaxf(gh.height, lz.surface_y) : gh.height;

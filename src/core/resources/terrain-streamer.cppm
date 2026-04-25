@@ -13,6 +13,7 @@ export module TerrainStreaming;
 import Components;
 import RaylibResource;
 import ResourceManager;
+import Resources;
 import Accessors;
 import Types;
 
@@ -35,12 +36,18 @@ inline int get_tile_id(const int x, const int z) { return entt::hashed_string(Te
 export namespace terrain_streamer {
 using TileCoord = std::pair<int, int>;
 
-void stream(entt::registry& registry) {
+void stream(entt::registry& registry, const Camera3D& camera) {
   const auto& models = get_resource_manager(registry).models;
   const auto& offset = get_player(registry).offset;
+
+  if (-99 != resources::fog_shader_pos_loc) {
+    const auto& shader = get_resource_manager(registry).shaders[resources::fog_shader]->res;
+    SetShaderValue(shader, resources::fog_shader_pos_loc, &camera.position, SHADER_UNIFORM_VEC3);
+  }
+
   for (const auto view = registry.view<TerrainChunk, Position3D>(); const auto entity : view) {
     const auto& [chunk, pos] = view.get<const TerrainChunk, const Position3D>(entity);
-    const auto position = pos.pos + offset;
+    const Vector3 position = pos.pos + offset;
     DrawModel(models[chunk.model]->res, position, 1.0f, WHITE);
   }
 }
@@ -144,14 +151,14 @@ class streamer {
       const Model model = LoadModelFromMesh(mesh);
       model.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = final_texture;
 
-      constexpr auto fog_id = entt::hashed_string("fog_shader");
-      model.materials[0].shader = rm.shaders[fog_id]->res;
+      // constexpr auto fog_id = entt::hashed_string("fog_shader");
+      // model.materials[0].shader = rm.shaders[fog_id]->res;
 
       // if the fog exists in the resource manager, use it
 
-      // if (constexpr auto fog_id = entt::hashed_string("fog_shader"); rm.shaders.contains(fog_id)) {
-      // model.materials[0].shader = rm.shaders[fog_id]->res;
-      // }
+      if (constexpr auto fog_id = entt::hashed_string("fog_shader"); rm.shaders.contains(fog_id)) {
+        model.materials[0].shader = rm.shaders[fog_id]->res;
+      }
 
       // keeping the tile in the resource manager
       rm.models.load(id, model);

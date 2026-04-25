@@ -7,6 +7,7 @@ export module Screens:Game;
 import Game;
 import JsonConfig;
 import Types;
+import Accessors;
 import :Base;
 
 auto constexpr CONF_PATH = "assets/config.jsonc";

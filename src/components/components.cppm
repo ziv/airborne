@@ -69,7 +69,6 @@ export struct Offset {
 
 // global tiles
 
-
 export enum class RadarMode { AIR_TO_AIR, AIR_TO_GROUND };
 
 export struct RadarState {
@@ -92,7 +91,8 @@ export struct LoadingContext {
 };
 
 export struct WithModel {
-  entt::resource<ModelResourceLoader> handle;
+  entt::hashed_string model;
+  // entt::resource<ModelResourceLoader> handle;
 };
 
 export struct WithTexture {
@@ -106,8 +106,6 @@ export struct WithImage {
 export struct WithFsShader {
   entt::resource<ShaderLoader> handle;
 };
-
-
 
 // screen slots
 
@@ -209,7 +207,7 @@ export struct TouchDown {};
 
 export struct Autopilot {};
 
-export struct LandingZone {
+export struct LandingZoneDef {
   bool isLandingZone;
   bool isCarrier;
   float surfaceY;
@@ -225,15 +223,61 @@ export struct World {
 
 export struct Identify {
   std::string id;
+  std::string name;
 };
 
 export struct IdentifyType {
   EntityType type{};
+};
+
+export struct Identity {
   std::string name;
+  std::string origin;
+  std::string type;
 };
 
 export struct Heading {
   float heading;
+};
+
+export struct Health {
+  float max;
+  float current;
+};
+
+export struct PhysicsProfile {
+  float mass;
+  float thrust;
+  float drag_coefficient;
+  float lift_coefficient;
+  float max_speed;
+  float max_g;
+  float turn_rate;
+};
+
+export struct Radar {
+  float detection_range_m;
+  float engagement_range_m;
+};
+
+export struct WeaponLauncher {
+  std::string weapon_prefab_id;
+  int fire_rate_rpm;
+  int capacity;
+};
+
+export struct Weapons {
+  std::map<std::string, int> weapons;
+};
+
+export struct LandingZone {
+  int runway_length_m;
+  int runway_width_m;
+  int elevation_m;
+};
+
+export struct Waypoints {
+  std::vector<Vector3> waypoints;
 };
 
 // position

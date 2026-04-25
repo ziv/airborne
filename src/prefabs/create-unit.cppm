@@ -1,6 +1,7 @@
 module;
-#include "../lib/ray.hpp"
 #include <entt/entt.hpp>
+
+#include "../lib/ray.hpp"
 
 export module Prefabs:Unit;
 
@@ -13,8 +14,8 @@ export namespace factories {
 entt::entity create_unit(entt::registry &registry, const EntityDef &def) {
   const auto entity = registry.create();
 
-  registry.emplace<Identify>(entity, def.id);
-  registry.emplace<IdentifyType>(entity, def.type, def.subtype);
+  registry.emplace<Identify>(entity, def.id, "");
+  registry.emplace<IdentifyType>(entity, def.type);
 
   // location & orientation
   registry.emplace<Position3D>(entity, def.position);
@@ -26,28 +27,26 @@ entt::entity create_unit(entt::registry &registry, const EntityDef &def) {
   // resources
   if (!def.modelId.empty()) {
     auto &assets = get_resource_manager(registry);
-    if (const auto model_id = entt::hashed_string(def.modelId.c_str());
-        assets.models.contains(model_id)) {
-      registry.emplace<WithModel>(entity, assets.models[model_id]);
+    if (const auto model_id = entt::hashed_string(def.modelId.c_str()); assets.models.contains(model_id)) {
+      registry.emplace<WithModel>(entity, model_id);
     } else {
-      TraceLog(LOG_WARNING, "Model %s not loaded for entity %s",
-               def.modelId.c_str(), def.id.c_str());
+      TraceLog(LOG_WARNING, "Model %s not loaded for entity %s", def.modelId.c_str(), def.id.c_str());
     }
   }
 
   switch (def.type) {
-  case EntityType::CARRIER:
-    registry.emplace<Landable>(entity, true);
-    registry.emplace<Carrier>(entity);
-    break;
-  case EntityType::AIRBASE:
-    registry.emplace<Landable>(entity, false);
-    break;
-  default:
-    break;
+    case EntityType::CARRIER:
+      registry.emplace<Landable>(entity, true);
+      registry.emplace<Carrier>(entity);
+      break;
+    case EntityType::AIRBASE:
+      registry.emplace<Landable>(entity, false);
+      break;
+    default:
+      break;
   }
 
   TraceLog(LOG_DEBUG, "entity %s created", def.id.c_str());
   return entity;
 }
-} // namespace factories
+}  // namespace factories

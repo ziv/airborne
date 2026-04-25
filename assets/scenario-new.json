@@ -1,0 +1,614 @@
+{
+  "tiles": {
+    "tex_path": "assets/tiles/north/z12-tex-esri/%d/%d.png",
+    "hmp_path": "assets/tiles/north/z12-hmp-512/%d/%d.png",
+    "meter_to_pixel": 8.05,
+    "tex_size": 1024,
+    "hmp_size": 1024,
+    "lowest": -735,
+    "highest": 2814,
+    "x_count": 13,
+    "z_count": 13,
+    "min_x": 2444,
+    "min_z": 1644
+  },
+  "data": {
+    "mission_id": "",
+    "mission_name": "",
+    "mission_description": "",
+    "time_of_day": "day",
+    "weather": "sunny",
+    "start_position": {
+      "x": 20000,
+      "y": 12,
+      "z": 60001
+    }
+  },
+  "entities": [
+    {
+      "components": {
+        "entity_id": {
+          "id": "carrier-2",
+          "name": "Nimitz-class Aircraft Carrier"
+        },
+        "type": "carrier",
+        "faction": "friendly",
+        "position": {
+          "x": 20000,
+          "y": 0,
+          "z": 60001
+        },
+        "heading": 0,
+        "model": "carrier-model",
+        "prefab": "carrier_us_nimitz",
+        "identity": {
+          "name": "Nimitz-class Aircraft Carrier",
+          "origin": "USA",
+          "type": "carrier"
+        },
+        "physics_profile": {
+          "mass_kg": 100000000,
+          "max_thrust_n": 5000000,
+          "lift_coefficient": 0,
+          "drag_coefficient": 0,
+          "max_speed_m_s": 15.4,
+          "max_g_load": 0,
+          "turn_rate_deg_s": 0.5
+        },
+        "radar": {
+          "detection_range_m": 250000,
+          "engagement_range_m": 20000
+        },
+        "health": {
+          "max": 50000
+        },
+        "weapon_launcher": {
+          "weapon_prefab_id": "missile_sea_sparrow",
+          "fire_rate_rpm": 1,
+          "capacity": 24
+        }
+      }
+    },
+    {
+      "components": {
+        "entity_id": {
+          "id": "sam-3",
+          "name": "MIM-104 Patriot"
+        },
+        "type": "sam",
+        "faction": "friendly",
+        "position": {
+          "x": 2504530,
+          "y": 0,
+          "z": 1692129
+        },
+        "heading": 0,
+        "prefab": "sam_us_patriot",
+        "identity": {
+          "name": "MIM-104 Patriot",
+          "origin": "USA",
+          "type": "sam"
+        },
+        "radar": {
+          "detection_range_m": 170000,
+          "engagement_range_m": 70000
+        },
+        "health": {
+          "max": 250
+        },
+        "weapon_launcher": {
+          "weapon_prefab_id": "missile_mim104",
+          "fire_rate_rpm": 4,
+          "capacity": 4
+        }
+      }
+    },
+    {
+      "components": {
+        "entity_id": {
+          "id": "airbase-4",
+          "name": "Haifa Airport"
+        },
+        "type": "airbase",
+        "faction": "neutral",
+        "position": {
+          "x": 2505434,
+          "y": 0,
+          "z": 1692077
+        },
+        "heading": 0,
+        "prefab": "airbase_il_ramat_david",
+        "identity": {
+          "name": "Haifa Airport",
+          "origin": "Israel",
+          "type": "airbase"
+        },
+        "health": {
+          "max": 5000
+        },
+        "landing_zone": {
+          "runway_length_m": 2700,
+          "runway_width_m": 45,
+          "elevation_m": 50
+        }
+      }
+    },
+    {
+      "components": {
+        "entity_id": {
+          "id": "sam-5",
+          "name": "S-300PT (SA-10 Grumble)"
+        },
+        "type": "sam",
+        "faction": "enemy",
+        "position": {
+          "x": 2510971,
+          "y": 0,
+          "z": 1684336
+        },
+        "heading": 0,
+        "prefab": "sam_sov_sa10",
+        "identity": {
+          "name": "S-300PT (SA-10 Grumble)",
+          "origin": "USSR",
+          "type": "sam"
+        },
+        "radar": {
+          "detection_range_m": 300000,
+          "engagement_range_m": 150000
+        },
+        "health": {
+          "max": 300
+        },
+        "weapon_launcher": {
+          "weapon_prefab_id": "missile_5v55",
+          "fire_rate_rpm": 4,
+          "capacity": 4
+        }
+      }
+    },
+    {
+      "components": {
+        "entity_id": {
+          "id": "aaa-6",
+          "name": "ZSU-23-4 Shilka"
+        },
+        "type": "aaa",
+        "faction": "enemy",
+        "position": {
+          "x": 2510716,
+          "z": 1684303,
+          "y": 0
+        },
+        "heading": 0,
+        "prefab": "aaa_sov_shilka",
+        "identity": {
+          "name": "ZSU-23-4 Shilka",
+          "origin": "USSR",
+          "type": "aaa"
+        },
+        "radar": {
+          "detection_range_m": 20000,
+          "engagement_range_m": 2500
+        },
+        "health": {
+          "max": 120
+        },
+        "weapon_launcher": {
+          "weapon_prefab_id": "proj_23mm",
+          "fire_rate_rpm": 3400,
+          "capacity": 2000
+        }
+      }
+    },
+    {
+      "components": {
+        "entity_id": {
+          "id": "aaa-7",
+          "name": "2K22 Tunguska (SA-19 Grison)"
+        },
+        "type": "aaa",
+        "faction": "enemy",
+        "position": {
+          "x": 2511083,
+          "z": 1684670,
+          "y": 0
+        },
+        "heading": 0,
+        "prefab": "aaa_sov_tunguska",
+        "identity": {
+          "name": "2K22 Tunguska (SA-19 Grison)",
+          "origin": "USSR",
+          "type": "aaa"
+        },
+        "radar": {
+          "detection_range_m": 18000,
+          "engagement_range_m": 4000
+        },
+        "health": {
+          "max": 150
+        },
+        "weapon_launcher": {
+          "weapon_prefab_id": "proj_30mm",
+          "fire_rate_rpm": 5000,
+          "capacity": 2000
+        }
+      }
+    },
+    {
+      "components": {
+        "entity_id": {
+          "id": "structure-8",
+          "name": "Command Post"
+        },
+        "type": "structure",
+        "faction": "enemy",
+        "position": {
+          "x": 2511125,
+          "y": 0,
+          "z": 1684331
+        },
+        "heading": 0,
+        "prefab": "structure_command_post",
+        "identity": {
+          "name": "Command Post",
+          "origin": "Generic",
+          "type": "structure"
+        },
+        "health": {
+          "max": 500
+        }
+      }
+    },
+    {
+      "components": {
+        "entity_id": {
+          "id": "aaa-9",
+          "name": "2K22 Tunguska (SA-19 Grison)"
+        },
+        "type": "aaa",
+        "faction": "enemy",
+        "position": {
+          "x": 2507237,
+          "y": 0,
+          "z": 1685681
+        },
+        "heading": 0,
+        "prefab": "aaa_sov_tunguska",
+        "identity": {
+          "name": "2K22 Tunguska (SA-19 Grison)",
+          "origin": "USSR",
+          "type": "aaa"
+        },
+        "radar": {
+          "detection_range_m": 18000,
+          "engagement_range_m": 4000
+        },
+        "health": {
+          "max": 150
+        },
+        "weapon_launcher": {
+          "weapon_prefab_id": "proj_30mm",
+          "fire_rate_rpm": 5000,
+          "capacity": 2000
+        }
+      }
+    },
+    {
+      "components": {
+        "entity_id": {
+          "id": "aaa-10",
+          "name": "ZSU-23-4 Shilka"
+        },
+        "type": "aaa",
+        "faction": "enemy",
+        "position": {
+          "x": 2507759,
+          "y": 0,
+          "z": 1685939
+        },
+        "heading": 0,
+        "prefab": "aaa_sov_shilka",
+        "identity": {
+          "name": "ZSU-23-4 Shilka",
+          "origin": "USSR",
+          "type": "aaa"
+        },
+        "radar": {
+          "detection_range_m": 20000,
+          "engagement_range_m": 2500
+        },
+        "health": {
+          "max": 120
+        },
+        "weapon_launcher": {
+          "weapon_prefab_id": "proj_23mm",
+          "fire_rate_rpm": 3400,
+          "capacity": 2000
+        }
+      }
+    },
+    {
+      "components": {
+        "entity_id": {
+          "id": "aircraft-11",
+          "name": "MiG-29 Fulcrum"
+        },
+        "type": "aircraft",
+        "faction": "enemy",
+        "position": {
+          "x": 2506595,
+          "y": 0,
+          "z": 1684682
+        },
+        "heading": 170,
+        "model": "mig29-model",
+        "prefab": "ac_sov_mig29",
+        "identity": {
+          "name": "MiG-29 Fulcrum",
+          "origin": "USSR",
+          "type": "aircraft"
+        },
+        "physics_profile": {
+          "mass_kg": 11000,
+          "max_thrust_n": 162000,
+          "lift_coefficient": 0.1,
+          "drag_coefficient": 0.02,
+          "max_speed_m_s": 660,
+          "max_g_load": 9,
+          "turn_rate_deg_s": 20
+        },
+        "radar": {
+          "detection_range_m": 100000,
+          "engagement_range_m": 50000
+        },
+        "health": {
+          "max": 350
+        },
+        "loadout": {
+          "weapons": {
+            "missile_r27": 4,
+            "missile_r73": 4,
+            "gun_gsh301": 150
+          }
+        },
+        "waypoints": {
+          "points": [
+            {
+              "x": 2506065,
+              "y": 5000,
+              "z": 1685336
+            },
+            {
+              "x": 2506761,
+              "y": 5000,
+              "z": 1686246
+            },
+            {
+              "x": 2508580,
+              "y": 5000,
+              "z": 1685137
+            },
+            {
+              "x": 2507658,
+              "y": 5000,
+              "z": 1684311
+            }
+          ]
+        }
+      }
+    },
+    {
+      "components": {
+        "entity_id": {
+          "id": "aircraft-12",
+          "name": "MiG-29 Fulcrum"
+        },
+        "type": "aircraft",
+        "faction": "enemy",
+        "position": {
+          "x": 2507163,
+          "y": 0,
+          "z": 1684900
+        },
+        "heading": 180,
+        "model": "mig29-model",
+        "prefab": "ac_sov_mig29",
+        "identity": {
+          "name": "MiG-29 Fulcrum",
+          "origin": "USSR",
+          "type": "aircraft"
+        },
+        "physics_profile": {
+          "mass_kg": 11000,
+          "max_thrust_n": 162000,
+          "lift_coefficient": 0.1,
+          "drag_coefficient": 0.02,
+          "max_speed_m_s": 660,
+          "max_g_load": 9,
+          "turn_rate_deg_s": 20
+        },
+        "radar": {
+          "detection_range_m": 100000,
+          "engagement_range_m": 50000
+        },
+        "health": {
+          "max": 350
+        },
+        "loadout": {
+          "weapons": {
+            "missile_r27": 4,
+            "missile_r73": 4,
+            "gun_gsh301": 150
+          }
+        }
+      }
+    },
+    {
+      "components": {
+        "entity_id": {
+          "id": "aircraft-13",
+          "name": "MiG-21bis Fishbed"
+        },
+        "type": "aircraft",
+        "faction": "enemy",
+        "position": {
+          "x": 2510064,
+          "y": 0,
+          "z": 1685411
+        },
+        "heading": 0,
+        "prefab": "ac_sov_mig21bis",
+        "identity": {
+          "name": "MiG-21bis Fishbed",
+          "origin": "USSR",
+          "type": "aircraft"
+        },
+        "physics_profile": {
+          "mass_kg": 5339,
+          "max_thrust_n": 69600,
+          "lift_coefficient": 0.1,
+          "drag_coefficient": 0.028,
+          "max_speed_m_s": 590,
+          "max_g_load": 8.5,
+          "turn_rate_deg_s": 20
+        },
+        "radar": {
+          "detection_range_m": 30000,
+          "engagement_range_m": 15000
+        },
+        "health": {
+          "max": 250
+        },
+        "loadout": {
+          "weapons": {
+            "missile_r60": 4
+          }
+        },
+        "waypoints": {
+          "points": [
+            {
+              "x": 2509861,
+              "y": 5000,
+              "z": 1684505
+            },
+            {
+              "x": 2511377,
+              "y": 5000,
+              "z": 1685432
+            },
+            {
+              "x": 2510095,
+              "y": 5000,
+              "z": 1685544
+            }
+          ]
+        }
+      }
+    },
+    {
+      "components": {
+        "entity_id": {
+          "id": "aircraft-13",
+          "name": "MiG-21bis Fishbed"
+        },
+        "type": "aircraft",
+        "faction": "enemy",
+        "position": {
+          "x": 2510064,
+          "y": 0,
+          "z": 1685411
+        },
+        "heading": 0,
+        "prefab": "ac_sov_mig21bis",
+        "identity": {
+          "name": "MiG-21bis Fishbed",
+          "origin": "USSR",
+          "type": "aircraft"
+        },
+        "physics_profile": {
+          "mass_kg": 5339,
+          "max_thrust_n": 69600,
+          "lift_coefficient": 0.1,
+          "drag_coefficient": 0.028,
+          "max_speed_m_s": 590,
+          "max_g_load": 8.5,
+          "turn_rate_deg_s": 20
+        },
+        "radar": {
+          "detection_range_m": 30000,
+          "engagement_range_m": 15000
+        },
+        "health": {
+          "max": 250
+        },
+        "loadout": {
+          "weapons": {
+            "missile_r60": 4
+          }
+        },
+        "waypoints": {
+          "points": [
+            {
+              "x": 2509861,
+              "y": 5000,
+              "z": 1684505
+            },
+            {
+              "x": 2511377,
+              "y": 5000,
+              "z": 1685432
+            },
+            {
+              "x": 2510095,
+              "y": 5000,
+              "z": 1685544
+            }
+          ]
+        }
+      }
+    },
+    {
+      "components": {
+        "entity_id": {
+          "id": "airbase-14",
+          "name": "Ramat David AFB"
+        },
+        "type": "airbase",
+        "faction": "friendly",
+        "position": {
+          "x": 2507052,
+          "y": 0,
+          "z": 1694082
+        },
+        "heading": 0,
+        "prefab": "airbase_il_ramat_david",
+        "identity": {
+          "name": "Ramat David AFB",
+          "origin": "Israel",
+          "type": "airbase"
+        },
+        "health": {
+          "max": 5000
+        },
+        "landing_zone": {
+          "runway_length_m": 2700,
+          "runway_width_m": 45,
+          "elevation_m": 50
+        }
+      }
+    }
+  ],
+  "resources": [
+    {
+      "name": "north-hm",
+      "type": "texture",
+      "path": "assets/images/north-hm.png"
+    },
+    {
+      "name": "mig-29",
+      "type": "model",
+      "path": "assets/models/mig-29.glb"
+    }
+  ]
+}

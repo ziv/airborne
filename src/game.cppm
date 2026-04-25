@@ -40,11 +40,7 @@ export class Game {
     updates::set_engine_status(1, registry);
     updates::set_radar(2, registry);
 
-    // spawn all items from scenario
-    for (const auto& def : scenario.entities) factories::create_unit(registry, def);
-
-    const auto j = parse_json_file("assets/scenario-new.json");
-    factories::spawn(registry, j);
+    factories::spawn(registry, parse_json_file("assets/scenario-new.json"));
   }
 
   ~Game() {
@@ -75,12 +71,14 @@ export class Game {
 
     // 3D
     BeginMode3D(camera);
-    terrain_streamer::stream(registry);
+    render_systems::sky(registry);
+    terrain_streamer::stream(registry, camera);
     RenderModels(registry);
     RenderDebugging(registry);
     EndMode3D();
 
     // 2D
+    // RenderModelsLabel(registry, camera);
     RenderCockpit(registry);
     RenderMinimap(registry);
     RenderEngineStatus(registry);

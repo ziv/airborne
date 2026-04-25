@@ -6,7 +6,39 @@
     <description>Recent content in Posts on Airborne</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Sun, 19 Apr 2026 00:00:00 +0000</lastBuildDate><atom:link href="https://ziv.github.io/airborne/posts/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Sat, 25 Apr 2026 00:00:00 +0000</lastBuildDate><atom:link href="https://ziv.github.io/airborne/posts/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Greener Grass!</title>
+      <link>https://ziv.github.io/airborne/posts/013-greener-grass/</link>
+      <pubDate>Sat, 25 Apr 2026 00:00:00 +0000</pubDate>
+      
+      <guid>https://ziv.github.io/airborne/posts/013-greener-grass/</guid>
+      <description>&lt;p&gt;Is the grass greener on the other side? Maybe.&lt;/p&gt;
+&lt;p&gt;I went to play with a real game engine.&lt;/p&gt;
+&lt;p&gt;I tried Bevy, which is written in Rust and has a thriving community around it. The engine is essentially a combination
+of an ECS and a rendering engine, the two parts that even in my C++ version I didn&amp;rsquo;t write myself (raylib for rendering
+and entt for ECS).&lt;/p&gt;
+&lt;p&gt;With the kind help of an LLM that explained and guided me step by step (thanks Gemini), and with the help of the avian
+plugin (a physics engine), I reached a result in a few hours that is close to what took me weeks, sweat, and tears to
+achieve working with raylib and C++.&lt;/p&gt;</description>
+      <content>&lt;p&gt;Is the grass greener on the other side? Maybe.&lt;/p&gt;
+&lt;p&gt;I went to play with a real game engine.&lt;/p&gt;
+&lt;p&gt;I tried Bevy, which is written in Rust and has a thriving community around it. The engine is essentially a combination
+of an ECS and a rendering engine, the two parts that even in my C++ version I didn&amp;rsquo;t write myself (raylib for rendering
+and entt for ECS).&lt;/p&gt;
+&lt;p&gt;With the kind help of an LLM that explained and guided me step by step (thanks Gemini), and with the help of the avian
+plugin (a physics engine), I reached a result in a few hours that is close to what took me weeks, sweat, and tears to
+achieve working with raylib and C++.&lt;/p&gt;
+&lt;p&gt;Am I tempted to switch to a game engine? Not yet. I really enjoy writing the physics, the rules, and the conditions, and
+at some point, if I decide to abandon C++ in favor of Rust (is it time?!), then I&amp;rsquo;ll consider moving to a game engine,
+even though there are similar libraries to raylib for Rust, and even a version of raylib itself for Rust.&lt;/p&gt;
+&lt;p&gt;Working with C++ demands discipline from me (and yes, frustrations too), and it seems to me that after C++, the
+transition to Rust will be easier.&lt;/p&gt;
+&lt;p&gt;So for now, I&amp;rsquo;ll maintain a side project in Rust whose sole purpose is learning, so that when the day comes, the
+transition will be smooth.&lt;/p&gt;
+</content>
+    </item>
+    
     <item>
       <title>Refucktoring</title>
       <link>https://ziv.github.io/airborne/posts/012-refactoring/</link>

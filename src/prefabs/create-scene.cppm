@@ -69,33 +69,58 @@ Model init_clouds(const Shader &fog) {
   return clouds_model;
 }
 
-Shader init_fog(const std::string &vs_path, const std::string &fs_path) {
-  const auto fog = LoadShader(vs_path.c_str(), fs_path.c_str());
+Shader init_fog() {
+  const auto fog = LoadShader("assets/shaders/fog.vs", "assets/shaders/fog.fs");
 
-  const int skyColorLoc = GetShaderLocation(fog, "skyColor");
-  const int fogNearLoc = GetShaderLocation(fog, "fogNear");
-  const int fogFarLoc = GetShaderLocation(fog, "fogFar");
+  constexpr float fogNearValue = 20000.0f;             // start at
+  constexpr float fogFarValue = 40000.0f;              // full fogs
+  constexpr Vector3 dayZenith = {0.1f, 0.3f, 0.9f};    // see sky
+  constexpr Vector3 dayHorizon = {0.6f, 0.8f, 0.99f};  // see sky
 
-  constexpr float fogNearValue = 20000.0f;  // start at
-  constexpr float fogFarValue = 40000.0f;   // full fogs
-  constexpr Vector3 skyColorVec = {BLUE.r / 255.0f, BLUE.g / 255.0f, BLUE.b / 255.0f};
-
-  SetShaderValue(fog, skyColorLoc, &skyColorVec, SHADER_UNIFORM_VEC3);
-  SetShaderValue(fog, fogNearLoc, &fogNearValue, SHADER_UNIFORM_FLOAT);
-  SetShaderValue(fog, fogFarLoc, &fogFarValue, SHADER_UNIFORM_FLOAT);
+  SetShaderValue(fog, GetShaderLocation(fog, "zenithColor"), &dayZenith, SHADER_UNIFORM_VEC3);
+  SetShaderValue(fog, GetShaderLocation(fog, "horizonColor"), &dayHorizon, SHADER_UNIFORM_VEC3);
+  SetShaderValue(fog, GetShaderLocation(fog, "fogNear"), &fogNearValue, SHADER_UNIFORM_FLOAT);
+  SetShaderValue(fog, GetShaderLocation(fog, "fogFar"), &fogFarValue, SHADER_UNIFORM_FLOAT);
 
   return fog;
+}
+
+Shader init_sky() {
+  const auto sky = LoadShader("assets/shaders/sky.vs", "assets/shaders/sky.fs");
+
+  constexpr Vector3 dayZenith = {0.1f, 0.3f, 0.9f};    // Dark blue
+  constexpr Vector3 dayHorizon = {0.6f, 0.8f, 0.99f};  // Light blue
+
+  SetShaderValue(sky, GetShaderLocation(sky, "zenithColor"), &dayZenith, SHADER_UNIFORM_VEC3);
+  SetShaderValue(sky, GetShaderLocation(sky, "horizonColor"), &dayHorizon, SHADER_UNIFORM_VEC3);
+
+  return sky;
 }
 
 export namespace factories {
 entt::entity create_scene(entt::registry &registry) {
   const auto [mapTexture, mapHeightmap, mapSize, fogShaderVs, fogShaderFs] = get_config(registry).scene;
   auto &assets = get_resource_manager(registry);
-  //
-  TraceLog(LOG_DEBUG, "create fog shader");
-  constexpr auto fog_id = entt::hashed_string("fog_shader");
-  Shader fog = init_fog(fogShaderVs, fogShaderFs);
-  if (!assets.shaders.contains(fog_id)) assets.shaders.load(fog_id, fog);
+
+  // create for shader
+  if (!assets.shaders.contains(resources::fog_shader)) {
+    Shader fog = init_fog();
+    resources::fog_shader_pos_loc = GetShaderLocation(fog, "cameraPos");
+    assets.shaders.load(resources::fog_shader, fog);
+  }
+
+  // create sky shader
+  if (!assets.shaders.contains(resources::sky_shader)) {
+    assets.shaders.load(resources::sky_shader, init_sky());
+  }
+
+  // create sky model
+  if (!assets.models.contains(resources::sky_model)) {
+    Mesh sky_mesh = GenMeshSphere(1000.0f, 16, 16);
+    Model sky_model = LoadModelFromMesh(sky_mesh);
+    sky_model.materials[0].shader = assets.shaders[resources::sky_shader]->res;
+    assets.models.load(resources::sky_model, sky_model);
+  }
 
   //
   // if (!assets.models.contains(resources::world_model)) {
@@ -118,8 +143,8 @@ entt::entity create_scene(entt::registry &registry) {
 
   const auto entity = registry.create();
 
-  // registry.emplace<World>(entity, assets.models[resources::world_model], assets.models[resources::cloud_model], assets.music_streams[resources::engine_sound]);
-  // registry.emplace<Position3D>(entity, Vector3Zero(), Vector3Zero());
+  // registry.emplace<World>(entity, assets.models[resources::world_model], assets.models[resources::cloud_model],
+  // assets.music_streams[resources::engine_sound]); registry.emplace<Position3D>(entity, Vector3Zero(), Vector3Zero());
 
   // registry.emplace<EngineState>(entity, )
   TraceLog(LOG_DEBUG, "scene created");

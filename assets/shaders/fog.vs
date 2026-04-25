@@ -12,7 +12,8 @@ uniform mat4 matModel;
 // output to the fragment shader
 out vec2 fragTexCoord;
 out vec4 fragColor;
-out float fragDistance; // distance from the camera to the vertex, used for fog calculation
+out float fragDistance;
+out vec3 fragWorldPos; // NEW: Send the actual 3D world position to the FS
 
 void main()
 {
@@ -26,6 +27,9 @@ void main()
     // absolute world position of the vertex
     vec4 worldPosition = matModel * vec4(vertexPosition, 1.0);
 
-    // distance = sqrt(x^2 + z^2)
+    // NEW: Assign the 3D position
+    fragWorldPos = worldPosition.xyz;
+
+    // distance = sqrt(x^2 + z^2) (your existing code)
     fragDistance = length(worldPosition.xz);
 }
