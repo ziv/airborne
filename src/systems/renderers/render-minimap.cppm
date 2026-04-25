@@ -1,5 +1,6 @@
 module;
 #include <entt/entt.hpp>
+
 #include "../../lib/ray.hpp"
 
 export module RenderSystem:Minimap;
@@ -7,16 +8,13 @@ export module RenderSystem:Minimap;
 import Components;
 
 export void RenderMinimap(entt::registry &registry) {
-    const auto view = registry.view<DashboardSlot, MinimapWidget, Position2D, WithTexture>();
-    if (view.begin() == view.end()) return;
+  const auto view = registry.view<DashboardSlot, MinimapWidget, Position2D, WithTexture>();
 
-    const entt::entity entity = view.front();
-    const auto [wd, pos, tex] = registry.get<MinimapWidget, Position2D, WithTexture>(entity);
-
+  for (auto [entity, slot, wd, pos, tex] : view.each()) {
     const auto player_entity = registry.ctx().get<PlayerEntity>().id;
     const auto player = registry.get<Player>(player_entity);
 
-    const auto aircraftPosition = player.pos - player.offset;
+    const Vector3 aircraftPosition = player.pos - player.offset;
     const auto mapX = aircraftPosition.x / wd.cfg.mapsRatio;
     const auto mapZ = aircraftPosition.z / wd.cfg.mapsRatio;
 
@@ -54,19 +52,8 @@ export void RenderMinimap(entt::registry &registry) {
     DrawTriangle(v1, v2, v3, GREEN);
     DrawTriangleLines(v1, v2, v3, BLACK);
 
-
     EndMode2D();
-    DrawText(
-        TextFormat("Z: x%.1f", wd.zoom),
-        x + 5,
-        y + 140,
-        10,
-        BLACK
-    );
+    DrawText(TextFormat("Z: x%.1f", wd.zoom), x + 5, y + 140, 10, BLACK);
     EndScissorMode();
-
-    // const auto view = registry.view<Position2D, MinimapWidget>();
-    // for (auto [entity, pos, c]: view.each()) {
-    //
-    // }
+  }
 }
