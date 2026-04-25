@@ -229,6 +229,7 @@ export struct Identify {
 
 export struct IdentifyType {
   EntityType type{};
+  std::string name;
 };
 
 export struct Heading {

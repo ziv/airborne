@@ -60,6 +60,7 @@ target_sources(${PROJECT_NAME} PUBLIC
         src/prefabs/create-cockpit-widgets.cppm
         src/prefabs/create-cockpit.cppm
         src/prefabs/create-hud.cppm
+        src/prefabs/spawn-entities.cppm
         src/systems/player/player.cppm
         src/systems/player/player-controls.cppm
         src/systems/player/player-camera.cppm

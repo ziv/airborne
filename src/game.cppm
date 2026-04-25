@@ -42,6 +42,9 @@ export class Game {
 
     // spawn all items from scenario
     for (const auto& def : scenario.entities) factories::create_unit(registry, def);
+
+    const auto j = parse_json_file("assets/scenario-new.json");
+    factories::spawn(registry, j);
   }
 
   ~Game() {

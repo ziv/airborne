@@ -14,7 +14,7 @@ entt::entity create_unit(entt::registry &registry, const EntityDef &def) {
   const auto entity = registry.create();
 
   registry.emplace<Identify>(entity, def.id);
-  registry.emplace<IdentifyType>(entity, def.type);
+  registry.emplace<IdentifyType>(entity, def.type, def.subtype);
 
   // location & orientation
   registry.emplace<Position3D>(entity, def.position);

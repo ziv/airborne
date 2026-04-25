@@ -8,6 +8,20 @@ module;
 
 export module JsonConfig;
 
+export nlohmann::json parse_json_file(const std::string &path) {
+  std::ifstream file(path);
+  if (!file.is_open()) {
+    TraceLog(LOG_ERROR, TextFormat("[JsonConfig] unable to open file: %s", path.c_str()));
+    throw std::runtime_error("[JsonConfig] unable to open file");
+  }
+  try {
+    return nlohmann::json::parse(file, nullptr, true, true);
+  } catch (const nlohmann::json::exception &e) {
+    TraceLog(LOG_ERROR, TextFormat("[JsonConfig] failed to parse JSON file: %s, reason: %s", path.c_str(), e.what()));
+    throw std::runtime_error("Failed to parse JSON file: " + path);
+  }
+}
+
 export class JsonConfig {
  public:
   nlohmann::json config;

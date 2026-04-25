@@ -6,3 +6,4 @@ export import :CockpitWidgets;
 export import :Player;
 export import :Scene;
 export import :Hud;
+export import :Spawn;
