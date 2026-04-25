@@ -108,3 +108,9 @@ cmake --build cmake-build-debug --target clean && cmake --build cmake-build-debu
 New tiles map, 16m/pixel (world under assets)
 Tile 2048x2048 pixels
 Tile hm map 512x512 pixels
+
+flight simulator
+cpp with raylib and entt
+ECS architecture
+3d word
+2d cockpit
