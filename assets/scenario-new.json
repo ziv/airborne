@@ -1,7 +1,21 @@
 {
+  "sky": {
+    "vertex": "assets/shaders/sky.vs",
+    "fragment": "assets/shaders/sky.fs",
+    "zenith_color": {
+      "x": 0.5,
+      "y": 0.7,
+      "z": 1.0
+    },
+    "horizon_color": {
+      "x": 0.8,
+      "y": 0.9,
+      "z": 1.0
+    }
+  },
   "tiles": {
-    "tex_path": "assets/tiles/north/z12-tex-esri/%d/%d.png",
-    "hmp_path": "assets/tiles/north/z12-hmp-512/%d/%d.png",
+    "tex_path": "assets/tiles/north/z12-tex-esri/{}/{}.png",
+    "hmp_path": "assets/tiles/north/z12-hmp-512/{}/{}.png",
     "meter_to_pixel": 8.05,
     "tex_size": 1024,
     "hmp_size": 1024,
@@ -20,7 +34,7 @@
     "weather": "sunny",
     "start_position": {
       "x": 20000,
-      "y": 12,
+      "y": 11,
       "z": 60001
     }
   },
@@ -66,6 +80,76 @@
           "weapon_prefab_id": "missile_sea_sparrow",
           "fire_rate_rpm": 1,
           "capacity": 24
+        }
+      }
+    },
+    {
+      "components": {
+        "entity_id": {
+          "id": "aircraft-111",
+          "name": "MiG-29 Fulcrum"
+        },
+        "type": "aircraft",
+        "faction": "enemy",
+        "position": {
+          "x": 20150,
+          "y": 30,
+          "z": 59850
+        },
+        "heading": 170,
+        "model": "mig29-model",
+        "prefab": "ac_sov_mig29",
+        "identity": {
+          "name": "MiG-29 Fulcrum",
+          "origin": "USSR",
+          "type": "aircraft"
+        },
+        "physics_profile": {
+          "mass_kg": 11000,
+          "max_thrust_n": 162000,
+          "lift_coefficient": 0.1,
+          "drag_coefficient": 0.02,
+          "max_speed_m_s": 660,
+          "max_g_load": 9,
+          "turn_rate_deg_s": 20
+        },
+        "radar": {
+          "detection_range_m": 100000,
+          "engagement_range_m": 50000
+        },
+        "health": {
+          "max": 350
+        },
+        "loadout": {
+          "weapons": {
+            "missile_r27": 4,
+            "missile_r73": 4,
+            "gun_gsh301": 150
+          }
+        },
+        "waypoints": {
+          "points": [
+            {
+              "x": 2506065,
+              "y": 5000,
+              "z": 1685336
+            },
+            {
+              "x": 2506761,
+              "y": 5000,
+              "z": 1686246
+            },
+            {
+              "x": 2508580,
+              "y": 5000,
+              "z": 1685137
+            },
+            {
+              "x": 2507658,
+              "y": 5000,
+              "z": 1684311
+            }
+          ]
         }
       }
     },

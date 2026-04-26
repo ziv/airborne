@@ -89,6 +89,7 @@ void spawn_entity(entt::registry &registry, const nlohmann::json &entity) {
       continue;
     }
 
+    // todo complete the data comes from weapon_launcher
     if ("weapon_launcher" == key) {
       const auto type = value["weapon_prefab_id"].get<std::string>();
       const auto fire_rate_rpm = value["fire_rate_rpm"].get<int>();

@@ -20,18 +20,20 @@ import Types;
 
 export class Game {
   entt::registry& registry;
-  Scenario scenario{};
+  // Scenario scenario{};
   Camera camera = {};
   terrain_streamer::streamer streamer;
 
  public:
-  explicit Game(entt::registry& reg) : registry(reg), scenario(get_scenario(reg)) {
+  explicit Game(entt::registry& reg) : registry(reg) {
     camera.up = world_up();
     camera.fovy = get_config(registry).player.camera.fov;
     camera.projection = CAMERA_PERSPECTIVE;
 
-    factories::create_player(registry, scenario.start.position);
-    factories::create_scene(registry);
+    const auto scene = parse_json_file("assets/scenario-new.json");
+
+    factories::create_player(registry, scene["data"]["start_position"].get<Vector3>());
+    factories::create_scene(registry, scene["data"]["time_of_day"].get<std::string>());
     factories::create_cockpit(registry);
     factories::create_hud(registry);
     factories::create_cockpit_widgets(registry);
@@ -67,13 +69,13 @@ export class Game {
   }
 
   void draw() const {
-    ClearBackground(scenario.skyColor);
+    ClearBackground(BLUE);
 
     // 3D
     BeginMode3D(camera);
     render_systems::sky(registry);
     terrain_streamer::stream(registry, camera);
-    RenderModels(registry);
+    RenderModels(registry, camera);
     RenderDebugging(registry);
     EndMode3D();
 

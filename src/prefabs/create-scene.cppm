@@ -69,13 +69,13 @@ Model init_clouds(const Shader &fog) {
   return clouds_model;
 }
 
-Shader init_fog() {
+Shader init_fog(const Vector3 &dayZenith, const Vector3 &dayHorizon) {
   const auto fog = LoadShader("assets/shaders/fog.vs", "assets/shaders/fog.fs");
 
   constexpr float fogNearValue = 20000.0f;             // start at
   constexpr float fogFarValue = 40000.0f;              // full fogs
-  constexpr Vector3 dayZenith = {0.1f, 0.3f, 0.9f};    // see sky
-  constexpr Vector3 dayHorizon = {0.6f, 0.8f, 0.99f};  // see sky
+  // constexpr Vector3 dayZenith = {0.1f, 0.3f, 0.9f};    // see sky
+  // constexpr Vector3 dayHorizon = {0.6f, 0.8f, 0.99f};  // see sky
 
   SetShaderValue(fog, GetShaderLocation(fog, "zenithColor"), &dayZenith, SHADER_UNIFORM_VEC3);
   SetShaderValue(fog, GetShaderLocation(fog, "horizonColor"), &dayHorizon, SHADER_UNIFORM_VEC3);
@@ -85,11 +85,11 @@ Shader init_fog() {
   return fog;
 }
 
-Shader init_sky() {
+Shader init_sky(const Vector3 &dayZenith, const Vector3 &dayHorizon) {
   const auto sky = LoadShader("assets/shaders/sky.vs", "assets/shaders/sky.fs");
 
-  constexpr Vector3 dayZenith = {0.1f, 0.3f, 0.9f};    // Dark blue
-  constexpr Vector3 dayHorizon = {0.6f, 0.8f, 0.99f};  // Light blue
+  // constexpr Vector3 dayZenith = {0.1f, 0.3f, 0.9f};    // Dark blue
+  // constexpr Vector3 dayHorizon = {0.6f, 0.8f, 0.99f};  // Light blue
 
   SetShaderValue(sky, GetShaderLocation(sky, "zenithColor"), &dayZenith, SHADER_UNIFORM_VEC3);
   SetShaderValue(sky, GetShaderLocation(sky, "horizonColor"), &dayHorizon, SHADER_UNIFORM_VEC3);
@@ -98,20 +98,28 @@ Shader init_sky() {
 }
 
 export namespace factories {
-entt::entity create_scene(entt::registry &registry) {
+entt::entity create_scene(entt::registry &registry, const std::string &time_of_day) {
   const auto [mapTexture, mapHeightmap, mapSize, fogShaderVs, fogShaderFs] = get_config(registry).scene;
   auto &assets = get_resource_manager(registry);
 
+  Vector3 dayZenith = {0.1f, 0.3f, 0.9f};    // Dark blue
+  Vector3 dayHorizon = {0.6f, 0.8f, 0.99f};  // Light blue
+
+  if (time_of_day == "sunset") {
+    dayZenith =  {0.1, 0.2f, 0.8f};  // Dark blue
+    dayHorizon = {0.8f, 0.5f, 0.8f};    // Purple
+  }
+
   // create for shader
   if (!assets.shaders.contains(resources::fog_shader)) {
-    Shader fog = init_fog();
+    Shader fog = init_fog(dayZenith, dayHorizon);
     resources::fog_shader_pos_loc = GetShaderLocation(fog, "cameraPos");
     assets.shaders.load(resources::fog_shader, fog);
   }
 
   // create sky shader
   if (!assets.shaders.contains(resources::sky_shader)) {
-    assets.shaders.load(resources::sky_shader, init_sky());
+    assets.shaders.load(resources::sky_shader, init_sky(dayZenith, dayHorizon));
   }
 
   // create sky model

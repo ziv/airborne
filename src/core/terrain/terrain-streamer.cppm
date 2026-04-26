@@ -17,9 +17,6 @@ import Resources;
 import Accessors;
 import Types;
 
-// inline constexpr int MIN_X = 2444;
-// inline constexpr int MIN_Z = 1644;
-
 export struct AsyncTileLoad {
   std::future<Image> texture_future;
   std::future<Image> heightmap_future;
@@ -180,10 +177,10 @@ class streamer {
 
     const int tx = x + tiles.min_x;
     const int ty = z + tiles.min_z;
-    TraceLog(LOG_WARNING, "spawning tile %d %d", tx, ty);
+    TraceLog(LOG_WARNING, "spawning tile %d (%d), %d (%d)", x, tx, z, ty);
 
-    std::string tex_path = TextFormat(tiles.tex_path.c_str(), tx, ty);
-    std::string height_path = TextFormat(tiles.hmp_path.c_str(), tx, ty);
+    std::string tex_path = std::vformat(tiles.tex_path, std::make_format_args(tx, ty));
+    std::string height_path = std::vformat(tiles.hmp_path, std::make_format_args(tx, ty));
 
     auto tex_task = std::async(std::launch::async, [tex_path]() {
       // TraceLog(LOG_WARNING, "[thread] loading texture %s", tex_path.c_str());
@@ -193,6 +190,7 @@ class streamer {
     auto height_task = std::async(std::launch::async, [height_path]() {
       // TraceLog(LOG_WARNING, "[thread] loading height %s", height_path.c_str());
       Image height_img = LoadImage(height_path.c_str());
+      // todo create the images 256 from the begining
       ImageResize(&height_img, 256, 256);
       return height_img;
     });

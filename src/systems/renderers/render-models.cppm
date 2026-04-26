@@ -11,16 +11,30 @@ import ResourceManager;
 import Accessors;
 import Resources;
 
-export void RenderModels(entt::registry &registry) {
+export void RenderModels(entt::registry &registry, const Camera3D &camera) {
   const auto view = registry.view<Position3D, WithModel, Heading>(entt::exclude<World>);
 
   for (auto [entity, position, modeled, heading] : view.each()) {
     const auto models = get_resource_manager(registry).models;
-    if (models.contains(modeled.model)) {
-      const auto offset = registry.ctx().get<Offset>().offset;
-      const auto p = position.pos + offset;
-      DrawModelEx(models[modeled.model]->res, p, {0.0f, 1.0f, 0.0f}, heading.heading, {1.0f, 1.0f, 1.0f}, WHITE);
-    }
+
+    // 1. model not exists
+    if (!models.contains(modeled.model)) continue;
+
+    const auto offset = registry.ctx().get<Offset>().offset;
+    const auto model_position = position.pos + offset;
+    // const auto &player_position = get_player(registry).pos + offset;
+    //
+    // // 2. model too far
+    // // todo check the distance if it valid....(render real model in 200000)
+    // if (Vector3Distance(model_position, player_position) > 20000.0f) continue;
+    //
+    // // 3. is the model in view
+    // const Vector3 direction_to_entity = Vector3Normalize(Vector3Subtract(model_position, camera.position));
+    // const Vector3 camera_forward = Vector3Normalize(Vector3Subtract(camera.target, camera.position));  // todo player forward?!
+    //
+    // if (Vector3DotProduct(camera_forward, direction_to_entity) < 0.0f) continue;
+
+    DrawModelEx(models[modeled.model]->res, model_position, {0.0f, 1.0f, 0.0f}, heading.heading, {1.0f, 1.0f, 1.0f}, WHITE);
   }
 }
 
