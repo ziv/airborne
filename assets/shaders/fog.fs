@@ -4,12 +4,11 @@
 in vec2 fragTexCoord;
 in vec4 fragColor;
 in float fragDistance;
-in vec3 fragWorldPos; // NEW: Received from VS
+in vec3 fragWorldPos;
 
 // base texture of the terrain
 uniform sampler2D texture0;
 
-// NEW: Vars replacing the single 'skyColor'
 uniform vec3 cameraPos;    // Needed to calculate viewing angle
 uniform vec3 zenithColor;  // Top of the sky (must match sky.fs)
 uniform vec3 horizonColor; // Horizon color (must match sky.fs)

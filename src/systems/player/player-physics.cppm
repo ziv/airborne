@@ -137,5 +137,12 @@ void physics(entt::registry& registry, const float dt) {
     const float alignment_speed = 1.0f + (player.speed * 0.05f);
     player.velocity = Vector3Lerp(player.velocity, target_velocity, alignment_speed * dt);
   }
+
+  // calculate G
+  // const auto properAccel = acceleration - gravity();
+  // const Vector3 localAccel = Vector3RotateByQuaternion(properAccel, QuaternionInvert(player.rotation));
+  // const float gForceVertical = localAccel.y / 9.81f;      // head/ass
+  // float gForceLateral = localAccel.x / 9.81f;       // right/left
+  // float gForceLongitudinal = localAccel.z / 9.81f;  // front/back
 }
 }  // namespace player_systems
