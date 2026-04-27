@@ -43,6 +43,8 @@ export struct Player {
   float speed;
   float ground_height;
   float effective_ground_height;
+
+  [[nodiscard]] Vector3 absolute_position() const { return pos - offset; }
 };
 
 // player inputs state

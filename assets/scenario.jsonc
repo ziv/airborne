@@ -1,9 +1,9 @@
 {
   "tiles": {
-    "tex_path": "assets/tiles/north/z12-tex-esri/{}/{}.png",
-    "hmp_path": "assets/tiles/north/z12-hmp-512/{}/{}.png",
+    "tex_path": "assets/tiles/cache/texture/12/{}/{}.png",
+    "hmp_path": "assets/tiles/cache/heightmaps/12/{}/{}.png",
     "meter_to_pixel": 8.05,
-    "tex_size": 1024,
+    "tex_size": 256,
     "hmp_size": 1024,
     "lowest": -735,
     "highest": 2814,

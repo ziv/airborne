@@ -25,7 +25,7 @@ export class Game {
   terrain_streamer::streamer streamer;
 
  public:
-  explicit Game(entt::registry& reg) : registry(reg) {
+  explicit Game(entt::registry& reg) : registry(reg), streamer(reg) {
     camera.up = world_up();
     camera.fovy = get_config(registry).player.camera.fov;
     camera.projection = CAMERA_PERSPECTIVE;
@@ -68,13 +68,14 @@ export class Game {
     streamer.process_loaded_chunks(registry);
   }
 
-  void draw() const {
+  void draw() {
     ClearBackground(BLUE);
 
     // 3D
     BeginMode3D(camera);
-    render_systems::sky(registry);
-    terrain_streamer::stream(registry, camera);
+    // render_systems::sky(registry);
+    // terrain_streamer::stream(registry, camera);
+    streamer.stream(registry, camera);
     RenderModels(registry, camera);
     RenderDebugging(registry);
     EndMode3D();

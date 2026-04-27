@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 4.2.2)
-set(CMAKE_CXX_COMPILER_LAUNCHER ccache)
+#set(CMAKE_CXX_COMPILER_LAUNCHER ccache)
 project(airborne LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 23)
@@ -35,7 +35,7 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(nlohmann_json)
 
-add_executable(${PROJECT_NAME} src/main.cpp)
+add_executable(${PROJECT_NAME} src/main.cpp src/core/terrain/terrain-streamer.cpp)
 
 target_sources(${PROJECT_NAME} PUBLIC
         FILE_SET CXX_MODULES FILES
@@ -96,3 +96,14 @@ target_sources(${PROJECT_NAME} PUBLIC
 
 
 target_link_libraries(${PROJECT_NAME} PRIVATE raylib EnTT::EnTT nlohmann_json::nlohmann_json)
+
+find_package(OpenSSL REQUIRED)
+
+target_include_directories(${PROJECT_NAME} PRIVATE ${OPENSSL_INCLUDE_DIR})
+
+target_link_libraries(${PROJECT_NAME} PRIVATE OpenSSL::SSL OpenSSL::Crypto)
+
+if(APPLE)
+    find_library(SECURITY_FRAMEWORK Security)
+    target_link_libraries(${PROJECT_NAME} PRIVATE ${SECURITY_FRAMEWORK})
+endif()
