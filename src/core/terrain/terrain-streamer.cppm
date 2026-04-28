@@ -100,8 +100,8 @@ void on_terrain_destroyed(entt::registry& reg, entt::entity entity) {
   // rm.images.erase(chunk.height);
 }
 class streamer {
-  // TilesDef& tiles;
-  std::map<TileKey, entt::entity> active_tiles;
+  std::map<TileKey, entt::entity> desired_tiles;   // what LOD logic wants this frame
+  std::map<TileKey, entt::entity> rendered_tiles;  // superset: desired + pending eviction
   int last_tile_x = -9999;
   int last_tile_z = -9999;
   Shader displacement_shader;
@@ -155,7 +155,7 @@ class streamer {
       const Vector2 sp = GetWorldToScreen(world_pos, camera);
       if (sp.x < 0.0f || sp.x > width || sp.y < 0.0f || sp.y > height) continue;
 
-      if (chunk.zoom == 12) DrawText(TextFormat("z%d %d,%d", chunk.zoom, chunk.x, chunk.z), static_cast<int>(sp.x), static_cast<int>(sp.y), 10, YELLOW);
+     DrawText(TextFormat("%d", chunk.zoom), static_cast<int>(sp.x), static_cast<int>(sp.y), 10, YELLOW);
     }
   }
 
@@ -195,26 +195,14 @@ class streamer {
 
   void update(entt::registry& registry) {
     const auto& player = get_player(registry);
-    // const TilesDef& tiles = get_tiles_def(registry);
     auto& rm = get_resource_manager(registry);
 
-    // player absolute position
     const auto player_pos = player.absolute_position();
-
-    // the current tile based on position
-    // const auto tile_world_size = tiles.meter_to_pixel * tiles.tex_size;
     const int current_tile_x = static_cast<int>(std::floor(player_pos.x / TILE_SIZE));
     const int current_tile_z = static_cast<int>(std::floor(player_pos.z / TILE_SIZE));
 
-    // we are on the same tile as before, bye bye...
-    // if (current_tile_x == last_tile_x && current_tile_z == last_tile_z) return;
-
-    // prepare list of required tiles
-    // std::vector<TileKey> required;
-    // required.reserve(256);
-
-    std::set<TileKey> required_set;
-
+    // --- Step 1: build new desired set (keys only) ---
+    std::set<TileKey> new_desired_keys;
     for (int dx = -6; dx <= 6; ++dx) {
       for (int dz = -6; dz <= 6; ++dz) {
         if (dz * dz + dx * dx > RENDER_DISC_R2) continue;
@@ -223,88 +211,67 @@ class streamer {
 
         const float world_x = (static_cast<float>(bx) + 0.5f) * TILE_SIZE_12;
         const float world_z = (static_cast<float>(bz) + 0.5f) * TILE_SIZE_12;
-
-        // Distance from player to this z12 cell center
-        // const auto cx12 = tile_world_pos(ZOOM_LEVEL, bx);
-        // const auto cz12 = tile_world_pos(ZOOM_LEVEL, bz);
         const auto ddx = player_pos.x - world_x;
         const auto ddz = player_pos.z - world_z;
         const auto dist_sq = ddx * ddx + ddz * ddz;
 
         if (dist_sq < Z14_THRESHOLD_SQ) {
-          // 16 z14 children
           const int cx0 = bx * 4;
           const int cz0 = bz * 4;
           for (int ox = 0; ox < 4; ++ox)
-            for (int oz = 0; oz < 4; ++oz) required_set.insert({14, cx0 + ox, cz0 + oz});
+            for (int oz = 0; oz < 4; ++oz) new_desired_keys.insert({14, cx0 + ox, cz0 + oz});
         } else if (dist_sq < Z13_THRESHOLD_SQ) {
-          // 4 z13 children
           const int cx0 = bx * 2;
           const int cz0 = bz * 2;
           for (int ox = 0; ox < 2; ++ox)
-            for (int oz = 0; oz < 2; ++oz) required_set.insert({13, cx0 + ox, cz0 + oz});
+            for (int oz = 0; oz < 2; ++oz) new_desired_keys.insert({13, cx0 + ox, cz0 + oz});
         } else {
-          required_set.insert({12, bx, bz});
+          new_desired_keys.insert({12, bx, bz});
         }
       }
     }
 
-    // const std::set<TileKey> required_set(required.begin(), required.end());
+    // --- Step 2: spawn newly desired tiles ---
+    for (const auto& key : new_desired_keys) {
+      if (!desired_tiles.contains(key)) {
+        desired_tiles[key] = spawn_tile(registry, key);
+      }
+    }
 
-    // For each z12 parent area touched by the required set, count how many of
-    // the required tiles in that area are already loaded (have TerrainChunk).
-    // A stale tile is only safe to unload when:
-    //   (a) no required tile shares its z12 parent (player moved away), or
-    //   (b) every required tile in its z12 parent area is fully loaded.
-    // using ParentCoord = std::pair<int, int>;
-    // struct ParentStatus {
-    //   int total = 0;
-    //   int loaded = 0;
-    // };
-    // std::map<ParentCoord, ParentStatus> parent_status;
-    // for (const auto& key : required_set) {
-    //   const int shift = key.zoom - ZOOM_LEVEL;
-    //   const ParentCoord parent{key.x >> shift, key.z >> shift};
-    //   auto& st = parent_status[parent];
-    //   st.total++;
-    //   if (auto it = active_tiles.find(key); it != active_tiles.end()) {
-    //     if (registry.all_of<TerrainChunk>(it->second)) st.loaded++;
-    //   }
-    // }
-
-    // iterating active and remove tiles not on required
-    for (auto it = active_tiles.begin(); it != active_tiles.end();) {
-      if (required_set.contains(it->first)) {
+    // --- Step 3: remove tiles no longer desired from desired_tiles ---
+    for (auto it = desired_tiles.begin(); it != desired_tiles.end();) {
+      if (new_desired_keys.contains(it->first)) {
         ++it;
         continue;
       }
-      const auto& [zoom, x, z] = it->first;
-      TraceLog(LOG_DEBUG, "Unloading tile z%d %d %d", zoom, x, z);
-      registry.destroy(it->second);
-      rm.textures.erase(get_tex_id(zoom, x, z));
-      rm.textures.erase(get_height_id(zoom, x, z));
-      rm.images.erase(get_height_id(zoom, x, z));
-      it = active_tiles.erase(it);
+      const auto& [key, entity] = *it;
+      if (registry.all_of<AsyncTileLoad>(entity)) {
+        // Still loading, never rendered — safe to cancel immediately.
+        TraceLog(LOG_DEBUG, "Cancelling load z%d %d %d", key.zoom, key.x, key.z);
+        registry.destroy(entity);
+      }
+      // If it has TerrainChunk it's in rendered_tiles — leave it there for the
+      // eviction check below. If it has neither (shouldn't happen) just drop it.
+      it = desired_tiles.erase(it);
     }
-    // for (auto it = active_tiles.begin(); it != active_tiles.end();) {
-    //   if (required_set.contains(it->first)) {
-    //     ++it;
-    //     continue;
-    //   }
-    //   const auto& [zoom, x, z] = it->first;
-    //   TraceLog(LOG_DEBUG, "Unloading tile z%d %d %d", zoom, x, z);
-    //   registry.destroy(it->second);
-    //   rm.textures.erase(get_tex_id(zoom, x, z));
-    //   rm.textures.erase(get_height_id(zoom, x, z));
-    //   rm.images.erase(get_height_id(zoom, x, z));
-    //   it = active_tiles.erase(it);
-    // }
 
-    // iterate the required tile and find not loaded
-    for (const auto& key : required_set) {
-      if (!active_tiles.contains(key)) {
-        const entt::entity entity = spawn_tile(registry, key);
-        active_tiles[key] = entity;
+    // --- Step 4: evict rendered tiles whose coverage is now complete ---
+    for (auto it = rendered_tiles.begin(); it != rendered_tiles.end();) {
+      if (desired_tiles.contains(it->first)) {
+        ++it;  // still desired — keep
+        continue;
+      }
+      // Not desired anymore. Check if every replacement tile is rendered.
+      if (is_parent_cell_covered(z12_parent(it->first))) {
+        const auto& [zoom, x, z] = it->first;
+        TraceLog(LOG_DEBUG, "Unloading tile z%d %d %d", zoom, x, z);
+        registry.destroy(it->second);
+        rm.textures.erase(get_tex_id(zoom, x, z));
+        rm.textures.erase(get_height_id(zoom, x, z));
+        rm.images.erase(get_height_id(zoom, x, z));
+        it = rendered_tiles.erase(it);
+      } else {
+        ++it;  // replacements not ready yet — keep rendering
       }
     }
 
@@ -349,11 +316,24 @@ class streamer {
       registry.remove<AsyncTileLoad>(entity);
       registry.emplace<TerrainChunk>(entity, texture_id, height_id, zoom, tx, tz);
       registry.emplace<TerrainHeight>(entity, height_id);
+      rendered_tiles[{zoom, tx, tz}] = entity;
       // break;  // to free the loop and let the next chunk load on the next frame
     }
   }
 
  private:
+  static TileKey z12_parent(const TileKey& k) {
+    const int shift = k.zoom - ZOOM_LEVEL;
+    return {ZOOM_LEVEL, k.x >> shift, k.z >> shift};
+  }
+
+  bool is_parent_cell_covered(const TileKey& parent12) const {
+    for (const auto& [key, _] : desired_tiles) {
+      if (z12_parent(key) == parent12 && !rendered_tiles.contains(key)) return false;
+    }
+    return true;
+  }
+
   entt::entity spawn_tile(entt::registry& registry, const TileKey& tile) {
     const auto entity = registry.create();
 
