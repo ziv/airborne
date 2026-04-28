@@ -82,7 +82,7 @@ export class Game {
 
     // 2D
     // RenderModelsLabel(registry, camera);
-    streamer.draw_tile_labels(registry, camera);
+    // streamer.draw_tile_labels(registry, camera);
     RenderCockpit(registry);
     RenderMinimap(registry);
     RenderEngineStatus(registry);
