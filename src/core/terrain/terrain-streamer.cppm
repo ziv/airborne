@@ -8,6 +8,7 @@ module;
 #include <set>
 #include <string>
 #include <thread>
+#include <algorithm>
 
 #include "../../lib/ray.hpp"
 
@@ -60,8 +61,8 @@ export struct AsyncTileLoad {
 };
 
 export struct TerrainChunk {
-  int model;
-  int height;
+  int model{};
+  int height{};
   int zoom = 12;
   int x = 0;
   int z = 0;
@@ -169,7 +170,7 @@ class streamer {
     }
   }
 
-  void stream(entt::registry& registry, const Camera3D& camera) {
+  void stream(entt::registry& registry, const Camera3D& camera) const {
     const auto& player = get_player(registry);
     const auto& rm = get_resource_manager(registry);
 
@@ -213,14 +214,14 @@ class streamer {
     for (int dx = -7; dx <= 7; ++dx) {
       for (int dz = -7; dz <= 7; ++dz) {
         if (dz * dz + dx * dx > RENDER_DISC_R2) continue;
-        const auto bx = current_tile_x + dx;
-        const auto bz = current_tile_z + dz;
+        const int bx = current_tile_x + dx;
+        const int bz = current_tile_z + dz;
 
         const float world_x = (static_cast<float>(bx) + 0.5f) * TILE_SIZE_12;
         const float world_z = (static_cast<float>(bz) + 0.5f) * TILE_SIZE_12;
-        const auto ddx = player_pos.x - world_x;
-        const auto ddz = player_pos.z - world_z;
-        const auto dist_sq = ddx * ddx + ddz * ddz;
+        const float ddx = player_pos.x - world_x;
+        const float ddz = player_pos.z - world_z;
+        const float dist_sq = ddx * ddx + ddz * ddz;
 
         if (dist_sq < Z14_THRESHOLD_SQ) {
           const int cx0 = bx * 4;
@@ -332,11 +333,18 @@ class streamer {
     return {ZOOM_LEVEL, k.x >> shift, k.z >> shift};
   }
 
+  // [[nodiscard]] bool is_parent_cell_covered(const TileKey& parent12) const {
+  //   for (const auto& key : desired_tiles | std::views::keys) {
+  //     if (z12_parent(key) == parent12 && !rendered_tiles.contains(key)) return false;
+  //   }
+  //   return true;
+  // }
+
   [[nodiscard]] bool is_parent_cell_covered(const TileKey& parent12) const {
-    for (const auto& [key, _] : desired_tiles) {
-      if (z12_parent(key) == parent12 && !rendered_tiles.contains(key)) return false;
-    }
-    return true;
+    return std::ranges::all_of(desired_tiles | std::views::keys,
+        [&](const auto& key) {
+            return z12_parent(key) != parent12 || rendered_tiles.contains(key);
+        });
   }
 
   static entt::entity spawn_tile(entt::registry& registry, const TileKey& tile) {
