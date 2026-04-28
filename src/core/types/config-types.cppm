@@ -193,7 +193,6 @@ export struct ScreensConfig {
 
 export struct AppConfig {
   GlobalConfig global;
-  WindowConfig window;
   PlayerConfig player;
   SceneConfig scene;
   ViewsConfig views;
@@ -246,5 +245,5 @@ export {
   NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(PlayerConfig, camera, controls, aircraft, position);
 
   // root
-  NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(AppConfig, global, window, player, scene, views, screens);
+  NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(AppConfig, global, player, scene, views, screens);
 }

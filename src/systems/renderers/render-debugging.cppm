@@ -10,7 +10,7 @@ import Components;
 
 export void RenderDebugging(entt::registry &registry) {
   const auto view = registry.view<Position3D>(entt::exclude<World>);
-  const auto &offset = get_offset(registry);
+  const auto &offset = get_player(registry).offset;
 
   for (auto [entity, position] : view.each()) {
     const Vector3 drawPosition = position.pos + offset;

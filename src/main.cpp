@@ -46,7 +46,6 @@ int main() {
     const auto tiles_conf = json_scenario.get<TilesDef>("/tiles");
     const auto resources_conf = json_scenario.get<std::vector<ResourceDef>>("/resources");
 
-
     InitWindow(app_conf.global.width, app_conf.global.height, app_conf.global.title.c_str());
     InitAudioDevice();
 
@@ -57,7 +56,7 @@ int main() {
     rlSetClipPlanes(app_conf.global.nearPlane, app_conf.global.farPlane);
 
     entt::registry registry;
-    set_initial_globals(registry, app_conf, scenario_conf, resources_conf, tiles_conf);
+    set_initial_globals(registry, app_conf, resources_conf);
 
     auto current = ScreenState::SPLASH;
     ScreenState next = current;

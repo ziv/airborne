@@ -12,8 +12,6 @@ import JsonConfig;
 
 export struct Configuration {
   AppConfig conf{};
-  Scenario scenario{};
-  TilesDef tiles{};
   std::vector<ResourceDef> resources{};
 };
 
@@ -62,11 +60,6 @@ export struct PlayerInputs {
 export struct GroundHeight {
   float height;
   float effectiveGroundHeight;
-};
-
-// global player map offset
-export struct Offset {
-  Vector3 offset;
 };
 
 // global tiles

@@ -20,7 +20,7 @@ export void RenderModels(entt::registry &registry, const Camera3D &camera) {
     // 1. model not exists
     if (!models.contains(modeled.model)) continue;
 
-    const auto offset = registry.ctx().get<Offset>().offset;
+    const auto offset = get_player(registry).offset;
     const auto model_position = position.pos + offset;
     // const auto &player_position = get_player(registry).pos + offset;
     //
