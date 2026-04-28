@@ -144,8 +144,9 @@ class streamer {
 
     // prepare list of required tiles
     std::set<TileCoord> required_tiles;
-    for (int dx = -5; dx <= 5; ++dx) {
-      for (int dz = -5; dz <= 5; ++dz) {
+    for (int dx = -6; dx <= 6; ++dx) {
+      for (int dz = -6; dz <= 6; ++dz) {
+        if (dx * dx + dz * dz > 30) continue;
         auto required_x = current_tile_x + dx;
         auto required_z = current_tile_z + dz;
         // if (required_x < 0 || required_x >= tiles.x_count || required_z < 0 || required_z >= tiles.z_count) continue;
@@ -242,13 +243,9 @@ class streamer {
       return LoadImage(path.c_str());
     };
 
-    auto tex_task = std::async(std::launch::async, [ensure_tile, tx, ty, tex_path]() {
-      return ensure_tile(ZOOM_LEVEL, tx, ty, tex_path);
-    });
+    auto tex_task = std::async(std::launch::async, [ensure_tile, tx, ty, tex_path]() { return ensure_tile(ZOOM_LEVEL, tx, ty, tex_path); });
 
-    auto height_task = std::async(std::launch::async, [ensure_tile, tx, ty, height_path]() {
-      return ensure_tile(ZOOM_LEVEL, tx, ty, height_path);
-    });
+    auto height_task = std::async(std::launch::async, [ensure_tile, tx, ty, height_path]() { return ensure_tile(ZOOM_LEVEL, tx, ty, height_path); });
 
     const float world_x = static_cast<float>(x) * TILE_SIZE;
     const float world_z = static_cast<float>(z) * TILE_SIZE;
