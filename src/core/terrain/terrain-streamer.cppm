@@ -1,5 +1,7 @@
 module;
+#include <cstdlib>
 #include <entt/entt.hpp>
+#include <filesystem>
 #include <future>
 #include <map>
 #include <nlohmann/json.hpp>
@@ -17,14 +19,15 @@ import Resources;
 import Accessors;
 import Types;
 
-// constexpr Meter TILE_SIZE = 9783.9;  // zoom 12
-// constexpr int BASE_X = 2435;
-// constexpr int BASE_Z = 1653;
+constexpr Meter TILE_SIZE = 9783.9;  // zoom 12
+constexpr int ZOOM_LEVEL = 12;
+constexpr int BASE_X = 2444;
+constexpr int BASE_Z = 1655;
 
-constexpr Meter TILE_SIZE = 2445.975f;  // zoom 14
+// constexpr Meter TILE_SIZE = 2445.975f;  // zoom 14
 constexpr Meter SKIRT_SIZE = 0.0f;
-constexpr int BASE_X = 9755;
-constexpr int BASE_Z = 6627;
+// constexpr int BASE_X = 9755;
+// constexpr int BASE_Z = 6627;
 
 Model create_model() { return LoadModelFromMesh(GenMeshPlane(TILE_SIZE + SKIRT_SIZE, TILE_SIZE + SKIRT_SIZE, 256, 256)); }
 
@@ -141,8 +144,8 @@ class streamer {
 
     // prepare list of required tiles
     std::set<TileCoord> required_tiles;
-    for (int dx = -6; dx <= 6; ++dx) {
-      for (int dz = -6; dz <= 6; ++dz) {
+    for (int dx = -5; dx <= 5; ++dx) {
+      for (int dz = -5; dz <= 5; ++dz) {
         auto required_x = current_tile_x + dx;
         auto required_z = current_tile_z + dz;
         // if (required_x < 0 || required_x >= tiles.x_count || required_z < 0 || required_z >= tiles.z_count) continue;
@@ -231,16 +234,20 @@ class streamer {
     std::string tex_path = std::vformat(tiles.tex_path, std::make_format_args(tx, ty));
     std::string height_path = std::vformat(tiles.hmp_path, std::make_format_args(tx, ty));
 
-    auto tex_task = std::async(std::launch::async, [tex_path]() {
-      // TraceLog(LOG_WARNING, "[thread] loading texture %s", tex_path.c_str());
-      return LoadImage(tex_path.c_str());
+    auto ensure_tile = [](int zoom, int tx, int tz, const std::string& path) {
+      if (!std::filesystem::exists(path)) {
+        std::string cmd = "./download_tile.mjs " + std::to_string(zoom) + " " + std::to_string(tx) + " " + std::to_string(tz);
+        std::system(cmd.c_str());
+      }
+      return LoadImage(path.c_str());
+    };
+
+    auto tex_task = std::async(std::launch::async, [ensure_tile, tx, ty, tex_path]() {
+      return ensure_tile(ZOOM_LEVEL, tx, ty, tex_path);
     });
 
-    auto height_task = std::async(std::launch::async, [height_path]() {
-      // TraceLog(LOG_WARNING, "[thread] loading height %s", height_path.c_str());
-      // Image height_img = LoadImage(height_path.c_str());
-      // ImageResize(&height_img, 256, 256);
-      return LoadImage(height_path.c_str());
+    auto height_task = std::async(std::launch::async, [ensure_tile, tx, ty, height_path]() {
+      return ensure_tile(ZOOM_LEVEL, tx, ty, height_path);
     });
 
     const float world_x = static_cast<float>(x) * TILE_SIZE;

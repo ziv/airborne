@@ -14,8 +14,8 @@
     }
   },
   "tiles": {
-    "tex_path": "assets/tiles/cache/texture/14/{}/{}.png",
-    "hmp_path": "assets/tiles/cache/heightmaps/14/{}/{}.png",
+    "tex_path": "assets/tiles/cache/texture/12/{}/{}.png",
+    "hmp_path": "assets/tiles/cache/heightmaps/12/{}/{}.png",
     "tile_size_m": 9783.9,
     "base_x": 2435,
     "base_z": 1653,
@@ -36,9 +36,9 @@
     "time_of_day": "day",
     "weather": "sunny",
     "start_position": {
-      "x": 50000,
+      "x": 0,
       "y": 11,
-      "z": 20000
+      "z": 0
     }
   },
   "entities": [

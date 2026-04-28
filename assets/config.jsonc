@@ -7,7 +7,7 @@
       "fov": 85,
       "tilt": 0.25,
       "nearPlane": 1,
-      "farPlane": 60000,
+      "farPlane": 100000,
       "resources": "assets/resources.jsonc"
     },
     "window": {
@@ -15,7 +15,7 @@
       "width": 1200,
       "height": 800,
       "nearPlane": 1,
-      "farPlane": 60000
+      "farPlane": 100000
     },
     "player": {
       "camera": {
