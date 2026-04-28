@@ -166,30 +166,30 @@ class streamer {
     // todo fog...
 
     for (const auto view = registry.view<TerrainChunk, Position3D>(); const auto [entity, chunk, pos] : view.each()) {
-      // // the texture is not exists (not suppose to happen, just for safety)
-      // if (!rm.textures.contains(chunk.model)) continue;
-      // // the heightmap is not exists (not suppose to happen, just for safety)
-      // if (!rm.textures.contains(chunk.height)) continue;
-      //
-      // // now this access is safe
-      // const auto tex = rm.textures[chunk.model]->res;
-      // const auto heightmap = rm.textures[chunk.height]->res;
-      //
-      // // attach the texture and the heightmap to the slot we defined in the ctr
-      // auto& model = model_for_zoom(chunk.zoom);
-      // model.materials[0].maps[MATERIAL_MAP_ALBEDO].texture = tex;
-      // model.materials[0].maps[MATERIAL_MAP_ROUGHNESS].texture = heightmap;
-      //
-      // DrawModel(terrain_model12, pos.pos + player.offset, 1.0f, WHITE);
-      if (chunk.zoom == 12) {
-        DrawCube(pos.pos + player.offset, TILE_SIZE_12, 100.0f, TILE_SIZE_12, RED);
-      }
-      if (chunk.zoom == 13) {
-        DrawCube(pos.pos + player.offset, TILE_SIZE_13, 100.0f, TILE_SIZE_13, YELLOW);
-      }
-      if (chunk.zoom == 14) {
-        DrawCube(pos.pos + player.offset, TILE_SIZE_14, 100.0f, TILE_SIZE_14, BLACK);
-      }
+      // the texture is not exists (not suppose to happen, just for safety)
+      if (!rm.textures.contains(chunk.model)) continue;
+      // the heightmap is not exists (not suppose to happen, just for safety)
+      if (!rm.textures.contains(chunk.height)) continue;
+
+      // now this access is safe
+      const auto tex = rm.textures[chunk.model]->res;
+      const auto heightmap = rm.textures[chunk.height]->res;
+
+      // attach the texture and the heightmap to the slot we defined in the ctr
+      const auto& model = model_for_zoom(chunk.zoom);
+      model.materials[0].maps[MATERIAL_MAP_ALBEDO].texture = tex;
+      model.materials[0].maps[MATERIAL_MAP_ROUGHNESS].texture = heightmap;
+
+      DrawModel(model, pos.pos + player.offset, 1.0f, WHITE);
+      // if (chunk.zoom == 12) {
+      //   DrawCube(pos.pos + player.offset, TILE_SIZE_12, 100.0f, TILE_SIZE_12, RED);
+      // }
+      // if (chunk.zoom == 13) {
+      //   DrawCube(pos.pos + player.offset, TILE_SIZE_13, 100.0f, TILE_SIZE_13, YELLOW);
+      // }
+      // if (chunk.zoom == 14) {
+      //   DrawCube(pos.pos + player.offset, TILE_SIZE_14, 100.0f, TILE_SIZE_14, BLACK);
+      // }
     }
   }
 
@@ -336,15 +336,20 @@ class streamer {
       const auto texture_id = get_tex_id(tile.zoom, tile.x, tile.z);
       const auto height_id = get_height_id(tile.zoom, tile.x, tile.z);
 
+      // Copy coords before remove — remove<AsyncTileLoad> invalidates the tile ref.
+      const int zoom = tile.zoom;
+      const int tx = tile.x;
+      const int tz = tile.z;
+
       auto& rm = get_resource_manager(registry);
       rm.textures.load(texture_id, texture_tex);
       rm.textures.load(height_id, height_tex);
       rm.images.load(height_id, height_img);
 
       registry.remove<AsyncTileLoad>(entity);
-      registry.emplace<TerrainChunk>(entity, texture_id, height_id, tile.zoom, tile.x, tile.z);
+      registry.emplace<TerrainChunk>(entity, texture_id, height_id, zoom, tx, tz);
       registry.emplace<TerrainHeight>(entity, height_id);
-      break;  // to free the loop and let the next chunk load on the next frame
+      // break;  // to free the loop and let the next chunk load on the next frame
     }
   }
 
