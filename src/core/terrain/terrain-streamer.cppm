@@ -3,9 +3,11 @@ module;
 #include <filesystem>
 #include <future>
 #include <map>
+#include <mutex>
 #include <nlohmann/json.hpp>
 #include <set>
 #include <string>
+#include <thread>
 
 #include "../../lib/ray.hpp"
 
@@ -28,16 +30,13 @@ constexpr int BASE_X = 2444;
 constexpr int BASE_Z = 1655;
 
 // Disc radius in z12 tile-units squared (matches existing dx*dx+dz*dz <= 30).
-constexpr int RENDER_DISC_R2 = 30;
+constexpr int RENDER_DISC_R2 = 36;
 // Render distance in meters: sqrt(30) * TILE_SIZE_12 ~= 53,610 m.
-constexpr Meter RENDER_RADIUS = 5.477225575f * TILE_SIZE_12;
+constexpr Meter RENDER_RADIUS = 6 * TILE_SIZE_12;
 constexpr Meter Z13_THRESHOLD = RENDER_RADIUS * 0.5f;
 constexpr Meter Z14_THRESHOLD = RENDER_RADIUS * 0.25f;
 constexpr Meter Z13_THRESHOLD_SQ = Z13_THRESHOLD * Z13_THRESHOLD;
 constexpr Meter Z14_THRESHOLD_SQ = Z14_THRESHOLD * Z14_THRESHOLD;
-
-constexpr float SQUARE_DISTANCE_13 = 25000000.0f;  // 5_000^2
-constexpr float SQUARE_DISTANCE_14 = 9000000.0f;   // 3_000^2
 
 constexpr Meter tile_size_for_zoom(int zoom) { return TILE_SIZE_12 / static_cast<Meter>(1 << (zoom - ZOOM_LEVEL)); }
 
@@ -71,6 +70,38 @@ export struct TerrainChunk {
 export struct TerrainHeight {
   int height;  // id of the height model
 };
+
+// Guards concurrent downloads of the same file path.
+// Two async threads for the same tile (texture + heightmap) would otherwise both
+// run download_tile.mjs simultaneously and race to write the same file.
+namespace {
+std::mutex download_mutex;
+std::set<std::string> downloading;
+}  // namespace
+
+static Image load_tile_image(int zoom, int tx, int tz, const std::string& path) {
+  {
+    std::lock_guard lock(download_mutex);
+    if (!std::filesystem::exists(path) && !downloading.contains(path)) {
+      downloading.insert(path);
+    } else {
+      // Either already on disk or another thread is downloading — just wait for the file.
+      while (!std::filesystem::exists(path)) {
+        // spin with a small sleep; the other thread owns the download
+        std::this_thread::sleep_for(std::chrono::milliseconds(50));
+      }
+      return LoadImage(path.c_str());
+    }
+  }
+  // We own the download for this path.
+  std::string cmd = "./download_tile.mjs " + std::to_string(zoom) + " " + std::to_string(tx) + " " + std::to_string(tz);
+  std::system(cmd.c_str());
+  {
+    std::lock_guard lock(download_mutex);
+    downloading.erase(path);
+  }
+  return LoadImage(path.c_str());
+}
 
 inline int get_tile_id(const int x, const int z) { return entt::hashed_string(TextFormat("tile_model_%d_%d", x, z)); }
 inline int get_tex_id(int zoom, int x, int z) { return entt::hashed_string(TextFormat("tile_tex_%d_%d_%d", zoom, x, z)); }
@@ -174,8 +205,8 @@ class streamer {
 
     // --- Step 1: build new desired set (keys only) ---
     std::set<TileKey> new_desired_keys;
-    for (int dx = -6; dx <= 6; ++dx) {
-      for (int dz = -6; dz <= 6; ++dz) {
+    for (int dx = -7; dx <= 7; ++dx) {
+      for (int dz = -7; dz <= 7; ++dz) {
         if (dz * dz + dx * dx > RENDER_DISC_R2) continue;
         const auto bx = current_tile_x + dx;
         const auto bz = current_tile_z + dz;
@@ -314,18 +345,12 @@ class streamer {
     std::string tex_path = std::format("assets/tiles/cache/texture/{}/{}/{}.png", tile.zoom, tx, tz);
     std::string height_path = std::format("assets/tiles/cache/heightmaps/{}/{}/{}.png", tile.zoom, tx, tz);
 
-    auto ensure_tile = [](int zoom, int tx, int tz, const std::string& path) {
-      if (!std::filesystem::exists(path)) {
-        std::string cmd = "./download_tile.mjs " + std::to_string(zoom) + " " + std::to_string(tx) + " " + std::to_string(tz);
-        std::system(cmd.c_str());
-      }
-      return LoadImage(path.c_str());
-    };
-
-    auto tex_task = std::async(std::launch::async, [ensure_tile, zoom = tile.zoom, tx, tz, tex_path]() { return ensure_tile(zoom, tx, tz, tex_path); });
-
-    auto height_task =
-        std::async(std::launch::async, [ensure_tile, zoom = tile.zoom, tx, tz, height_path]() { return ensure_tile(zoom, tx, tz, height_path); });
+    auto tex_task = std::async(std::launch::async, [zoom = tile.zoom, tx, tz, tex_path]() {
+      return load_tile_image(zoom, tx, tz, tex_path);
+    });
+    auto height_task = std::async(std::launch::async, [zoom = tile.zoom, tx, tz, height_path]() {
+      return load_tile_image(zoom, tx, tz, height_path);
+    });
 
     const float tile_size = TILE_SIZE_12 / static_cast<float>(1 << (tile.zoom - ZOOM_LEVEL));
     const float world_x = (static_cast<float>(tile.x) + 0.5f) * tile_size;

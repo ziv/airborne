@@ -76,12 +76,12 @@ export class Game {
     render_systems::sky(registry);
     streamer.stream(registry, camera);
     RenderModels(registry, camera);
-    RenderDebugging(registry);
+    // RenderDebugging(registry);
     EndMode3D();
 
     // 2D
     // RenderModelsLabel(registry, camera);
-    streamer.draw_tile_labels(registry, camera);
+    // streamer.draw_tile_labels(registry, camera);
     RenderCockpit(registry);
     RenderMinimap(registry);
     RenderEngineStatus(registry);
