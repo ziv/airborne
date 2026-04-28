@@ -1,7 +1,7 @@
 {
   "tiles": {
-    "tex_path": "assets/tiles/cache/texture/12/{}/{}.png",
-    "hmp_path": "assets/tiles/cache/heightmaps/12/{}/{}.png",
+    "tex_path": "assets/tiles/cache/texture/14/{}/{}.png",
+    "hmp_path": "assets/tiles/cache/heightmaps/14/{}/{}.png",
     "tile_size_m": 9783.9,
     "base_x": 2435,
     "base_z": 1653,
@@ -26,9 +26,9 @@
     "theater": "north",
     "start": {
       "position": {
-        "x": 60000,
+        "x": 1000,
         "y": 12,
-        "z": 60000
+        "z": 1000
       },
       "heading": 45,
       "speed": 0,
@@ -77,9 +77,9 @@
         "faction": "friendly",
         "state": "active",
         "position": {
-          "x": 60000,
+          "x": 1000,
           "y": 0,
-          "z": 60000
+          "z": 1000
         },
         "heading": 90,
         "health": 100,

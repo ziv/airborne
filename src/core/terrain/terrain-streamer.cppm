@@ -17,10 +17,14 @@ import Resources;
 import Accessors;
 import Types;
 
-constexpr Meter TILE_SIZE = 9783.9;  // zoom 12
-constexpr Meter SKIRT_SIZE = 150;
-constexpr int BASE_X = 2435;
-constexpr int BASE_Z = 1653;
+// constexpr Meter TILE_SIZE = 9783.9;  // zoom 12
+// constexpr int BASE_X = 2435;
+// constexpr int BASE_Z = 1653;
+
+constexpr Meter TILE_SIZE = 2445.975f;  // zoom 14
+constexpr Meter SKIRT_SIZE = 0.0f;
+constexpr int BASE_X = 9755;
+constexpr int BASE_Z = 6627;
 
 Model create_model() { return LoadModelFromMesh(GenMeshPlane(TILE_SIZE + SKIRT_SIZE, TILE_SIZE + SKIRT_SIZE, 256, 256)); }
 
@@ -137,13 +141,13 @@ class streamer {
 
     // prepare list of required tiles
     std::set<TileCoord> required_tiles;
-    for (int dx = -3; dx <= 3; ++dx) {
-      for (int dz = -3; dz <= 3; ++dz) {
+    for (int dx = -6; dx <= 6; ++dx) {
+      for (int dz = -6; dz <= 6; ++dz) {
         auto required_x = current_tile_x + dx;
         auto required_z = current_tile_z + dz;
         // if (required_x < 0 || required_x >= tiles.x_count || required_z < 0 || required_z >= tiles.z_count) continue;
         // todo need to limit to the number of images we have?
-        if (required_x < 0 || required_z < 0) continue;
+        // if (required_x < 0 || required_z < 0) continue;
         required_tiles.insert({required_x, required_z});
       }
     }
