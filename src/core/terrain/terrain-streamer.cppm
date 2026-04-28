@@ -17,6 +17,13 @@ import Resources;
 import Accessors;
 import Types;
 
+constexpr Meter TILE_SIZE = 9783.9;  // zoom 12
+constexpr Meter SKIRT_SIZE = 150;
+constexpr int BASE_X = 2435;
+constexpr int BASE_Z = 1653;
+
+Model create_model() { return LoadModelFromMesh(GenMeshPlane(TILE_SIZE + SKIRT_SIZE, TILE_SIZE + SKIRT_SIZE, 256, 256)); }
+
 export struct AsyncTileLoad {
   std::future<Image> texture_future;
   std::future<Image> heightmap_future;
@@ -26,37 +33,82 @@ export struct AsyncTileLoad {
 
 export struct TerrainChunk {
   int model;
+  int height;
+};
+
+export struct TerrainHeight {
+  int height;  // id of the height model
 };
 
 inline int get_tile_id(const int x, const int z) { return entt::hashed_string(TextFormat("tile_model_%d_%d", x, z)); }
+inline int get_tex_id(const int x, const int z) { return entt::hashed_string(TextFormat("tile_tex_%d_%d", x, z)); }
+inline int get_height_id(const int x, const int z) { return entt::hashed_string(TextFormat("tile_height_%d_%d", x, z)); }
 
 export namespace terrain_streamer {
 using TileCoord = std::pair<int, int>;
 
-void stream(entt::registry& registry, const Camera3D& camera) {
-  const auto& models = get_resource_manager(registry).models;
-  const auto& offset = get_player(registry).offset;
+void on_terrain_destroyed(entt::registry& reg, entt::entity entity) {
+  TraceLog(LOG_INFO, "Destroying terrain chunk entity %d", static_cast<int>(entity));
+  const auto& chunk = reg.get<TerrainChunk>(entity);
+  auto& rm = get_resource_manager(reg);
 
-  if (-99 != resources::fog_shader_pos_loc) {
-    const auto& shader = get_resource_manager(registry).shaders[resources::fog_shader]->res;
-    SetShaderValue(shader, resources::fog_shader_pos_loc, &camera.position, SHADER_UNIFORM_VEC3);
-  }
-
-  for (const auto view = registry.view<TerrainChunk, Position3D>(); const auto entity : view) {
-    const auto& [chunk, pos] = view.get<const TerrainChunk, const Position3D>(entity);
-    const Vector3 position = pos.pos + offset;
-    DrawModel(models[chunk.model]->res, position, 1.0f, WHITE);
-  }
+  // rm.textures.erase(chunk.model);
+  // rm.textures.erase(chunk.height);
+  // rm.images.erase(chunk.height);
 }
-
 class streamer {
   // TilesDef& tiles;
   std::map<TileCoord, entt::entity> active_tiles;
   int last_tile_x = -9999;
   int last_tile_z = -9999;
+  Shader displacement_shader;
+  Model terrain_model;
 
  public:
-  // explicit streamer(TilesDef& tls) : tiles(tls) {}
+  explicit streamer(entt::registry& registry)
+      : displacement_shader(LoadShader("assets/shaders/terrain.vs", "assets/shaders/terrain.fs")), terrain_model(create_model()) {
+    // set the displacement_shader as the terrain model shader
+    terrain_model.materials[0].shader = displacement_shader;
+
+    // set the heightmap data into MATERIAL_MAP_ROUGHNESS slot
+    constexpr int heightmapSlotIndex = MATERIAL_MAP_ROUGHNESS;  // Raylib map roughness index
+    const int shaderLocation = GetShaderLocation(displacement_shader, "heightMap");
+    SetShaderValue(displacement_shader, shaderLocation, &heightmapSlotIndex, SHADER_UNIFORM_INT);
+
+    // set scale 1 as long as the model is stretched properly
+    constexpr float heightScale = 1.0;
+    const int scaleLoc = GetShaderLocation(displacement_shader, "heightScale");
+    SetShaderValue(displacement_shader, scaleLoc, &heightScale, SHADER_UNIFORM_FLOAT);
+
+    // clean resources when destroying
+    // registry.on_destroy<TerrainChunk>().connect<&on_terrain_destroyed>();
+  }
+
+  void stream(entt::registry& registry, const Camera3D& camera) {
+    const auto& models = get_resource_manager(registry).models;
+    const auto& offset = get_player(registry).offset;
+    const auto& rm = get_resource_manager(registry);
+
+    // todo fog...
+
+    for (const auto view = registry.view<TerrainChunk, Position3D>(); const auto [entity, chunk, pos] : view.each()) {
+      // the texture is not exists (not suppose to happen, just for safety)
+      if (!rm.textures.contains(chunk.model)) continue;
+      // the heightmap is not exists (not suppose to happen, just for safety)
+      if (!rm.textures.contains(chunk.height)) continue;
+
+      // now this access is safe
+      const auto tex = rm.textures[chunk.model]->res;
+      const auto heightmap = rm.textures[chunk.height]->res;
+
+      // attach the texture and the heightmap to the slot we defined in the ctr
+      terrain_model.materials[0].maps[MATERIAL_MAP_ALBEDO].texture = tex;
+      terrain_model.materials[0].maps[MATERIAL_MAP_ROUGHNESS].texture = heightmap;
+
+      const Vector3 position = pos.pos + offset;
+      DrawModel(terrain_model, position, 1.0f, WHITE);
+    }
+  }
 
   void update(entt::registry& registry) {
     const auto& player = get_player(registry);
@@ -64,15 +116,20 @@ class streamer {
     auto& rm = get_resource_manager(registry);
 
     // player absolute position
-    const auto position = player.pos - player.offset;
+    const auto position = player.absolute_position();
 
     // the current tile based on position
-    const auto tile_world_size = tiles.meter_to_pixel * tiles.tex_size;
-    int current_tile_x = static_cast<int>(std::floor(position.x / tile_world_size));
-    int current_tile_z = static_cast<int>(std::floor(position.z / tile_world_size));
+    // const auto tile_world_size = tiles.meter_to_pixel * tiles.tex_size;
+    const int current_tile_x = static_cast<int>(std::floor(position.x / TILE_SIZE));
+    const int current_tile_z = static_cast<int>(std::floor(position.z / TILE_SIZE));
 
-    current_tile_x = std::clamp(current_tile_x, 0, tiles.x_count - 1);
-    current_tile_z = std::clamp(current_tile_z, 0, tiles.z_count - 1);
+    // TraceLog(LOG_WARNING, "player pos: %f %f %f", position.x, position.y, position.z);
+    // TraceLog(LOG_WARNING, "tile_size %f", TILE_SIZE);
+    // TraceLog(LOG_ERROR, "current_tile_x = %d, current_tile_z = %d", current_tile_x, current_tile_z);
+
+    // todo need to limit to the number of images we have?
+    // current_tile_x = std::clamp(current_tile_x, 0, tiles.x_count - 1);
+    // current_tile_z = std::clamp(current_tile_z, 0, tiles.z_count - 1);
 
     // we are on the same tile as before, bye bye...
     // but before we return, we need to measure the height below us...
@@ -84,7 +141,9 @@ class streamer {
       for (int dz = -3; dz <= 3; ++dz) {
         auto required_x = current_tile_x + dx;
         auto required_z = current_tile_z + dz;
-        if (required_x < 0 || required_x >= tiles.x_count || required_z < 0 || required_z >= tiles.z_count) continue;
+        // if (required_x < 0 || required_x >= tiles.x_count || required_z < 0 || required_z >= tiles.z_count) continue;
+        // todo need to limit to the number of images we have?
+        if (required_x < 0 || required_z < 0) continue;
         required_tiles.insert({required_x, required_z});
       }
     }
@@ -92,13 +151,18 @@ class streamer {
     // iterating active and remove tiles not on required
     for (auto it = active_tiles.begin(); it != active_tiles.end();) {
       if (!required_tiles.contains(it->first)) {
+        // remove the entity of the tile
         registry.destroy(it->second);
-        // UnloadTexture(rm.models[get_tile_id(it->first.first, it->first.second)]->res.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture);
-        const auto id = get_tile_id(it->first.first, it->first.second);
-        rm.models.erase(id);
-        rm.textures.erase(id);
+        // clean textures of removed tiles
+        const auto texture_id = get_tex_id(it->first.first, it->first.second);
+        const auto height_id = get_height_id(it->first.first, it->first.second);
+        rm.textures.erase(texture_id);
+        rm.textures.erase(height_id);
+        rm.images.erase(height_id);
+        // const auto id = get_tile_id(it->first.first, it->first.second);
+        // rm.models.erase(id);
+        // rm.textures.erase(id);
         it = active_tiles.erase(it);
-
       } else {
         ++it;
       }
@@ -118,55 +182,36 @@ class streamer {
   }
 
   void process_loaded_chunks(entt::registry& registry) {
-    for (const auto view = registry.view<AsyncTileLoad>(); const auto entity : view) {
-      auto& [texture_future, heightmap_future, x, z] = view.get<AsyncTileLoad>(entity);
-
+    for (const auto view = registry.view<AsyncTileLoad>(); const auto [entity, tile] : view.each()) {
       // zero wait check if the threads done
-      const bool tex_ready = texture_future.wait_for(std::chrono::seconds(0)) == std::future_status::ready;
-      const bool height_ready = heightmap_future.wait_for(std::chrono::seconds(0)) == std::future_status::ready;
+      const bool tex_ready = tile.texture_future.wait_for(std::chrono::seconds(0)) == std::future_status::ready;
+      const bool height_ready = tile.heightmap_future.wait_for(std::chrono::seconds(0)) == std::future_status::ready;
 
       // if not, we'll try again next tick
       if (!tex_ready || !height_ready) continue;
 
-      const TilesDef& scenario = get_tiles_def(registry);
-
-      // TraceLog(LOG_WARNING, "processing loaded tile %d %d", x, z);
-      auto& rm = get_resource_manager(registry);
-      const auto id = get_tile_id(x, z);
-
-      const Image tex_img = texture_future.get();
-      const Image height_img = heightmap_future.get();
+      const Image tex_img = tile.texture_future.get();
+      const Image height_img = tile.heightmap_future.get();
 
       // create the texture
-      const Texture2D final_texture = LoadTextureFromImage(tex_img);
+      const Texture2D texture_tex = LoadTextureFromImage(tex_img);
+      const Texture2D height_tex = LoadTextureFromImage(height_img);
 
-      // create the heightmap mesh and convert to model and apply texture
-      const auto tile_world_size = scenario.meter_to_pixel * scenario.tex_size;
-      const auto tile_overlap = tile_world_size / 255.0f;
-      const Mesh mesh =
-          GenMeshHeightmap(height_img, (Vector3){tile_world_size + tile_overlap, scenario.highest - scenario.lowest, tile_world_size + tile_overlap});
-      const Model model = LoadModelFromMesh(mesh);
-      model.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = final_texture;
-
-      // constexpr auto fog_id = entt::hashed_string("fog_shader");
-      // model.materials[0].shader = rm.shaders[fog_id]->res;
-
-      // if the fog exists in the resource manager, use it
-
-      if (constexpr auto fog_id = entt::hashed_string("fog_shader"); rm.shaders.contains(fog_id)) {
-        model.materials[0].shader = rm.shaders[fog_id]->res;
-      }
-
-      // keeping the tile in the resource manager
-      rm.models.load(id, model);
-      rm.textures.load(id, final_texture);
-
-      // unload images
+      // need no more
       UnloadImage(tex_img);
-      UnloadImage(height_img);
+
+      // keep textures in resource manager for the render phase
+      const auto texture_id = get_tex_id(tile.x, tile.z);
+      const auto height_id = get_height_id(tile.x, tile.z);
+
+      auto& rm = get_resource_manager(registry);
+      rm.textures.load(texture_id, texture_tex);
+      rm.textures.load(height_id, height_tex);
+      rm.images.load(height_id, height_img);
 
       registry.remove<AsyncTileLoad>(entity);
-      registry.emplace<TerrainChunk>(entity, id);
+      registry.emplace<TerrainChunk>(entity, texture_id, height_id);
+      registry.emplace<TerrainHeight>(entity, height_id);
       break;  // to free the loop and let the next chunk load on the next frame
     }
   }
@@ -175,8 +220,8 @@ class streamer {
   entt::entity spawn_tile(entt::registry& registry, const int x, const int z, const TilesDef& tiles) {
     const auto entity = registry.create();
 
-    const int tx = x + tiles.min_x;
-    const int ty = z + tiles.min_z;
+    const int tx = x + BASE_X;
+    const int ty = z + BASE_Z;
     TraceLog(LOG_WARNING, "spawning tile %d (%d), %d (%d)", x, tx, z, ty);
 
     std::string tex_path = std::vformat(tiles.tex_path, std::make_format_args(tx, ty));
@@ -189,15 +234,13 @@ class streamer {
 
     auto height_task = std::async(std::launch::async, [height_path]() {
       // TraceLog(LOG_WARNING, "[thread] loading height %s", height_path.c_str());
-      Image height_img = LoadImage(height_path.c_str());
-      // todo create the images 256 from the begining
-      ImageResize(&height_img, 256, 256);
-      return height_img;
+      // Image height_img = LoadImage(height_path.c_str());
+      // ImageResize(&height_img, 256, 256);
+      return LoadImage(height_path.c_str());
     });
 
-    const auto tile_world_size = tiles.meter_to_pixel * tiles.tex_size;
-    const float world_x = static_cast<float>(x) * tile_world_size;
-    const float world_z = static_cast<float>(z) * tile_world_size;
+    const float world_x = static_cast<float>(x) * TILE_SIZE;
+    const float world_z = static_cast<float>(z) * TILE_SIZE;
 
     registry.emplace<Position3D>(entity, (Vector3){world_x, tiles.lowest, world_z}, Vector3Zero());
     registry.emplace<AsyncTileLoad>(entity, std::move(tex_task), std::move(height_task), x, z);
