@@ -322,7 +322,7 @@ class streamer {
       registry.emplace<TerrainChunk>(entity, texture_id, height_id, zoom, tx, tz);
       registry.emplace<TerrainHeight>(entity, height_id);
       rendered_tiles[{zoom, tx, tz}] = entity;
-      // break;  // to free the loop and let the next chunk load on the next frame
+      break;  // to free the loop and let the next chunk load on the next frame
     }
   }
 
@@ -332,14 +332,14 @@ class streamer {
     return {ZOOM_LEVEL, k.x >> shift, k.z >> shift};
   }
 
-  bool is_parent_cell_covered(const TileKey& parent12) const {
+  [[nodiscard]] bool is_parent_cell_covered(const TileKey& parent12) const {
     for (const auto& [key, _] : desired_tiles) {
       if (z12_parent(key) == parent12 && !rendered_tiles.contains(key)) return false;
     }
     return true;
   }
 
-  entt::entity spawn_tile(entt::registry& registry, const TileKey& tile) {
+  static entt::entity spawn_tile(entt::registry& registry, const TileKey& tile) {
     const auto entity = registry.create();
 
     const int scale = 1 << (tile.zoom - ZOOM_LEVEL);
@@ -350,12 +350,8 @@ class streamer {
     std::string tex_path = std::format("assets/tiles/cache/texture/{}/{}/{}.png", tile.zoom, tx, tz);
     std::string height_path = std::format("assets/tiles/cache/heightmaps/{}/{}/{}.png", tile.zoom, tx, tz);
 
-    auto tex_task = std::async(std::launch::async, [zoom = tile.zoom, tx, tz, tex_path]() {
-      return load_tile_image(zoom, tx, tz, tex_path);
-    });
-    auto height_task = std::async(std::launch::async, [zoom = tile.zoom, tx, tz, height_path]() {
-      return load_tile_image(zoom, tx, tz, height_path);
-    });
+    auto tex_task = std::async(std::launch::async, [zoom = tile.zoom, tx, tz, tex_path]() { return load_tile_image(zoom, tx, tz, tex_path); });
+    auto height_task = std::async(std::launch::async, [zoom = tile.zoom, tx, tz, height_path]() { return load_tile_image(zoom, tx, tz, height_path); });
 
     const float tile_size = TILE_SIZE_12 / static_cast<float>(1 << (tile.zoom - ZOOM_LEVEL));
     const float world_x = (static_cast<float>(tile.x) + 0.5f) * tile_size;
@@ -367,7 +363,7 @@ class streamer {
     return entity;
   }
 
-  Model& model_for_zoom(const int zoom) {
+  Model& model_for_zoom(const int zoom) const {
     switch (zoom) {
       case 13:
         return *terrain_model13;
