@@ -20,7 +20,7 @@ import Accessors;
 import Types;
 
 constexpr Meter SKIRT_SIZE = 0.0f;
-constexpr Meter TILE_SIZE = 9783.9;  // zoom 12
+constexpr Meter TILE_SIZE = 9783.9;     // zoom 12
 constexpr Meter TILE_SIZE_12 = 9783.9;  // zoom 12
 constexpr int ZOOM_LEVEL = 12;
 constexpr int BASE_X = 2444;
@@ -151,14 +151,12 @@ class streamer {
 
     // prepare list of required tiles
     std::set<TileKey> required_tiles;
-    for (int dx = -5; dx <= 5; ++dx) {
-      for (int dz = -5; dz <= 5; ++dz) {
-        auto required_x = current_tile_x + dx;
-        auto required_z = current_tile_z + dz;
-        // if (required_x < 0 || required_x >= tiles.x_count || required_z < 0 || required_z >= tiles.z_count) continue;
-        // todo need to limit to the number of images we have?
-        // if (required_x < 0 || required_z < 0) continue;
-        required_tiles.insert({12, required_x, required_z});
+    for (int dx = -6; dx <= 6; ++dx) {
+      for (int dz = -6; dz <= 6; ++dz) {
+        if (dz * dz + dx * dx > 30) continue;
+        const auto bx = current_tile_x + dx;
+        const auto bz = current_tile_z + dz;
+        required_tiles.insert({12, bx, bz});
       }
     }
 
@@ -173,9 +171,6 @@ class streamer {
         rm.textures.erase(texture_id);
         rm.textures.erase(height_id);
         rm.images.erase(height_id);
-        // const auto id = get_tile_id(it->first.first, it->first.second);
-        // rm.models.erase(id);
-        // rm.textures.erase(id);
         it = active_tiles.erase(it);
       } else {
         ++it;
