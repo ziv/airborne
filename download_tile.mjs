@@ -1,0 +1,54 @@
+#!/usr/bin/env node
+import * as process from "node:process";
+import {createWriteStream} from 'fs';
+import {Readable} from 'stream';
+import {finished} from 'stream/promises';
+
+const argv = process.argv.slice(2);
+if (argv.length !== 3) {
+    console.error("Usage: node download_tile.mjs <zoom> <x> <z>");
+    process.exit(1);
+}
+
+const [zoom, x, z] = argv;
+
+const token = process.env["MAPBOX_TOKEN"];
+if (!token) {
+    console.error("MAPBOX_TOKEN environment variable is not set");
+    process.ex(2);
+}
+
+async function download_texture(zoom, x, z, token) {
+    const url = `https://api.mapbox.com/v4/mapbox.satellite/${zoom}/${x}/${z}.png?access_token=${token}`;
+    const path = `assets/tiles/cache/texture/${zoom}/${x}/${z}.png`;
+
+    const response = await fetch(url);
+    if (!response.ok) {
+        console.error(`failed to download texture for tile ${zoom}/${x}/${z}: ${response.status} ${response.statusText}`);
+        return;
+    }
+
+    const fileStream = createWriteStream(path);
+    await finished(Readable.fromWeb(response.body).pipe(fileStream));
+    console.error(`downloaded texture to path ${path}`)
+}
+
+async function download_heightmap(zoom, x, z, token) {
+    const url = `https://api.mapbox.com/v4/mapbox.terrain-rgb/${zoom}/${x}/${z}.pngraw?access_token=${token}`;
+    const path = `assets/tiles/cache/heightmaps/${zoom}/${x}/${z}.png`;
+
+    const response = await fetch(url);
+    if (!response.ok) {
+        console.error(`failed to download heightmap for tile ${zoom}/${x}/${z}: ${response.status} ${response.statusText}`);
+        return;
+    }
+
+    const fileStream = createWriteStream(path);
+    await finished(Readable.fromWeb(response.body).pipe(fileStream));
+    console.error(`downloaded heightmap to path ${path}`)
+}
+
+await Promise.all([
+    download_texture(zoom, x, z, token),
+    download_heightmap(zoom, x, z, token)
+]);
