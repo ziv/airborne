@@ -14,8 +14,11 @@
     }
   },
   "tiles": {
-    "tex_path": "assets/tiles/north/z12-tex-esri/{}/{}.png",
-    "hmp_path": "assets/tiles/north/z12-hmp-512/{}/{}.png",
+    "tex_path": "assets/tiles/cache/texture/12/{}/{}.png",
+    "hmp_path": "assets/tiles/cache/heightmaps/12/{}/{}.png",
+    "tile_size_m": 9783.9,
+    "base_x": 2435,
+    "base_z": 1653,
     "meter_to_pixel": 8.05,
     "tex_size": 1024,
     "hmp_size": 1024,
@@ -33,9 +36,9 @@
     "time_of_day": "day",
     "weather": "sunny",
     "start_position": {
-      "x": 20000,
+      "x": 100000,
       "y": 11,
-      "z": 60001
+      "z": 100000
     }
   },
   "entities": [
@@ -48,9 +51,9 @@
         "type": "carrier",
         "faction": "friendly",
         "position": {
-          "x": 20000,
+          "x": 100000,
           "y": 0,
-          "z": 60001
+          "z": 100000
         },
         "heading": 0,
         "model": "carrier-model",

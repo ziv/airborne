@@ -72,7 +72,7 @@ Model init_clouds(const Shader &fog) {
 Shader init_fog(const Vector3 &dayZenith, const Vector3 &dayHorizon) {
   const auto fog = LoadShader("assets/shaders/fog.vs", "assets/shaders/fog.fs");
 
-  constexpr float fogNearValue = 20000.0f;             // start at
+  constexpr float fogNearValue = 25000.0f;             // start at
   constexpr float fogFarValue = 40000.0f;              // full fogs
   // constexpr Vector3 dayZenith = {0.1f, 0.3f, 0.9f};    // see sky
   // constexpr Vector3 dayHorizon = {0.6f, 0.8f, 0.99f};  // see sky

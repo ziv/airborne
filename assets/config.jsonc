@@ -7,7 +7,7 @@
       "fov": 85,
       "tilt": 0.25,
       "nearPlane": 1,
-      "farPlane": 30000,
+      "farPlane": 60000,
       "resources": "assets/resources.jsonc"
     },
     "window": {
@@ -15,7 +15,7 @@
       "width": 1200,
       "height": 800,
       "nearPlane": 1,
-      "farPlane": 30000
+      "farPlane": 60000
     },
     "player": {
       "camera": {
@@ -116,7 +116,7 @@
       "minimap": {
         "mapTexture": "minimap-tex",
         "size": 150,
-        "mapsRatio": 64
+        "mapsRatio": 128
       },
       "cockpit": {
         "texturePath": "cockpit-tex",

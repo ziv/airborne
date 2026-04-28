@@ -246,6 +246,9 @@ export {
   struct TilesDef {
     std::string tex_path;
     std::string hmp_path;
+    float tile_size_m = 0.0f;
+    int base_x = 0;
+    int base_z = 0;
     float meter_to_pixel = 0.0f;
     int tex_size = 0;
     float lowest = 0.0f;
@@ -256,7 +259,8 @@ export {
     int min_z = 0;
   };
 
-  NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(TilesDef, tex_path, hmp_path, meter_to_pixel, tex_size, lowest, highest, x_count, z_count, min_x, min_z);
+  NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(TilesDef, tex_path, hmp_path, tile_size_m, base_x, base_z, meter_to_pixel, tex_size, lowest, highest, x_count, z_count,
+                                     min_x, min_z);
 
   struct Scenario {
     std::string id;
