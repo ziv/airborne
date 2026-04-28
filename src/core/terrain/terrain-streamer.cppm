@@ -1,12 +1,15 @@
 module;
+#include <cmath>
 #include <cstdlib>
 #include <entt/entt.hpp>
 #include <filesystem>
+#include <format>
 #include <future>
 #include <map>
 #include <nlohmann/json.hpp>
 #include <set>
 #include <string>
+#include <vector>
 
 #include "../../lib/ray.hpp"
 
@@ -19,21 +22,46 @@ import Resources;
 import Accessors;
 import Types;
 
-constexpr Meter SKIRT_SIZE = 0.0f;
-constexpr Meter TILE_SIZE = 9783.9;  // zoom 12
-constexpr int ZOOM_LEVEL = 12;
+constexpr int BASE_ZOOM = 12;
+constexpr Meter TILE_SIZE_12 = 9783.9f;
+constexpr Meter TILE_SIZE_13 = TILE_SIZE_12 / 2.0f;
+constexpr Meter TILE_SIZE_14 = TILE_SIZE_12 / 4.0f;
 constexpr int BASE_X = 2444;
 constexpr int BASE_Z = 1655;
 
-// constexpr Meter TILE_SIZE = 2445.975f;  // zoom 14
-// constexpr int BASE_X = 9755;
-// constexpr int BASE_Z = 6627;
+// Disc radius in z12 tile-units squared (matches existing dx*dx+dz*dz <= 30).
+constexpr int RENDER_DISC_R2 = 30;
+// Render distance in meters: sqrt(30) * TILE_SIZE_12 ~= 53,610 m.
+constexpr Meter RENDER_RADIUS = 5.477225575f * TILE_SIZE_12;
+constexpr Meter Z13_THRESHOLD = RENDER_RADIUS * 0.5f;
+constexpr Meter Z14_THRESHOLD = RENDER_RADIUS * 0.25f;
+constexpr Meter Z13_THRESHOLD_SQ = Z13_THRESHOLD * Z13_THRESHOLD;
+constexpr Meter Z14_THRESHOLD_SQ = Z14_THRESHOLD * Z14_THRESHOLD;
 
-Model create_model() { return LoadModelFromMesh(GenMeshPlane(TILE_SIZE + SKIRT_SIZE, TILE_SIZE + SKIRT_SIZE, 256, 256)); }
+constexpr Meter tile_size_for_zoom(int zoom) { return TILE_SIZE_12 / static_cast<Meter>(1 << (zoom - BASE_ZOOM)); }
+
+// World-space center for a tile at any zoom, aligned within its z12 parent area.
+inline float tile_world_pos(int zoom, int local_idx) {
+  const int n = 1 << (zoom - BASE_ZOOM);
+  const int parent = local_idx >> (zoom - BASE_ZOOM);
+  const int child = local_idx - parent * n;  // 0 .. n-1
+  const Meter sz = tile_size_for_zoom(zoom);
+  return static_cast<float>(parent) * TILE_SIZE_12 + (static_cast<float>(child) - (n - 1) * 0.5f) * sz;
+}
+
+Model create_terrain_model(Meter size) { return LoadModelFromMesh(GenMeshPlane(size, size, 256, 256)); }
+
+export struct TileKey {
+  int zoom;
+  int x;
+  int z;
+  auto operator<=>(const TileKey&) const = default;
+};
 
 export struct AsyncTileLoad {
   std::future<Image> texture_future;
   std::future<Image> heightmap_future;
+  int zoom = BASE_ZOOM;
   int x = 0;
   int z = 0;
 };
@@ -41,176 +69,200 @@ export struct AsyncTileLoad {
 export struct TerrainChunk {
   int model;
   int height;
+  int zoom = BASE_ZOOM;
+  int x = 0;
+  int z = 0;
 };
 
 export struct TerrainHeight {
   int height;  // id of the height model
 };
 
-inline int get_tile_id(const int x, const int z) { return entt::hashed_string(TextFormat("tile_model_%d_%d", x, z)); }
-inline int get_tex_id(const int x, const int z) { return entt::hashed_string(TextFormat("tile_tex_%d_%d", x, z)); }
-inline int get_height_id(const int x, const int z) { return entt::hashed_string(TextFormat("tile_height_%d_%d", x, z)); }
+inline int get_tex_id(int zoom, int x, int z) { return entt::hashed_string(TextFormat("tile_tex_%d_%d_%d", zoom, x, z)); }
+inline int get_height_id(int zoom, int x, int z) { return entt::hashed_string(TextFormat("tile_height_%d_%d_%d", zoom, x, z)); }
 
 export namespace terrain_streamer {
-using TileCoord = std::pair<int, int>;
 
-void on_terrain_destroyed(entt::registry& reg, entt::entity entity) {
-  TraceLog(LOG_INFO, "Destroying terrain chunk entity %d", static_cast<int>(entity));
-  const auto& chunk = reg.get<TerrainChunk>(entity);
-  auto& rm = get_resource_manager(reg);
+void on_terrain_destroyed(entt::registry& reg, entt::entity entity) { TraceLog(LOG_INFO, "Destroying terrain chunk entity %d", static_cast<int>(entity)); }
 
-  // rm.textures.erase(chunk.model);
-  // rm.textures.erase(chunk.height);
-  // rm.images.erase(chunk.height);
-}
 class streamer {
-  // TilesDef& tiles;
-  std::map<TileCoord, entt::entity> active_tiles;
-  int last_tile_x = -9999;
-  int last_tile_z = -9999;
+  std::map<TileKey, entt::entity> active_tiles;
   Shader displacement_shader;
-  Model terrain_model;
+  Model terrain_model_z12;
+  Model terrain_model_z13;
+  Model terrain_model_z14;
+
+  Model& model_for_zoom(int zoom) {
+    switch (zoom) {
+      case 13:
+        return terrain_model_z13;
+      case 14:
+        return terrain_model_z14;
+      default:
+        return terrain_model_z12;
+    }
+  }
 
  public:
   explicit streamer(entt::registry& registry)
-      : displacement_shader(LoadShader("assets/shaders/terrain.vs", "assets/shaders/terrain.fs")), terrain_model(create_model()) {
-    // set the displacement_shader as the terrain model shader
-    terrain_model.materials[0].shader = displacement_shader;
+      : displacement_shader(LoadShader("assets/shaders/terrain.vs", "assets/shaders/terrain.fs")),
+        terrain_model_z12(create_terrain_model(TILE_SIZE_12)),
+        terrain_model_z13(create_terrain_model(TILE_SIZE_13)),
+        terrain_model_z14(create_terrain_model(TILE_SIZE_14)) {
+    terrain_model_z12.materials[0].shader = displacement_shader;
+    terrain_model_z13.materials[0].shader = displacement_shader;
+    terrain_model_z14.materials[0].shader = displacement_shader;
 
-    // set the heightmap data into MATERIAL_MAP_ROUGHNESS slot
-    constexpr int heightmapSlotIndex = MATERIAL_MAP_ROUGHNESS;  // Raylib map roughness index
+    constexpr int heightmapSlotIndex = MATERIAL_MAP_ROUGHNESS;  // Raylib map roughness slot
     const int shaderLocation = GetShaderLocation(displacement_shader, "heightMap");
     SetShaderValue(displacement_shader, shaderLocation, &heightmapSlotIndex, SHADER_UNIFORM_INT);
 
-    // set scale 1 as long as the model is stretched properly
-    constexpr float heightScale = 1.0;
+    constexpr float heightScale = 1.0f;
     const int scaleLoc = GetShaderLocation(displacement_shader, "heightScale");
     SetShaderValue(displacement_shader, scaleLoc, &heightScale, SHADER_UNIFORM_FLOAT);
-
-    // clean resources when destroying
-    // registry.on_destroy<TerrainChunk>().connect<&on_terrain_destroyed>();
   }
 
   void stream(entt::registry& registry, const Camera3D& camera) {
-    const auto& models = get_resource_manager(registry).models;
     const auto& offset = get_player(registry).offset;
     const auto& rm = get_resource_manager(registry);
 
-    // todo fog...
-
     for (const auto view = registry.view<TerrainChunk, Position3D>(); const auto [entity, chunk, pos] : view.each()) {
-      // the texture is not exists (not suppose to happen, just for safety)
       if (!rm.textures.contains(chunk.model)) continue;
-      // the heightmap is not exists (not suppose to happen, just for safety)
       if (!rm.textures.contains(chunk.height)) continue;
 
-      // now this access is safe
       const auto tex = rm.textures[chunk.model]->res;
       const auto heightmap = rm.textures[chunk.height]->res;
 
-      // attach the texture and the heightmap to the slot we defined in the ctr
-      terrain_model.materials[0].maps[MATERIAL_MAP_ALBEDO].texture = tex;
-      terrain_model.materials[0].maps[MATERIAL_MAP_ROUGHNESS].texture = heightmap;
+      auto& model = model_for_zoom(chunk.zoom);
+      model.materials[0].maps[MATERIAL_MAP_ALBEDO].texture = tex;
+      model.materials[0].maps[MATERIAL_MAP_ROUGHNESS].texture = heightmap;
 
       const Vector3 position = pos.pos + offset;
-      DrawModel(terrain_model, position, 1.0f, WHITE);
+      DrawModel(model, position, 1.0f, WHITE);
+    }
+  }
+
+  // 2D pass: draw a small label at each tile center showing its zoom and (x,z).
+  // Only labels tiles in front of the camera.
+  void draw_tile_labels(entt::registry& registry, const Camera3D& camera) {
+    const auto& offset = get_player(registry).offset;
+    const Vector3 forward = Vector3Normalize(camera.target - camera.position);
+
+    for (const auto view = registry.view<TerrainChunk, Position3D>(); const auto [entity, chunk, pos] : view.each()) {
+      // Raise the label a bit above the ground for legibility
+      const Vector3 world_pos = pos.pos + offset + Vector3{0.0f, 200.0f, 0.0f};
+
+      // "In front of camera" filter via dot product with forward
+      const Vector3 to_tile = world_pos - camera.position;
+      if (Vector3DotProduct(to_tile, forward) <= 0.0f) continue;
+
+      const Vector2 sp = GetWorldToScreen(world_pos, camera);
+      if (sp.x < 0 || sp.x > GetScreenWidth() || sp.y < 0 || sp.y > GetScreenHeight()) continue;
+
+      // const char* label = TextFormat("z%d %d,%d", chunk.zoom, chunk.x, chunk.z);
+      // const int tw = MeasureText(label, 10);
+      // DrawRectangle(static_cast<int>(sp.x) - tw / 2 - 2, static_cast<int>(sp.y) - 1, tw + 4, 12, Fade(BLACK, 0.5f));
+      DrawText(TextFormat("z%d %d,%d", chunk.zoom, chunk.x, chunk.z), static_cast<int>(sp.x), static_cast<int>(sp.y), 10, YELLOW);
     }
   }
 
   void update(entt::registry& registry) {
     const auto& player = get_player(registry);
-    const TilesDef& tiles = get_tiles_def(registry);
     auto& rm = get_resource_manager(registry);
 
-    // player absolute position
-    const auto position = player.absolute_position();
+    const Vector3 player_pos = player.absolute_position();
 
-    // the current tile based on position
-    // const auto tile_world_size = tiles.meter_to_pixel * tiles.tex_size;
-    const int current_tile_x = static_cast<int>(std::floor(position.x / TILE_SIZE));
-    const int current_tile_z = static_cast<int>(std::floor(position.z / TILE_SIZE));
+    const int current_tile_x = static_cast<int>(std::floor(player_pos.x / TILE_SIZE_12));
+    const int current_tile_z = static_cast<int>(std::floor(player_pos.z / TILE_SIZE_12));
 
-    // TraceLog(LOG_WARNING, "player pos: %f %f %f", position.x, position.y, position.z);
-    // TraceLog(LOG_WARNING, "tile_size %f", TILE_SIZE);
-    // TraceLog(LOG_ERROR, "current_tile_x = %d, current_tile_z = %d", current_tile_x, current_tile_z);
-
-    // todo need to limit to the number of images we have?
-    // current_tile_x = std::clamp(current_tile_x, 0, tiles.x_count - 1);
-    // current_tile_z = std::clamp(current_tile_z, 0, tiles.z_count - 1);
-
-    // we are on the same tile as before, bye bye...
-    // but before we return, we need to measure the height below us...
-    if (current_tile_x == last_tile_x && current_tile_z == last_tile_z) return;
-
-    // prepare list of required tiles
-    std::set<TileCoord> required_tiles;
+    // 1) Build z12 disc list (same as before).
+    std::vector<TileKey> required;
+    required.reserve(128);
     for (int dx = -6; dx <= 6; ++dx) {
       for (int dz = -6; dz <= 6; ++dz) {
-        if (dx * dx + dz * dz > 30) continue;
-        auto required_x = current_tile_x + dx;
-        auto required_z = current_tile_z + dz;
-        // if (required_x < 0 || required_x >= tiles.x_count || required_z < 0 || required_z >= tiles.z_count) continue;
-        // todo need to limit to the number of images we have?
-        // if (required_x < 0 || required_z < 0) continue;
-        required_tiles.insert({required_x, required_z});
+        if (dx * dx + dz * dz > RENDER_DISC_R2) continue;
+        required.push_back({BASE_ZOOM, current_tile_x + dx, current_tile_z + dz});
       }
     }
 
-    // iterating active and remove tiles not on required
+    auto dist_sq_to_tile = [&](int zoom, int tx, int tz) {
+      const float cx = tile_world_pos(zoom, tx);
+      const float cz = tile_world_pos(zoom, tz);
+      const float dx = player_pos.x - cx;
+      const float dz = player_pos.z - cz;
+      return dx * dx + dz * dz;
+    };
+
+    auto split_pass = [&](int from_zoom, Meter threshold_sq) {
+      std::vector<TileKey> next;
+      next.reserve(required.size() * 2);
+      for (const auto& key : required) {
+        if (key.zoom != from_zoom) {
+          next.push_back(key);
+          continue;
+        }
+        if (dist_sq_to_tile(key.zoom, key.x, key.z) >= threshold_sq) {
+          next.push_back(key);
+          continue;
+        }
+        // Replace with 4 children at zoom+1.
+        const int child_zoom = from_zoom + 1;
+        const int cx0 = key.x * 2;
+        const int cz0 = key.z * 2;
+        next.push_back({child_zoom, cx0, cz0});
+        next.push_back({child_zoom, cx0 + 1, cz0});
+        next.push_back({child_zoom, cx0, cz0 + 1});
+        next.push_back({child_zoom, cx0 + 1, cz0 + 1});
+      }
+      required = std::move(next);
+    };
+
+    // 2) Pass 1: z12 -> z13.
+    split_pass(12, Z13_THRESHOLD_SQ);
+    // 3) Pass 2: z13 -> z14.
+    split_pass(13, Z14_THRESHOLD_SQ);
+
+    const std::set<TileKey> required_set(required.begin(), required.end());
+
+    // 4) Remove tiles no longer required.
     for (auto it = active_tiles.begin(); it != active_tiles.end();) {
-      if (!required_tiles.contains(it->first)) {
-        // remove the entity of the tile
+      if (!required_set.contains(it->first)) {
+        TraceLog(LOG_INFO, "Unloading tile z%d/%d/%d", it->first.zoom, it->first.x, it->first.z);
         registry.destroy(it->second);
-        // clean textures of removed tiles
-        const auto texture_id = get_tex_id(it->first.first, it->first.second);
-        const auto height_id = get_height_id(it->first.first, it->first.second);
-        rm.textures.erase(texture_id);
-        rm.textures.erase(height_id);
-        rm.images.erase(height_id);
-        // const auto id = get_tile_id(it->first.first, it->first.second);
-        // rm.models.erase(id);
-        // rm.textures.erase(id);
+        const auto& key = it->first;
+        rm.textures.erase(get_tex_id(key.zoom, key.x, key.z));
+        rm.textures.erase(get_height_id(key.zoom, key.x, key.z));
+        rm.images.erase(get_height_id(key.zoom, key.x, key.z));
         it = active_tiles.erase(it);
       } else {
         ++it;
       }
     }
 
-    // iterate the required tile and find not loaded
-    for (const auto& coord : required_tiles) {
-      if (!active_tiles.contains(coord)) {
-        // TraceLog(LOG_WARNING, "spawning tile: %d %d", coord.first, coord.second);
-        const entt::entity new_tile_entity = spawn_tile(registry, coord.first, coord.second, tiles);
-        active_tiles[coord] = new_tile_entity;
+    // 5) Spawn missing tiles.
+    for (const auto& key : required_set) {
+      if (!active_tiles.contains(key)) {
+        const entt::entity entity = spawn_tile(registry, key);
+        active_tiles[key] = entity;
       }
     }
-
-    last_tile_x = current_tile_x;
-    last_tile_z = current_tile_z;
   }
 
   void process_loaded_chunks(entt::registry& registry) {
     for (const auto view = registry.view<AsyncTileLoad>(); const auto [entity, tile] : view.each()) {
-      // zero wait check if the threads done
       const bool tex_ready = tile.texture_future.wait_for(std::chrono::seconds(0)) == std::future_status::ready;
       const bool height_ready = tile.heightmap_future.wait_for(std::chrono::seconds(0)) == std::future_status::ready;
-
-      // if not, we'll try again next tick
       if (!tex_ready || !height_ready) continue;
 
       const Image tex_img = tile.texture_future.get();
       const Image height_img = tile.heightmap_future.get();
 
-      // create the texture
       const Texture2D texture_tex = LoadTextureFromImage(tex_img);
       const Texture2D height_tex = LoadTextureFromImage(height_img);
-
-      // need no more
       UnloadImage(tex_img);
 
-      // keep textures in resource manager for the render phase
-      const auto texture_id = get_tex_id(tile.x, tile.z);
-      const auto height_id = get_height_id(tile.x, tile.z);
+      const auto texture_id = get_tex_id(tile.zoom, tile.x, tile.z);
+      const auto height_id = get_height_id(tile.zoom, tile.x, tile.z);
 
       auto& rm = get_resource_manager(registry);
       rm.textures.load(texture_id, texture_tex);
@@ -218,40 +270,40 @@ class streamer {
       rm.images.load(height_id, height_img);
 
       registry.remove<AsyncTileLoad>(entity);
-      registry.emplace<TerrainChunk>(entity, texture_id, height_id);
+      registry.emplace<TerrainChunk>(entity, texture_id, height_id, tile.zoom, tile.x, tile.z);
       registry.emplace<TerrainHeight>(entity, height_id);
-      break;  // to free the loop and let the next chunk load on the next frame
+      break;  // one chunk per frame
     }
   }
 
  private:
-  entt::entity spawn_tile(entt::registry& registry, const int x, const int z, const TilesDef& tiles) {
+  entt::entity spawn_tile(entt::registry& registry, const TileKey& key) {
     const auto entity = registry.create();
+    const int scale = 1 << (key.zoom - BASE_ZOOM);
+    const int tx = key.x + BASE_X * scale;
+    const int tz = key.z + BASE_Z * scale;
 
-    const int tx = x + BASE_X;
-    const int ty = z + BASE_Z;
-    TraceLog(LOG_WARNING, "spawning tile %d (%d), %d (%d)", x, tx, z, ty);
+    TraceLog(LOG_WARNING, "spawning tile z%d local(%d,%d) mapbox(%d,%d)", key.zoom, key.x, key.z, tx, tz);
 
-    std::string tex_path = std::vformat(tiles.tex_path, std::make_format_args(tx, ty));
-    std::string height_path = std::vformat(tiles.hmp_path, std::make_format_args(tx, ty));
+    const std::string tex_path = std::format("assets/tiles/cache/texture/{}/{}/{}.png", key.zoom, tx, tz);
+    const std::string hmp_path = std::format("assets/tiles/cache/heightmaps/{}/{}/{}.png", key.zoom, tx, tz);
 
-    auto ensure_tile = [](int zoom, int tx, int tz, const std::string& path) {
+    auto ensure_tile = [](int zoom, int atx, int atz, const std::string& path) {
       if (!std::filesystem::exists(path)) {
-        std::string cmd = "./download_tile.mjs " + std::to_string(zoom) + " " + std::to_string(tx) + " " + std::to_string(tz);
+        const std::string cmd = "./download_tile.mjs " + std::to_string(zoom) + " " + std::to_string(atx) + " " + std::to_string(atz);
         std::system(cmd.c_str());
       }
       return LoadImage(path.c_str());
     };
 
-    auto tex_task = std::async(std::launch::async, [ensure_tile, tx, ty, tex_path]() { return ensure_tile(ZOOM_LEVEL, tx, ty, tex_path); });
+    auto tex_task = std::async(std::launch::async, [ensure_tile, zoom = key.zoom, tx, tz, tex_path]() { return ensure_tile(zoom, tx, tz, tex_path); });
+    auto hmp_task = std::async(std::launch::async, [ensure_tile, zoom = key.zoom, tx, tz, hmp_path]() { return ensure_tile(zoom, tx, tz, hmp_path); });
 
-    auto height_task = std::async(std::launch::async, [ensure_tile, tx, ty, height_path]() { return ensure_tile(ZOOM_LEVEL, tx, ty, height_path); });
+    const float world_x = tile_world_pos(key.zoom, key.x);
+    const float world_z = tile_world_pos(key.zoom, key.z);
 
-    const float world_x = static_cast<float>(x) * TILE_SIZE;
-    const float world_z = static_cast<float>(z) * TILE_SIZE;
-
-    registry.emplace<Position3D>(entity, (Vector3){world_x, tiles.lowest, world_z}, Vector3Zero());
-    registry.emplace<AsyncTileLoad>(entity, std::move(tex_task), std::move(height_task), x, z);
+    registry.emplace<Position3D>(entity, (Vector3){world_x, 0.0f, world_z}, Vector3Zero());
+    registry.emplace<AsyncTileLoad>(entity, std::move(tex_task), std::move(hmp_task), key.zoom, key.x, key.z);
 
     return entity;
   }
