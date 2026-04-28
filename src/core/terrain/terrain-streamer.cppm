@@ -363,7 +363,7 @@ class streamer {
     return entity;
   }
 
-  Model& model_for_zoom(const int zoom) const {
+  [[nodiscard]] Model& model_for_zoom(const int zoom) const {
     switch (zoom) {
       case 13:
         return *terrain_model13;
