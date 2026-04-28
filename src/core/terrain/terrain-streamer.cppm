@@ -137,16 +137,7 @@ class streamer {
     const int current_tile_x = static_cast<int>(std::floor(position.x / TILE_SIZE));
     const int current_tile_z = static_cast<int>(std::floor(position.z / TILE_SIZE));
 
-    // TraceLog(LOG_WARNING, "player pos: %f %f %f", position.x, position.y, position.z);
-    // TraceLog(LOG_WARNING, "tile_size %f", TILE_SIZE);
-    // TraceLog(LOG_ERROR, "current_tile_x = %d, current_tile_z = %d", current_tile_x, current_tile_z);
-
-    // todo need to limit to the number of images we have?
-    // current_tile_x = std::clamp(current_tile_x, 0, tiles.x_count - 1);
-    // current_tile_z = std::clamp(current_tile_z, 0, tiles.z_count - 1);
-
     // we are on the same tile as before, bye bye...
-    // but before we return, we need to measure the height below us...
     if (current_tile_x == last_tile_x && current_tile_z == last_tile_z) return;
 
     // prepare list of required tiles
