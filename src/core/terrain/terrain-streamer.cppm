@@ -91,6 +91,8 @@ class streamer {
   Model terrain_model_z12;
   Model terrain_model_z13;
   Model terrain_model_z14;
+  int last_tile_x = -999;
+  int last_tile_y = -999;
 
   Model& model_for_zoom(int zoom) {
     switch (zoom) {
@@ -179,6 +181,13 @@ class streamer {
     // actual cell and producing stray higher-zoom tiles near LOD thresholds.
     const int current_tile_x = static_cast<int>(std::lround(player_pos.x / TILE_SIZE_12));
     const int current_tile_z = static_cast<int>(std::lround(player_pos.z / TILE_SIZE_12));
+
+    if (current_tile_x == last_tile_x && current_tile_z == last_tile_y) {
+      // Player hasn't moved to a new z12 cell, so the required set is unchanged.
+      return;
+    }
+    last_tile_x = current_tile_x;
+    last_tile_y = current_tile_z;
 
     // Build required tile list in a single pass: for each z12 cell in the disc,
     // pick its zoom level by distance and push 1 / 4 / 16 entries directly.

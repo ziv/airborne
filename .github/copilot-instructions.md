@@ -1,5 +1,10 @@
 # Copilot Instructions — Airborne
 
+## Rules
+
+1. **Never make changes I didn't ask for.** Always verify with me before making any unrequested modifications.
+2. **Assume any unexpected code changes were made by me.** If something changed and you don't know why, ask me — don't try to fix or revert it.
+
 ## Project Overview
 
 A modern remake of F-15 Strike Eagle II — not a full simulator, not an arcade, but something in between. Built from scratch with raylib (no game engine). The codebase uses C++23 modules and an ECS architecture (EnTT).
