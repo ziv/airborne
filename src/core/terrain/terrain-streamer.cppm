@@ -19,13 +19,13 @@ import Resources;
 import Accessors;
 import Types;
 
+constexpr Meter SKIRT_SIZE = 0.0f;
 constexpr Meter TILE_SIZE = 9783.9;  // zoom 12
 constexpr int ZOOM_LEVEL = 12;
 constexpr int BASE_X = 2444;
 constexpr int BASE_Z = 1655;
 
 // constexpr Meter TILE_SIZE = 2445.975f;  // zoom 14
-constexpr Meter SKIRT_SIZE = 0.0f;
 // constexpr int BASE_X = 9755;
 // constexpr int BASE_Z = 6627;
 
