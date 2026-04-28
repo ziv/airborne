@@ -19,8 +19,9 @@ if (!token) {
     process.ex(2);
 }
 
-async function download_map(zoom, x, z, token) {
-    const url = `https://api.tomtom.com/map/1/tile/basic/main/${zoom}/${x}/${z}.png?tileSize=256&view=Unified&language=NGT&key=${token}`;
+async function download_map(zoom, x, z, token, day = true) {
+    const theme = day ? "main" : "night";
+    const url = `https://api.tomtom.com/map/1/tile/basic/${theme}/${zoom}/${x}/${z}.png?tileSize=256&view=Unified&language=NGT&key=${token}`;
     const path = `assets/tiles/cache/map/${zoom}/${x}/${z}.png`;
 
     if (existsSync(path)) {

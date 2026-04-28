@@ -94,7 +94,7 @@ static Image load_tile_image(const int zoom, const int tx, const int tz, const s
     }
   }
   // We own the download for this path.
-  std::string cmd = "./download_tile.mjs " + std::to_string(zoom) + " " + std::to_string(tx) + " " + std::to_string(tz);
+  std::string cmd = "./scripts/download_tile.mjs " + std::to_string(zoom) + " " + std::to_string(tx) + " " + std::to_string(tz);
   std::system(cmd.c_str());
   {
     std::lock_guard lock(download_mutex);
@@ -254,7 +254,7 @@ class streamer {
       const auto& [key, entity] = *it;
       if (registry.all_of<AsyncTileLoad>(entity)) {
         // Still loading, never rendered — safe to cancel immediately.
-        TraceLog(LOG_DEBUG, "Cancelling load z%d %d %d", key.zoom, key.x, key.z);
+        TraceLog(LOG_DEBUG, "cancelling load z%d %d %d", key.zoom, key.x, key.z);
         registry.destroy(entity);
       }
       // If it has TerrainChunk it's in rendered_tiles — leave it there for the
@@ -271,7 +271,7 @@ class streamer {
       // Not desired anymore. Check if every replacement tile is rendered.
       if (is_parent_cell_covered(z12_parent(it->first))) {
         const auto& [zoom, x, z] = it->first;
-        TraceLog(LOG_DEBUG, "Unloading tile z%d %d %d", zoom, x, z);
+        TraceLog(LOG_DEBUG, "unloading tile z%d %d %d", zoom, x, z);
         registry.destroy(it->second);
         auto& rm = get_resource_manager(registry);
         rm.textures.erase(get_tex_id(zoom, x, z));
