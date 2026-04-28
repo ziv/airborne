@@ -175,52 +175,41 @@ class streamer {
     const int current_tile_x = static_cast<int>(std::floor(player_pos.x / TILE_SIZE_12));
     const int current_tile_z = static_cast<int>(std::floor(player_pos.z / TILE_SIZE_12));
 
-    // 1) Build z12 disc list (same as before).
+    // Build required tile list in a single pass: for each z12 cell in the disc,
+    // pick its zoom level by distance and push 1 / 4 / 16 entries directly.
     std::vector<TileKey> required;
-    required.reserve(128);
+    required.reserve(256);
     for (int dx = -6; dx <= 6; ++dx) {
       for (int dz = -6; dz <= 6; ++dz) {
         if (dx * dx + dz * dz > RENDER_DISC_R2) continue;
-        required.push_back({BASE_ZOOM, current_tile_x + dx, current_tile_z + dz});
+
+        const int bx = current_tile_x + dx;
+        const int bz = current_tile_z + dz;
+
+        // Distance from player to this z12 cell center
+        const float cx12 = tile_world_pos(BASE_ZOOM, bx);
+        const float cz12 = tile_world_pos(BASE_ZOOM, bz);
+        const float ddx = player_pos.x - cx12;
+        const float ddz = player_pos.z - cz12;
+        const float dist_sq = ddx * ddx + ddz * ddz;
+
+        if (dist_sq < Z14_THRESHOLD_SQ) {
+          // 16 z14 children
+          const int cx0 = bx * 4;
+          const int cz0 = bz * 4;
+          for (int ox = 0; ox < 4; ++ox)
+            for (int oz = 0; oz < 4; ++oz) required.push_back({14, cx0 + ox, cz0 + oz});
+        } else if (dist_sq < Z13_THRESHOLD_SQ) {
+          // 4 z13 children
+          const int cx0 = bx * 2;
+          const int cz0 = bz * 2;
+          for (int ox = 0; ox < 2; ++ox)
+            for (int oz = 0; oz < 2; ++oz) required.push_back({13, cx0 + ox, cz0 + oz});
+        } else {
+          required.push_back({BASE_ZOOM, bx, bz});
+        }
       }
     }
-
-    auto dist_sq_to_tile = [&](int zoom, int tx, int tz) {
-      const float cx = tile_world_pos(zoom, tx);
-      const float cz = tile_world_pos(zoom, tz);
-      const float dx = player_pos.x - cx;
-      const float dz = player_pos.z - cz;
-      return dx * dx + dz * dz;
-    };
-
-    auto split_pass = [&](int from_zoom, Meter threshold_sq) {
-      std::vector<TileKey> next;
-      next.reserve(required.size() * 2);
-      for (const auto& key : required) {
-        if (key.zoom != from_zoom) {
-          next.push_back(key);
-          continue;
-        }
-        if (dist_sq_to_tile(key.zoom, key.x, key.z) >= threshold_sq) {
-          next.push_back(key);
-          continue;
-        }
-        // Replace with 4 children at zoom+1.
-        const int child_zoom = from_zoom + 1;
-        const int cx0 = key.x * 2;
-        const int cz0 = key.z * 2;
-        next.push_back({child_zoom, cx0, cz0});
-        next.push_back({child_zoom, cx0 + 1, cz0});
-        next.push_back({child_zoom, cx0, cz0 + 1});
-        next.push_back({child_zoom, cx0 + 1, cz0 + 1});
-      }
-      required = std::move(next);
-    };
-
-    // 2) Pass 1: z12 -> z13.
-    split_pass(12, Z13_THRESHOLD_SQ);
-    // 3) Pass 2: z13 -> z14.
-    split_pass(13, Z14_THRESHOLD_SQ);
 
     const std::set<TileKey> required_set(required.begin(), required.end());
 
