@@ -79,7 +79,7 @@ std::mutex download_mutex;
 std::set<std::string> downloading;
 }  // namespace
 
-static Image load_tile_image(int zoom, int tx, int tz, const std::string& path) {
+static Image load_tile_image(const int zoom, const int tx, const int tz, const std::string& path) {
   {
     std::lock_guard lock(download_mutex);
     if (!std::filesystem::exists(path) && !downloading.contains(path)) {
@@ -103,7 +103,6 @@ static Image load_tile_image(int zoom, int tx, int tz, const std::string& path) 
   return LoadImage(path.c_str());
 }
 
-inline int get_tile_id(const int x, const int z) { return entt::hashed_string(TextFormat("tile_model_%d_%d", x, z)); }
 inline int get_tex_id(int zoom, int x, int z) { return entt::hashed_string(TextFormat("tile_tex_%d_%d_%d", zoom, x, z)); }
 inline int get_height_id(int zoom, int x, int z) { return entt::hashed_string(TextFormat("tile_height_%d_%d_%d", zoom, x, z)); }
 
@@ -209,6 +208,7 @@ class streamer {
     const int current_tile_z = static_cast<int>(std::floor(player_pos.z / TILE_SIZE));
 
     // --- Step 1: build new desired set (keys only) ---
+    // todo for performance, we should use fixed size data structure
     std::set<TileKey> new_desired_keys;
     for (int dx = -7; dx <= 7; ++dx) {
       for (int dz = -7; dz <= 7; ++dz) {
