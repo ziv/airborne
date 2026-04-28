@@ -172,8 +172,13 @@ class streamer {
 
     const Vector3 player_pos = player.absolute_position();
 
-    const int current_tile_x = static_cast<int>(std::floor(player_pos.x / TILE_SIZE_12));
-    const int current_tile_z = static_cast<int>(std::floor(player_pos.z / TILE_SIZE_12));
+    // Tiles are center-placed: z12 cell N covers world x in [(N-0.5)*TILE12, (N+0.5)*TILE12].
+    // The cell containing position p is therefore round(p / TILE12), not floor(p / TILE12).
+    // Using floor() here would shift the disc by up to one full z12 cell whenever the player
+    // crossed a half-cell boundary, leaving the LOD ring out of sync with the player's
+    // actual cell and producing stray higher-zoom tiles near LOD thresholds.
+    const int current_tile_x = static_cast<int>(std::lround(player_pos.x / TILE_SIZE_12));
+    const int current_tile_z = static_cast<int>(std::lround(player_pos.z / TILE_SIZE_12));
 
     // Build required tile list in a single pass: for each z12 cell in the disc,
     // pick its zoom level by distance and push 1 / 4 / 16 entries directly.
@@ -213,19 +218,56 @@ class streamer {
 
     const std::set<TileKey> required_set(required.begin(), required.end());
 
-    // 4) Remove tiles no longer required.
-    for (auto it = active_tiles.begin(); it != active_tiles.end();) {
-      if (!required_set.contains(it->first)) {
-        TraceLog(LOG_INFO, "Unloading tile z%d/%d/%d", it->first.zoom, it->first.x, it->first.z);
-        registry.destroy(it->second);
-        const auto& key = it->first;
-        rm.textures.erase(get_tex_id(key.zoom, key.x, key.z));
-        rm.textures.erase(get_height_id(key.zoom, key.x, key.z));
-        rm.images.erase(get_height_id(key.zoom, key.x, key.z));
-        it = active_tiles.erase(it);
-      } else {
-        ++it;
+    // For each z12 parent area touched by the required set, count how many of
+    // the required tiles in that area are already loaded (have TerrainChunk).
+    // A stale tile is only safe to unload when:
+    //   (a) no required tile shares its z12 parent (player moved away), or
+    //   (b) every required tile in its z12 parent area is fully loaded.
+    using ParentCoord = std::pair<int, int>;
+    struct ParentStatus {
+      int total = 0;
+      int loaded = 0;
+    };
+    std::map<ParentCoord, ParentStatus> parent_status;
+    for (const auto& key : required_set) {
+      const int shift = key.zoom - BASE_ZOOM;
+      const ParentCoord parent{key.x >> shift, key.z >> shift};
+      auto& st = parent_status[parent];
+      st.total++;
+      if (auto it = active_tiles.find(key); it != active_tiles.end()) {
+        if (registry.all_of<TerrainChunk>(it->second)) st.loaded++;
       }
+    }
+
+    // 4) Remove stale tiles (deferred until replacements are rendered).
+    for (auto it = active_tiles.begin(); it != active_tiles.end();) {
+      if (required_set.contains(it->first)) {
+        ++it;
+        continue;
+      }
+
+      const auto& key = it->first;
+      const int shift = key.zoom - BASE_ZOOM;
+      const ParentCoord parent{key.x >> shift, key.z >> shift};
+
+      bool can_unload = false;
+      if (auto ps_it = parent_status.find(parent); ps_it == parent_status.end()) {
+        can_unload = true;  // area no longer rendered at all
+      } else if (ps_it->second.loaded == ps_it->second.total) {
+        can_unload = true;  // all replacements are ready
+      }
+
+      if (!can_unload) {
+        ++it;
+        continue;
+      }
+
+      TraceLog(LOG_INFO, "Unloading tile z%d/%d/%d", key.zoom, key.x, key.z);
+      registry.destroy(it->second);
+      rm.textures.erase(get_tex_id(key.zoom, key.x, key.z));
+      rm.textures.erase(get_height_id(key.zoom, key.x, key.z));
+      rm.images.erase(get_height_id(key.zoom, key.x, key.z));
+      it = active_tiles.erase(it);
     }
 
     // 5) Spawn missing tiles.
