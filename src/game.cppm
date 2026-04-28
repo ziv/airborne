@@ -74,7 +74,6 @@ export class Game {
     // 3D
     BeginMode3D(camera);
     render_systems::sky(registry);
-    // terrain_streamer::stream(registry, camera);
     streamer.stream(registry, camera);
     RenderModels(registry, camera);
     RenderDebugging(registry);
@@ -82,6 +81,7 @@ export class Game {
 
     // 2D
     // RenderModelsLabel(registry, camera);
+    streamer.draw_tile_labels(registry, camera);
     RenderCockpit(registry);
     RenderMinimap(registry);
     RenderEngineStatus(registry);

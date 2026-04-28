@@ -84,12 +84,14 @@ export void RenderDebug(entt::registry& registry) {
     DrawText(TextFormat("TPy: %0.00f", target_position.pos.y), margin, y, fs, BLACK);
   }
 
-  const auto& rm = get_resource_manager(registry);
-  for (const auto view = registry.view<TerrainChunk, Position3D>(); const auto entity : view) {
-    const auto& [chunk, pos] = view.get<const TerrainChunk, const Position3D>(entity);
-    y += margin;
-    DrawText(TextFormat("CHUNK %.2f,%.2f", pos.pos.x, pos.pos.z), margin, y, 5, BLACK);
-  }
+  // const auto& rm = get_resource_manager(registry);
+  // const auto view = registry.view<TerrainChunk, Position3D>();
+
+  // for (const auto view = registry.view<TerrainChunk, Position3D>(); const auto entity : view) {
+  //   const auto& [chunk, pos] = view.get<const TerrainChunk, const Position3D>(entity);
+  //   y += margin;
+  //   DrawText(TextFormat("CHUNK %.2f,%.2f", pos.pos.x, pos.pos.z), margin, y, 5, BLACK);
+  // }
 
   // ground height
   // y += margin;
