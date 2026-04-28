@@ -21,6 +21,7 @@ import Types;
 
 constexpr Meter SKIRT_SIZE = 0.0f;
 constexpr Meter TILE_SIZE = 9783.9;  // zoom 12
+constexpr Meter TILE_SIZE_12 = 9783.9;  // zoom 12
 constexpr int ZOOM_LEVEL = 12;
 constexpr int BASE_X = 2444;
 constexpr int BASE_Z = 1655;
@@ -52,7 +53,13 @@ inline int get_tex_id(const int x, const int z) { return entt::hashed_string(Tex
 inline int get_height_id(const int x, const int z) { return entt::hashed_string(TextFormat("tile_height_%d_%d", x, z)); }
 
 export namespace terrain_streamer {
-using TileCoord = std::pair<int, int>;
+
+struct TileKey {
+  int zoom;
+  int x;
+  int z;
+  auto operator<=>(const TileKey&) const = default;
+};
 
 void on_terrain_destroyed(entt::registry& reg, entt::entity entity) {
   TraceLog(LOG_INFO, "Destroying terrain chunk entity %d", static_cast<int>(entity));
@@ -65,7 +72,7 @@ void on_terrain_destroyed(entt::registry& reg, entt::entity entity) {
 }
 class streamer {
   // TilesDef& tiles;
-  std::map<TileCoord, entt::entity> active_tiles;
+  std::map<TileKey, entt::entity> active_tiles;
   int last_tile_x = -9999;
   int last_tile_z = -9999;
   Shader displacement_shader;
@@ -119,7 +126,7 @@ class streamer {
 
   void update(entt::registry& registry) {
     const auto& player = get_player(registry);
-    const TilesDef& tiles = get_tiles_def(registry);
+    // const TilesDef& tiles = get_tiles_def(registry);
     auto& rm = get_resource_manager(registry);
 
     // player absolute position
@@ -143,7 +150,7 @@ class streamer {
     if (current_tile_x == last_tile_x && current_tile_z == last_tile_z) return;
 
     // prepare list of required tiles
-    std::set<TileCoord> required_tiles;
+    std::set<TileKey> required_tiles;
     for (int dx = -5; dx <= 5; ++dx) {
       for (int dz = -5; dz <= 5; ++dz) {
         auto required_x = current_tile_x + dx;
@@ -151,7 +158,7 @@ class streamer {
         // if (required_x < 0 || required_x >= tiles.x_count || required_z < 0 || required_z >= tiles.z_count) continue;
         // todo need to limit to the number of images we have?
         // if (required_x < 0 || required_z < 0) continue;
-        required_tiles.insert({required_x, required_z});
+        required_tiles.insert({12, required_x, required_z});
       }
     }
 
@@ -161,8 +168,8 @@ class streamer {
         // remove the entity of the tile
         registry.destroy(it->second);
         // clean textures of removed tiles
-        const auto texture_id = get_tex_id(it->first.first, it->first.second);
-        const auto height_id = get_height_id(it->first.first, it->first.second);
+        const auto texture_id = get_tex_id(it->first.x, it->first.z);
+        const auto height_id = get_height_id(it->first.x, it->first.z);
         rm.textures.erase(texture_id);
         rm.textures.erase(height_id);
         rm.images.erase(height_id);
@@ -179,7 +186,7 @@ class streamer {
     for (const auto& coord : required_tiles) {
       if (!active_tiles.contains(coord)) {
         // TraceLog(LOG_WARNING, "spawning tile: %d %d", coord.first, coord.second);
-        const entt::entity new_tile_entity = spawn_tile(registry, coord.first, coord.second, tiles);
+        const entt::entity new_tile_entity = spawn_tile(registry, coord.x, coord.z);
         active_tiles[coord] = new_tile_entity;
       }
     }
@@ -224,15 +231,15 @@ class streamer {
   }
 
  private:
-  entt::entity spawn_tile(entt::registry& registry, const int x, const int z, const TilesDef& tiles) {
+  entt::entity spawn_tile(entt::registry& registry, const int x, const int z) {
     const auto entity = registry.create();
 
     const int tx = x + BASE_X;
     const int ty = z + BASE_Z;
     TraceLog(LOG_WARNING, "spawning tile %d (%d), %d (%d)", x, tx, z, ty);
 
-    std::string tex_path = std::vformat(tiles.tex_path, std::make_format_args(tx, ty));
-    std::string height_path = std::vformat(tiles.hmp_path, std::make_format_args(tx, ty));
+    std::string tex_path = std::format("assets/tiles/cache/texture/12/{}/{}.png", tx, ty);
+    std::string height_path = std::format("assets/tiles/cache/heightmaps/12/{}/{}.png", tx, ty);
 
     auto ensure_tile = [](int zoom, int tx, int tz, const std::string& path) {
       if (!std::filesystem::exists(path)) {
@@ -242,18 +249,14 @@ class streamer {
       return LoadImage(path.c_str());
     };
 
-    auto tex_task = std::async(std::launch::async, [ensure_tile, tx, ty, tex_path]() {
-      return ensure_tile(ZOOM_LEVEL, tx, ty, tex_path);
-    });
+    auto tex_task = std::async(std::launch::async, [ensure_tile, tx, ty, tex_path]() { return ensure_tile(ZOOM_LEVEL, tx, ty, tex_path); });
 
-    auto height_task = std::async(std::launch::async, [ensure_tile, tx, ty, height_path]() {
-      return ensure_tile(ZOOM_LEVEL, tx, ty, height_path);
-    });
+    auto height_task = std::async(std::launch::async, [ensure_tile, tx, ty, height_path]() { return ensure_tile(ZOOM_LEVEL, tx, ty, height_path); });
 
     const float world_x = static_cast<float>(x) * TILE_SIZE;
     const float world_z = static_cast<float>(z) * TILE_SIZE;
 
-    registry.emplace<Position3D>(entity, (Vector3){world_x, tiles.lowest, world_z}, Vector3Zero());
+    registry.emplace<Position3D>(entity, (Vector3){world_x, 0.0f, world_z}, Vector3Zero());
     registry.emplace<AsyncTileLoad>(entity, std::move(tex_task), std::move(height_task), x, z);
 
     return entity;
