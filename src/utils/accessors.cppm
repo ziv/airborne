@@ -28,8 +28,6 @@ export void set_initial_globals(entt::registry &registry, const AppConfig &confi
 
 export const AppConfig &get_config(entt::registry &registry) { return registry.ctx().get<Configuration>().conf; }
 
-export const Scenario &get_scenario(entt::registry &registry) { return registry.ctx().get<Configuration>().scenario; }
-
 export const TilesDef &get_tiles_def(entt::registry &registry) { return registry.ctx().get<Configuration>().tiles; }
 
 export const std::vector<ResourceDef> &get_resources(entt::registry &registry) { return registry.ctx().get<Configuration>().resources; }
