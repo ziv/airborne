@@ -36,9 +36,9 @@
     "time_of_day": "day",
     "weather": "sunny",
     "start_position": {
-      "x": 0,
+      "x": 12000,
       "y": 11,
-      "z": 0
+      "z": -26000
     }
   },
   "entities": [
@@ -51,9 +51,9 @@
         "type": "carrier",
         "faction": "friendly",
         "position": {
-          "x": 50000,
+          "x": 12000,
           "y": 0,
-          "z": 20000
+          "z": -26000
         },
         "heading": 0,
         "model": "carrier-model",
