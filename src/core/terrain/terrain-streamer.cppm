@@ -121,6 +121,7 @@ class streamer {
   std::map<TileKey, entt::entity> rendered_tiles;  // superset: desired + pending eviction
   Vector3 last_position{-9.9f, -9.9f, -9.9f};
   Shader displacement_shader;
+  int cam_pos_loc = -1;
   std::unique_ptr<Model> terrain_model12;
   std::unique_ptr<Model> terrain_model13;
   std::unique_ptr<Model> terrain_model14;
@@ -145,6 +146,8 @@ class streamer {
     constexpr float heightScale = 1.0;
     const int scaleLoc = GetShaderLocation(displacement_shader, "heightScale");
     SetShaderValue(displacement_shader, scaleLoc, &heightScale, SHADER_UNIFORM_FLOAT);
+
+    cam_pos_loc = GetShaderLocation(displacement_shader, "cameraPosition");
   }
 
   static void draw_tile_labels(entt::registry& registry, const Camera3D& camera) {
@@ -171,8 +174,9 @@ class streamer {
     const auto& player = get_player(registry);
     const auto& rm = get_resource_manager(registry);
 
-    // todo fog...
+    SetShaderValue(displacement_shader, cam_pos_loc, &camera.position, SHADER_UNIFORM_VEC3);
 
+    BeginBlendMode(BLEND_ALPHA);
     for (const auto view = registry.view<TerrainChunk, Position3D>(); const auto [entity, chunk, pos] : view.each()) {
       // the texture is not exists (not suppose to happen, just for safety)
       if (!rm.textures.contains(chunk.model)) continue;
@@ -190,6 +194,7 @@ class streamer {
 
       DrawModel(model, pos.pos + player.offset, 1.0f, WHITE);
     }
+    EndBlendMode();
   }
 
   void update(entt::registry& registry) {

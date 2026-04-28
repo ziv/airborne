@@ -4,10 +4,13 @@ in vec3 vertexPosition;
 in vec2 vertexTexCoord;
 
 uniform mat4 mvp;
+uniform mat4 matModel;
 uniform sampler2D heightMap;
 uniform float heightScale;
+uniform vec3 cameraPosition;
 
 out vec2 fragTexCoord;
+out float fragCamDist;
 
 void main()
 {
@@ -32,6 +35,9 @@ void main()
     {
         displacedPosition.y -= 150.0;
     }
+
+    vec3 worldPosition = vec3(matModel * vec4(displacedPosition, 1.0));
+    fragCamDist = distance(worldPosition.xz, cameraPosition.xz);
 
     gl_Position = mvp * vec4(displacedPosition, 1.0);
 }
