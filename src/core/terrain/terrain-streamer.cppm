@@ -1,5 +1,4 @@
 module;
-#include <cstdlib>
 #include <entt/entt.hpp>
 #include <filesystem>
 #include <future>
@@ -48,14 +47,10 @@ inline float tile_world_pos(const int zoom, const int local_idx) {
   const int parent = local_idx >> (zoom - ZOOM_LEVEL);
   const int child = local_idx - parent * n;  // 0 .. n-1
   const Meter sz = tile_size_for_zoom(zoom);
-  return static_cast<float>(parent) * TILE_SIZE_12 + (static_cast<float>(child) - (n - 1) * 0.5f) * sz;
+  return static_cast<float>(parent) * TILE_SIZE_12 + (static_cast<float>(child) - (static_cast<float>(n) - 1.0f) * 0.5f) * sz;
 }
 
-// constexpr Meter TILE_SIZE = 2445.975f;  // zoom 14
-// constexpr int BASE_X = 9755;
-// constexpr int BASE_Z = 6627;
-
-Model create_model(const Meter size) { return LoadModelFromMesh(GenMeshPlane(size + SKIRT_SIZE, size + SKIRT_SIZE, 256, 256)); }
+Model create_model(const Meter size) { return LoadModelFromMesh(GenMeshPlane(size, size + size * 0.02f, 256, 256)); }
 
 export struct AsyncTileLoad {
   std::future<Image> texture_future;
@@ -90,20 +85,10 @@ struct TileKey {
   auto operator<=>(const TileKey&) const = default;
 };
 
-void on_terrain_destroyed(entt::registry& reg, entt::entity entity) {
-  TraceLog(LOG_DEBUG, "Destroying terrain chunk entity %d", static_cast<int>(entity));
-  const auto& chunk = reg.get<TerrainChunk>(entity);
-  auto& rm = get_resource_manager(reg);
-
-  // rm.textures.erase(chunk.model);
-  // rm.textures.erase(chunk.height);
-  // rm.images.erase(chunk.height);
-}
 class streamer {
   std::map<TileKey, entt::entity> desired_tiles;   // what LOD logic wants this frame
   std::map<TileKey, entt::entity> rendered_tiles;  // superset: desired + pending eviction
-  int last_tile_x = -9999;
-  int last_tile_z = -9999;
+  Vector3 last_position{-9.9f, -9.9f, -9.9f};
   Shader displacement_shader;
   std::unique_ptr<Model> terrain_model12;
   std::unique_ptr<Model> terrain_model13;
@@ -115,13 +100,11 @@ class streamer {
         terrain_model12(std::make_unique<Model>(create_model(TILE_SIZE_12))),
         terrain_model13(std::make_unique<Model>(create_model(TILE_SIZE_13))),
         terrain_model14(std::make_unique<Model>(create_model(TILE_SIZE_14))) {
-    TraceLog(LOG_DEBUG, "AAA");
     // set the displacement_shader as the terrain model shader
     terrain_model12->materials[0].shader = displacement_shader;
     terrain_model13->materials[0].shader = displacement_shader;
     terrain_model14->materials[0].shader = displacement_shader;
 
-    TraceLog(LOG_DEBUG, "BBB");
     // set the heightmap data into MATERIAL_MAP_ROUGHNESS slot
     constexpr int heightmapSlotIndex = MATERIAL_MAP_ROUGHNESS;  // Raylib map roughness index
     const int shaderLocation = GetShaderLocation(displacement_shader, "heightMap");
@@ -131,22 +114,16 @@ class streamer {
     constexpr float heightScale = 1.0;
     const int scaleLoc = GetShaderLocation(displacement_shader, "heightScale");
     SetShaderValue(displacement_shader, scaleLoc, &heightScale, SHADER_UNIFORM_FLOAT);
-
-    TraceLog(LOG_DEBUG, "CCC");
-    // clean resources when destroying
-    // registry.on_destroy<TerrainChunk>().connect<&on_terrain_destroyed>();
   }
 
   static void draw_tile_labels(entt::registry& registry, const Camera3D& camera) {
     const auto& player = get_player(registry);
     const auto width = static_cast<float>(GetScreenWidth());
     const auto height = static_cast<float>(GetScreenHeight());
-    // const auto& offset = get_player(registry).offset;
-    // const Vector3 forward = Vector3Normalize(camera.target - camera.position);
 
     for (const auto view = registry.view<TerrainChunk, Position3D>(); const auto [entity, chunk, pos] : view.each()) {
       // Raise the label a bit above the ground for legibility
-      const Vector3 world_pos = pos.pos + player.offset + Vector3{0.0f, 200.0f, 0.0f};
+      const Vector3 world_pos = pos.pos + player.offset + Vector3{0.0f, 300.0f, 0.0f};
 
       // "In front of camera" filter via dot product with forward
       const Vector3 to_tile = world_pos - camera.position;
@@ -155,7 +132,7 @@ class streamer {
       const Vector2 sp = GetWorldToScreen(world_pos, camera);
       if (sp.x < 0.0f || sp.x > width || sp.y < 0.0f || sp.y > height) continue;
 
-     DrawText(TextFormat("%d", chunk.zoom), static_cast<int>(sp.x), static_cast<int>(sp.y), 10, YELLOW);
+      DrawText(TextFormat("%d", chunk.zoom), static_cast<int>(sp.x), static_cast<int>(sp.y), 10, YELLOW);
     }
   }
 
@@ -181,23 +158,17 @@ class streamer {
       model.materials[0].maps[MATERIAL_MAP_ROUGHNESS].texture = heightmap;
 
       DrawModel(model, pos.pos + player.offset, 1.0f, WHITE);
-      // if (chunk.zoom == 12) {
-      //   DrawCube(pos.pos + player.offset, TILE_SIZE_12, 100.0f, TILE_SIZE_12, RED);
-      // }
-      // if (chunk.zoom == 13) {
-      //   DrawCube(pos.pos + player.offset, TILE_SIZE_13, 100.0f, TILE_SIZE_13, YELLOW);
-      // }
-      // if (chunk.zoom == 14) {
-      //   DrawCube(pos.pos + player.offset, TILE_SIZE_14, 100.0f, TILE_SIZE_14, BLACK);
-      // }
     }
   }
 
   void update(entt::registry& registry) {
     const auto& player = get_player(registry);
-    auto& rm = get_resource_manager(registry);
 
     const auto player_pos = player.absolute_position();
+
+    if (Vector3DistanceSqr(player_pos, last_position) < 200.0f * 200.0f) return;  // only update when moved more than 200m
+    last_position = player_pos;
+
     const int current_tile_x = static_cast<int>(std::floor(player_pos.x / TILE_SIZE));
     const int current_tile_z = static_cast<int>(std::floor(player_pos.z / TILE_SIZE));
 
@@ -266,6 +237,7 @@ class streamer {
         const auto& [zoom, x, z] = it->first;
         TraceLog(LOG_DEBUG, "Unloading tile z%d %d %d", zoom, x, z);
         registry.destroy(it->second);
+        auto& rm = get_resource_manager(registry);
         rm.textures.erase(get_tex_id(zoom, x, z));
         rm.textures.erase(get_height_id(zoom, x, z));
         rm.images.erase(get_height_id(zoom, x, z));
@@ -274,9 +246,6 @@ class streamer {
         ++it;  // replacements not ready yet — keep rendering
       }
     }
-
-    last_tile_x = current_tile_x;
-    last_tile_z = current_tile_z;
   }
 
   void process_loaded_chunks(entt::registry& registry) {
