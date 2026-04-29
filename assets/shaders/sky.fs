@@ -1,39 +1,79 @@
 #version 330
 
-// Input 3D position from Vertex Shader
 in vec3 fragLocalPos;
 
-// Uniforms from C++ (Sky colors)
 uniform vec3 zenithColor;
 uniform vec3 horizonColor;
+uniform float time;
 
 out vec4 finalColor;
 
+// --- Noise primitives ---
+
+vec2 hash2(vec2 p) {
+    p = vec2(dot(p, vec2(127.1, 311.7)), dot(p, vec2(269.5, 183.3)));
+    return fract(sin(p) * 43758.5453);
+}
+
+float valueNoise(vec2 p) {
+    vec2 i = floor(p);
+    vec2 f = fract(p);
+    vec2 u = f * f * (3.0 - 2.0 * f);
+
+    float a = hash2(i).x;
+    float b = hash2(i + vec2(1.0, 0.0)).x;
+    float c = hash2(i + vec2(0.0, 1.0)).x;
+    float d = hash2(i + vec2(1.0, 1.0)).x;
+
+    return mix(mix(a, b, u.x), mix(c, d, u.x), u.y);
+}
+
+// 5-octave FBM
+float fbm(vec2 p) {
+    float v = 0.0;
+    float amp = 0.5;
+    float freq = 1.0;
+    for (int i = 0; i < 5; i++) {
+        v += amp * valueNoise(p * freq);
+        freq *= 2.1;
+        amp  *= 0.5;
+    }
+    return v;
+}
+
 void main()
 {
-    // 1. Convert the local position into a normalized direction vector.
-    // This gives us a vector where x, y, and z are strictly between -1.0 and 1.0.
     vec3 dir = normalize(fragLocalPos);
 
-    // 2. dir.y represents the vertical direction:
-    // 0.0 is exactly the horizon.
-    // 1.0 is exactly straight up (zenith).
-    // -1.0 is exactly straight down (nadir).
+    float upFactor   = max(dir.y, 0.0);
+    float blendFactor = clamp(pow(upFactor, 0.6), 0.0, 1.0);
+    vec3 skyColor    = mix(horizonColor, zenithColor, blendFactor);
 
-    // Take the absolute value so both looking up and looking down are positive.
-    // float upFactor = abs(dir.y);
-    float upFactor = max(dir.y, 0.0);
+    // --- Clouds ---
+    // todo take cloudAltitude and threshold from the game to allow player controls the weather
+    // Only draw clouds above the horizon
+    if (dir.y > 0.0) {
+        // Project the view direction onto a flat cloud plane at a fixed "altitude".
+        // Dividing xz by y gives a perspective-correct plane intersection.
+        float cloudAltitude = 0.15; // controls how high on the dome clouds appear
+        vec2 cloudUV = dir.xz / (dir.y + cloudAltitude);
 
-    // 3. Apply a mathematical curve to soften the transition.
-    // A smaller power (like 0.5 or 0.6) pulls the horizon color higher up into the sky.
-    // A larger power (like 2.0) keeps the horizon color tightly at the bottom.
-    float blendFactor = pow(upFactor, 0.6);
+        // Slow horizontal drift
+        cloudUV += vec2(time * 0.004, time * 0.001);
 
-    // Clamp for safety
-    blendFactor = clamp(blendFactor, 0.0, 1.0);
+        float noise = fbm(cloudUV * 2.5);
 
-    // 4. Mix the colors based on our perfect mathematical direction
-    vec3 skyColor = mix(horizonColor, zenithColor, blendFactor);
+        // Remap noise to a [0,1] cloud density, with a threshold to clear sky gaps
+        float threshold = 0.48;
+        float cloudDensity = smoothstep(threshold, threshold + 0.25, noise);
+
+        // Fade clouds out near the horizon so there's no hard cut
+        float horizonFade = smoothstep(0.0, 0.12, dir.y);
+        cloudDensity *= horizonFade;
+
+        vec3 cloudColor = mix(vec3(0.95, 0.95, 1.0), vec3(1.0), cloudDensity * 0.4);
+        skyColor = mix(skyColor, cloudColor, cloudDensity * 0.85);
+    }
 
     finalColor = vec4(skyColor, 1.0);
 }

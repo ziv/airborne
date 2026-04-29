@@ -13,9 +13,9 @@ import Resources;
 
 export void RenderModels(entt::registry &registry, const Camera3D &camera) {
   const auto view = registry.view<Position3D, WithModel, Heading>(entt::exclude<World>);
+  const auto &models = get_resource_manager(registry).models;
 
   for (auto [entity, position, modeled, heading] : view.each()) {
-    const auto &models = get_resource_manager(registry).models;
 
     // 1. model not exists
     if (!models.contains(modeled.model)) continue;
@@ -43,7 +43,12 @@ export namespace render_systems {
 /// @brief render the sky model as background
 void sky(entt::registry &registry) {
   const auto &player = get_player(registry);
-  const auto models = get_resource_manager(registry).models;
+  const auto &assets = get_resource_manager(registry);
+  const auto &models = assets.models;
+
+  const float t = static_cast<float>(GetTime());
+  const Shader &sky_shader = assets.shaders[resources::sky_shader]->res;
+  SetShaderValue(sky_shader, GetShaderLocation(sky_shader, "time"), &t, SHADER_UNIFORM_FLOAT);
 
   rlDisableDepthTest();
   rlDisableBackfaceCulling();
