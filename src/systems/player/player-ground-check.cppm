@@ -6,9 +6,12 @@ module;
 export module PlayerSystems:GroundCheck;
 
 import Components;
+import Accessors;
 
 export namespace player_systems {
 void ground_check(entt::registry& registry, const float dt) {
+  // const auto& stall_speed = get_config(registry).player.aircraft.stallSpeed;
+
   for (const auto view = registry.view<Player, TouchDown>(); auto [entity, player] : view.each()) {
     TraceLog(LOG_DEBUG, "checking landing conditions for player entity");
     const float fwdY = std::clamp(player.forward.y, -1.0f, 1.0f);
