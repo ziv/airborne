@@ -42,8 +42,6 @@ int main() {
     const auto app_conf = json_config.get<AppConfig>("/config");
 
     const auto json_scenario = JsonConfig("assets/scenario.jsonc");
-    const auto scenario_conf = json_scenario.get<Scenario>("/data");
-    const auto tiles_conf = json_scenario.get<TilesDef>("/tiles");
     const auto resources_conf = json_scenario.get<std::vector<ResourceDef>>("/resources");
 
     InitWindow(app_conf.global.width, app_conf.global.height, app_conf.global.title.c_str());
