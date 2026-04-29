@@ -36,8 +36,12 @@ constexpr int MAP_BASE_X = 2444;          // geographic TMS x of local-origin ti
 constexpr int MAP_BASE_Z = 1655;          // geographic TMS z of local-origin tile at zoom 12
 constexpr int MAP_ANCHOR_ZOOM = 12;
 
-// World metres per tile at any zoom level (works for zoom < 12 via pow).
-float map_tile_size(const int zoom) { return TILE_SIZE_Z12 * std::pow(2.0f, 12 - zoom); }
+// World metres per tile at any zoom level.
+float map_tile_size(const int zoom) {
+  const int diff = zoom - MAP_ANCHOR_ZOOM;
+  if (diff >= 0) return TILE_SIZE_Z12 / static_cast<float>(1 << diff);
+  return TILE_SIZE_Z12 * static_cast<float>(1 << -diff);
+}
 
 // Compute the geographic (TMS) tile index directly from a world coordinate.
 // Avoids all intermediate integer truncation by doing one float floor at the end.

@@ -57,9 +57,9 @@ void drawStructure(int x, int y, const Color &color) { DrawRectangle(x - 2, y - 
 
 export void RenderRadar(entt::registry &registry) {
   const auto view = registry.view<DashboardSlot, RadarWidget, Position2D>();
+  const auto &player = get_player(registry);
 
   for (auto [entity, slot, wd, pos] : view.each()) {
-    const auto &player = get_player(registry);
 
     const auto displayRadius = static_cast<float>(wd.cfg.size) / 2.0f;
     const Vector2 center = {pos.pos.x + displayRadius, pos.pos.y + displayRadius};
