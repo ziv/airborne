@@ -81,7 +81,7 @@ void physics(entt::registry& registry, const float dt) {
       const float brakingAccelerationMag = max_braking_force / mass;
       const Vector3 brakingAcceleration = brakingDirection * brakingAccelerationMag;
 
-      player.velocity = player.velocity + (brakingAcceleration * dt);
+      player.velocity = player.velocity + brakingAcceleration * dt;
 
       // don't go back...
       const Vector3 new_ground_velocity = {player.velocity.x, 0.0f, player.velocity.z};
@@ -111,10 +111,10 @@ void physics(entt::registry& registry, const float dt) {
   const auto acceleration = total * 1 / mass;
 
   // todo  keeping forces globally only for debug view, remove later
-  registry.ctx().insert_or_assign(Forces{thrust, drag, lift, mass, acceleration});
+  // registry.ctx().insert_or_assign(Forces{thrust, drag, lift, mass, acceleration});
 
   // --- Euler integration ---
-  player.velocity = player.velocity + (acceleration * dt);
+  player.velocity = player.velocity + acceleration * dt;
   player.speed = Vector3Length(player.velocity);
 
   // hard speed cap (normally drag balances thrust before this limit)
@@ -124,7 +124,7 @@ void physics(entt::registry& registry, const float dt) {
   }
 
   // don't mess with near zero speed
-  if (player.speed < 0.01f) {
+  if (player.speed < 0.02f) {
     player.velocity = Vector3Zero();
     player.speed = 0.0f;
   }
