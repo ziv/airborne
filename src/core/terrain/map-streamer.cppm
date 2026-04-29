@@ -5,10 +5,8 @@ module;
 #include <format>
 #include <future>
 #include <map>
-#include <mutex>
 #include <set>
 #include <string>
-#include <thread>
 
 #include "../../lib/ray.hpp"
 
@@ -19,6 +17,7 @@ import RaylibResource;
 import ResourceManager;
 import Accessors;
 import Types;
+import TileDownloader;
 
 /// map streamer is a way simpler version of the terrain streamer:
 /// 1. 2D only
@@ -38,59 +37,34 @@ constexpr int MAP_BASE_Z = 1655;          // geographic TMS z of local-origin ti
 constexpr int MAP_ANCHOR_ZOOM = 12;
 
 // World metres per tile at any zoom level (works for zoom < 12 via pow).
-inline float map_tile_size(const int zoom) { return TILE_SIZE_Z12 * std::pow(2.0f, 12 - zoom); }
+float map_tile_size(const int zoom) { return TILE_SIZE_Z12 * std::pow(2.0f, 12 - zoom); }
 
 // Compute the geographic (TMS) tile index directly from a world coordinate.
 // Avoids all intermediate integer truncation by doing one float floor at the end.
 // geo = floor((world + BASE * TILE_Z12) / tile_size(zoom))
-inline int world_to_geo(const float world, const int base, const int zoom) {
+int world_to_geo(const float world, const int base, const int zoom) {
   const float origin = static_cast<float>(base) * TILE_SIZE_Z12;
   return static_cast<int>(std::floor((world + origin) / map_tile_size(zoom)));
 }
 
 // Compute the local tile index for a world coordinate at the given zoom.
-inline int world_to_local(const float world, const int zoom) {
+int world_to_local(const float world, const int zoom) {
   return static_cast<int>(std::floor(world / map_tile_size(zoom)));
 }
-
-// ---------------------------------------------------------------------------
-// Thread-safety: guard simultaneous downloads of the same path.
-// ---------------------------------------------------------------------------
-namespace {
-std::mutex map_download_mutex;
-std::set<std::string> map_downloading;
-}  // namespace
 
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
 
-inline int map_tile_id(const int zoom, const int x, const int z) {
+int map_tile_id(const int zoom, const int x, const int z) {
   return static_cast<int>(entt::hashed_string(TextFormat("map_tile_%d_%d_%d", zoom, x, z)).value());
 }
 
-// geo_tx / geo_tz are the geographic TMS tile numbers passed to the downloader.
-static Image load_map_tile(const int zoom, const int geo_tx, const int geo_tz) {
+Image load_map_tile(const int zoom, const int geo_tx, const int geo_tz) {
   const std::string path = std::format("assets/tiles/map/{}/{}/{}.png", zoom, geo_tx, geo_tz);
-  {
-    std::lock_guard lock(map_download_mutex);
-    if (!std::filesystem::exists(path) && !map_downloading.contains(path)) {
-      map_downloading.insert(path);
-    } else {
-      while (!std::filesystem::exists(path)) {
-        std::this_thread::sleep_for(std::chrono::milliseconds(50));
-      }
-      return LoadImage(path.c_str());
-    }
-  }
-  // This thread owns the download for this path.
-  // The path argument contains "map" → download_tile.mjs takes the TomTom branch.
-  const std::string cmd = std::format("./scripts/download_tile.mjs {} {} {} {}", zoom, geo_tx, geo_tz, path);
-  std::system(cmd.c_str());
-  {
-    std::lock_guard lock(map_download_mutex);
-    map_downloading.erase(path);
-  }
+  const auto tomtom_token = std::string(std::getenv("TOMTOM_TOKEN") ? std::getenv("TOMTOM_TOKEN") : "");
+  const std::string url = tile_downloader::map_url(zoom, geo_tx, geo_tz, tomtom_token);
+  tile_downloader::enqueue(path, url).wait();
   return LoadImage(path.c_str());
 }
 
@@ -231,7 +205,9 @@ class streamer {
   static entt::entity spawn_tile(entt::registry& registry, const TileKey& key) {
     const auto entity = registry.create();
     // Geo coords were computed in update() via world_to_geo — use them directly.
-    auto task = std::async(std::launch::async, [zoom = key.zoom, geo_tx = key.geo_x, geo_tz = key.geo_z]() { return load_map_tile(zoom, geo_tx, geo_tz); });
+    auto task = std::async(std::launch::async, [zoom = key.zoom, geo_tx = key.geo_x, geo_tz = key.geo_z]() {
+      return load_map_tile(zoom, geo_tx, geo_tz);
+    });
     registry.emplace<AsyncMapTileLoad>(entity, std::move(task), key.zoom, key.x, key.z, key.geo_x, key.geo_z);
     TraceLog(LOG_DEBUG, "map tile spawned z%d local(%d,%d) geo(%d,%d)", key.zoom, key.x, key.z, key.geo_x, key.geo_z);
     return entity;

@@ -36,7 +36,19 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(nlohmann_json)
 
-add_executable(${PROJECT_NAME} src/main.cpp src/lib/raygui-impl.cpp)
+# Fetch cpp-httplib
+FetchContent_Declare(
+        httplib
+        GIT_REPOSITORY https://github.com/yhirose/cpp-httplib.git
+        GIT_TAG v0.18.5
+        GIT_SHALLOW TRUE
+)
+FetchContent_MakeAvailable(httplib)
+
+# OpenSSL (system-provided — on macOS: brew install openssl)
+find_package(OpenSSL REQUIRED)
+
+add_executable(${PROJECT_NAME} src/main.cpp src/lib/raygui-impl.cpp src/lib/httplib-impl.cpp)
 
 target_sources(${PROJECT_NAME} PUBLIC
         FILE_SET CXX_MODULES FILES
@@ -54,6 +66,7 @@ target_sources(${PROJECT_NAME} PUBLIC
         src/core/resources/resource-preloader.cppm
         src/core/terrain/terrain-streamer.cppm
         src/core/terrain/map-streamer.cppm
+        src/core/tile-downloader.cppm
         src/components/components.cppm
         src/prefabs/prefabs.cppm
         src/prefabs/create-player.cppm
@@ -97,4 +110,13 @@ target_sources(${PROJECT_NAME} PUBLIC
 )
 
 
-target_link_libraries(${PROJECT_NAME} PRIVATE raylib EnTT::EnTT nlohmann_json::nlohmann_json)
+target_link_libraries(${PROJECT_NAME} PRIVATE raylib EnTT::EnTT nlohmann_json::nlohmann_json OpenSSL::SSL OpenSSL::Crypto)
+
+if(APPLE)
+    find_library(SECURITY_FRAMEWORK Security)
+    target_link_libraries(${PROJECT_NAME} PRIVATE ${SECURITY_FRAMEWORK})
+endif()
+
+# httplib needs its include dir and the OPENSSL support flag
+target_include_directories(${PROJECT_NAME} PRIVATE ${httplib_SOURCE_DIR})
+target_compile_definitions(${PROJECT_NAME} PRIVATE CPPHTTPLIB_OPENSSL_SUPPORT)

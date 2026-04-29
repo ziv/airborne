@@ -4,8 +4,6 @@ module;
 #include <filesystem>
 #include <future>
 #include <map>
-#include <mutex>
-#include <nlohmann/json.hpp>
 #include <set>
 #include <string>
 #include <thread>
@@ -20,6 +18,7 @@ import ResourceManager;
 import Resources;
 import Accessors;
 import Types;
+import TileDownloader;
 
 constexpr Meter SKIRT_SIZE = 0.0f;
 constexpr Meter TILE_SIZE = 9783.9;      // zoom 12
@@ -72,38 +71,13 @@ export struct TerrainHeight {
   int height;  // id of the height model
 };
 
-// Guards concurrent downloads of the same file path.
-// Two async threads for the same tile (texture + heightmap) would otherwise both
-// run download_tile.mjs simultaneously and race to write the same file.
-std::mutex download_mutex;
-std::set<std::string> downloading;
-
-Image load_tile_image(const int zoom, const int tx, const int tz, const std::string& path) {
-  {
-    std::lock_guard lock(download_mutex);
-    if (!std::filesystem::exists(path) && !downloading.contains(path)) {
-      downloading.insert(path);
-    } else {
-      // Either already on disk or another thread is downloading — just wait for the file.
-      while (!std::filesystem::exists(path)) {
-        // spin with a small sleep; the other thread owns the download
-        std::this_thread::sleep_for(std::chrono::milliseconds(50));
-      }
-      return LoadImage(path.c_str());
-    }
-  }
-  // We own the download for this path.
-  const std::string cmd = "./scripts/download_tile.mjs " + std::to_string(zoom) + " " + std::to_string(tx) + " " + std::to_string(tz) + " " + path;
-  std::system(cmd.c_str());
-  {
-    std::lock_guard lock(download_mutex);
-    downloading.erase(path);
-  }
+Image load_tile_image(const std::string& path, const std::string& url) {
+  tile_downloader::enqueue(path, url).wait();
   return LoadImage(path.c_str());
 }
 
-inline int get_tex_id(int zoom, int x, int z) { return entt::hashed_string(TextFormat("tile_tex_%d_%d_%d", zoom, x, z)); }
-inline int get_height_id(int zoom, int x, int z) { return entt::hashed_string(TextFormat("tile_height_%d_%d_%d", zoom, x, z)); }
+int get_tex_id(int zoom, int x, int z) { return entt::hashed_string(TextFormat("tile_tex_%d_%d_%d", zoom, x, z)); }
+int get_height_id(int zoom, int x, int z) { return entt::hashed_string(TextFormat("tile_height_%d_%d_%d", zoom, x, z)); }
 
 export namespace terrain_streamer {
 
@@ -375,11 +349,15 @@ class streamer {
     const int tz = tile.z + BASE_Z * scale;
     TraceLog(LOG_DEBUG, "spawning tile z%d %d %d %d %d", tile.zoom, tile.x, tile.z, tx, tz);
 
-    std::string tex_path = std::format("assets/tiles/texture/{}/{}/{}.png", tile.zoom, tx, tz);
+    std::string tex_path    = std::format("assets/tiles/texture/{}/{}/{}.png", tile.zoom, tx, tz);
     std::string height_path = std::format("assets/tiles/heightmaps/{}/{}/{}.png", tile.zoom, tx, tz);
 
-    auto tex_task = std::async(std::launch::async, [zoom = tile.zoom, tx, tz, tex_path]() { return load_tile_image(zoom, tx, tz, tex_path); });
-    auto height_task = std::async(std::launch::async, [zoom = tile.zoom, tx, tz, height_path]() { return load_tile_image(zoom, tx, tz, height_path); });
+    const auto mapbox_token = std::string(std::getenv("MAPBOX_TOKEN") ? std::getenv("MAPBOX_TOKEN") : "");
+    const std::string tex_url    = tile_downloader::texture_url(tile.zoom, tx, tz, mapbox_token);
+    const std::string height_url = tile_downloader::heightmap_url(tile.zoom, tx, tz, mapbox_token);
+
+    auto tex_task    = std::async(std::launch::async, [tex_path, tex_url]()       { return load_tile_image(tex_path, tex_url); });
+    auto height_task = std::async(std::launch::async, [height_path, height_url]() { return load_tile_image(height_path, height_url); });
 
     const float tile_size = TILE_SIZE_12 / static_cast<float>(1 << (tile.zoom - ZOOM_LEVEL));
     const float world_x = (static_cast<float>(tile.x) + 0.5f) * tile_size;
