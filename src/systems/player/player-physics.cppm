@@ -120,7 +120,7 @@ void physics(entt::registry& registry, const float dt) {
   // hard speed cap (normally drag balances thrust before this limit)
   if (player.speed > conf.maxSpeed && player.speed != 0.0f) {
     player.velocity = player.velocity * conf.maxSpeed / player.speed;
-    player.speed = Vector3Length(player.velocity);
+    player.speed = conf.maxSpeed;
   }
 
   // don't mess with near zero speed
