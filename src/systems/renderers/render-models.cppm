@@ -15,7 +15,7 @@ export void RenderModels(entt::registry &registry, const Camera3D &camera) {
   const auto view = registry.view<Position3D, WithModel, Heading>(entt::exclude<World>);
 
   for (auto [entity, position, modeled, heading] : view.each()) {
-    const auto models = get_resource_manager(registry).models;
+    const auto &models = get_resource_manager(registry).models;
 
     // 1. model not exists
     if (!models.contains(modeled.model)) continue;

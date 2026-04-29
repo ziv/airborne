@@ -37,7 +37,7 @@ void main()
     }
 
     vec3 worldPosition = vec3(matModel * vec4(displacedPosition, 1.0));
-    fragCamDist = distance(worldPosition.xz, cameraPosition.xz);
+    fragCamDist = distance(worldPosition, cameraPosition);
 
     gl_Position = mvp * vec4(displacedPosition, 1.0);
 }
