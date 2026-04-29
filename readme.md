@@ -1,6 +1,8 @@
-# Airborne (temporary name)
+# F-XX (Airborne)
 
-An indie game project. Simple flight simulator.
+An indie flight simulator gmae without any game engine, just C++ and some libraries.
+
+![splash](assets/images/splash.png)
 
 This project trys to make a little bit modern remake of the
 classic [F-15 Strike Eagle II](https://en.wikipedia.org/wiki/F-15_Strike_Eagle_II) and others flight simulators
@@ -42,7 +44,7 @@ Leftovers from the ESC refactoring:
 
 - [x] complete the terrain streaming
 - [ ] move fog shader into terrain streamer
-- [ ] complete configuring the terrain streamer 
+- [ ] complete configuring the terrain streamer
 - [ ] performance optimizations: change read only view data to const reference
 - [x] ~~move the scene into a view~~
 - [x] hud colors
