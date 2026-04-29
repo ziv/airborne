@@ -6,6 +6,7 @@ module;
 #include <map>
 #include <set>
 #include <string>
+#include <vector>
 
 #include "../../lib/ray.hpp"
 
@@ -208,8 +209,8 @@ class streamer {
     const int current_tile_z = static_cast<int>(std::floor(player_pos.z / TILE_SIZE));
 
     // --- Step 1: build new desired set (keys only) ---
-    // todo for performance, we should use fixed size data structure
-    std::set<TileKey> new_desired_keys;
+    std::vector<TileKey> new_desired_keys;
+    new_desired_keys.reserve(256);
     for (int dx = -7; dx <= 7; ++dx) {
       for (int dz = -7; dz <= 7; ++dz) {
         if (dz * dz + dx * dx > RENDER_DISC_R2) continue;
@@ -226,17 +227,18 @@ class streamer {
           const int cx0 = bx * 4;
           const int cz0 = bz * 4;
           for (int ox = 0; ox < 4; ++ox)
-            for (int oz = 0; oz < 4; ++oz) new_desired_keys.insert({14, cx0 + ox, cz0 + oz});
+            for (int oz = 0; oz < 4; ++oz) new_desired_keys.push_back({14, cx0 + ox, cz0 + oz});
         } else if (dist_sq < Z13_THRESHOLD_SQ) {
           const int cx0 = bx * 2;
           const int cz0 = bz * 2;
           for (int ox = 0; ox < 2; ++ox)
-            for (int oz = 0; oz < 2; ++oz) new_desired_keys.insert({13, cx0 + ox, cz0 + oz});
+            for (int oz = 0; oz < 2; ++oz) new_desired_keys.push_back({13, cx0 + ox, cz0 + oz});
         } else {
-          new_desired_keys.insert({12, bx, bz});
+          new_desired_keys.push_back({12, bx, bz});
         }
       }
     }
+    std::ranges::sort(new_desired_keys);
 
     // --- Step 2: spawn newly desired tiles ---
     for (const auto& key : new_desired_keys) {
@@ -247,7 +249,7 @@ class streamer {
 
     // --- Step 3: remove tiles no longer desired from desired_tiles ---
     for (auto it = desired_tiles.begin(); it != desired_tiles.end();) {
-      if (new_desired_keys.contains(it->first)) {
+      if (std::ranges::binary_search(new_desired_keys, it->first)) {
         ++it;
         continue;
       }
