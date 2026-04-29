@@ -20,7 +20,7 @@ struct LandingZoneRet {
 };
 
 
-static LandingZoneRet get_landing_zone(entt::registry &registry, const Vector3 &absolute_position) {
+LandingZoneRet get_landing_zone(entt::registry &registry, const Vector3 &absolute_position) {
   // update ground height
   // if there is a carrier below us, the ground height will be 12
   const auto view = registry.view<Landable, Position3D, Heading>();

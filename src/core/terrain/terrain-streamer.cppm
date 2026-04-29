@@ -1,12 +1,11 @@
 module;
 #include <algorithm>
 #include <entt/entt.hpp>
-#include <filesystem>
+#include <format>
 #include <future>
 #include <map>
 #include <set>
 #include <string>
-#include <thread>
 
 #include "../../lib/ray.hpp"
 
@@ -52,8 +51,10 @@ inline float tile_world_pos(const int zoom, const int local_idx) {
 Model create_model(const Meter size) { return LoadModelFromMesh(GenMeshPlane(size + size * 0.02f, size + size * 0.02f, 256, 256)); }
 
 export struct AsyncTileLoad {
-  std::future<Image> texture_future;
-  std::future<Image> heightmap_future;
+  std::shared_future<void> texture_future;
+  std::shared_future<void> heightmap_future;
+  std::string tex_path;
+  std::string height_path;
   int x = 0;
   int z = 0;
   int zoom = 12;
@@ -71,13 +72,14 @@ export struct TerrainHeight {
   int height;  // id of the height model
 };
 
-Image load_tile_image(const std::string& path, const std::string& url) {
-  tile_downloader::enqueue(path, url).wait();
-  return LoadImage(path.c_str());
-}
-
 int get_tex_id(int zoom, int x, int z) { return entt::hashed_string(TextFormat("tile_tex_%d_%d_%d", zoom, x, z)); }
 int get_height_id(int zoom, int x, int z) { return entt::hashed_string(TextFormat("tile_height_%d_%d_%d", zoom, x, z)); }
+
+void unload_tile(ResourceManager& rm, const int zoom, const int x, const int z) {
+  rm.textures.erase(get_tex_id(zoom, x, z));
+  rm.textures.erase(get_height_id(zoom, x, z));
+  rm.images.erase(get_height_id(zoom, x, z));
+}
 
 export namespace terrain_streamer {
 
@@ -271,10 +273,7 @@ class streamer {
         const auto& [zoom, x, z] = it->first;
         TraceLog(LOG_DEBUG, "unloading tile z%d %d %d", zoom, x, z);
         registry.destroy(it->second);
-        auto& rm = get_resource_manager(registry);
-        rm.textures.erase(get_tex_id(zoom, x, z));
-        rm.textures.erase(get_height_id(zoom, x, z));
-        rm.images.erase(get_height_id(zoom, x, z));
+        unload_tile(get_resource_manager(registry), zoom, x, z);
         it = rendered_tiles.erase(it);
       } else {
         ++it;  // replacements not ready yet — keep rendering
@@ -284,32 +283,25 @@ class streamer {
 
   void process_loaded_chunks(entt::registry& registry) {
     for (const auto view = registry.view<AsyncTileLoad>(); const auto [entity, tile] : view.each()) {
-      // zero wait check if the threads done
-      const bool tex_ready = tile.texture_future.wait_for(std::chrono::seconds(0)) == std::future_status::ready;
+      const bool tex_ready    = tile.texture_future.wait_for(std::chrono::seconds(0)) == std::future_status::ready;
       const bool height_ready = tile.heightmap_future.wait_for(std::chrono::seconds(0)) == std::future_status::ready;
 
-      // if not, we'll try again next tick
       if (!tex_ready || !height_ready) continue;
-      // TraceLog(LOG_DEBUG, "processing tile z%d %d %d", tile.zoom, tile.x, tile.z);
 
-      const Image tex_img = tile.texture_future.get();
-      const Image height_img = tile.heightmap_future.get();
+      const Image tex_img    = LoadImage(tile.tex_path.c_str());
+      const Image height_img = LoadImage(tile.height_path.c_str());
 
-      // create the texture
       const Texture2D texture_tex = LoadTextureFromImage(tex_img);
-      const Texture2D height_tex = LoadTextureFromImage(height_img);
+      const Texture2D height_tex  = LoadTextureFromImage(height_img);
 
-      // need no more
       UnloadImage(tex_img);
 
-      // keep textures in resource manager for the render phase
       const auto texture_id = get_tex_id(tile.zoom, tile.x, tile.z);
-      const auto height_id = get_height_id(tile.zoom, tile.x, tile.z);
+      const auto height_id  = get_height_id(tile.zoom, tile.x, tile.z);
 
-      // Copy coords before remove — remove<AsyncTileLoad> invalidates the tile ref.
       const int zoom = tile.zoom;
-      const int tx = tile.x;
-      const int tz = tile.z;
+      const int tx   = tile.x;
+      const int tz   = tile.z;
 
       auto& rm = get_resource_manager(registry);
       rm.textures.load(texture_id, texture_tex);
@@ -320,7 +312,7 @@ class streamer {
       registry.emplace<TerrainChunk>(entity, texture_id, height_id, zoom, tx, tz);
       registry.emplace<TerrainHeight>(entity, height_id);
       rendered_tiles[{zoom, tx, tz}] = entity;
-      break;  // to free the loop and let the next chunk load on the next frame
+      break;
     }
   }
 
@@ -356,15 +348,16 @@ class streamer {
     const std::string tex_url    = tile_downloader::texture_url(tile.zoom, tx, tz, mapbox_token);
     const std::string height_url = tile_downloader::heightmap_url(tile.zoom, tx, tz, mapbox_token);
 
-    auto tex_task    = std::async(std::launch::async, [tex_path, tex_url]()       { return load_tile_image(tex_path, tex_url); });
-    auto height_task = std::async(std::launch::async, [height_path, height_url]() { return load_tile_image(height_path, height_url); });
+    auto tex_future    = tile_downloader::enqueue(tex_path, tex_url);
+    auto height_future = tile_downloader::enqueue(height_path, height_url);
 
     const float tile_size = TILE_SIZE_12 / static_cast<float>(1 << (tile.zoom - ZOOM_LEVEL));
     const float world_x = (static_cast<float>(tile.x) + 0.5f) * tile_size;
     const float world_z = (static_cast<float>(tile.z) + 0.5f) * tile_size;
 
     registry.emplace<Position3D>(entity, (Vector3){world_x, 0.0f, world_z}, Vector3Zero());
-    registry.emplace<AsyncTileLoad>(entity, std::move(tex_task), std::move(height_task), tile.x, tile.z, tile.zoom);
+    registry.emplace<AsyncTileLoad>(entity, std::move(tex_future), std::move(height_future),
+                                    std::move(tex_path), std::move(height_path), tile.x, tile.z, tile.zoom);
 
     return entity;
   }

@@ -63,11 +63,11 @@ class pool {
         queue.pop();
       }
       download(job.path, job.url);
-      job.promise.set_value();
       {
         std::lock_guard lock(mtx);
         in_flight.erase(job.path);
       }
+      job.promise.set_value();
     }
   }
 
