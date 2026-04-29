@@ -688,14 +688,49 @@
   ],
   "resources": [
     {
-      "name": "north-hm",
+      "name": "world-tex",
       "type": "texture",
-      "path": "assets/images/north-hm.png"
+      "path": "assets/images/north-tx-2048.jpg"
     },
     {
-      "name": "mig-29",
+      "name": "world-hm",
+      "type": "image",
+      "path": "assets/tiles/north/heightmap.png"
+    },
+    {
+      "name": "minimap-tex",
+      "type": "texture",
+      "path": "assets/tiles/north/map.png"
+    },
+    {
+      "name": "cockpit-tex",
+      "type": "texture",
+      "path": "assets/images/cockpit-z.png"
+    },
+    {
+      "name": "cockpit-chroma",
+      "type": "fragment",
+      "path": "assets/shaders/chromakey.fs"
+    },
+    {
+      "name": "carrier-model",
+      "type": "model",
+      "path": "assets/models/carrier-s.glb"
+    },
+    {
+      "name": "mig29-model",
       "type": "model",
       "path": "assets/models/mig-29.glb"
+    },
+    {
+      "name": "engine-sound",
+      "type": "music",
+      "path": "assets/sound/engine.mp3"
+    },
+    {
+      "name": "gear-sound",
+      "type": "sound",
+      "path": "assets/sound/gear-short.wav"
     }
   ]
 }

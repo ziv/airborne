@@ -12,6 +12,7 @@ import JsonConfig;
 
 export struct Configuration {
   AppConfig conf{};
+  JsonConfig scenario;
   std::vector<ResourceDef> resources{};
 };
 

@@ -10,43 +10,31 @@ import JsonConfig;
 import ResourceManager;
 import ResourcePreloader;
 import Types;
+import Resources;
 import Accessors;
 import :Base;
 
-auto constexpr RESOURCES_PATH = "assets/resources.jsonc";
-
-export class LoadingScreen : public BaseScreen
-{
+export class LoadingScreen : public BaseScreen {
   entt::registry& registry;
   std::vector<ResourceDef> resources{};
   int total{};
   int current{};
 
-public:
+ public:
   explicit LoadingScreen(entt::registry& r)
-    : registry(r)
-    , resources(get_resources(r))
-    , total(static_cast<int>(resources.size()))
-  {
-  }
+      : registry(r), resources(JsonConfig(resources::scenario_path).get<std::vector<ResourceDef>>("/resources")), total(static_cast<int>(resources.size())) {}
 
-  ScreenState update() override
-  {
+  ScreenState update() override {
     // NOLINTBEGIN
-    if (total == 0)
-      return ScreenState::GAMEPLAY;
+    if (total == 0) return ScreenState::GAMEPLAY;
 
     preload_resource(get_resource_manager(registry), resources.at(current));
     current++;
-    if (current >= total)
-      return ScreenState::GAMEPLAY;
-
-    return ScreenState::LOADING;
+    return (current >= total) ? ScreenState::GAMEPLAY : ScreenState::LOADING;
     // NOLINTEND
   }
 
-  void draw() override
-  {
+  void draw() override {
     ClearBackground(BLACK);
     // NOLINTNEXTLINE
     const int progress = (total == 0) ? 100 : (current * 100) / total;

@@ -11,6 +11,7 @@ import JsonConfig;
 import Accessors;
 import Types;
 import ResourceManager;
+import Resources;
 import Screens;
 
 std::unique_ptr<BaseScreen> create_screen(const ScreenState& current, entt::registry& registry) {
@@ -38,10 +39,10 @@ int main() {
     /// 2. the scene configuration
     ///    2.1. Entities and objectives
     ///    2.2. Resources list
-    const auto json_config = JsonConfig("assets/config.jsonc");
+    const auto json_config = JsonConfig(resources::config_path);
     const auto app_conf = json_config.get<AppConfig>("/config");
 
-    const auto json_scenario = JsonConfig("assets/scenario.jsonc");
+    const auto json_scenario = JsonConfig(resources::scenario_path);
     const auto resources_conf = json_scenario.get<std::vector<ResourceDef>>("/resources");
 
     InitWindow(app_conf.global.width, app_conf.global.height, app_conf.global.title.c_str());
@@ -50,15 +51,15 @@ int main() {
     // todo remove comment in production
     // SetTargetFPS(60);
 
-    TraceLog(LOG_DEBUG, "Setting near plane to %f and far plane to %f", app_conf.global.nearPlane, app_conf.global.farPlane);
-    rlSetClipPlanes(app_conf.global.nearPlane, app_conf.global.farPlane);
-
     entt::registry registry;
-    set_initial_globals(registry, app_conf, resources_conf);
+    set_initial_globals(registry, app_conf, json_scenario, resources_conf);
 
     auto current = ScreenState::SPLASH;
     ScreenState next = current;
     std::unique_ptr<BaseScreen> screen = create_screen(current, registry);
+
+    TraceLog(LOG_DEBUG, "Setting near plane to %f and far plane to %f", app_conf.global.nearPlane, app_conf.global.farPlane);
+    rlSetClipPlanes(app_conf.global.nearPlane, app_conf.global.farPlane);
 
     while (!WindowShouldClose()) {
       if (next = screen->update(); next != current) {

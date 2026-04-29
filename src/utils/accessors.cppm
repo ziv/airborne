@@ -7,11 +7,17 @@ export module Accessors;
 
 import Components;
 import ResourceManager;
+import JsonConfig;
 import Types;
 
-export void set_initial_globals(entt::registry &registry, const AppConfig &config, const std::vector<ResourceDef> &resources) {
+export void set_initial_globals(
+  entt::registry &registry,
+  const AppConfig &config,
+  const JsonConfig &scenario,
+  const std::vector<ResourceDef> &resources
+  ) {
   registry.ctx().emplace<GameState>(GameStatus::INITIALIZE);
-  registry.ctx().emplace<Configuration>(config, resources);
+  registry.ctx().emplace<Configuration>(config, scenario, resources);
   create_resource_manager(registry);
 }
 

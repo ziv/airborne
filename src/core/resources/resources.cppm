@@ -3,6 +3,9 @@ module;
 export module Resources;
 
 export namespace resources {
+constexpr auto config_path = "assets/config.jsonc";
+constexpr auto scenario_path = "assets/scenario-new.json";
+
 constexpr auto engine_sound = entt::hashed_string("engine-sound");
 constexpr auto gear_sound = entt::hashed_string("gear-sound");
 
