@@ -22,7 +22,7 @@
         // field of view a little bit wider than the human FOV for wider sight
         "fov": 85,
         // look down a little bit (I used 0.45 for better view)
-        "tilt": 0.45
+        "tilt": 0.25
       },
       "controls": {
         "pitchRatio": 3.7,
