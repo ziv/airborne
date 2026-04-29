@@ -23,7 +23,7 @@ export void RenderTargetCamera(entt::registry &registry) {
     Camera2D cam{0};
     cam.target = (Vector2){mapX, mapZ};
     cam.rotation = 0.0f;
-    cam.zoom = wd.zoom;
+    cam.zoom = 1.0f;
 
     const auto heading = 180.0f - atan2f(player.forward.x, player.forward.z) * RAD2DEG;
 
@@ -42,8 +42,8 @@ export void RenderTargetCamera(entt::registry &registry) {
     // draw small triangle
     // we divide by zoom to keep it the same size
     const Vector2 planeMapPos = cam.target;
-    const float width = 5.0f / wd.zoom;
-    const float height = 12.0f / wd.zoom;
+    constexpr float width = 5.0f;
+    constexpr float height = 12.0f;
     Vector2 v1 = {0.0f, -height / 2.0f};
     Vector2 v2 = {-width / 2.0f, height / 2.0f};
     Vector2 v3 = {width / 2.0f, height / 2.0f};
@@ -57,7 +57,7 @@ export void RenderTargetCamera(entt::registry &registry) {
 
     EndMode2D();
     DrawText(
-        TextFormat("Z: x%.1f", wd.zoom),
+        TextFormat("Z%d", wd.map_zoom),
         x + 5,
         y + 140,
         10,

@@ -58,10 +58,10 @@ export struct CockpitConfig {
 };
 
 export struct MinimapConfig {
-  std::string mapTexture;   ///< Path to the satellite map texture.
+  std::string mapTexture;   ///< Legacy: path to the fixed satellite map texture (unused by map streamer).
   Pixel size = 150;         ///< Size (width and height) of the square minimap widget.
-  Ratio mapsRatio = 62.5f;  ///< Ratio between the world coordinates and the map
-                            ///< texture coordinates
+  Ratio mapsRatio = 62.5f;  ///< Legacy: ratio between world coordinates and the fixed map texture.
+  int defaultMapZoom = 14;  ///< Initial slippy-map zoom level (1–20).
 };
 
 // HUD config from here
@@ -218,7 +218,7 @@ export {
   NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(CockpitConfig, texturePath, shaderPath, tintColor);
 
   // views - minimap
-  NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(MinimapConfig, mapTexture, size, mapsRatio);
+  NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(MinimapConfig, mapTexture, size, mapsRatio, defaultMapZoom);
 
   // views - hud
   NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(HudLadderConfig, x, y, width, height, offset);

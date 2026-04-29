@@ -8,19 +8,6 @@ export module AircraftSystems:WidgetsInputs;
 import Components;
 import Prefabs;
 
-void increase_minimap_zoom(entt::registry &registry) {
-  for (const auto minimap_view = registry.view<MinimapWidget>(); const auto [entity, minimap] : minimap_view.each()) {
-    minimap.zoom += 0.4f;
-    minimap.zoom = std::clamp(minimap.zoom, 0.2f, 5.0f);
-  }
-}
-
-void decrease_minimap_zoom(entt::registry &registry) {
-  for (const auto minimap_view = registry.view<MinimapWidget>(); const auto [entity, minimap] : minimap_view.each()) {
-    minimap.zoom -= 0.4f;
-    minimap.zoom = std::clamp(minimap.zoom, 0.2f, 5.0f);
-  }
-}
 
 void change_radar_range(entt::registry &registry) {
   for (const auto radar_view = registry.view<RadarWidget>(); const auto [entity, radar] : radar_view.each()) {
@@ -68,9 +55,6 @@ void change_slot_widget(entt::registry &registry, const int slotIndex) {
 
 export namespace aircraft_systems {
 void widgets_inputs(entt::registry &registry) {
-  if (IsKeyPressed(KEY_Z)) increase_minimap_zoom(registry);
-  if (IsKeyPressed(KEY_X)) decrease_minimap_zoom(registry);
-
   if (IsKeyPressed(KEY_R)) change_radar_range(registry);
 
   if (IsKeyDown(KEY_LEFT_ALT) && IsKeyPressed(KEY_H)) change_hud_colors(registry);

@@ -116,7 +116,8 @@
       "minimap": {
         "mapTexture": "minimap-tex",
         "size": 150,
-        "mapsRatio": 128
+        "mapsRatio": 128,
+        "defaultMapZoom": 14
       },
       "cockpit": {
         "texturePath": "cockpit-tex",

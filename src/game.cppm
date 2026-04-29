@@ -14,16 +14,19 @@ import AircraftSystems;
 import Prefabs;
 import WorldStreamerSystem;
 import TerrainStreaming;
+import MapStreaming;
 import RenderSystem;
 import ResourceManager;
 import Helpers;
 import Types;
+import Components;
 
 export class Game {
   entt::registry& registry;
   // Scenario scenario{};
   Camera camera = {};
   terrain_streamer::streamer streamer;
+  map_streamer::streamer map_str;
 
  public:
   explicit Game(entt::registry& reg) : registry(reg), streamer(reg) {
@@ -67,6 +70,15 @@ export class Game {
     aircraft_systems::update_lock(registry);
     streamer.update(registry);
     streamer.process_loaded_chunks(registry);
+    map_str.update(registry);
+    map_str.process_loaded_tiles(registry);
+
+    // X = zoom out, Z = zoom in on the minimap
+    if (const auto view = registry.view<MinimapWidget>(); !view.empty()) {
+      auto& wd = registry.get<MinimapWidget>(view.front());
+      if (IsKeyPressed(KEY_Z) && wd.map_zoom < 20) wd.map_zoom++;
+      if (IsKeyPressed(KEY_X) && wd.map_zoom > 1) wd.map_zoom--;
+    }
   }
 
   void draw() {

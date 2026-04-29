@@ -130,7 +130,7 @@ export struct RadarWidget {
 
 export struct MinimapWidget {
   MinimapConfig cfg{};
-  float zoom = 1.0f;
+  int map_zoom = 14;     // slippy-map tile zoom level (1–20); X = zoom in, Z = zoom out
 };
 
 export struct EngineWidget {};

@@ -19,14 +19,26 @@ if (!mapbox_token) {
     process.ex(2);
 }
 
+const tomtom_token = process.env["TOMTOM_TOKEN"];
+if (!tomtom_token) {
+    console.error("TOMTOM_TOKEN environment variable is not set");
+    process.ex(2);
+}
+
 let url;
 
+// textures
 if (p.includes("texture")) {
     url = `https://api.mapbox.com/v4/mapbox.satellite/${zoom}/${x}/${z}.png?access_token=${mapbox_token}`;
-} else if (p.includes("heightmap")) {
+}
+// heightmap
+else if (p.includes("heightmap")) {
     url = `https://api.mapbox.com/v4/mapbox.terrain-rgb/${zoom}/${x}/${z}.pngraw?access_token=${mapbox_token}`;
-} else if (p.includes("map")) {
-    url = `todo`;
+}
+// roads
+else if (p.includes("map")) {
+    const theme = "main";
+    url = `https://api.tomtom.com/map/1/tile/basic/${theme}/${zoom}/${x}/${z}.png?tileSize=256&view=Unified&language=NGT&key=${tomtom_token}`;
 }
 
 if (existsSync(p)) {
@@ -44,52 +56,3 @@ mkdirSync(dirname(p), {recursive: true});
 const fileStream = createWriteStream(p);
 await finished(Readable.fromWeb(response.body).pipe(fileStream));
 console.error(`tile ${p} downloaded`);
-
-
-//
-// async function download_texture(zoom, x, z, token) {
-//     const url = `https://api.mapbox.com/v4/mapbox.satellite/${zoom}/${x}/${z}.png?access_token=${token}`;
-//     const path = `assets/tiles/cache/texture/${zoom}/${x}/${z}.png`;
-//
-//     if (existsSync(path)) {
-//         console.error(`texture already exists at ${path}, skipping`);
-//         return;
-//     }
-//
-//     const response = await fetch(url);
-//     if (!response.ok) {
-//         console.error(`failed to download texture for tile ${zoom}/${x}/${z}: ${response.status} ${response.statusText}`);
-//         return;
-//     }
-//
-//     mkdirSync(dirname(path), {recursive: true});
-//     const fileStream = createWriteStream(path);
-//     await finished(Readable.fromWeb(response.body).pipe(fileStream));
-//     console.error(`downloaded texture to path ${path}`)
-// }
-//
-// async function download_heightmap(zoom, x, z, token) {
-//     const url = `https://api.mapbox.com/v4/mapbox.terrain-rgb/${zoom}/${x}/${z}.pngraw?access_token=${token}`;
-//     const path = `assets/tiles/cache/heightmaps/${zoom}/${x}/${z}.png`;
-//
-//     if (existsSync(path)) {
-//         console.error(`heightmap already exists at ${path}, skipping`);
-//         return;
-//     }
-//
-//     const response = await fetch(url);
-//     if (!response.ok) {
-//         console.error(`failed to download heightmap for tile ${zoom}/${x}/${z}: ${response.status} ${response.statusText}`);
-//         return;
-//     }
-//
-//     mkdirSync(dirname(path), {recursive: true});
-//     const fileStream = createWriteStream(path);
-//     await finished(Readable.fromWeb(response.body).pipe(fileStream));
-//     console.error(`downloaded heightmap to path ${path}`)
-// }
-//
-// await Promise.all([
-//     download_texture(zoom, x, z, token),
-//     download_heightmap(zoom, x, z, token)
-// ]);
