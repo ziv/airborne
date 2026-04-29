@@ -42,7 +42,8 @@ export {
     WAYPOINT  ///< Invisible navigation point.
   };
 
-  NLOHMANN_JSON_SERIALIZE_ENUM(EntityType, {{EntityType::AIRCRAFT, "aircraft"},
+  NLOHMANN_JSON_SERIALIZE_ENUM(EntityType, {{EntityType::None, "none"},
+                                            {EntityType::AIRCRAFT, "aircraft"},
                                             {EntityType::SAM, "sam"},
                                             {EntityType::AAA, "aaa"},
                                             {EntityType::STRUCTURE, "structure"},

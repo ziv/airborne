@@ -38,7 +38,7 @@ void set_radar(const int slot, entt::registry &registry) {
     if (dashboard.slot_index != slot) continue;
 
     const auto radar_cfg = get_config(registry).views.radar;
-    constexpr auto size = static_cast<int>(radar_cfg.ranges.size());
+    const auto size = static_cast<int>(radar_cfg.ranges.size());
     registry.emplace_or_replace<RadarWidget>(entity, radar_cfg, size, 0);
     break;
   }
