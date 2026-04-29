@@ -37,7 +37,7 @@ export class Game {
     const auto scene = parse_json_file(resources::scenario_path);
 
     factories::create_player(registry, scene["data"]["start_position"].get<Vector3>());
-    factories::create_scene(registry, scene["data"]["time_of_day"].get<std::string>());
+    factories::create_scene(registry, scene);
     factories::create_cockpit(registry);
     factories::create_hud(registry);
     factories::create_cockpit_widgets(registry);

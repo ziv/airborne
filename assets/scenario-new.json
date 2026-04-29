@@ -1,16 +1,14 @@
 {
   "sky": {
-    "vertex": "assets/shaders/sky.vs",
-    "fragment": "assets/shaders/sky.fs",
     "zenith_color": {
-      "x": 0.5,
-      "y": 0.7,
-      "z": 1.0
+      "x": 0.1,
+      "y": 0.3,
+      "z": 0.9
     },
     "horizon_color": {
-      "x": 0.8,
-      "y": 0.9,
-      "z": 1.0
+      "x": 0.6,
+      "y": 0.8,
+      "z": 0.99
     }
   },
   "tiles": {
