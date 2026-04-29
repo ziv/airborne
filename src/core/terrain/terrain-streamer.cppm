@@ -109,6 +109,35 @@ inline int get_height_id(int zoom, int x, int z) { return entt::hashed_string(Te
 
 export namespace terrain_streamer {
 
+// Returns the terrain elevation (metres, Mapbox RGB encoding) at a world-space
+// XZ position by sampling the highest-resolution loaded tile that covers it.
+// Falls back through z14 → z13 → z12 so it works while tiles are still loading.
+float ground_height_at(entt::registry& registry, const Vector3& pos) {
+  auto& rm = get_resource_manager(registry);
+  for (const int zoom : {14, 13, 12}) {
+    const float tile_size = TILE_SIZE_12 / static_cast<float>(1 << (zoom - ZOOM_LEVEL));
+    const int tx = static_cast<int>(std::floor(pos.x / tile_size));
+    const int tz = static_cast<int>(std::floor(pos.z / tile_size));
+
+    const int height_id = get_height_id(zoom, tx, tz);
+    if (!rm.images.contains(height_id)) continue;
+
+    const Image& img = rm.images[height_id]->res;
+    const float u = pos.x / tile_size - static_cast<float>(tx);
+    const float v = pos.z / tile_size - static_cast<float>(tz);
+    const int px = std::clamp(static_cast<int>(u * static_cast<float>(img.width)),  0, img.width  - 1);
+    const int pz = std::clamp(static_cast<int>(v * static_cast<float>(img.height)), 0, img.height - 1);
+
+    const auto c = GetImageColor(img, px, pz);
+    return -10000.0f + (static_cast<float>(c.r) * 65536.0f +
+                        static_cast<float>(c.g) * 256.0f  +
+                        static_cast<float>(c.b)) * 0.1f;
+  }
+  return 0.0f;  // no tile loaded yet
+}
+
+
+
 struct TileKey {
   int zoom;
   int x;

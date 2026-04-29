@@ -11,6 +11,7 @@ import Types;
 import Helpers;
 import ResourceManager;
 import Accessors;
+import TerrainStreaming;
 
 struct LandingZoneRet {
   bool is_landing_zone;
@@ -18,24 +19,24 @@ struct LandingZoneRet {
   float surface_y;
 };
 
-float get_effective_height(entt::registry &registry, const PlayerPositionConfig &conf, const Vector3 &position, const entt::hashed_string &heightmap) {
-  // todo make static?
-  const auto map = get_resource_manager(registry).images[heightmap]->res;
-
-  // 125 is the ratio between the large area and the map we check the height
-  const auto x = static_cast<int>(position.x / conf.heightMapSizeRatio);
-  const auto z = static_cast<int>(position.z / conf.heightMapSizeRatio);
-  //
-  // if the x and z are in the image pixels range
-  if (x < 0 || z < 0 || x >= map.height || z >= map.width) return 0.0f;
-
-  const auto r = static_cast<float>(GetImageColor(map, x, z).r);
-
-  // this magic is the sea level in the north map
-  // todo should enter to the configuration
-  return conf.maxRelativeHeight * (r / 255.0f - 0.203922);
-  // return 0.0f;
-}
+// float get_effective_height(entt::registry &registry, const PlayerPositionConfig &conf, const Vector3 &position, const entt::hashed_string &heightmap) {
+//   // todo make static?
+//   const auto map = get_resource_manager(registry).images[heightmap]->res;
+//
+//   // 125 is the ratio between the large area and the map we check the height
+//   const auto x = static_cast<int>(position.x / conf.heightMapSizeRatio);
+//   const auto z = static_cast<int>(position.z / conf.heightMapSizeRatio);
+//   //
+//   // if the x and z are in the image pixels range
+//   if (x < 0 || z < 0 || x >= map.height || z >= map.width) return 0.0f;
+//
+//   const auto r = static_cast<float>(GetImageColor(map, x, z).r);
+//
+//   // this magic is the sea level in the north map
+//   // todo should enter to the configuration
+//   return conf.maxRelativeHeight * (r / 255.0f - 0.203922);
+//   // return 0.0f;
+// }
 
 static LandingZoneRet get_landing_zone(entt::registry &registry, const Vector3 &absolute_position) {
   // update ground height
@@ -85,7 +86,7 @@ export namespace player_systems {
 
 void position(entt::registry &registry, const float dt) {
   const PlayerPositionConfig conf = get_config(registry).player.position;
-  const auto heightmap = entt::hashed_string(conf.heightPath.c_str());
+  // const auto heightmap = entt::hashed_string(conf.heightPath.c_str());  // replaced by terrain tile lookup
 
   const auto entity = get_player_entity(registry);
   auto [player, gh, inputs] = registry.get<Player, GroundHeight, const PlayerInputs>(entity);
@@ -115,7 +116,8 @@ void position(entt::registry &registry, const float dt) {
   const auto absolute_position = player.pos - player.offset;
 
   // update ground height
-  gh.height = get_effective_height(registry, conf, absolute_position, heightmap);
+  // gh.height = get_effective_height(registry, conf, absolute_position, heightmap);  // replaced by terrain tile lookup
+  gh.height = terrain_streamer::ground_height_at(registry, absolute_position);
 
   // are we above a landing zone? (carrier is more than ground height - sea
   // level in this case)
