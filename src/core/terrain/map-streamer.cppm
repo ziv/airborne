@@ -71,7 +71,7 @@ inline int map_tile_id(const int zoom, const int x, const int z) {
 
 // geo_tx / geo_tz are the geographic TMS tile numbers passed to the downloader.
 static Image load_map_tile(const int zoom, const int geo_tx, const int geo_tz) {
-  const std::string path = std::format("assets/tiles/cache/map/{}/{}/{}.png", zoom, geo_tx, geo_tz);
+  const std::string path = std::format("assets/tiles/map/{}/{}/{}.png", zoom, geo_tx, geo_tz);
   {
     std::lock_guard lock(map_download_mutex);
     if (!std::filesystem::exists(path) && !map_downloading.contains(path)) {

@@ -95,6 +95,7 @@ static Image load_tile_image(const int zoom, const int tx, const int tz, const s
     }
   }
   // We own the download for this path.
+  if (path.contains("texture"))
   std::string cmd = "./scripts/download_tile.mjs " + std::to_string(zoom) + " " + std::to_string(tx) + " " + std::to_string(tz) + " " + path;
   std::system(cmd.c_str());
   {
@@ -377,8 +378,8 @@ class streamer {
     const int tz = tile.z + BASE_Z * scale;
     TraceLog(LOG_DEBUG, "spawning tile z%d %d %d %d %d", tile.zoom, tile.x, tile.z, tx, tz);
 
-    std::string tex_path = std::format("assets/tiles/cache/texture/{}/{}/{}.png", tile.zoom, tx, tz);
-    std::string height_path = std::format("assets/tiles/cache/heightmaps/{}/{}/{}.png", tile.zoom, tx, tz);
+    std::string tex_path = std::format("assets/tiles/texture/{}/{}/{}.png", tile.zoom, tx, tz);
+    std::string height_path = std::format("assets/tiles/heightmaps/{}/{}/{}.png", tile.zoom, tx, tz);
 
     auto tex_task = std::async(std::launch::async, [zoom = tile.zoom, tx, tz, tex_path]() { return load_tile_image(zoom, tx, tz, tex_path); });
     auto height_task = std::async(std::launch::async, [zoom = tile.zoom, tx, tz, height_path]() { return load_tile_image(zoom, tx, tz, height_path); });
