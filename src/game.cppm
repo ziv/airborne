@@ -42,7 +42,7 @@ export class Game {
     updates::set_engine_status(1, registry);
     updates::set_radar(2, registry);
 
-    factories::spawn(registry, parse_json_file("assets/scenario-new.json"));
+    factories::spawn(registry, scene);
   }
 
   ~Game() {

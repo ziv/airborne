@@ -19,7 +19,7 @@ export class LoadingScreen : public BaseScreen
 {
   entt::registry& registry;
   std::vector<ResourceDef> resources{};
-  volatile int total{};
+  int total{};
   int current{};
 
 public:

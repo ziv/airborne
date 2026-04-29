@@ -62,13 +62,13 @@ export class JsonConfig {
   }
 
   template <typename T>
-  std::optional<T> optional(const std::string &path) const noexcept {
+  std::optional<T> optional(const std::string &path) const {
     if (config.contains(nlohmann::json::json_pointer(path))) return get<T>(path);
     return std::nullopt;
   }
 
   template <typename T>
-  T get_or(const std::string &path, const T &defaultValue) const noexcept {
+  T get_or(const std::string &path, const T &defaultValue) const {
     if (config.contains(nlohmann::json::json_pointer(path))) return get<T>(path);
     return defaultValue;
   }
