@@ -13,18 +13,14 @@ import Types;
 export void set_initial_globals(
   entt::registry &registry,
   const AppConfig &config,
-  const JsonConfig &scenario,
-  const std::vector<ResourceDef> &resources
+  const JsonConfig &scenario
   ) {
   registry.ctx().emplace<GameState>(GameStatus::INITIALIZE);
-  registry.ctx().emplace<Configuration>(config, scenario, resources);
+  registry.ctx().emplace<Configuration>(config, scenario);
   create_resource_manager(registry);
 }
 
 export const AppConfig &get_config(entt::registry &registry) { return registry.ctx().get<Configuration>().conf; }
-
-// todo move inside loading screens, no need to be global...
-export const std::vector<ResourceDef> &get_resources(entt::registry &registry) { return registry.ctx().get<Configuration>().resources; }
 
 export const entt::entity &get_player_entity(entt::registry &registry) { return registry.ctx().get<PlayerEntity>().id; }
 

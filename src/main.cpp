@@ -52,7 +52,7 @@ int main() {
     // SetTargetFPS(60);
 
     entt::registry registry;
-    set_initial_globals(registry, app_conf, json_scenario, resources_conf);
+    set_initial_globals(registry, app_conf, json_scenario);
 
     auto current = ScreenState::SPLASH;
     ScreenState next = current;
