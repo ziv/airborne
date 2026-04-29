@@ -299,19 +299,17 @@ class streamer {
       const auto texture_id = get_tex_id(tile.zoom, tile.x, tile.z);
       const auto height_id  = get_height_id(tile.zoom, tile.x, tile.z);
 
-      const int zoom = tile.zoom;
-      const int tx   = tile.x;
-      const int tz   = tile.z;
-
       auto& rm = get_resource_manager(registry);
+      unload_tile(rm, tile.zoom, tile.x, tile.z);
+
       rm.textures.load(texture_id, texture_tex);
       rm.textures.load(height_id, height_tex);
       rm.images.load(height_id, height_img);
 
       registry.remove<AsyncTileLoad>(entity);
-      registry.emplace<TerrainChunk>(entity, texture_id, height_id, zoom, tx, tz);
+      registry.emplace<TerrainChunk>(entity, texture_id, height_id, tile.zoom, tile.x, tile.z);
       registry.emplace<TerrainHeight>(entity, height_id);
-      rendered_tiles[{zoom, tx, tz}] = entity;
+      rendered_tiles[{tile.zoom, tile.x, tile.z}] = entity;
       break;
     }
   }
