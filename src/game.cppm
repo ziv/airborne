@@ -2,7 +2,6 @@ module;
 #include <entt/entt.hpp>
 
 #include "lib/ray.hpp"
-#include "rlgl.h"
 
 export module Game;
 
@@ -36,8 +35,9 @@ export class Game {
 
     const auto scene = parse_json_file(resources::scenario_path);
 
-    factories::create_player(registry, scene["data"]["start_position"].get<Vector3>());
+    factories::create_player(registry, scene);
     factories::create_scene(registry, scene);
+    factories::create_engine(registry);
     factories::create_cockpit(registry);
     factories::create_hud(registry);
     factories::create_cockpit_widgets(registry);
@@ -81,7 +81,7 @@ export class Game {
     }
   }
 
-  void draw() {
+  void draw() const {
     ClearBackground(BLUE);
 
     // 3D
@@ -89,6 +89,7 @@ export class Game {
     render_systems::sky(registry);
     streamer.stream(registry, camera);
     RenderModels(registry, camera);
+    render_systems::render_debugging_landing(registry);
     // RenderDebugging(registry);
     EndMode3D();
 

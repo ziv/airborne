@@ -14,7 +14,7 @@ export class GameScreen : public BaseScreen {
   Game game;
 
  public:
-  explicit GameScreen(entt::registry& reg) : registry(reg), game(reg) {}
+  explicit GameScreen(entt::registry& reg) : registry(reg), game(reg) {};
 
   ScreenState update() override {
     game.update();
