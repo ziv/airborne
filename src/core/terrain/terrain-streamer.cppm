@@ -31,9 +31,9 @@ constexpr int BASE_X = 2444;
 constexpr int BASE_Z = 1655;
 
 // Disc radius in z12 tile-units squared (matches existing dx*dx+dz*dz <= 30).
-constexpr int RENDER_DISC_R2 = 36;
+constexpr int RENDER_DISC_R2 = 32;
 // Render distance in meters: sqrt(30) * TILE_SIZE_12 ~= 53,610 m.
-constexpr Meter RENDER_RADIUS = 6 * TILE_SIZE_12;
+constexpr Meter RENDER_RADIUS = 5.6568f * TILE_SIZE_12;
 constexpr Meter Z13_THRESHOLD = RENDER_RADIUS * 0.5f;
 constexpr Meter Z14_THRESHOLD = RENDER_RADIUS * 0.25f;
 constexpr Meter Z13_THRESHOLD_SQ = Z13_THRESHOLD * Z13_THRESHOLD;
