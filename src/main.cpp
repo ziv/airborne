@@ -1,10 +1,9 @@
-#include <raylib.h>
-
 #include <entt/entt.hpp>
 #include <iostream>
 #include <string>
 
 #include "lib/ray-logger.hpp"
+#include "lib/ray.hpp"
 #include "rlgl.h"
 
 import JsonConfig;
@@ -62,12 +61,15 @@ int main() {
       EndDrawing();
     }
 
-    // todo clean all resources
-    get_resource_manager(registry).models.clear();
-    get_resource_manager(registry).textures.clear();
-    get_resource_manager(registry).shaders.clear();
-    get_resource_manager(registry).music_streams.clear();
-    get_resource_manager(registry).sounds.clear();
+    // make sure we clear everything
+    auto& [textures, models, images, shaders, music_streams, sounds] = get_resource_manager(registry);
+    models.clear();
+    images.clear();
+    textures.clear();
+    shaders.clear();
+    music_streams.clear();
+    sounds.clear();
+
     CloseAudioDevice();
     CloseWindow();
   } catch (std::exception& e) {
