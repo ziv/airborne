@@ -1,5 +1,7 @@
 # Airborne (temporary name)
 
+An indie game project. Simple flight simulator.
+
 This project trys to make a little bit modern remake of the
 classic [F-15 Strike Eagle II](https://en.wikipedia.org/wiki/F-15_Strike_Eagle_II) and others flight simulators
 made by [MicroProse](https://en.wikipedia.org/wiki/MicroProse) back in the 80s.

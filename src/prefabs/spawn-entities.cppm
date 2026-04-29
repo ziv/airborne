@@ -73,7 +73,7 @@ void spawn_entity(entt::registry &registry, const nlohmann::json &entity) {
       const auto max_speed = value["max_speed_m_s"].get<float>();
       const auto max_g = value["max_g_load"].get<float>();
       const auto turn_rate = value["turn_rate_deg_s"].get<float>();
-      registry.emplace<PhysicsProfile>(e, mass, thrust, lift, drag, max_speed, max_g, turn_rate);
+      registry.emplace<PhysicsProfile>(e, mass, thrust, drag, lift, max_speed, max_g, turn_rate);
       continue;
     }
 
