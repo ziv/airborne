@@ -23,9 +23,9 @@ void ground_check(entt::registry& registry, const float dt) {
 
     // todo check sink rate
 
-    if (!wingsLevel) TraceLog(LOG_WARNING, "landing failed: wings not level (roll = %.1f°)", rollDeg);
-    if (!noseOk) TraceLog(LOG_WARNING, "landing failed: bad pitch angle (pitch = %.1f°)", pitchDeg);
-    if (!slowEnough) TraceLog(LOG_WARNING, "landing failed: too fast (speed = %.1f m/s)", player.speed);
+    if (!wingsLevel) TraceLog(LOG_DEBUG, "landing failed: wings not level (roll = %.1f°)", rollDeg);
+    if (!noseOk) TraceLog(LOG_DEBUG, "landing failed: bad pitch angle (pitch = %.1f°)", pitchDeg);
+    if (!slowEnough) TraceLog(LOG_DEBUG, "landing failed: too fast (speed = %.1f m/s)", player.speed);
 
     if (!wingsLevel || !noseOk || !slowEnough) {
       if (!registry.all_of<Crashed>(entity)) {
