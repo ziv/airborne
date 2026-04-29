@@ -1,7 +1,11 @@
 module;
+#include <optional>
+
 #include <entt/entt.hpp>
+#include <nlohmann/json.hpp>
 
 #include "lib/ray.hpp"
+#include "lib/generator.hpp"
 
 export module Game;
 
@@ -10,6 +14,7 @@ import Resources;
 import Accessors;
 import PlayerSystems;
 import AircraftSystems;
+import Npc;
 import Prefabs;
 import TerrainStreaming;
 import MapStreaming;
@@ -20,16 +25,47 @@ import Types;
 import Components;
 import GameOptions;
 
+Generator<int> make_setup_sequence(entt::registry& registry, const nlohmann::json& scene) {
+  factories::create_player(registry, scene);    co_yield 10;
+  factories::create_scene(registry, scene);     co_yield 20;
+  factories::create_engine(registry);           co_yield 30;
+  factories::create_cockpit(registry);          co_yield 40;
+  factories::create_hud(registry);              co_yield 50;
+  factories::create_cockpit_widgets(registry);  co_yield 55;
+
+  updates::set_minimap(0, registry);
+  updates::set_engine_status(1, registry);
+  updates::set_radar(2, registry);              co_yield 65;
+
+  const auto& entities = scene["entities"];
+  const int n = static_cast<int>(entities.size());
+  for (int i = 0; i < n; ++i) {
+    factories::spawn_one(registry, entities[i]);
+    co_yield 65 + (30 * (i + 1) / std::max(n, 1));  // 65 → 95
+  }
+
+  npc_systems::setup(registry);
+  registry.ctx().get<GameState>().status = GameStatus::PLAYING;
+  co_yield 100;
+}
+
 export class Game {
   entt::registry& registry;
   Camera camera = {};
+  nlohmann::json scene;
+  std::optional<Generator<int>> setup_gen;
+  bool ready = false;
   terrain_streamer::streamer streamer;
   map_streamer::streamer map_str;
 
  public:
-  explicit Game(entt::registry& reg) : registry(reg), streamer(reg) {
-    // todo setup should not be in ctor
-    setup();
+  explicit Game(entt::registry& reg)
+      : registry(reg),
+        scene(parse_json_file(resources::scenario_path)),
+        streamer(reg) {
+    camera.up = world_up();
+    camera.projection = CAMERA_PERSPECTIVE;
+    setup_gen.emplace(make_setup_sequence(registry, scene));
   }
 
   ~Game() {
@@ -37,26 +73,13 @@ export class Game {
     registry.clear();
   }
 
-  void setup() {
-    camera.up = world_up();
-    camera.projection = CAMERA_PERSPECTIVE;
-
-    const auto scene = parse_json_file(resources::scenario_path);
-
-    factories::create_player(registry, scene);
-    factories::create_scene(registry, scene);
-    factories::create_engine(registry);
-    factories::create_cockpit(registry);
-    factories::create_hud(registry);
-    factories::create_cockpit_widgets(registry);
-
-    updates::set_minimap(0, registry);
-    updates::set_engine_status(1, registry);
-    updates::set_radar(2, registry);
-
-    factories::spawn(registry, scene);
-
-    registry.ctx().get<GameState>().status = GameStatus::PLAYING;
+  // Advance one setup step. Returns progress [0,100], or -1 when done.
+  int step() {
+    if (ready) return -1;
+    if (setup_gen && setup_gen->resume()) return setup_gen->current();
+    ready = true;
+    setup_gen.reset();
+    return -1;
   }
 
   void update() {
@@ -70,7 +93,6 @@ export class Game {
     }
 
     if (const auto [status] = registry.ctx().get<GameState>(); status == GameStatus::PAUSED) {
-      // allow camera (options)
       player_systems::camera(registry, camera);
       return;
     }
@@ -86,12 +108,13 @@ export class Game {
     player_systems::ground_check(registry, dt);
     aircraft_systems::widgets_inputs(registry);
     aircraft_systems::update_lock(registry);
+    npc_systems::autopilot(registry, dt);
+    npc_systems::physics(registry, dt);
     streamer.update(registry);
     streamer.process_loaded_chunks(registry);
     map_str.update(registry);
     map_str.process_loaded_tiles(registry);
 
-    // X = zoom out, Z = zoom in on the minimap
     if (const auto view = registry.view<MinimapWidget>(); !view.empty()) {
       auto& wd = registry.get<MinimapWidget>(view.front());
       if (IsKeyPressed(KEY_Z) && wd.map_zoom < 20) wd.map_zoom++;
@@ -102,7 +125,6 @@ export class Game {
   void draw() const {
     ClearBackground(BLUE);
 
-    // 3D
     BeginMode3D(camera);
     render_systems::sky(registry);
     streamer.stream(registry, camera);
@@ -111,9 +133,6 @@ export class Game {
     render_systems::debug_models(registry);
     EndMode3D();
 
-    // 2D
-    // RenderModelsLabel(registry, camera);
-    // streamer.draw_tile_labels(registry, camera);
     RenderCockpit(registry);
     RenderMinimap(registry);
     RenderEngineStatus(registry);

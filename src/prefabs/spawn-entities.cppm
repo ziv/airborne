@@ -27,8 +27,12 @@ void spawn_entity(entt::registry &registry, const nlohmann::json &entity) {
       if (type == EntityType::CARRIER) {
         registry.emplace<Landable>(e, true);
         registry.emplace<Carrier>(e);
+        registry.emplace<NpcTag>(e);
       } else if (type == EntityType::AIRBASE) {
         registry.emplace<Landable>(e, false);
+      } else if (type == EntityType::AIRCRAFT) {
+        registry.emplace<NpcTag>(e);
+        registry.emplace<Velocity3D>(e, Vector3Zero());
       }
       continue;
     }
@@ -136,6 +140,10 @@ void spawn_entity(entt::registry &registry, const nlohmann::json &entity) {
 }
 
 export namespace factories {
+
+void spawn_one(entt::registry &registry, const nlohmann::json &entity) {
+  spawn_entity(registry, entity);
+}
 
 void spawn(entt::registry &registry, const nlohmann::json &scene) {
   for (const auto &entity : scene["entities"]) {

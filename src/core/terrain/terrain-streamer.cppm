@@ -355,7 +355,7 @@ class streamer {
     const float world_x = (static_cast<float>(tile.x) + 0.5f) * tile_size;
     const float world_z = (static_cast<float>(tile.z) + 0.5f) * tile_size;
 
-    registry.emplace<Position3D>(entity, (Vector3){world_x, 0.0f, world_z}, Vector3Zero());
+    registry.emplace<Position3D>(entity, (Vector3){world_x, 0.0f, world_z});
     registry.emplace<AsyncTileLoad>(entity, std::move(tex_future), std::move(height_future),
                                     std::move(tex_path), std::move(height_path), tile.x, tile.z, tile.zoom);
 

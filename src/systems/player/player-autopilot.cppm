@@ -1,8 +1,6 @@
 module;
 #include <entt/entt.hpp>
 
-#include "../../lib/ray.hpp"
-
 export module PlayerSystems:Autopilot;
 
 import Components;

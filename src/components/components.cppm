@@ -82,6 +82,8 @@ export struct EngineState {
   entt::entity engine_stream;
 };
 
+export struct NpcTag {};
+
 // ---------------- todo need to make a hell of an order in this mess...
 
 export struct LoadingContext {
@@ -285,11 +287,16 @@ export struct Waypoints {
 
 export struct Position3D {
   Vector3 pos;
-  Vector3 offset;
 };
 
 export struct Position2D {
   Vector2 pos;
+};
+
+// velocity
+
+export struct Velocity3D {
+  Vector3 velocity;
 };
 
 // dimensions
@@ -345,4 +352,27 @@ export struct Forces {
   float lift;
   float mass;
   Vector3 acceleration;
+};
+
+// --------------- NPC / AI ---------------
+
+export enum class AiState { PATROL, ENGAGE, DISENGAGE };
+
+export struct AiController {
+  AiState state = AiState::PATROL;
+  int waypoint_index = 0;
+  entt::entity target = entt::null;
+  float fire_cooldown = 0.0f;
+  float disengage_timer = 0.0f;
+  // Desired world-space direction set by autopilot; physics rotates toward it.
+  Vector3 desired_dir = {0.0f, 0.0f, 1.0f};
+  float desired_speed = 0.0f;
+};
+
+// NPC aircraft orientation (mirrors Player's forward/up/right/rotation fields).
+export struct AircraftOrientation {
+  Quaternion rotation = QuaternionIdentity();
+  Vector3 forward     = {0.0f, 0.0f, 1.0f};
+  Vector3 up          = {0.0f, 1.0f, 0.0f};
+  Vector3 right       = {-1.0f, 0.0f, 0.0f};
 };

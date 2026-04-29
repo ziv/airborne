@@ -76,6 +76,11 @@ target_sources(${PROJECT_NAME} PUBLIC
         src/prefabs/create-cockpit.cppm
         src/prefabs/create-hud.cppm
         src/prefabs/spawn-entities.cppm
+        src/systems/npc/npc.cppm
+        src/systems/npc/npc-setup.cppm
+        src/systems/npc/npc-steering.cppm
+        src/systems/npc/npc-physics.cppm
+        src/systems/npc/npc-autopilot.cppm
         src/systems/player/player.cppm
         src/systems/player/player-controls.cppm
         src/systems/player/player-camera.cppm
