@@ -95,7 +95,6 @@ static Image load_tile_image(const int zoom, const int tx, const int tz, const s
     }
   }
   // We own the download for this path.
-  if (path.contains("texture"))
   std::string cmd = "./scripts/download_tile.mjs " + std::to_string(zoom) + " " + std::to_string(tx) + " " + std::to_string(tz) + " " + path;
   std::system(cmd.c_str());
   {
