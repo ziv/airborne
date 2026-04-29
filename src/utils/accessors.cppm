@@ -1,7 +1,6 @@
 module;
 #include <entt/entt.hpp>
-
-#include "../lib/ray.hpp"
+#include <nlohmann/json.hpp>
 
 export module Accessors;
 
@@ -10,12 +9,9 @@ import ResourceManager;
 import JsonConfig;
 import Types;
 
-export void set_initial_globals(
-  entt::registry &registry,
-  const AppConfig &config
-  // const JsonConfig &scenario
-  ) {
+export void set_initial_globals(entt::registry &registry, const AppConfig &config, const nlohmann::json &options) {
   registry.ctx().emplace<GameState>(GameStatus::INITIALIZE);
+  registry.ctx().emplace<GameOptions>(false, options["tilt"].get<float>(), options["fov"].get<float>());
   registry.ctx().emplace<Configuration>(config);
   create_resource_manager(registry);
 }

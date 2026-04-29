@@ -11,7 +11,6 @@ import Accessors;
 import PlayerSystems;
 import AircraftSystems;
 import Prefabs;
-import WorldStreamerSystem;
 import TerrainStreaming;
 import MapStreaming;
 import RenderSystem;
@@ -19,6 +18,7 @@ import ResourceManager;
 import Helpers;
 import Types;
 import Components;
+import GameOptions;
 
 export class Game {
   entt::registry& registry;
@@ -65,7 +65,12 @@ export class Game {
       else if (status == GameStatus::PAUSED)
         status = GameStatus::PLAYING;
     }
-    if (const auto [status] = registry.ctx().get<GameState>(); status == GameStatus::PAUSED) return;
+
+    if (const auto [status] = registry.ctx().get<GameState>(); status == GameStatus::PAUSED) {
+      // allow camera (options)
+      player_systems::camera(registry, camera);
+      return;
+    }
 
     const auto dt = GetFrameTime();
     aircraft_systems::engine(registry, dt);
@@ -114,5 +119,7 @@ export class Game {
     DrawFPS(1050, 780);
     RenderDebug(registry);
     RenderCrashLayout(registry);
+
+    game_options::options(registry);
   }
 };

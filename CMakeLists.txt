@@ -36,7 +36,7 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(nlohmann_json)
 
-add_executable(${PROJECT_NAME} src/main.cpp)
+add_executable(${PROJECT_NAME} src/main.cpp src/lib/raygui-impl.cpp)
 
 target_sources(${PROJECT_NAME} PUBLIC
         FILE_SET CXX_MODULES FILES
@@ -81,7 +81,7 @@ target_sources(${PROJECT_NAME} PUBLIC
         src/systems/renderers/render-radar.cppm
         src/systems/renderers/render-crash-layout.cppm
         src/systems/renderers/render-target-camera.cppm
-        src/systems/world-streamer.cppm
+        src/systems/game-options.cppm
         src/systems/aircraft/widgets-inputs.cppm
         src/systems/aircraft/aircraft.cppm
         src/systems/aircraft/engine-system.cppm

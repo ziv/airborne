@@ -34,6 +34,7 @@ int main() {
 
   try {
     const auto app_conf = JsonConfig(resources::config_path).get<AppConfig>("/config");
+    const auto options = parse_json_file(resources::options_path);
 
     InitWindow(app_conf.global.width, app_conf.global.height, app_conf.global.title.c_str());
     InitAudioDevice();
@@ -42,7 +43,7 @@ int main() {
     // SetTargetFPS(60);
 
     entt::registry registry;
-    set_initial_globals(registry, app_conf);
+    set_initial_globals(registry, app_conf, options);
 
     auto current = ScreenState::SPLASH;
     ScreenState next = current;

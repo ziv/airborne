@@ -23,6 +23,12 @@ export struct GameState {
   GameStatus status = GameStatus::INITIALIZE;
 };
 
+export struct GameOptions {
+  bool changed = false;
+  float tilt = 0.25f;
+  float fov = 85.0f;
+};
+
 // global tag of the player
 export struct PlayerEntity {
   entt::entity id;
@@ -130,7 +136,7 @@ export struct RadarWidget {
 
 export struct MinimapWidget {
   MinimapConfig cfg{};
-  int map_zoom = 14;     // slippy-map tile zoom level (1–20); X = zoom in, Z = zoom out
+  int map_zoom = 14;  // slippy-map tile zoom level (1–20); X = zoom in, Z = zoom out
 };
 
 export struct EngineWidget {};

@@ -22,6 +22,15 @@ export nlohmann::json parse_json_file(const std::string &path) {
   }
 }
 
+export void save_json_to_file(const nlohmann::json &json, const std::string &path) {
+  if (std::ofstream file(path); file.is_open()) {
+    file << std::setw(4) << json << std::endl;
+  } else {
+    // TraceLog(LOG_ERROR, TextFormat("[JsonConfig] unable to open file: %s", path.c_str()));
+    // throw std::runtime_error("[JsonConfig] unable to open file");
+  }
+}
+
 export class JsonConfig {
  public:
   nlohmann::json config;
