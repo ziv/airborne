@@ -13,7 +13,7 @@ import Helpers;
 export namespace player_systems {
 
 void physics(entt::registry& registry, const float dt) {
-  static PlayerPhysicsConfig conf = get_config(registry).player.aircraft;
+  const PlayerPhysicsConfig conf = get_config(registry).player.aircraft;
 
   auto& player = get_player(registry);
   const auto& inputs = get_player_inputs(registry);

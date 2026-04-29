@@ -29,7 +29,6 @@ float get_effective_height(entt::registry &registry, const PlayerPositionConfig 
   // if the x and z are in the image pixels range
   if (x < 0 || z < 0 || x >= map.height || z >= map.width) return 0.0f;
 
-
   const auto r = static_cast<float>(GetImageColor(map, x, z).r);
 
   // this magic is the sea level in the north map
@@ -85,8 +84,8 @@ static LandingZoneRet get_landing_zone(entt::registry &registry, const Vector3 &
 export namespace player_systems {
 
 void position(entt::registry &registry, const float dt) {
-  static PlayerPositionConfig conf = get_config(registry).player.position;
-  static entt::hashed_string heightmap = entt::hashed_string(conf.heightPath.c_str());
+  const PlayerPositionConfig conf = get_config(registry).player.position;
+  const auto heightmap = entt::hashed_string(conf.heightPath.c_str());
 
   const auto entity = get_player_entity(registry);
   auto [player, gh, inputs] = registry.get<Player, GroundHeight, const PlayerInputs>(entity);

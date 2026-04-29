@@ -24,7 +24,7 @@ void update_lock(entt::registry& registry) {
   if (radar_state.locked_target != entt::null) {
     // is it still in valid entity
     if (registry.valid(radar_state.locked_target)) {
-      const auto [pos, offset] = registry.get<Position3D>(radar_state.locked_target);
+      const auto& pos = registry.get<Position3D>(radar_state.locked_target).pos;
 
       // is it still in range?!
       if (const auto distance = Vector3Distance(player_abs_position, pos); distance > radar_state.max_range) {
