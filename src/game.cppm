@@ -47,6 +47,8 @@ export class Game {
     updates::set_radar(2, registry);
 
     factories::spawn(registry, scene);
+
+    registry.ctx().get<GameState>().status = GameStatus::PLAYING;
   }
 
   ~Game() {
@@ -56,6 +58,14 @@ export class Game {
 
   void update() {
     if (is_player_crashed(registry)) return;
+
+    if (IsKeyPressed(KEY_P)) {
+      if (auto& [status] = registry.ctx().get<GameState>(); status == GameStatus::PLAYING)
+        status = GameStatus::PAUSED;
+      else if (status == GameStatus::PAUSED)
+        status = GameStatus::PLAYING;
+    }
+    if (const auto [status] = registry.ctx().get<GameState>(); status == GameStatus::PAUSED) return;
 
     const auto dt = GetFrameTime();
     aircraft_systems::engine(registry, dt);
