@@ -50,7 +50,7 @@ inline float tile_world_pos(const int zoom, const int local_idx) {
   return static_cast<float>(parent) * TILE_SIZE_12 + (static_cast<float>(child) - (static_cast<float>(n) - 1.0f) * 0.5f) * sz;
 }
 
-Model create_model(const Meter size) { return LoadModelFromMesh(GenMeshPlane(size, size + size * 0.02f, 256, 256)); }
+Model create_model(const Meter size) { return LoadModelFromMesh(GenMeshPlane(size + size * 0.02f, size + size * 0.02f, 256, 256)); }
 
 export struct AsyncTileLoad {
   std::future<Image> texture_future;

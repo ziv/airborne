@@ -33,7 +33,7 @@ void main()
 
     if (isEdge)
     {
-        displacedPosition.y -= 10000.0 * heightScale;
+        displacedPosition.y -= 400.0 * heightScale;
     }
 
     vec3 worldPosition = vec3(matModel * vec4(displacedPosition, 1.0));
