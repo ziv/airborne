@@ -86,7 +86,6 @@ export namespace player_systems {
 
 void position(entt::registry &registry, const float dt) {
   const PlayerPositionConfig conf = get_config(registry).player.position;
-  // const auto heightmap = entt::hashed_string(conf.heightPath.c_str());  // replaced by terrain tile lookup
 
   const auto entity = get_player_entity(registry);
   auto [player, gh, inputs] = registry.get<Player, GroundHeight, const PlayerInputs>(entity);

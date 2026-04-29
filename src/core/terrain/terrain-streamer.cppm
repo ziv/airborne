@@ -1,4 +1,5 @@
 module;
+#include <algorithm>
 #include <entt/entt.hpp>
 #include <filesystem>
 #include <future>
@@ -8,7 +9,6 @@ module;
 #include <set>
 #include <string>
 #include <thread>
-#include <algorithm>
 
 #include "../../lib/ray.hpp"
 
@@ -95,7 +95,7 @@ static Image load_tile_image(const int zoom, const int tx, const int tz, const s
     }
   }
   // We own the download for this path.
-  std::string cmd = "./scripts/download_tile.mjs " + std::to_string(zoom) + " " + std::to_string(tx) + " " + std::to_string(tz);
+  std::string cmd = "./scripts/download_tile.mjs " + std::to_string(zoom) + " " + std::to_string(tx) + " " + std::to_string(tz) + " " + path;
   std::system(cmd.c_str());
   {
     std::lock_guard lock(download_mutex);
@@ -125,18 +125,14 @@ float ground_height_at(entt::registry& registry, const Vector3& pos) {
     const Image& img = rm.images[height_id]->res;
     const float u = pos.x / tile_size - static_cast<float>(tx);
     const float v = pos.z / tile_size - static_cast<float>(tz);
-    const int px = std::clamp(static_cast<int>(u * static_cast<float>(img.width)),  0, img.width  - 1);
+    const int px = std::clamp(static_cast<int>(u * static_cast<float>(img.width)), 0, img.width - 1);
     const int pz = std::clamp(static_cast<int>(v * static_cast<float>(img.height)), 0, img.height - 1);
 
     const auto c = GetImageColor(img, px, pz);
-    return -10000.0f + (static_cast<float>(c.r) * 65536.0f +
-                        static_cast<float>(c.g) * 256.0f  +
-                        static_cast<float>(c.b)) * 0.1f;
+    return -10000.0f + (static_cast<float>(c.r) * 65536.0f + static_cast<float>(c.g) * 256.0f + static_cast<float>(c.b)) * 0.1f;
   }
   return 0.0f;  // no tile loaded yet
 }
-
-
 
 struct TileKey {
   int zoom;
@@ -370,10 +366,7 @@ class streamer {
   // }
 
   [[nodiscard]] bool is_parent_cell_covered(const TileKey& parent12) const {
-    return std::ranges::all_of(desired_tiles | std::views::keys,
-        [&](const auto& key) {
-            return z12_parent(key) != parent12 || rendered_tiles.contains(key);
-        });
+    return std::ranges::all_of(desired_tiles | std::views::keys, [&](const auto& key) { return z12_parent(key) != parent12 || rendered_tiles.contains(key); });
   }
 
   static entt::entity spawn_tile(entt::registry& registry, const TileKey& tile) {
