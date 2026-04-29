@@ -46,9 +46,10 @@ void sky(entt::registry &registry) {
   const auto &assets = get_resource_manager(registry);
   const auto &models = assets.models;
 
-  const float t = static_cast<float>(GetTime());
+  const auto t = static_cast<float>(GetTime());
   const Shader &sky_shader = assets.shaders[resources::sky_shader]->res;
-  SetShaderValue(sky_shader, GetShaderLocation(sky_shader, "time"), &t, SHADER_UNIFORM_FLOAT);
+  static int time_loc = GetShaderLocation(sky_shader, "time");
+  SetShaderValue(sky_shader, time_loc, &t, SHADER_UNIFORM_FLOAT);
 
   rlDisableDepthTest();
   rlDisableBackfaceCulling();
@@ -57,19 +58,3 @@ void sky(entt::registry &registry) {
   rlEnableDepthTest();
 }
 }  // namespace render_systems
-
-// export void RenderModelsLabel(entt::registry &registry, const Camera3D &camera) {
-//   const auto view = registry.view<Position3D, WithModel, Heading, Identity>(entt::exclude<World>);
-//   const auto width = GetScreenWidth();
-//   const auto height = GetScreenHeight();
-//
-//   for (auto [entity, position, modeled, heading, identify] : view.each()) {
-//     const auto offset = registry.ctx().get<Offset>().offset;
-//     const auto p = position.pos + offset;
-//
-//     const auto location = GetWorldToScreen(p, camera);
-//     if (location.x < 0 || location.y < 0 || location.x > static_cast<float>(width) || location.y > static_cast<float>(height)) continue;
-//
-//     DrawText(identify.name.c_str(), static_cast<int>(location.x), static_cast<int>(location.y), 10, GREEN);
-//   }
-// }

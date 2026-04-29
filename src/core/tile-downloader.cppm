@@ -85,7 +85,7 @@ class pool {
     httplib::SSLClient cli(host);
     cli.set_follow_location(true);
     cli.set_connection_timeout(10);
-    cli.set_read_timeout(30);
+    cli.set_read_timeout(5);
     cli.enable_server_certificate_verification(false);
 
     const auto res = cli.Get(target);
