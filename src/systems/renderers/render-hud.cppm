@@ -225,13 +225,9 @@ export void RenderHud(entt::registry &registry) {
   const auto [player, inputs, gh] =
       registry.get<Player, PlayerInputs, GroundHeight>(player_entity);
 
-  if (auto colorIndex = hud.colorIndex;
-      colorIndex < 0 || colorIndex >= static_cast<int>(colors.size())) {
-    TraceLog(LOG_WARNING, "Invalid HUD color index %d, defaulting to 0",
-             colorIndex);
-    colorIndex = 0;
-  }
-  const auto color = colors[hud.colorIndex];
+  const int safeIndex = hud.colorIndex >= 0 && hud.colorIndex < static_cast<int>(colors.size())
+                      ? hud.colorIndex : 0;
+  const auto color = colors[safeIndex];
 
   draw_ladder(hud, player, color);
   draw_rate_of_climb(hud, player, color);
