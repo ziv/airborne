@@ -28,6 +28,6 @@ export class SplashScreen : public BaseScreen {
 
   void draw() override {
     DrawTexture(tex, 0, 0, WHITE);
-    DrawText("Created by Ziv Perry", 910, 640, 20, GOLD);
+    DrawText("Created by Ziv Perry", 890, 640, 20, GOLD);
   }
 };
