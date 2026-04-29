@@ -120,17 +120,17 @@ void position(entt::registry &registry, const float dt) {
 
   // are we above a landing zone? (carrier is more than ground height - sea
   // level in this case)
-  const LandingZoneRet lz = inputs.gear ? get_landing_zone(registry, absolute_position) : LandingZoneRet{false, false, 0.0f};
+  const auto [is_landing_zone, is_carrier, surface_y] = inputs.gear ? get_landing_zone(registry, absolute_position) : LandingZoneRet{false, false, 0.0f};
 
   // if we are in a landing zone, add it to the player
-  if (lz.is_landing_zone && !registry.all_of<LandingZoneDef>(entity))
-    registry.emplace_or_replace<LandingZoneDef>(entity, lz.is_landing_zone, lz.is_carrier, lz.surface_y);
+  if (is_landing_zone && !registry.all_of<LandingZoneDef>(entity))
+    registry.emplace_or_replace<LandingZoneDef>(entity, is_landing_zone, is_carrier, surface_y);
 
   // if we are not in a landing zone, remove it from the user
-  if (!lz.is_landing_zone && registry.all_of<LandingZoneDef>(entity)) registry.remove<LandingZoneDef>(entity);
+  if (!is_landing_zone && registry.all_of<LandingZoneDef>(entity)) registry.remove<LandingZoneDef>(entity);
 
   // update effective ground height
-  gh.effectiveGroundHeight = lz.is_landing_zone ? fmaxf(gh.height, lz.surface_y) : gh.height;
+  gh.effectiveGroundHeight = is_landing_zone ? fmaxf(gh.height, surface_y) : gh.height;
 
   const auto ground_height = gh.effectiveGroundHeight + conf.heightAboveGround;
   // limit going underground/underwater
