@@ -16,6 +16,8 @@ export void set_initial_globals(entt::registry &registry, const AppConfig &confi
   create_resource_manager(registry);
 }
 
+export GameOptions &get_options(entt::registry &registry) { return registry.ctx().get<GameOptions>(); }
+
 export const AppConfig &get_config(entt::registry &registry) { return registry.ctx().get<Configuration>().conf; }
 
 export const entt::entity &get_player_entity(entt::registry &registry) { return registry.ctx().get<PlayerEntity>().id; }

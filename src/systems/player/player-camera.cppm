@@ -14,7 +14,7 @@ export namespace player_systems {
 
 void camera(entt::registry &registry, Camera &camera) {
   // static const PlayerCameraConfig &conf = get_config(registry).player.camera;
-  auto &options = registry.ctx().get<GameOptions>();
+  auto &options = get_options(registry);
   const Player &player = get_player(registry);
 
   camera.fovy = options.fov;

@@ -8,6 +8,7 @@ export module GameOptions;
 import Components;
 import JsonConfig;
 import Resources;
+import Accessors;
 
 void save(const GameOptions& options) {
   auto j = parse_json_file(resources::options_path);
@@ -19,7 +20,7 @@ void save(const GameOptions& options) {
 export namespace game_options {
 void options(entt::registry& registry) {
   if (registry.ctx().get<GameState>().status == GameStatus::PAUSED) {
-    auto& options = registry.ctx().get<GameOptions>();
+    auto& options = get_options(registry);
 
     // todo render options menu
     constexpr auto win = (Rectangle){300, 200, 600, 300};

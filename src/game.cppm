@@ -22,15 +22,23 @@ import GameOptions;
 
 export class Game {
   entt::registry& registry;
-  // Scenario scenario{};
   Camera camera = {};
   terrain_streamer::streamer streamer;
   map_streamer::streamer map_str;
 
  public:
   explicit Game(entt::registry& reg) : registry(reg), streamer(reg) {
+    // todo setup should not be in ctor
+    setup();
+  }
+
+  ~Game() {
+    registry.ctx().erase<ResourceManager>();
+    registry.clear();
+  }
+
+  void setup() {
     camera.up = world_up();
-    camera.fovy = get_config(registry).player.camera.fov;
     camera.projection = CAMERA_PERSPECTIVE;
 
     const auto scene = parse_json_file(resources::scenario_path);
@@ -49,11 +57,6 @@ export class Game {
     factories::spawn(registry, scene);
 
     registry.ctx().get<GameState>().status = GameStatus::PLAYING;
-  }
-
-  ~Game() {
-    registry.ctx().erase<ResourceManager>();
-    registry.clear();
   }
 
   void update() {
@@ -105,7 +108,7 @@ export class Game {
     streamer.stream(registry, camera);
     RenderModels(registry, camera);
     render_systems::render_debugging_landing(registry);
-    // RenderDebugging(registry);
+    render_systems::debug_models(registry);
     EndMode3D();
 
     // 2D

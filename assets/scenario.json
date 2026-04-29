@@ -12,8 +12,8 @@
     }
   },
   "tiles": {
-    "tex_path": "assets/tiles/cache/texture/12/{}/{}.png",
-    "hmp_path": "assets/tiles/cache/heightmaps/12/{}/{}.png",
+    "tex_path": "assets/tiles/texture/12/{}/{}.png",
+    "hmp_path": "assets/tiles/heightmaps/12/{}/{}.png",
     "tile_size_m": 9783.9,
     "base_x": 2435,
     "base_z": 1653,
@@ -93,9 +93,9 @@
         "type": "aircraft",
         "faction": "enemy",
         "position": {
-          "x": 20150,
-          "y": 30,
-          "z": 59850
+          "x": 12200,
+          "y": 40,
+          "z": -26000
         },
         "heading": 170,
         "model": "mig29-model",

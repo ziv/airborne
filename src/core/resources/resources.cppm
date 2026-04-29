@@ -4,7 +4,7 @@ export module Resources;
 
 export namespace resources {
 constexpr auto config_path = "assets/config.jsonc";
-constexpr auto scenario_path = "assets/scenario-new.json";
+constexpr auto scenario_path = "assets/scenario.json";
 constexpr auto options_path = "assets/options.json";
 
 constexpr auto sky_vertex_shader_path = "assets/shaders/sky.vs";
