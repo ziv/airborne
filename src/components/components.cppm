@@ -12,7 +12,7 @@ import JsonConfig;
 
 export struct Configuration {
   AppConfig conf{};
-  JsonConfig scenario;
+  // JsonConfig scenario;
 };
 
 // global game state

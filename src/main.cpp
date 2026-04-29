@@ -34,16 +34,7 @@ int main() {
   SetConfigFlags(FLAG_WINDOW_RESIZABLE | FLAG_VSYNC_HINT);
 
   try {
-    /// application configuration is split into 2 files:
-    /// 1. the aircraft/pilot/game configuration
-    /// 2. the scene configuration
-    ///    2.1. Entities and objectives
-    ///    2.2. Resources list
-    const auto json_config = JsonConfig(resources::config_path);
-    const auto app_conf = json_config.get<AppConfig>("/config");
-
-    const auto json_scenario = JsonConfig(resources::scenario_path);
-    const auto resources_conf = json_scenario.get<std::vector<ResourceDef>>("/resources");
+    const auto app_conf = JsonConfig(resources::config_path).get<AppConfig>("/config");
 
     InitWindow(app_conf.global.width, app_conf.global.height, app_conf.global.title.c_str());
     InitAudioDevice();
@@ -52,7 +43,7 @@ int main() {
     // SetTargetFPS(60);
 
     entt::registry registry;
-    set_initial_globals(registry, app_conf, json_scenario);
+    set_initial_globals(registry, app_conf);
 
     auto current = ScreenState::SPLASH;
     ScreenState next = current;

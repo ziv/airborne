@@ -7,6 +7,7 @@ module;
 export module Game;
 
 import JsonConfig;
+import Resources;
 import Accessors;
 import PlayerSystems;
 import AircraftSystems;
@@ -30,7 +31,7 @@ export class Game {
     camera.fovy = get_config(registry).player.camera.fov;
     camera.projection = CAMERA_PERSPECTIVE;
 
-    const auto scene = parse_json_file("assets/scenario-new.json");
+    const auto scene = parse_json_file(resources::scenario_path);
 
     factories::create_player(registry, scene["data"]["start_position"].get<Vector3>());
     factories::create_scene(registry, scene["data"]["time_of_day"].get<std::string>());
