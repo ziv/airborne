@@ -75,12 +75,10 @@ export struct TerrainHeight {
 // Guards concurrent downloads of the same file path.
 // Two async threads for the same tile (texture + heightmap) would otherwise both
 // run download_tile.mjs simultaneously and race to write the same file.
-namespace {
 std::mutex download_mutex;
 std::set<std::string> downloading;
-}  // namespace
 
-static Image load_tile_image(const int zoom, const int tx, const int tz, const std::string& path) {
+Image load_tile_image(const int zoom, const int tx, const int tz, const std::string& path) {
   {
     std::lock_guard lock(download_mutex);
     if (!std::filesystem::exists(path) && !downloading.contains(path)) {
@@ -95,7 +93,7 @@ static Image load_tile_image(const int zoom, const int tx, const int tz, const s
     }
   }
   // We own the download for this path.
-  std::string cmd = "./scripts/download_tile.mjs " + std::to_string(zoom) + " " + std::to_string(tx) + " " + std::to_string(tz) + " " + path;
+  const std::string cmd = "./scripts/download_tile.mjs " + std::to_string(zoom) + " " + std::to_string(tx) + " " + std::to_string(tz) + " " + path;
   std::system(cmd.c_str());
   {
     std::lock_guard lock(download_mutex);
