@@ -44,7 +44,7 @@ Generator<int> make_setup_sequence(entt::registry& registry, const nlohmann::jso
     co_yield 65 + (30 * (i + 1) / std::max(n, 1));  // 65 → 95
   }
 
-  npc_systems::setup(registry);
+  // npc_systems::setup(registry);
   registry.ctx().get<GameState>().status = GameStatus::PLAYING;
   co_yield 100;
 }
@@ -108,8 +108,8 @@ export class Game {
     player_systems::ground_check(registry, dt);
     aircraft_systems::widgets_inputs(registry);
     aircraft_systems::update_lock(registry);
-    npc_systems::autopilot(registry, dt);
-    npc_systems::physics(registry, dt);
+    // npc_systems::autopilot(registry, dt);
+    // npc_systems::physics(registry, dt);
     streamer.update(registry);
     streamer.process_loaded_chunks(registry);
     map_str.update(registry);

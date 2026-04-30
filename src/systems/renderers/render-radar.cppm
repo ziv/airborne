@@ -78,7 +78,7 @@ export void RenderRadar(entt::registry &registry) {
     // project orientation onto XZ plane for top-down radar
     const Vector2 fwd_xz = {player.forward.x, player.forward.z};
     const Vector2 fwd   = Vector2LengthSqr(fwd_xz) > 0.0001f ? Vector2Normalize(fwd_xz) : Vector2{0.0f, 1.0f};
-    const Vector2 right = {fwd.y, -fwd.x};
+    const Vector2 right = {-fwd.y, fwd.x};
 
     const auto &radar = registry.get<RadarState>(get_player_entity(registry));
 
