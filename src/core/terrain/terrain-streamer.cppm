@@ -401,19 +401,19 @@ class streamer {
     TraceLog(LOG_DEBUG, "spawning tile z%d %d %d %d %d", tile.zoom, tile.x, tile.z, tx, tz);
 
     // todo commented for debugging
-    std::string tex_path = std::format("assets/tiles/texture/{}/{}/{}.png", tile.zoom, tx, tz);
-    std::string height_path = std::format("assets/tiles/heightmaps/{}/{}/{}.png", tile.zoom, tx, tz);
-
-    const auto mapbox_token = std::string(std::getenv("MAPBOX_TOKEN") ? std::getenv("MAPBOX_TOKEN") : "");
-    const std::string tex_url = tile_downloader::texture_url(tile.zoom, tx, tz, mapbox_token);
-    const std::string height_url = tile_downloader::heightmap_url(tile.zoom, tx, tz, mapbox_token);
-
-    auto tex_future = tile_downloader::enqueue_and_load(tex_path, tex_url);
-    auto height_future = tile_downloader::enqueue_and_load(height_path, height_url);
-
-    const float tile_size = TILE_SIZE_12 / static_cast<float>(1 << (tile.zoom - ZOOM_LEVEL));
-    const float world_x = (static_cast<float>(tile.x) + 0.5f) * tile_size;
-    const float world_z = (static_cast<float>(tile.z) + 0.5f) * tile_size;
+    // std::string tex_path = std::format("assets/tiles/texture/{}/{}/{}.png", tile.zoom, tx, tz);
+    // std::string height_path = std::format("assets/tiles/heightmaps/{}/{}/{}.png", tile.zoom, tx, tz);
+    //
+    // const auto mapbox_token = std::string(std::getenv("MAPBOX_TOKEN") ? std::getenv("MAPBOX_TOKEN") : "");
+    // const std::string tex_url = tile_downloader::texture_url(tile.zoom, tx, tz, mapbox_token);
+    // const std::string height_url = tile_downloader::heightmap_url(tile.zoom, tx, tz, mapbox_token);
+    //
+    // auto tex_future = tile_downloader::enqueue_and_load(tex_path, tex_url);
+    // auto height_future = tile_downloader::enqueue_and_load(height_path, height_url);
+    //
+    // const float tile_size = TILE_SIZE_12 / static_cast<float>(1 << (tile.zoom - ZOOM_LEVEL));
+    // const float world_x = (static_cast<float>(tile.x) + 0.5f) * tile_size;
+    // const float world_z = (static_cast<float>(tile.z) + 0.5f) * tile_size;
 
     registry.emplace<Position3D>(entity, (Vector3){world_x, 0.0f, world_z});
     registry.emplace<AsyncTileLoadDebug>(entity, tile.x, tile.z, tile.zoom);
