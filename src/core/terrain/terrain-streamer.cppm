@@ -36,7 +36,7 @@ constexpr Meter Z14_THRESHOLD = RENDER_RADIUS * 0.25f;
 constexpr Meter Z13_THRESHOLD_SQ = Z13_THRESHOLD * Z13_THRESHOLD;
 constexpr Meter Z14_THRESHOLD_SQ = Z14_THRESHOLD * Z14_THRESHOLD;
 
-constexpr Meter tile_size_for_zoom(int zoom) { return TILE_SIZE_12 / static_cast<Meter>(1 << (zoom - ZOOM_LEVEL)); }
+constexpr Meter tile_size_for_zoom(const int zoom) { return TILE_SIZE_12 / static_cast<Meter>(1 << (zoom - ZOOM_LEVEL)); }
 
 // world-space center for a tile at any zoom, aligned within its z12 parent area.
 inline float tile_world_pos(const int zoom, const int local_idx) {
