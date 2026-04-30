@@ -45,9 +45,17 @@ class pool {
     std::promise<void>        promise;
   };
 
-  std::vector<std::thread>          workers;
-  std::queue<Job>                   queue;
-  std::map<std::string, std::shared_future<void>> in_flight; // path → future
+  struct ImageJob {
+    std::string               path;
+    std::string               url;
+    std::promise<Image>       promise;
+  };
+
+  std::vector<std::thread>                         workers;
+  std::queue<Job>                                  queue;
+  std::queue<ImageJob>                             image_queue;
+  std::map<std::string, std::shared_future<void>>  in_flight;
+  std::map<std::string, std::shared_future<Image>> in_flight_images;
   std::mutex                        mtx;
   std::condition_variable           cv;
   bool                              stop = false;
@@ -55,19 +63,32 @@ class pool {
   void worker_loop() {
     while (true) {
       Job job;
+      ImageJob img_job;
+      bool has_job = false, has_img_job = false;
       {
         std::unique_lock lock(mtx);
-        cv.wait(lock, [this] { return stop || !queue.empty(); });
-        if (stop && queue.empty()) return;
-        job = std::move(queue.front());
-        queue.pop();
+        cv.wait(lock, [this] { return stop || !queue.empty() || !image_queue.empty(); });
+        if (stop && queue.empty() && image_queue.empty()) return;
+        if (!queue.empty()) {
+          job = std::move(queue.front());
+          queue.pop();
+          has_job = true;
+        } else if (!image_queue.empty()) {
+          img_job = std::move(image_queue.front());
+          image_queue.pop();
+          has_img_job = true;
+        }
       }
-      download(job.path, job.url);
-      {
-        std::lock_guard lock(mtx);
-        in_flight.erase(job.path);
+      if (has_job) {
+        download(job.path, job.url);
+        { std::lock_guard lock(mtx); in_flight.erase(job.path); }
+        job.promise.set_value();
       }
-      job.promise.set_value();
+      if (has_img_job) {
+        download(img_job.path, img_job.url);
+        { std::lock_guard lock(mtx); in_flight_images.erase(img_job.path); }
+        img_job.promise.set_value(LoadImage(img_job.path.c_str()));
+      }
     }
   }
 
@@ -131,6 +152,21 @@ class pool {
     cv.notify_one();
     return future;
   }
+
+  // Returns a shared_future that resolves with the decoded Image after download.
+  // If the same path is already in flight, returns the existing future.
+  std::shared_future<Image> enqueue_and_load(const std::string& path, const std::string& url) {
+    std::lock_guard lock(mtx);
+    if (const auto it = in_flight_images.find(path); it != in_flight_images.end())
+      return it->second;
+
+    std::promise<Image> promise;
+    std::shared_future<Image> future = promise.get_future().share();
+    in_flight_images[path] = future;
+    image_queue.push({path, url, std::move(promise)});
+    cv.notify_one();
+    return future;
+  }
 };
 
 // ---------------------------------------------------------------------------
@@ -144,6 +180,10 @@ pool& get() {
 
 std::shared_future<void> enqueue(const std::string& path, const std::string& url) {
   return get().enqueue(path, url);
+}
+
+std::shared_future<Image> enqueue_and_load(const std::string& path, const std::string& url) {
+  return get().enqueue_and_load(path, url);
 }
 
 }  // namespace tile_downloader

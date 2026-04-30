@@ -10,3 +10,7 @@ float approach(const float current, const float target, const float maxDelta) {
   return current;
 }
 }  // namespace utils
+
+namespace to {
+int i(const float number) { return static_cast<int>(number); }
+}  // namespace to
