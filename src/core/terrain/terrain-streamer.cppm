@@ -214,31 +214,35 @@ class streamer {
     // --- Step 1: build new desired set (keys only) ---
     std::vector<TileKey> new_desired_keys;
     new_desired_keys.reserve(256);
+
+    // Recursively subdivide a tile if it's within the threshold for the next zoom.
+    // At max zoom (14) always add the leaf. Otherwise, check the tile center distance.
+    auto subdivide = [&](auto& self, const int zoom, const int tx, const int tz) -> void {
+      const float tile_size = TILE_SIZE_12 / static_cast<float>(1 << (zoom - ZOOM_LEVEL));
+      const float world_x = (static_cast<float>(tx) + 0.5f) * tile_size;
+      const float world_z = (static_cast<float>(tz) + 0.5f) * tile_size;
+      const float ddx = player_pos.x - world_x;
+      const float ddz = player_pos.z - world_z;
+      const float dist_sq = ddx * ddx + ddz * ddz;
+
+      if (zoom == 14 || (zoom == 13 && dist_sq >= Z14_THRESHOLD_SQ) || (zoom == 12 && dist_sq >= Z13_THRESHOLD_SQ)) {
+        new_desired_keys.push_back({zoom, tx, tz});
+        return;
+      }
+
+      // Split into 4 children at zoom+1.
+      const int child_zoom = zoom + 1;
+      const int cx0 = tx * 2;
+      const int cz0 = tz * 2;
+      for (int ox = 0; ox < 2; ++ox)
+        for (int oz = 0; oz < 2; ++oz)
+          self(self, child_zoom, cx0 + ox, cz0 + oz);
+    };
+
     for (int dx = -7; dx <= 7; ++dx) {
       for (int dz = -7; dz <= 7; ++dz) {
         if (dz * dz + dx * dx > RENDER_DISC_R2) continue;
-        const int bx = current_tile_x + dx;
-        const int bz = current_tile_z + dz;
-
-        const float world_x = (static_cast<float>(bx) + 0.5f) * TILE_SIZE_12;
-        const float world_z = (static_cast<float>(bz) + 0.5f) * TILE_SIZE_12;
-        const float ddx = player_pos.x - world_x;
-        const float ddz = player_pos.z - world_z;
-        const float dist_sq = ddx * ddx + ddz * ddz;
-
-        if (dist_sq < Z14_THRESHOLD_SQ) {
-          const int cx0 = bx * 4;
-          const int cz0 = bz * 4;
-          for (int ox = 0; ox < 4; ++ox)
-            for (int oz = 0; oz < 4; ++oz) new_desired_keys.push_back({14, cx0 + ox, cz0 + oz});
-        } else if (dist_sq < Z13_THRESHOLD_SQ) {
-          const int cx0 = bx * 2;
-          const int cz0 = bz * 2;
-          for (int ox = 0; ox < 2; ++ox)
-            for (int oz = 0; oz < 2; ++oz) new_desired_keys.push_back({13, cx0 + ox, cz0 + oz});
-        } else {
-          new_desired_keys.push_back({12, bx, bz});
-        }
+        subdivide(subdivide, 12, current_tile_x + dx, current_tile_z + dz);
       }
     }
     std::ranges::sort(new_desired_keys);
