@@ -171,6 +171,27 @@ class streamer {
     }
   }
 
+  void stream_debug(entt::registry& registry, const Camera3D& camera) const {
+    const auto& player = get_player(registry);
+    const auto& rm = get_resource_manager(registry);
+
+    SetShaderValue(displacement_shader, cam_pos_loc, &camera.position, SHADER_UNIFORM_VEC3);
+    for (const auto view = registry.view<TerrainChunk, Position3D>(); const auto [entity, chunk, pos] : view.each()) {
+      auto color = RED;
+      auto size = TILE_SIZE_12;
+      if (chunk.zoom == 13) {
+        color = GREEN;
+        size = TILE_SIZE_13;
+      }
+      if (chunk.zoom == 14) {
+        color = BLUE;
+        size = TILE_SIZE_14;
+      }
+
+      DrawCube(pos.pos + player.offset, size, 100.0f, size, color);
+    }
+  }
+
   void stream(entt::registry& registry, const Camera3D& camera) const {
     const auto& player = get_player(registry);
     const auto& rm = get_resource_manager(registry);
@@ -235,8 +256,7 @@ class streamer {
       const int cx0 = tx * 2;
       const int cz0 = tz * 2;
       for (int ox = 0; ox < 2; ++ox)
-        for (int oz = 0; oz < 2; ++oz)
-          self(self, child_zoom, cx0 + ox, cz0 + oz);
+        for (int oz = 0; oz < 2; ++oz) self(self, child_zoom, cx0 + ox, cz0 + oz);
     };
 
     for (int dx = -7; dx <= 7; ++dx) {

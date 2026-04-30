@@ -131,7 +131,7 @@ export class Game {
 
     BeginMode3D(camera);
     render_systems::sky(registry);
-    streamer.stream(registry, camera);
+    streamer.stream_debug(registry, camera);
     terrain_streamer::streamer::draw_tile_labels(registry, camera);
     render_systems::models(registry);
     render_systems::debug_models(registry);
