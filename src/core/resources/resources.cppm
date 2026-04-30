@@ -10,6 +10,9 @@ constexpr auto options_path = "assets/options.json";
 constexpr auto sky_vertex_shader_path = "assets/shaders/sky.vs";
 constexpr auto sky_fragment_shader_path = "assets/shaders/sky.fs";
 
+constexpr auto terrain_vertex_shader_path = "assets/shaders/terrain.vs";
+constexpr auto terrain_fragment_shader_path = "assets/shaders/terrain.fs";
+
 constexpr auto engine_sound = entt::hashed_string("engine-sound");
 constexpr auto gear_sound = entt::hashed_string("gear-sound");
 

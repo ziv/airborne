@@ -4,7 +4,6 @@ module;
 #include <format>
 #include <future>
 #include <map>
-#include <set>
 #include <string>
 #include <vector>
 
@@ -21,7 +20,6 @@ import Types;
 import TileDownloader;
 
 constexpr Meter SKIRT_SIZE = 0.0f;
-constexpr Meter TILE_SIZE = 9783.9;      // zoom 12
 constexpr Meter TILE_SIZE_12 = 9783.9f;  // zoom 12
 constexpr Meter TILE_SIZE_13 = 4891.95f;
 constexpr Meter TILE_SIZE_14 = 2445.975f;
@@ -29,9 +27,9 @@ constexpr int ZOOM_LEVEL = 12;
 constexpr int BASE_X = 2444;
 constexpr int BASE_Z = 1655;
 
-// Disc radius in z12 tile-units squared (matches existing dx*dx+dz*dz <= 30).
+// disc radius in z12 tile-units squared
 constexpr int RENDER_DISC_R2 = 32;
-// Render distance in meters: sqrt(30) * TILE_SIZE_12 ~= 53,610 m.
+// render distance in meters: sqrt(32) * TILE_SIZE_12 ~= 53,610 m.
 constexpr Meter RENDER_RADIUS = 5.6568f * TILE_SIZE_12;
 constexpr Meter Z13_THRESHOLD = RENDER_RADIUS * 0.5f;
 constexpr Meter Z14_THRESHOLD = RENDER_RADIUS * 0.25f;
@@ -40,7 +38,7 @@ constexpr Meter Z14_THRESHOLD_SQ = Z14_THRESHOLD * Z14_THRESHOLD;
 
 constexpr Meter tile_size_for_zoom(int zoom) { return TILE_SIZE_12 / static_cast<Meter>(1 << (zoom - ZOOM_LEVEL)); }
 
-// World-space center for a tile at any zoom, aligned within its z12 parent area.
+// world-space center for a tile at any zoom, aligned within its z12 parent area.
 inline float tile_world_pos(const int zoom, const int local_idx) {
   const int n = 1 << (zoom - ZOOM_LEVEL);
   const int parent = local_idx >> (zoom - ZOOM_LEVEL);
@@ -73,8 +71,8 @@ export struct TerrainHeight {
   int height;  // id of the height model
 };
 
-int get_tex_id(int zoom, int x, int z) { return entt::hashed_string(TextFormat("tile_tex_%d_%d_%d", zoom, x, z)); }
-int get_height_id(int zoom, int x, int z) { return entt::hashed_string(TextFormat("tile_height_%d_%d_%d", zoom, x, z)); }
+int get_tex_id(const int zoom, const int x, const int z) { return entt::hashed_string(TextFormat("tile_tex_%d_%d_%d", zoom, x, z)); }
+int get_height_id(const int zoom, const int x, const int z) { return entt::hashed_string(TextFormat("tile_height_%d_%d_%d", zoom, x, z)); }
 
 void unload_tile(ResourceManager& rm, const int zoom, const int x, const int z) {
   rm.textures.erase(get_tex_id(zoom, x, z));
@@ -84,9 +82,10 @@ void unload_tile(ResourceManager& rm, const int zoom, const int x, const int z) 
 
 export namespace terrain_streamer {
 
-// Returns the terrain elevation (metres, Mapbox RGB encoding) at a world-space
+// returns the terrain elevation (metres, Mapbox RGB encoding) at a world-space
 // XZ position by sampling the highest-resolution loaded tile that covers it.
-// Falls back through z14 → z13 → z12 so it works while tiles are still loading.
+// falls back through z14 -> z13 -> z12 so it works while tiles are still loading.
+// @see https://docs.mapbox.com/data/tilesets/reference/mapbox-terrain-rgb-v1/#elevation-data
 float ground_height_at(entt::registry& registry, const Vector3& pos) {
   auto& rm = get_resource_manager(registry);
   for (const int zoom : {14, 13, 12}) {
@@ -95,6 +94,7 @@ float ground_height_at(entt::registry& registry, const Vector3& pos) {
     const int tz = static_cast<int>(std::floor(pos.z / tile_size));
 
     const int height_id = get_height_id(zoom, tx, tz);
+    // NOLINTBEGIN
     if (!rm.images.contains(height_id)) continue;
 
     const Image& img = rm.images[height_id]->res;
@@ -105,6 +105,7 @@ float ground_height_at(entt::registry& registry, const Vector3& pos) {
 
     const auto c = GetImageColor(img, px, pz);
     return -10000.0f + (static_cast<float>(c.r) * 65536.0f + static_cast<float>(c.g) * 256.0f + static_cast<float>(c.b)) * 0.1f;
+    // NOLINTEND
   }
   return 0.0f;  // no tile loaded yet
 }
@@ -128,7 +129,7 @@ class streamer {
 
  public:
   explicit streamer(entt::registry& registry)
-      : displacement_shader(LoadShader("assets/shaders/terrain.vs", "assets/shaders/terrain.fs")),
+      : displacement_shader(LoadShader(resources::terrain_vertex_shader_path, resources::terrain_fragment_shader_path)),
         terrain_model12(std::make_unique<Model>(create_model(TILE_SIZE_12))),
         terrain_model13(std::make_unique<Model>(create_model(TILE_SIZE_13))),
         terrain_model14(std::make_unique<Model>(create_model(TILE_SIZE_14))) {
@@ -176,6 +177,8 @@ class streamer {
 
     SetShaderValue(displacement_shader, cam_pos_loc, &camera.position, SHADER_UNIFORM_VEC3);
 
+    // we use BLEND_ALPHA to allow transparency in 3d (raylib default is not to allow)
+    // we use transparency in shader to mimic fog
     BeginBlendMode(BLEND_ALPHA);
     for (const auto view = registry.view<TerrainChunk, Position3D>(); const auto [entity, chunk, pos] : view.each()) {
       // the texture is not exists (not suppose to happen, just for safety)
@@ -205,8 +208,8 @@ class streamer {
     if (Vector3DistanceSqr(player_pos, last_position) < 200.0f * 200.0f) return;  // only update when moved more than 200m
     last_position = player_pos;
 
-    const int current_tile_x = static_cast<int>(std::floor(player_pos.x / TILE_SIZE));
-    const int current_tile_z = static_cast<int>(std::floor(player_pos.z / TILE_SIZE));
+    const int current_tile_x = static_cast<int>(std::floor(player_pos.x / TILE_SIZE_12));
+    const int current_tile_z = static_cast<int>(std::floor(player_pos.z / TILE_SIZE_12));
 
     // --- Step 1: build new desired set (keys only) ---
     std::vector<TileKey> new_desired_keys;
@@ -256,7 +259,7 @@ class streamer {
       const auto& [key, entity] = *it;
       if (registry.all_of<AsyncTileLoad>(entity)) {
         // Still loading, never rendered — safe to cancel immediately.
-        TraceLog(LOG_DEBUG, "cancelling load z%d %d %d", key.zoom, key.x, key.z);
+        // TraceLog(LOG_DEBUG, "cancelling load z%d %d %d", key.zoom, key.x, key.z);
         registry.destroy(entity);
       }
       // If it has TerrainChunk it's in rendered_tiles — leave it there for the
@@ -273,7 +276,7 @@ class streamer {
       // Not desired anymore. Check if every replacement tile is rendered.
       if (is_parent_cell_covered(z12_parent(it->first))) {
         const auto& [zoom, x, z] = it->first;
-        TraceLog(LOG_DEBUG, "unloading tile z%d %d %d", zoom, x, z);
+        // TraceLog(LOG_DEBUG, "unloading tile z%d %d %d", zoom, x, z);
         registry.destroy(it->second);
         unload_tile(get_resource_manager(registry), zoom, x, z);
         it = rendered_tiles.erase(it);
@@ -285,25 +288,28 @@ class streamer {
 
   void process_loaded_chunks(entt::registry& registry) {
     for (const auto view = registry.view<AsyncTileLoad>(); const auto [entity, tile] : view.each()) {
-      const bool tex_ready    = tile.texture_future.wait_for(std::chrono::seconds(0)) == std::future_status::ready;
+      const bool tex_ready = tile.texture_future.wait_for(std::chrono::seconds(0)) == std::future_status::ready;
       const bool height_ready = tile.heightmap_future.wait_for(std::chrono::seconds(0)) == std::future_status::ready;
 
       if (!tex_ready || !height_ready) continue;
 
-      const Image tex_img    = LoadImage(tile.tex_path.c_str());
+      const Image tex_img = LoadImage(tile.tex_path.c_str());
       const Image height_img = LoadImage(tile.height_path.c_str());
 
       const Texture2D texture_tex = LoadTextureFromImage(tex_img);
-      const Texture2D height_tex  = LoadTextureFromImage(height_img);
+      const Texture2D height_tex = LoadTextureFromImage(height_img);
 
+      // need no more...
       UnloadImage(tex_img);
 
       const auto texture_id = get_tex_id(tile.zoom, tile.x, tile.z);
-      const auto height_id  = get_height_id(tile.zoom, tile.x, tile.z);
+      const auto height_id = get_height_id(tile.zoom, tile.x, tile.z);
 
       auto& rm = get_resource_manager(registry);
+      // to make sure we replace any existing one (shouldn't be any, but just in case) and free the GPU memory
       unload_tile(rm, tile.zoom, tile.x, tile.z);
 
+      // now it safe to keep them
       rm.textures.load(texture_id, texture_tex);
       rm.textures.load(height_id, height_tex);
       rm.images.load(height_id, height_img);
@@ -311,24 +317,20 @@ class streamer {
       registry.remove<AsyncTileLoad>(entity);
       registry.emplace<TerrainChunk>(entity, texture_id, height_id, tile.zoom, tile.x, tile.z);
       registry.emplace<TerrainHeight>(entity, height_id);
+
       rendered_tiles[{tile.zoom, tile.x, tile.z}] = entity;
       break;
     }
   }
 
  private:
+  /// @brief compute the z12 parent tile key for a given tile key (asserts zoom >= 12)
   static TileKey z12_parent(const TileKey& k) {
     const int shift = k.zoom - ZOOM_LEVEL;
     return {ZOOM_LEVEL, k.x >> shift, k.z >> shift};
   }
 
-  // [[nodiscard]] bool is_parent_cell_covered(const TileKey& parent12) const {
-  //   for (const auto& key : desired_tiles | std::views::keys) {
-  //     if (z12_parent(key) == parent12 && !rendered_tiles.contains(key)) return false;
-  //   }
-  //   return true;
-  // }
-
+  /// @brief checks if all currently rendered tiles that are children of the given z12 parent are still desired (i.e. not evicted yet).
   [[nodiscard]] bool is_parent_cell_covered(const TileKey& parent12) const {
     return std::ranges::all_of(desired_tiles | std::views::keys, [&](const auto& key) { return z12_parent(key) != parent12 || rendered_tiles.contains(key); });
   }
@@ -339,16 +341,16 @@ class streamer {
     const int scale = 1 << (tile.zoom - ZOOM_LEVEL);
     const int tx = tile.x + BASE_X * scale;
     const int tz = tile.z + BASE_Z * scale;
-    TraceLog(LOG_DEBUG, "spawning tile z%d %d %d %d %d", tile.zoom, tile.x, tile.z, tx, tz);
+    // TraceLog(LOG_DEBUG, "spawning tile z%d %d %d %d %d", tile.zoom, tile.x, tile.z, tx, tz);
 
-    std::string tex_path    = std::format("assets/tiles/texture/{}/{}/{}.png", tile.zoom, tx, tz);
+    std::string tex_path = std::format("assets/tiles/texture/{}/{}/{}.png", tile.zoom, tx, tz);
     std::string height_path = std::format("assets/tiles/heightmaps/{}/{}/{}.png", tile.zoom, tx, tz);
 
     const auto mapbox_token = std::string(std::getenv("MAPBOX_TOKEN") ? std::getenv("MAPBOX_TOKEN") : "");
-    const std::string tex_url    = tile_downloader::texture_url(tile.zoom, tx, tz, mapbox_token);
+    const std::string tex_url = tile_downloader::texture_url(tile.zoom, tx, tz, mapbox_token);
     const std::string height_url = tile_downloader::heightmap_url(tile.zoom, tx, tz, mapbox_token);
 
-    auto tex_future    = tile_downloader::enqueue(tex_path, tex_url);
+    auto tex_future = tile_downloader::enqueue(tex_path, tex_url);
     auto height_future = tile_downloader::enqueue(height_path, height_url);
 
     const float tile_size = TILE_SIZE_12 / static_cast<float>(1 << (tile.zoom - ZOOM_LEVEL));
@@ -356,8 +358,8 @@ class streamer {
     const float world_z = (static_cast<float>(tile.z) + 0.5f) * tile_size;
 
     registry.emplace<Position3D>(entity, (Vector3){world_x, 0.0f, world_z});
-    registry.emplace<AsyncTileLoad>(entity, std::move(tex_future), std::move(height_future),
-                                    std::move(tex_path), std::move(height_path), tile.x, tile.z, tile.zoom);
+    registry.emplace<AsyncTileLoad>(entity, std::move(tex_future), std::move(height_future), std::move(tex_path), std::move(height_path), tile.x, tile.z,
+                                    tile.zoom);
 
     return entity;
   }
