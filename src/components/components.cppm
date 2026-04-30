@@ -144,7 +144,10 @@ export struct MinimapWidget {
 export struct EngineWidget {};
 
 export struct CameraWidget {};
-export struct TargetCameraWidget {};
+export struct TargetCameraWidget {
+  int render_tex_id = 0;
+  int size = 150;
+};
 
 // area we can land on
 export struct Landable {

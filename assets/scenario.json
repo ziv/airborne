@@ -93,7 +93,7 @@
         "type": "aircraft",
         "faction": "enemy",
         "position": {
-          "x": 13000,
+          "x": 12500,
           "y": 40,
           "z": -26000
         },

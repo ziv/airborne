@@ -9,3 +9,4 @@ export import :EngineStatus;
 export import :Hud;
 export import :Radar;
 export import :CrashLayout;
+export import :TargetCamera;

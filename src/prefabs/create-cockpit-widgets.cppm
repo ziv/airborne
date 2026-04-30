@@ -75,10 +75,17 @@ void set_minicam(const int slot, entt::registry &registry) {
 }
 
 void set_target_camera(const int slot, entt::registry &registry) {
-  const auto view = registry.view<DashboardSlot>();
-  for (const auto [entity, dashboard] : view.each()) {
+  for (const auto [entity, dashboard] : registry.view<DashboardSlot>().each()) {
     if (dashboard.slot_index != slot) continue;
-    registry.get_or_emplace<TargetCameraWidget>(entity);
+
+    auto &rm = get_resource_manager(registry);
+    constexpr int size = 150;
+    const int rt_id = entt::hashed_string(TextFormat("target_cam_rt_%d", slot)).value();
+
+    rm.render_textures.erase(rt_id);
+    rm.render_textures.load(rt_id, LoadRenderTexture(size, size));
+
+    registry.emplace_or_replace<TargetCameraWidget>(entity, rt_id, size);
     break;
   }
 }

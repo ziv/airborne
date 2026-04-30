@@ -34,7 +34,8 @@ Generator<int> make_setup_sequence(entt::registry& registry, const nlohmann::jso
   factories::create_cockpit_widgets(registry);  co_yield 55;
 
   updates::set_minimap(0, registry);
-  updates::set_engine_status(1, registry);
+  // updates::set_engine_status(1, registry);
+  updates::set_target_camera(1, registry);
   updates::set_radar(2, registry);              co_yield 65;
 
   const auto& entities = scene["entities"];
@@ -139,6 +140,7 @@ export class Game {
     RenderEngineStatus(registry);
     RenderHud(registry);
     RenderRadar(registry);
+    render_systems::target_camera(registry);
     DrawFPS(1050, 780);
     RenderDebug(registry);
     RenderCrashLayout(registry);

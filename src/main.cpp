@@ -63,13 +63,14 @@ int main() {
     }
 
     // make sure we clear everything
-    auto& [textures, models, images, shaders, music_streams, sounds] = get_resource_manager(registry);
+    auto& [textures, models, images, shaders, music_streams, sounds, render_textures] = get_resource_manager(registry);
     models.clear();
     images.clear();
     textures.clear();
     shaders.clear();
     music_streams.clear();
     sounds.clear();
+    render_textures.clear();
 
     CloseAudioDevice();
     CloseWindow();

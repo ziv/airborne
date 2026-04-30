@@ -7,6 +7,8 @@ export module AircraftSystems:WidgetsInputs;
 
 import Components;
 import Prefabs;
+import ResourceManager;
+import Accessors;
 
 
 void change_radar_range(entt::registry &registry) {
@@ -45,8 +47,9 @@ void change_slot_widget(entt::registry &registry, const int slotIndex) {
       continue;
     }
     if (registry.all_of<TargetCameraWidget>(entity)) {
+      const auto &w = registry.get<TargetCameraWidget>(entity);
+      get_resource_manager(registry).render_textures.erase(w.render_tex_id);
       registry.remove<TargetCameraWidget>(entity);
-      // set minimap
       updates::set_minimap(slotIndex, registry);
       continue;
     }

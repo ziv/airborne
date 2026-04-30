@@ -49,6 +49,14 @@ export {
   using SoundResourceLoader = ResourceLoader<Sound, LoadSound, UnloadSound>;
 }
 
+export struct RenderTextureResourceLoader {
+  RenderTexture2D res;
+  explicit RenderTextureResourceLoader(RenderTexture2D rt) : res(rt) {}
+  ~RenderTextureResourceLoader() { UnloadRenderTexture(res); }
+  RenderTextureResourceLoader(const RenderTextureResourceLoader&) = delete;
+  RenderTextureResourceLoader& operator=(const RenderTextureResourceLoader&) = delete;
+};
+
 export struct ResourceManager {
   entt::resource_cache<TextureResourceLoader> textures;
   entt::resource_cache<ModelResourceLoader> models;
@@ -56,6 +64,7 @@ export struct ResourceManager {
   entt::resource_cache<ShaderLoader> shaders;
   entt::resource_cache<MusicStreamResourceLoader> music_streams;
   entt::resource_cache<SoundResourceLoader> sounds;
+  entt::resource_cache<RenderTextureResourceLoader> render_textures;
 };
 
 constexpr auto MANAGER_ID = entt::hashed_string("ResourceManager");
