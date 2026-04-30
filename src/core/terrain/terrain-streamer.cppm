@@ -173,9 +173,6 @@ class streamer {
 
   void stream_debug(entt::registry& registry, const Camera3D& camera) const {
     const auto& player = get_player(registry);
-    const auto& rm = get_resource_manager(registry);
-
-    SetShaderValue(displacement_shader, cam_pos_loc, &camera.position, SHADER_UNIFORM_VEC3);
     for (const auto view = registry.view<TerrainChunk, Position3D>(); const auto [entity, chunk, pos] : view.each()) {
       auto color = RED;
       auto size = TILE_SIZE_12;
@@ -187,7 +184,6 @@ class streamer {
         color = BLUE;
         size = TILE_SIZE_14;
       }
-
       DrawCube(pos.pos + player.offset, size, 100.0f, size, color);
     }
   }
