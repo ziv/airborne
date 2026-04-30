@@ -164,17 +164,21 @@ class streamer {
   std::unique_ptr<Model> terrain_model12;
   std::unique_ptr<Model> terrain_model13;
   std::unique_ptr<Model> terrain_model14;
+  ResourceManager& rmg;
 
  public:
   explicit streamer(entt::registry& registry)
       : displacement_shader(LoadShader(resources::terrain_vertex_shader_path, resources::terrain_fragment_shader_path)),
         terrain_model12(std::make_unique<Model>(terrain_streamer_utils::create_model(TILE_SIZE_12))),
         terrain_model13(std::make_unique<Model>(terrain_streamer_utils::create_model(TILE_SIZE_13))),
-        terrain_model14(std::make_unique<Model>(terrain_streamer_utils::create_model(TILE_SIZE_14))) {
+        terrain_model14(std::make_unique<Model>(terrain_streamer_utils::create_model(TILE_SIZE_14))),
+        rmg(get_resource_manager(registry)) {
     // set the displacement_shader as the terrain model shader
     terrain_model12->materials[0].shader = displacement_shader;
     terrain_model13->materials[0].shader = displacement_shader;
     terrain_model14->materials[0].shader = displacement_shader;
+
+    cam_pos_loc = GetShaderLocation(displacement_shader, "cameraPosition");
 
     // set the heightmap data into MATERIAL_MAP_ROUGHNESS slot
     constexpr int heightmapSlotIndex = MATERIAL_MAP_ROUGHNESS;  // Raylib map roughness index
@@ -185,8 +189,6 @@ class streamer {
     constexpr float heightScale = 1.0;
     const int scaleLoc = GetShaderLocation(displacement_shader, "heightScale");
     SetShaderValue(displacement_shader, scaleLoc, &heightScale, SHADER_UNIFORM_FLOAT);
-
-    cam_pos_loc = GetShaderLocation(displacement_shader, "cameraPosition");
   }
 
   static void draw_tile_labels(entt::registry& registry, const Camera3D& camera) {
@@ -205,8 +207,8 @@ class streamer {
       const Vector2 sp = GetWorldToScreen(world_pos, camera);
       if (sp.x < 0.0f || sp.x > width || sp.y < 0.0f || sp.y > height) continue;
 
-      DrawText(TextFormat("%d", chunk.zoom), static_cast<int>(sp.x), static_cast<int>(sp.y), 15, BLACK);
-      DrawText(TextFormat("%d %d", chunk.x, chunk.z), static_cast<int>(sp.x) + 20, static_cast<int>(sp.y), 10, BLACK);
+      DrawText(TextFormat("%d", chunk.zoom), static_cast<int>(sp.x), static_cast<int>(sp.y), 15, GREEN);
+      DrawText(TextFormat("%d %d", chunk.x, chunk.z), static_cast<int>(sp.x) + 20, static_cast<int>(sp.y), 10, GREEN);
     }
   }
 
@@ -257,27 +259,24 @@ class streamer {
   }
 
   void update(entt::registry& registry) {
-    // remove from rendered those that not needed every frame
+    // remove from rendered those that not needed
     std::erase_if(rendered_tiles, [&](const auto& item) {
       const auto [key, entity] = item;
       if (desired_tiles.contains(key)) return false;
-      if (!is_tile_covered(key) && !is_tile_out_of_range(key)) return false;
-
-      // side effect (yes, I know...)
-      const auto& [zoom, x, z] = key;
-      // TraceLog(LOG_DEBUG, "unloading tile z%d %d %d", zoom, x, z);
-      registry.destroy(entity);
-      unload_tile(get_resource_manager(registry), zoom, x, z);
-      return true;
+      return is_tile_covered(key) || is_tile_out_of_range(key);
     });
 
     // check for missing
+    bool m = false;
     for (const auto view = registry.view<TerrainChunk, Position3D>(); const auto [entity, chunk, pos] : view.each()) {
       if (const auto key = TileKey{chunk.zoom, chunk.x, chunk.z}; !desired_tiles.contains(key) && !rendered_tiles.contains(key)) {
+        unload_tile(rmg, key.zoom, key.x, key.z);
         registry.destroy(entity);
-        unload_tile(get_resource_manager(registry), key.zoom, key.x, key.z);
-        // TraceLog(LOG_WARNING, "tile z%d %d %d is rendered but not defined, removed", chunk.zoom, chunk.x, chunk.z);
+        m = true;
       }
+    }
+    if (m) {
+      TraceLog(LOG_WARNING, "COUNT %d, %d", desired_tiles.size(), rendered_tiles.size());
     }
 
     const auto player_pos = get_player(registry).absolute_position();
@@ -326,22 +325,9 @@ class streamer {
       const auto remove = !std::ranges::binary_search(new_desired_keys, key);
 
       // side effect (yes, I know...)
-      if (remove && registry.all_of<AsyncTileLoadDebug>(entity)) registry.destroy(entity);
+      if (remove && registry.all_of<AsyncTileLoad>(entity)) registry.destroy(entity);
       return remove;
     });
-
-    // remove from rendered those that not needed
-    // std::erase_if(rendered_tiles, [&](const auto& item) {
-    //   const auto [key, entity] = item;
-    //   if (desired_tiles.contains(key)) return false;
-    //   if (!is_tile_covered(key) && !is_tile_out_of_range(key)) return false;
-    //
-    //   // side effect (yes, I know...)
-    //   const auto& [zoom, x, z] = key;
-    //   registry.destroy(entity);
-    //   unload_tile(get_resource_manager(registry), zoom, x, z);
-    //   return true;
-    // });
 
     // spawn new
     for (const auto& key : new_desired_keys) {
@@ -350,45 +336,44 @@ class streamer {
   }
 
   void process_loaded_chunks(entt::registry& registry) {
-    for (const auto view = registry.view<AsyncTileLoadDebug>(); const auto [entity, tile] : view.each()) {
-      registry.remove<AsyncTileLoadDebug>(entity);
-      registry.emplace<TerrainChunk>(entity, 0, 0, tile.zoom, tile.x, tile.z);
-      registry.emplace<TerrainHeight>(entity, 0);
-      rendered_tiles[{tile.zoom, tile.x, tile.z}] = entity;
+    for (const auto view = registry.view<AsyncTileLoad>(); const auto [entity, tile] : view.each()) {
+      const bool tex_ready = tile.texture_future.wait_for(std::chrono::seconds(0)) == std::future_status::ready;
+      const bool height_ready = tile.heightmap_future.wait_for(std::chrono::seconds(0)) == std::future_status::ready;
+
+      if (!tex_ready || !height_ready) continue;
+
+      const auto [texture_future, heightmap_future, x, z, zoom] = tile;
+      Image tex_img = texture_future.get();
+      Image height_img = heightmap_future.get();
+
+      const Texture2D texture_tex = LoadTextureFromImage(tex_img);
+      const Texture2D height_tex = LoadTextureFromImage(height_img);
+
+      // need no more
+      UnloadImage(tex_img);
+
+      const auto texture_id = get_tex_id(zoom, x, z);
+      const auto height_id = get_height_id(zoom, x, z);
+
+      // auto& rm = get_resource_manager(registry);
+      // verify we are attaching to free spaced
+      unload_tile(rmg, zoom, x, z);
+
+      // the assign
+      rmg.textures.load(texture_id, texture_tex);
+      rmg.textures.load(height_id, height_tex);
+      rmg.images.load(height_id, height_img);
+
+      // component for rendering
+      registry.emplace<TerrainChunk>(entity, texture_id, height_id, zoom, x, z);
+      registry.emplace<TerrainHeight>(entity, height_id);
+      registry.remove<AsyncTileLoad>(entity);
+
+      // TraceLog(LOG_DEBUG, "tile z%d %d %d is loaded", tile.zoom, tile.x, tile.z);
+      // keep in map of rendered
+      rendered_tiles[{zoom, x, z}] = entity;
       break;
     }
-    // todo commented for debugging
-    // for (const auto view = registry.view<AsyncTileLoad>(); const auto [entity, tile] : view.each()) {
-    //   const bool tex_ready = tile.texture_future.wait_for(std::chrono::seconds(0)) == std::future_status::ready;
-    //   const bool height_ready = tile.heightmap_future.wait_for(std::chrono::seconds(0)) == std::future_status::ready;
-    //
-    //   if (!tex_ready || !height_ready) continue;
-    //
-    //   Image tex_img = tile.texture_future.get();
-    //   Image height_img = tile.heightmap_future.get();
-    //
-    //   const Texture2D texture_tex = LoadTextureFromImage(tex_img);
-    //   const Texture2D height_tex = LoadTextureFromImage(height_img);
-    //
-    //   UnloadImage(tex_img);
-    //
-    //   const auto texture_id = get_tex_id(tile.zoom, tile.x, tile.z);
-    //   const auto height_id = get_height_id(tile.zoom, tile.x, tile.z);
-    //
-    //   auto& rm = get_resource_manager(registry);
-    //   unload_tile(rm, tile.zoom, tile.x, tile.z);
-    //
-    //   rm.textures.load(texture_id, texture_tex);
-    //   rm.textures.load(height_id, height_tex);
-    //   rm.images.load(height_id, height_img);
-    //
-    //   registry.remove<AsyncTileLoad>(entity);
-    //   registry.emplace<TerrainChunk>(entity, texture_id, height_id, tile.zoom, tile.x, tile.z);
-    //   registry.emplace<TerrainHeight>(entity, height_id);
-    //
-    //   rendered_tiles[{tile.zoom, tile.x, tile.z}] = entity;
-    //   break;
-    // }
   }
 
  private:
@@ -398,26 +383,24 @@ class streamer {
     const int scale = 1 << (tile.zoom - ZOOM_LEVEL);
     const int tx = tile.x + BASE_X * scale;
     const int tz = tile.z + BASE_Z * scale;
-    TraceLog(LOG_DEBUG, "spawning tile z%d %d %d %d %d", tile.zoom, tile.x, tile.z, tx, tz);
+    // TraceLog(LOG_DEBUG, "spawning tile z%d %d %d %d %d", tile.zoom, tile.x, tile.z, tx, tz);
 
-    // todo commented for debugging
-    // std::string tex_path = std::format("assets/tiles/texture/{}/{}/{}.png", tile.zoom, tx, tz);
-    // std::string height_path = std::format("assets/tiles/heightmaps/{}/{}/{}.png", tile.zoom, tx, tz);
-    //
-    // const auto mapbox_token = std::string(std::getenv("MAPBOX_TOKEN") ? std::getenv("MAPBOX_TOKEN") : "");
-    // const std::string tex_url = tile_downloader::texture_url(tile.zoom, tx, tz, mapbox_token);
-    // const std::string height_url = tile_downloader::heightmap_url(tile.zoom, tx, tz, mapbox_token);
-    //
-    // auto tex_future = tile_downloader::enqueue_and_load(tex_path, tex_url);
-    // auto height_future = tile_downloader::enqueue_and_load(height_path, height_url);
-    //
-    // const float tile_size = TILE_SIZE_12 / static_cast<float>(1 << (tile.zoom - ZOOM_LEVEL));
-    // const float world_x = (static_cast<float>(tile.x) + 0.5f) * tile_size;
-    // const float world_z = (static_cast<float>(tile.z) + 0.5f) * tile_size;
+    std::string tex_path = std::format("assets/tiles/texture/{}/{}/{}.png", tile.zoom, tx, tz);
+    std::string height_path = std::format("assets/tiles/heightmaps/{}/{}/{}.png", tile.zoom, tx, tz);
+
+    const auto mapbox_token = std::string(std::getenv("MAPBOX_TOKEN") ? std::getenv("MAPBOX_TOKEN") : "");
+    const std::string tex_url = tile_downloader::texture_url(tile.zoom, tx, tz, mapbox_token);
+    const std::string height_url = tile_downloader::heightmap_url(tile.zoom, tx, tz, mapbox_token);
+
+    const float tile_size = TILE_SIZE_12 / static_cast<float>(1 << (tile.zoom - ZOOM_LEVEL));
+    const float world_x = (static_cast<float>(tile.x) + 0.5f) * tile_size;
+    const float world_z = (static_cast<float>(tile.z) + 0.5f) * tile_size;
+
+    auto tex_future = tile_downloader::enqueue_and_load(tex_path, tex_url);
+    auto height_future = tile_downloader::enqueue_and_load(height_path, height_url);
 
     registry.emplace<Position3D>(entity, (Vector3){world_x, 0.0f, world_z});
-    registry.emplace<AsyncTileLoadDebug>(entity, tile.x, tile.z, tile.zoom);
-    // registry.emplace<AsyncTileLoad>(entity, std::move(tex_future), std::move(height_future), tile.x, tile.z, tile.zoom);
+    registry.emplace<AsyncTileLoad>(entity, std::move(tex_future), std::move(height_future), tile.x, tile.z, tile.zoom);
 
     return entity;
   }

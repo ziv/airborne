@@ -131,8 +131,8 @@ export class Game {
 
     BeginMode3D(camera);
     render_systems::sky(registry);
-    streamer.stream_debug(registry, camera);
-    // streamer.stream(registry, camera);
+    // streamer.stream_debug(registry, camera);
+    streamer.stream(registry, camera);
     render_systems::models(registry);
     render_systems::debug_models(registry);
     EndMode3D();
