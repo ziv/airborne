@@ -110,7 +110,7 @@
           "max_thrust_n": 162000,
           "lift_coefficient": 0.1,
           "drag_coefficient": 0.02,
-          "max_speed_m_s": 660,
+          "max_speed_m_s": 500,
           "max_g_load": 9,
           "turn_rate_deg_s": 20
         },
@@ -131,24 +131,24 @@
         "waypoints": {
           "points": [
             {
-              "x": 2506065,
-              "y": 5000,
-              "z": 1685336
+              "x": 12000,
+              "y": 100,
+              "z": -28000
             },
             {
-              "x": 2506761,
-              "y": 5000,
-              "z": 1686246
+              "x": 8000,
+              "y": 100,
+              "z": -28000
             },
             {
-              "x": 2508580,
-              "y": 5000,
-              "z": 1685137
+              "x": 8000,
+              "y": 100,
+              "z": -24000
             },
             {
-              "x": 2507658,
-              "y": 5000,
-              "z": 1684311
+              "x": 12000,
+              "y": 100,
+              "z": -24000
             }
           ]
         }
@@ -410,246 +410,6 @@
           "weapon_prefab_id": "proj_23mm",
           "fire_rate_rpm": 3400,
           "capacity": 2000
-        }
-      }
-    },
-    {
-      "components": {
-        "entity_id": {
-          "id": "aircraft-11",
-          "name": "MiG-29 Fulcrum"
-        },
-        "type": "aircraft",
-        "faction": "enemy",
-        "position": {
-          "x": 2506595,
-          "y": 0,
-          "z": 1684682
-        },
-        "heading": 170,
-        "model": "mig29-model",
-        "prefab": "ac_sov_mig29",
-        "identity": {
-          "name": "MiG-29 Fulcrum",
-          "origin": "USSR",
-          "type": "aircraft"
-        },
-        "physics_profile": {
-          "mass_kg": 11000,
-          "max_thrust_n": 162000,
-          "lift_coefficient": 0.1,
-          "drag_coefficient": 0.02,
-          "max_speed_m_s": 660,
-          "max_g_load": 9,
-          "turn_rate_deg_s": 20
-        },
-        "radar": {
-          "detection_range_m": 100000,
-          "engagement_range_m": 50000
-        },
-        "health": {
-          "max": 350
-        },
-        "loadout": {
-          "weapons": {
-            "missile_r27": 4,
-            "missile_r73": 4,
-            "gun_gsh301": 150
-          }
-        },
-        "waypoints": {
-          "points": [
-            {
-              "x": 2506065,
-              "y": 5000,
-              "z": 1685336
-            },
-            {
-              "x": 2506761,
-              "y": 5000,
-              "z": 1686246
-            },
-            {
-              "x": 2508580,
-              "y": 5000,
-              "z": 1685137
-            },
-            {
-              "x": 2507658,
-              "y": 5000,
-              "z": 1684311
-            }
-          ]
-        }
-      }
-    },
-    {
-      "components": {
-        "entity_id": {
-          "id": "aircraft-12",
-          "name": "MiG-29 Fulcrum"
-        },
-        "type": "aircraft",
-        "faction": "enemy",
-        "position": {
-          "x": 2507163,
-          "y": 0,
-          "z": 1684900
-        },
-        "heading": 180,
-        "model": "mig29-model",
-        "prefab": "ac_sov_mig29",
-        "identity": {
-          "name": "MiG-29 Fulcrum",
-          "origin": "USSR",
-          "type": "aircraft"
-        },
-        "physics_profile": {
-          "mass_kg": 11000,
-          "max_thrust_n": 162000,
-          "lift_coefficient": 0.1,
-          "drag_coefficient": 0.02,
-          "max_speed_m_s": 660,
-          "max_g_load": 9,
-          "turn_rate_deg_s": 20
-        },
-        "radar": {
-          "detection_range_m": 100000,
-          "engagement_range_m": 50000
-        },
-        "health": {
-          "max": 350
-        },
-        "loadout": {
-          "weapons": {
-            "missile_r27": 4,
-            "missile_r73": 4,
-            "gun_gsh301": 150
-          }
-        }
-      }
-    },
-    {
-      "components": {
-        "entity_id": {
-          "id": "aircraft-13",
-          "name": "MiG-21bis Fishbed"
-        },
-        "type": "aircraft",
-        "faction": "enemy",
-        "position": {
-          "x": 2510064,
-          "y": 0,
-          "z": 1685411
-        },
-        "heading": 0,
-        "prefab": "ac_sov_mig21bis",
-        "identity": {
-          "name": "MiG-21bis Fishbed",
-          "origin": "USSR",
-          "type": "aircraft"
-        },
-        "physics_profile": {
-          "mass_kg": 5339,
-          "max_thrust_n": 69600,
-          "lift_coefficient": 0.1,
-          "drag_coefficient": 0.028,
-          "max_speed_m_s": 590,
-          "max_g_load": 8.5,
-          "turn_rate_deg_s": 20
-        },
-        "radar": {
-          "detection_range_m": 30000,
-          "engagement_range_m": 15000
-        },
-        "health": {
-          "max": 250
-        },
-        "loadout": {
-          "weapons": {
-            "missile_r60": 4
-          }
-        },
-        "waypoints": {
-          "points": [
-            {
-              "x": 2509861,
-              "y": 5000,
-              "z": 1684505
-            },
-            {
-              "x": 2511377,
-              "y": 5000,
-              "z": 1685432
-            },
-            {
-              "x": 2510095,
-              "y": 5000,
-              "z": 1685544
-            }
-          ]
-        }
-      }
-    },
-    {
-      "components": {
-        "entity_id": {
-          "id": "aircraft-13",
-          "name": "MiG-21bis Fishbed"
-        },
-        "type": "aircraft",
-        "faction": "enemy",
-        "position": {
-          "x": 2510064,
-          "y": 0,
-          "z": 1685411
-        },
-        "heading": 0,
-        "prefab": "ac_sov_mig21bis",
-        "identity": {
-          "name": "MiG-21bis Fishbed",
-          "origin": "USSR",
-          "type": "aircraft"
-        },
-        "physics_profile": {
-          "mass_kg": 5339,
-          "max_thrust_n": 69600,
-          "lift_coefficient": 0.1,
-          "drag_coefficient": 0.028,
-          "max_speed_m_s": 590,
-          "max_g_load": 8.5,
-          "turn_rate_deg_s": 20
-        },
-        "radar": {
-          "detection_range_m": 30000,
-          "engagement_range_m": 15000
-        },
-        "health": {
-          "max": 250
-        },
-        "loadout": {
-          "weapons": {
-            "missile_r60": 4
-          }
-        },
-        "waypoints": {
-          "points": [
-            {
-              "x": 2509861,
-              "y": 5000,
-              "z": 1684505
-            },
-            {
-              "x": 2511377,
-              "y": 5000,
-              "z": 1685432
-            },
-            {
-              "x": 2510095,
-              "y": 5000,
-              "z": 1685544
-            }
-          ]
         }
       }
     },

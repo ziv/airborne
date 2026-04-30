@@ -43,8 +43,8 @@ void target_camera(entt::registry &registry) {
       case EntityType::CARRIER:
       case EntityType::STRUCTURE:
       case EntityType::AIRBASE:
-        distance_to_put_camera = 300.0f;
-        fovy = 30.0;
+        distance_to_put_camera = 350.0f;
+        fovy = 35.0;
         break;
       default:
         distance_to_put_camera = 100.0f;

@@ -79,29 +79,23 @@ void update_lock(entt::registry& registry) {
   }
 
   // sort to keep the browsing in the same order
-  std::ranges::sort(valid_targets, [&](entt::entity a, entt::entity b) {
+  std::ranges::sort(valid_targets, [&](const entt::entity a, const entt::entity b) {
     const float distA = Vector3Distance(player_abs_position, registry.get<Position3D>(a).pos);
     const float distB = Vector3Distance(player_abs_position, registry.get<Position3D>(b).pos);
     return distA < distB;
   });
 
-  // todo what if locked target is null?
-  auto it = std::ranges::find(valid_targets, radar_state.locked_target);
-
-  if (it != valid_targets.end()) {
+  if (auto it = std::ranges::find(valid_targets, radar_state.locked_target); it != valid_targets.end()) {
     // we found the current. move next
-    TraceLog(LOG_WARNING, "we found the current. move next");
     ++it;
     if (it == valid_targets.end()) {
       // end of the vector, start over
-      TraceLog(LOG_WARNING, "end of the vector, start over");
       radar_state.locked_target = valid_targets.front();
     } else {
-      TraceLog(LOG_WARNING, "found and set");
+      // found and set
       radar_state.locked_target = *it;
     }
   } else {
-    TraceLog(LOG_WARNING, "point to the start");
     radar_state.locked_target = valid_targets.front();
   }
 }

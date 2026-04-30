@@ -19,6 +19,8 @@ void debug_models(entt::registry &registry) {
   for (auto [entity, position] : view.each()) {
     const Vector3 drawPosition = position.pos + offset;
     DrawCubeWires(drawPosition, 50.0f, 50.0f, 50.0f, YELLOW);
+    DrawCubeWires(drawPosition, 150.0f, 150.0f, 150.0f, YELLOW);
+    DrawCubeWires(drawPosition, 250.0f, 250.0f, 250.0f, YELLOW);
   }
 }
 

@@ -11,34 +11,31 @@ import ResourceManager;
 import Accessors;
 import Resources;
 
-export void RenderModels(entt::registry &registry, const Camera3D &camera) {
+constexpr float MODEL_RENDER_DISTANCE_SQR = 400000000.0f;  // 20000^2
+
+export namespace render_systems {
+
+void models(entt::registry &registry) {
   const auto view = registry.view<Position3D, WithModel, Heading>(entt::exclude<World>);
   const auto &models = get_resource_manager(registry).models;
+  const auto &player = get_player(registry);
+  const auto &player_position = player.absolute_position();
 
   for (auto [entity, position, modeled, heading] : view.each()) {
-
     // 1. model not exists
     if (!models.contains(modeled.model)) continue;
 
-    const auto offset = get_player(registry).offset;
-    const auto model_position = position.pos + offset;
-    // const auto &player_position = get_player(registry).pos + offset;
-    //
-    // // 2. model too far
-    // // todo check the distance if it valid....(render real model in 200000)
-    // if (Vector3Distance(model_position, player_position) > 20000.0f) continue;
-    //
-    // // 3. is the model in view
-    // const Vector3 direction_to_entity = Vector3Normalize(Vector3Subtract(model_position, camera.position));
-    // const Vector3 camera_forward = Vector3Normalize(Vector3Subtract(camera.target, camera.position));  // todo player forward?!
-    //
-    // if (Vector3DotProduct(camera_forward, direction_to_entity) < 0.0f) continue;
+    // 2. model too far
+    const auto model_position = position.pos + player.offset;
+    // if (Vector3DistanceSqr(model_position, player_position) > MODEL_RENDER_DISTANCE_SQR) continue;
+
+    // 3. model not in front of us
+    // const Vector3 direction_to_entity = Vector3Normalize(Vector3Subtract(model_position, player_position));
+    // if (Vector3DotProduct(player.forward, direction_to_entity) < 0.0f) continue;
 
     DrawModelEx(models[modeled.model]->res, model_position, {0.0f, 1.0f, 0.0f}, heading.heading, {1.0f, 1.0f, 1.0f}, WHITE);
   }
 }
-
-export namespace render_systems {
 
 /// @brief render the sky model as background
 void sky(entt::registry &registry) {

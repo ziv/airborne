@@ -83,8 +83,8 @@ export void RenderRadar(entt::registry &registry) {
     const auto &radar = registry.get<RadarState>(get_player_entity(registry));
 
     // iterating items and if they are in range, display them on the radar
-    const auto blip_view = registry.view<Identify, Position3D, IdentifyType, FriendFoe>();
-    for (const auto [en, id, pos, typ, ff] : blip_view.each()) {
+    const auto blip_view = registry.view<Identify, Position3D, IdentifyType, FriendFoe, Heading>();
+    for (const auto [en, id, pos, typ, ff, hd] : blip_view.each()) {
       const float dx = pos.pos.x - playerX;
       const float dz = pos.pos.z - playerZ;
 
@@ -105,7 +105,7 @@ export void RenderRadar(entt::registry &registry) {
 
       switch (typ.type) {
         case EntityType::AIRCRAFT:
-          drawAircraft(bpx, bpy, 0, color);
+          drawAircraft(bpx, bpy, hd.heading, color);
           break;
         case EntityType::SAM:
         case EntityType::AAA:

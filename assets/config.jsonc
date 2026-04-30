@@ -25,8 +25,8 @@
         "tilt": 0.25
       },
       "controls": {
-        "pitchRatio": 3.7,
-        "rollRatio": 3.1,
+        "pitchRatio": 1.7,
+        "rollRatio": 1.1,
         "yawRatio": 1.3
       },
       "aircraft": {
