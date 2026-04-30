@@ -22,16 +22,33 @@ struct Generator {
   ~Generator() {
     if (handle) handle.destroy();
   }
+
   Generator(const Generator&) = delete;
   Generator& operator=(const Generator&) = delete;
   Generator(Generator&& o) noexcept : handle(o.handle) { o.handle = nullptr; }
 
-  // Advance one step. Returns false when the coroutine is exhausted.
-  bool resume() {
+  // advance one step, returns false when the coroutine is exhausted
+  bool next() {
     if (!handle || handle.done()) return false;
     handle.resume();
     return !handle.done();
   }
 
   T current() const { return handle.promise().value; }
+
+  // implement iterator
+
+  // struct Iterator {
+  //   std::coroutine_handle<promise_type> handle;
+  //   void operator++() { handle.resume(); }
+  //   const T& operator*() const { return handle.promise().current_value; }
+  //   bool operator==(std::default_sentinel_t) const { return handle.done(); }
+  // };
+  //
+  // Iterator begin() {
+  //   handle.resume();
+  //   return {handle};
+  // }
+  //
+  // std::default_sentinel_t end() { return {}; }
 };

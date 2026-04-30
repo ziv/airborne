@@ -61,7 +61,6 @@ export class Game {
   Camera camera = {};
   nlohmann::json scene;
   std::optional<Generator<int>> setup_gen;
-  bool ready = false;
   terrain_streamer::streamer streamer;
   map_streamer::streamer map_str;
 
@@ -77,11 +76,9 @@ export class Game {
     registry.clear();
   }
 
-  // Advance one setup step. Returns progress [0,100], or -1 when done.
-  int step() {
-    if (ready) return -1;
-    if (setup_gen && setup_gen->resume()) return setup_gen->current();
-    ready = true;
+  // advance one setup step. Returns progress [0,100], or -1 when done.
+  int setup() {
+    if (setup_gen->next()) return setup_gen->current();
     setup_gen.reset();
     return -1;
   }
