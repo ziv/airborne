@@ -15,7 +15,8 @@ constexpr Meter SKIRT_SIZE = 0.0f;
 constexpr Meter TILE_SIZE_12 = 9783.9f;
 constexpr Meter TILE_SIZE_13 = 4891.95f;
 constexpr Meter TILE_SIZE_14 = 2445.975f;
-constexpr std::array<Meter, 3> TILE_SIZES{TILE_SIZE_12, TILE_SIZE_13, TILE_SIZE_14};
+constexpr Meter TILE_SIZE_15 = 1222.9875f;
+// constexpr std::array<Meter, 3> TILE_SIZES{TILE_SIZE_12, TILE_SIZE_13, TILE_SIZE_14};
 
 constexpr int ZOOM_LEVEL = 12;
 constexpr int BASE_X = 2444;
@@ -28,6 +29,7 @@ constexpr Meter Z13_THRESHOLD = RENDER_RADIUS * 0.5f;
 constexpr Meter Z14_THRESHOLD = RENDER_RADIUS * 0.25f;
 constexpr Meter Z13_THRESHOLD_SQ = Z13_THRESHOLD * Z13_THRESHOLD;
 constexpr Meter Z14_THRESHOLD_SQ = Z14_THRESHOLD * Z14_THRESHOLD;
+constexpr Meter Z15_THRESHOLD_SQ = 2500.0f * 2500.0f;
 
 struct TileKey {
   int zoom;
@@ -38,7 +40,7 @@ struct TileKey {
 
 // module private methods
 
-// constexpr Meter tile_size_for_zoom(const int zoom) { return TILE_SIZE_12 / static_cast<Meter>(1 << (zoom - ZOOM_LEVEL)); }
+constexpr Meter tile_size_for_zoom(const int zoom) { return TILE_SIZE_12 / static_cast<Meter>(1 << (zoom - ZOOM_LEVEL)); }
 
 // ids for textures and heightmap to share between components
 int get_tex_id(const int zoom, const int x, const int z) { return entt::hashed_string(TextFormat("tile_tex_%d_%d_%d", zoom, x, z)); }
@@ -55,7 +57,7 @@ void unload_tile_resources(ResourceManager& rm, const int zoom, const int x, con
 Model create_model(const Meter size) { return LoadModelFromMesh(GenMeshPlane(size + size * 0.02f, size + size * 0.02f, 256, 256)); }
 
 float tile_distance(const Vector3& player_pos, const int zoom, const int tx, const int tz) {
-  const float tile_size = TILE_SIZES[zoom];  // TILE_SIZE_12 / static_cast<float>(1 << (zoom - ZOOM_LEVEL));
+  const float tile_size = tile_size_for_zoom(zoom);
   const float world_x = (static_cast<float>(tx) + 0.5f) * tile_size;
   const float world_z = (static_cast<float>(tz) + 0.5f) * tile_size;
   const float ddx = player_pos.x - world_x;

@@ -57,7 +57,7 @@ export namespace terrain_streamer {
 float ground_height_at(entt::registry& registry, const Vector3& pos) {
   ResourceManager& rm = get_resource_manager(registry);
   for (const int zoom : {14, 13, 12}) {
-    const float tile_size = TILE_SIZES[zoom];
+    const float tile_size = tile_size_for_zoom(zoom);
     const int tx = static_cast<int>(std::floor(pos.x / tile_size));
     const int tz = static_cast<int>(std::floor(pos.z / tile_size));
 
@@ -78,9 +78,9 @@ float ground_height_at(entt::registry& registry, const Vector3& pos) {
 }
 
 /// terrain streamer responsible to render the "world" all the entities
-/// leaves on. it supports 3 levels of LOD. more level require performance
-/// optimizations.
-/// all images are downloaded and cache automatically. currently support
+/// leaves on. it supports multiple LOD (more level require performance
+/// optimizations).
+/// all resources are downloaded and cache automatically. currently support
 /// mapbox api and require MAPBOX_TOKEN to be set as environment variable
 class streamer {
   std::map<TileKey, entt::entity> desired_tiles;   // what LOD logic wants this frame
@@ -205,13 +205,7 @@ class streamer {
     // remove from desired those that not in new desired
     std::erase_if(desired_tiles, [&](const auto& item) {
       const auto [key, entity] = item;
-      const auto remove = !std::ranges::binary_search(new_desired_keys, key);
-      // side effect (yes, I know...)
-      // if (remove && registry.all_of<AsyncTileLoad>(entity)) {
-      //   // todo what about its futures?! should i let it finished?
-      //   registry.destroy(entity);
-      // }
-      return remove;
+      return !std::ranges::binary_search(new_desired_keys, key);
     });
 
     // spawn new
@@ -265,12 +259,12 @@ class streamer {
     const auto height = static_cast<float>(GetScreenHeight());
 
     for (const auto view = registry.view<TerrainChunk, Position3D>(); const auto [entity, chunk, pos] : view.each()) {
+      if (chunk.zoom != 15) continue;
       // Raise the label a bit above the ground for legibility
       const Vector3 world_pos = pos.pos + player.offset + Vector3{0.0f, 200.0f, 0.0f};
 
       // "In front of camera" filter via dot product with forward
-      const Vector3 to_tile = world_pos - camera.position;
-      if (Vector3DotProduct(to_tile, player.forward) <= 0.0f) continue;
+      if (const Vector3 to_tile = world_pos - camera.position; Vector3DotProduct(to_tile, player.forward) <= 0.0f) continue;
 
       const Vector2 sp = GetWorldToScreen(world_pos, camera);
       if (sp.x < 0.0f || sp.x > width || sp.y < 0.0f || sp.y > height) continue;
@@ -312,7 +306,7 @@ class streamer {
     const auto tex_url = tile_downloader::texture_url(tile.zoom, tx, tz, mapbox_token);
     const auto height_url = tile_downloader::heightmap_url(tile.zoom, tx, tz, mapbox_token);
 
-    const float tile_size = TILE_SIZE_12 / static_cast<float>(1 << (tile.zoom - ZOOM_LEVEL));
+    const float tile_size = tile_size_for_zoom(tile.zoom);
     const float world_x = (static_cast<float>(tile.x) + 0.5f) * tile_size;
     const float world_z = (static_cast<float>(tile.z) + 0.5f) * tile_size;
 

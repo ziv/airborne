@@ -48,7 +48,7 @@ Generator<int> make_setup_sequence(entt::registry& registry, const nlohmann::jso
   const int n = static_cast<int>(entities.size());
   for (int i = 0; i < n; ++i) {
     factories::spawn_one(registry, entities[i]);
-    co_yield 65 + (30 * (i + 1) / std::max(n, 1));  // 65 → 95
+    co_yield 65 + 30 * (i + 1) / std::max(n, 1);  // 65 → 95
   }
 
   npc_systems::setup(registry);

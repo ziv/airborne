@@ -68,7 +68,8 @@ Image load_map_tile(const int zoom, const int geo_tx, const int geo_tz) {
   const std::string path = std::format("assets/tiles/map/{}/{}/{}.png", zoom, geo_tx, geo_tz);
   const auto tomtom_token = std::string(std::getenv("TOMTOM_TOKEN") ? std::getenv("TOMTOM_TOKEN") : "");
   const std::string url = tile_downloader::map_url(zoom, geo_tx, geo_tz, tomtom_token);
-  tile_downloader::enqueue(path, url).wait();
+  // todo fix me, should be done in a thread and not in main process
+  // tile_downloader::enqueue(path, url).wait();
   return LoadImage(path.c_str());
 }
 
