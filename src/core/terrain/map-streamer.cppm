@@ -162,7 +162,7 @@ class streamer {
       const int tid = map_tile_id(key.zoom, key.x, key.z);
       rm.textures.erase(tid);
       registry.destroy(entity);
-      TraceLog(LOG_DEBUG, "map tile evicted z%d %d %d", key.zoom, key.x, key.z);
+      // TraceLog(LOG_DEBUG, "map tile evicted z%d %d %d", key.zoom, key.x, key.z);
       it = tracked_tiles.erase(it);
     }
   }
@@ -192,7 +192,7 @@ class streamer {
 
       registry.remove<AsyncMapTileLoad>(entity);
       registry.emplace<MapTile>(entity, tid, zoom, tx, tz, geo_x, geo_z);
-      TraceLog(LOG_DEBUG, "map tile loaded z%d local(%d,%d) geo(%d,%d)", zoom, tx, tz, geo_x, geo_z);
+      // TraceLog(LOG_DEBUG, "map tile loaded z%d local(%d,%d) geo(%d,%d)", zoom, tx, tz, geo_x, geo_z);
       break;  // one per frame
     }
   }
@@ -213,7 +213,7 @@ class streamer {
       return load_map_tile(zoom, geo_tx, geo_tz);
     });
     registry.emplace<AsyncMapTileLoad>(entity, std::move(task), key.zoom, key.x, key.z, key.geo_x, key.geo_z);
-    TraceLog(LOG_DEBUG, "map tile spawned z%d local(%d,%d) geo(%d,%d)", key.zoom, key.x, key.z, key.geo_x, key.geo_z);
+    // TraceLog(LOG_DEBUG, "map tile spawned z%d local(%d,%d) geo(%d,%d)", key.zoom, key.x, key.z, key.geo_x, key.geo_z);
     return entity;
   }
 };
