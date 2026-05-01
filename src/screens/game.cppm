@@ -51,7 +51,7 @@ export class GameScreen : public BaseScreen {
       : registry(reg),
         // required to load resources and for the game
         scene(parse_json_file(resources::scenario_path)),
-        game(registry, scene){}
+        game(registry, scene) {}
 
   /// state machine for all game phases
   /// 1. ready - game is playing
@@ -63,6 +63,8 @@ export class GameScreen : public BaseScreen {
       return ScreenState::GAMEPLAY;
     }
 
+    // todo move loading resource from resources screen?!
+    // todo or just move the generator to resources screen
     // if (loading) {
     //   if (!scene["resources"].is_array()) {
     //     TraceLog(LOG_DEBUG, "no resources to load, skipping");
