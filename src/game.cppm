@@ -134,7 +134,7 @@ export class Game {
     render_systems::debug_models(registry);
     EndMode3D();
 
-    terrain_streamer::streamer::draw_tile_labels(registry, camera);
+    // terrain_streamer::streamer::draw_tile_labels(registry, camera);
     RenderCockpit(registry);
     RenderMinimap(registry);
     RenderEngineStatus(registry);
@@ -146,5 +146,6 @@ export class Game {
     RenderCrashLayout(registry);
 
     game_options::options(registry);
+    streamer.show_debug_data();
   }
 };

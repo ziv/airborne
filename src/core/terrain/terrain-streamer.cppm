@@ -62,19 +62,17 @@ float ground_height_at(entt::registry& registry, const Vector3& pos) {
     const int tz = static_cast<int>(std::floor(pos.z / tile_size));
 
     if (const int height_id = get_height_id(zoom, tx, tz); rm.images.contains(height_id)) {
-      // NOLINTBEGIN
       const Image& img = rm.images[height_id]->res;
       const float u = pos.x / tile_size - static_cast<float>(tx);
       const float v = pos.z / tile_size - static_cast<float>(tz);
-      const int px = std::clamp(static_cast<int>(u * static_cast<float>(img.width)), 0, img.width - 1);
-      const int pz = std::clamp(static_cast<int>(v * static_cast<float>(img.height)), 0, img.height - 1);
 
-      const auto c = GetImageColor(img, px, pz);
-      return -10000.0f + (static_cast<float>(c.r) * 65536.0f + static_cast<float>(c.g) * 256.0f + static_cast<float>(c.b)) * 0.1f;
-      // NOLINTEND
+      const int px = static_cast<int>(u * static_cast<float>(img.width));
+      const int pz = static_cast<int>(v * static_cast<float>(img.height));
+
+      return get_height_from_image(img, px, pz);
     }
   }
-  return 0.0f;  // no tile loaded yet
+  return 0.0f;
 }
 
 /// terrain streamer responsible to render the "world" all the entities
@@ -88,6 +86,7 @@ class streamer {
   Vector3 last_position{-9.9f, -9.9f, -9.9f};
   Shader displacement_shader;
   int cam_pos_loc = -1;
+  int threads = 0;
   std::unique_ptr<Model> terrain_model12;
   std::unique_ptr<Model> terrain_model13;
   std::unique_ptr<Model> terrain_model14;
@@ -96,9 +95,9 @@ class streamer {
  public:
   explicit streamer(entt::registry& registry)
       : displacement_shader(LoadShader(resources::terrain_vertex_shader_path, resources::terrain_fragment_shader_path)),
-        terrain_model12(std::make_unique<Model>(create_model(TILE_SIZE_12))),
-        terrain_model13(std::make_unique<Model>(create_model(TILE_SIZE_13))),
-        terrain_model14(std::make_unique<Model>(create_model(TILE_SIZE_14))),
+        terrain_model12(std::make_unique<Model>(create_model(TILE_SIZE_12, 16))),
+        terrain_model13(std::make_unique<Model>(create_model(TILE_SIZE_13, 64))),
+        terrain_model14(std::make_unique<Model>(create_model(TILE_SIZE_14, 256))),
         rmg(get_resource_manager(registry)) {
     // set the displacement_shader as the terrain model shader
     terrain_model12->materials[0].shader = displacement_shader;
@@ -144,6 +143,13 @@ class streamer {
       DrawModel(model, pos.pos + offset, 1.0f, WHITE);
     }
     // EndBlendMode();
+  }
+
+  void show_debug_data() const {
+    DrawText("TILE STREAMER DEBUG DATA", 15, 200, 15, BLACK);
+    DrawText(TextFormat("Desired tiles: %d", static_cast<int>(desired_tiles.size())), 15, 235, 15, BLUE);
+    DrawText(TextFormat("Rendered tiles: %d", static_cast<int>(rendered_tiles.size())), 15, 255, 15, BLUE);
+    DrawText(TextFormat("Threads: %d", threads), 15, 275, 15, BLUE);
   }
 
   void update(entt::registry& registry) {
@@ -224,6 +230,7 @@ class streamer {
       const auto [texture_future, heightmap_future, x, z, zoom] = tile;
       Image tex_img = texture_future.get();
       Image height_img = heightmap_future.get();
+      threads -= 2;
 
       const Texture2D texture_tex = LoadTextureFromImage(tex_img);
       const Texture2D height_tex = LoadTextureFromImage(height_img);
@@ -292,7 +299,7 @@ class streamer {
   }
 
  private:
-  static entt::entity spawn_tile(entt::registry& registry, const TileKey& tile) {
+  entt::entity spawn_tile(entt::registry& registry, const TileKey& tile) {
     const auto entity = registry.create();
 
     const auto scale = 1 << (tile.zoom - ZOOM_LEVEL);
@@ -312,7 +319,7 @@ class streamer {
 
     auto tex_future = tile_downloader::enqueue_and_load(tex_path, tex_url);
     auto height_future = tile_downloader::enqueue_and_load(height_path, height_url);
-
+    threads += 2;
     registry.emplace<Position3D>(entity, (Vector3){world_x, 0.0f, world_z});
     registry.emplace<AsyncTileLoad>(entity, std::move(tex_future), std::move(height_future), tile.x, tile.z, tile.zoom);
 

@@ -54,7 +54,7 @@ void unload_tile_resources(ResourceManager& rm, const int zoom, const int x, con
 }
 
 // create models for tiles (model per zoom)
-Model create_model(const Meter size) { return LoadModelFromMesh(GenMeshPlane(size + size * 0.02f, size + size * 0.02f, 256, 256)); }
+Model create_model(const Meter size, const int res) { return LoadModelFromMesh(GenMeshPlane(size + size * 0.02f, size + size * 0.02f, res, res)); }
 
 float tile_distance(const Vector3& player_pos, const int zoom, const int tx, const int tz) {
   const float tile_size = tile_size_for_zoom(zoom);
@@ -86,4 +86,32 @@ std::vector<TileKey> grand_children(const TileKey& key) {
     }
   }
   return result;
+}
+
+/// a better performance function thank using
+/// const auto c = GetImageColor(img, px, pz);
+inline float get_height_from_image(const Image& img, int x, int y) {
+  if (x < 0) x = 0;
+  if (y < 0) y = 0;
+  if (x >= img.width) x = img.width - 1;
+  if (y >= img.height) y = img.height - 1;
+
+  const auto pixels = static_cast<const unsigned char*>(img.data);
+  unsigned char r, g, b;
+
+  if (img.format == PIXELFORMAT_UNCOMPRESSED_R8G8B8) {
+    const int index = (y * img.width + x) * 3;
+    r = pixels[index];
+    g = pixels[index + 1];
+    b = pixels[index + 2];
+  } else if (img.format == PIXELFORMAT_UNCOMPRESSED_R8G8B8A8) {
+    const int index = (y * img.width + x) * 4;
+    r = pixels[index];
+    g = pixels[index + 1];
+    b = pixels[index + 2];
+  } else {
+    return 0.0f;
+  }
+
+  return -10000.0f + (static_cast<float>(r) * 65536.0f + static_cast<float>(g) * 256.0f + static_cast<float>(b)) * 0.1f;
 }
