@@ -1,36 +1,32 @@
 module;
-#include "../../lib/ray.hpp"
-#include <entt/entt.hpp>
-#include <rlgl.h>
 
+#include <entt/entt.hpp>
+
+#include "../../lib/ray.hpp"
+#include "rlgl.h"
 export module RenderSystem:Hud;
 
 import Components;
 import Helpers;
+import Accessors;
 
-void draw_ladder(const HudWidget &widget, const Player &player, Color color) {
+void draw_ladder(const HudWidget &widget, const Player &player, const Color color) {
   const auto fy = player.forward.y;
   const auto uy = player.up.y;
   const auto [x, y, z] = player.right;
 
   const auto pitch = asinf(fy) * RAD2DEG;
-  const auto roll =
-      (fabsf(fy) < 0.999f ? atan2f(-y, uy) : atan2f(z, x)) * RAD2DEG;
+  const auto roll = (fabsf(fy) < 0.999f ? atan2f(-y, uy) : atan2f(z, x)) * RAD2DEG;
 
-  BeginScissorMode(widget.cfg.ladder.x, widget.cfg.ladder.y,
-                   widget.cfg.ladder.width, widget.cfg.ladder.height);
-  DrawCircleLines(widget.centerX, widget.centerY - widget.cfg.ladder.offset,
-                  5.0f, color);
+  BeginScissorMode(widget.cfg.ladder.x, widget.cfg.ladder.y, widget.cfg.ladder.width, widget.cfg.ladder.height);
+  DrawCircleLines(widget.centerX, widget.centerY - widget.cfg.ladder.offset, 5.0f, color);
 
   // freeze state
   rlPushMatrix();
 
   // take us to the center
   // the offset allow to define where to put the 0 line
-  rlTranslatef(static_cast<float>(widget.centerX),
-               static_cast<float>(widget.centerY) -
-                   static_cast<float>(widget.cfg.ladder.offset),
-               0);
+  rlTranslatef(static_cast<float>(widget.centerX), static_cast<float>(widget.centerY) - static_cast<float>(widget.cfg.ladder.offset), 0);
 
   // pitch & roll
   rlRotatef(-roll, 0, 0, 1);
@@ -41,8 +37,7 @@ void draw_ladder(const HudWidget &widget, const Player &player, Color color) {
   DrawLineEx({20, 0}, {100, 0}, 2, color);
 
   for (int i = -180; i <= 180; i += 15) {
-    if (i == 0)
-      continue;
+    if (i == 0) continue;
 
     const auto lineY = -static_cast<float>(i * widget.pixelsPerDegree);
     const auto lineYint = static_cast<int>(lineY);
@@ -64,29 +59,38 @@ void draw_ladder(const HudWidget &widget, const Player &player, Color color) {
   EndScissorMode();
 }
 
-void draw_warnings(const HudWidget &widget, const PlayerInputs &inputs,
-                   Color color) {
+void draw_warnings(const HudWidget &widget, const PlayerInputs &inputs, const Color color) {
   // after burner warning
   if (inputs.throttle > 1.0f) {
-    DrawText("A/B ON", widget.cfg.warnings.x, widget.cfg.warnings.y,
-             widget.cfg.warnings.font, ORANGE);
+    DrawText("A/B ON", widget.cfg.warnings.x, widget.cfg.warnings.y, widget.cfg.warnings.font, ORANGE);
   }
 
   // autopilot warning
   if (inputs.autopilot) {
-    DrawText("A/P ON", widget.cfg.warnings.x, widget.cfg.warnings.y,
-             widget.cfg.warnings.font, color);
+    DrawText("A/P ON", widget.cfg.warnings.x, widget.cfg.warnings.y, widget.cfg.warnings.font, color);
   }
 }
 
-void draw_heading(const HudWidget &widget, const Player &player, Color color) {
+void gear_warning(const HudWidget &widget, const Player &player, const PlayerInputs &inputs, const bool flying, const Color color) {
+  if (flying && player.pos.y < 500.0f && !inputs.gear) {
+    constexpr double blink_speed = 5.0;
+    const auto alpha = static_cast<float>((std::sin(GetTime() * blink_speed) + 1.0) / 2.0);
+
+    DrawText("GEAR UP", widget.cfg.warnings.x + 120, widget.cfg.warnings.y, widget.cfg.warnings.font, Fade(RED, alpha));
+  }
+
+  // if (!inputs.gear && player.pos.y < player.ground_height + 100.0f) {
+  //   DrawText("GEAR UP", widget.cfg.gearWarning.x, widget.cfg.gearWarning.y, widget.cfg.gearWarning.font, RED);
+  // }
+}
+
+void draw_heading(const HudWidget &widget, const Player &player, const Color color) {
   const auto [x, y, width, font] = widget.cfg.heading;
   const auto fx = static_cast<float>(x);
   // constexpr auto pixelsPerDegree = 10.0f;
   constexpr auto tickInterval = 5;
 
-  auto currentHeading =
-      std::atan2(-player.forward.x, player.forward.z) * RAD2DEG;
+  auto currentHeading = std::atan2(-player.forward.x, player.forward.z) * RAD2DEG;
   // apply 180-degree offset to align north (0) with the world's 180 degree
   // mark. since atan2 returns [-180, 180], adding 180 shifts the range to [0,
   // 360].
@@ -98,8 +102,7 @@ void draw_heading(const HudWidget &widget, const Player &player, Color color) {
   }
 
   DrawLine(x, y, x, y + font / 2, color);
-  DrawText(TextFormat("%03.0f", currentHeading), x - font / 2, y - font, font,
-           color);
+  DrawText(TextFormat("%03.0f", currentHeading), x - font / 2, y - font, font, color);
 
   const auto halfWidth = width / 2;
   const auto halfWidth_f = static_cast<float>(halfWidth);
@@ -118,28 +121,25 @@ void draw_heading(const HudWidget &widget, const Player &player, Color color) {
 
     // calculate screen X position and check if it's within the HUD tape width
     // using if-init
-    if (const auto tickX = fx + (diff * widget.ppd);
-        tickX >= fx - halfWidth_f && tickX <= fx + halfWidth_f) {
+    if (const auto tickX = fx + (diff * widget.ppd); tickX >= fx - halfWidth_f && tickX <= fx + halfWidth_f) {
       const auto isMajorTick = (i % 10 == 0);
       const auto tickLength = isMajorTick ? font / 2 : font / 4;
 
       // Draw the tick line
-      DrawLine(static_cast<int>(tickX), y, static_cast<int>(tickX),
-               y + tickLength, color);
+      DrawLine(static_cast<int>(tickX), y, static_cast<int>(tickX), y + tickLength, color);
 
       // Draw text for major ticks (every 10 degrees)
       if (isMajorTick) {
         const auto *text = TextFormat("%03d", i);
         const auto textOffset = static_cast<float>(font) * 0.6f;
 
-        DrawText(text, static_cast<int>(tickX - textOffset), y + tickLength + 4,
-                 static_cast<int>(static_cast<float>(font) * 0.8f), color);
+        DrawText(text, static_cast<int>(tickX - textOffset), y + tickLength + 4, static_cast<int>(static_cast<float>(font) * 0.8f), color);
       }
     }
   }
 }
 
-void draw_boresight(const HudWidget &widget, Color color) {
+void draw_boresight(const HudWidget &widget, const Color color) {
   const auto [x, y, size] = widget.cfg.boresight;
   const auto left = x - size / 2;
   const auto right = x + size / 2;
@@ -159,74 +159,59 @@ void draw_boresight(const HudWidget &widget, Color color) {
   DrawLine(right - part - tip, noseY + tip, right - part, noseY, color);
 }
 
-void draw_height_indicator(const HudWidget &widget, const Player &player,
-                           const GroundHeight &gh, Color color) {
+void draw_height_indicator(const HudWidget &widget, const Player &player, const GroundHeight &gh, const Color color) {
   const auto height_absolute = meter_to_feet(player.pos.y);
-  DrawText(TextFormat("%s", number_suffix(height_absolute)),
-           widget.cfg.height.x, widget.cfg.height.y, widget.cfg.height.font,
-           color);
+  DrawText(TextFormat("%s", number_suffix(height_absolute)), widget.cfg.height.x, widget.cfg.height.y, widget.cfg.height.font, color);
   DrawRectangleLines(745, 328, 30, 14, color);
   const auto font = static_cast<int>(widget.cfg.height.font * 0.8f);
   const auto height = meter_to_feet(gh.height);
   const auto height_relative = height_absolute - height;
-  DrawText(TextFormat("%s", number_suffix(height_relative)),
-           widget.cfg.height.x + 2, widget.cfg.height.y + 19, font, color);
+  DrawText(TextFormat("%s", number_suffix(height_relative)), widget.cfg.height.x + 2, widget.cfg.height.y + 19, font, color);
 }
 
-void draw_speed_indicator(const HudWidget &widget, const Player &player,
-                          Color color) {
+void draw_speed_indicator(const HudWidget &widget, const Player &player, Color color) {
   const auto speed = ms_to_knots(player.speed);
-  DrawText(TextFormat("%s", number_suffix(speed)), widget.cfg.speedometer.x,
-           widget.cfg.speedometer.y, widget.cfg.speedometer.font, color);
+  DrawText(TextFormat("%s", number_suffix(speed)), widget.cfg.speedometer.x, widget.cfg.speedometer.y, widget.cfg.speedometer.font, color);
 }
 
-void draw_rate_of_climb(const HudWidget &widget, const Player &player,
-                        Color color) {
+void draw_rate_of_climb(const HudWidget &widget, const Player &player, Color color) {
   const auto verticalSpeedFPM = ms_to_fpm(player.velocity.y);
   constexpr float MAX_CLIMB_RATE_FPM = 50000.0f;
-  const float MAX_BAR_PIXELS =
-      (static_cast<float>(widget.cfg.roc.height) / 2.0f) - 20.0f;
+  const float MAX_BAR_PIXELS = (static_cast<float>(widget.cfg.roc.height) / 2.0f) - 20.0f;
 
   float vsRatio = verticalSpeedFPM / MAX_CLIMB_RATE_FPM;
-  if (vsRatio > 1.0f)
-    vsRatio = 1.0f;
-  if (vsRatio < -1.0f)
-    vsRatio = -1.0f;
+  if (vsRatio > 1.0f) vsRatio = 1.0f;
+  if (vsRatio < -1.0f) vsRatio = -1.0f;
 
   const int currentBarHeight = static_cast<int>(vsRatio * MAX_BAR_PIXELS);
   const int maxBarPixels = static_cast<int>(MAX_BAR_PIXELS);
 
-  const int centerX = widget.cfg.roc.x; // see speed location
+  const int centerX = widget.cfg.roc.x;  // see speed location
   const int centerY = widget.cfg.roc.y;
   const int width = widget.cfg.roc.width;
-  DrawLine(centerX, centerY - maxBarPixels, centerX, centerY + maxBarPixels,
-           Fade(color, 0.3f));
+  DrawLine(centerX, centerY - maxBarPixels, centerX, centerY + maxBarPixels, Fade(color, 0.3f));
   DrawLine(centerX - width, centerY, centerX + width, centerY, color);
 
   if (currentBarHeight > 0) {
-    DrawRectangle(centerX - width / 2, centerY - currentBarHeight, width,
-                  currentBarHeight, color);
+    DrawRectangle(centerX - width / 2, centerY - currentBarHeight, width, currentBarHeight, color);
   } else {
-    DrawRectangle(centerX - width / 2, centerY, width, -currentBarHeight,
-                  color);
+    DrawRectangle(centerX - width / 2, centerY, width, -currentBarHeight, color);
   }
 }
 
 export void RenderHud(entt::registry &registry) {
   const auto view = registry.view<HudWidget>();
-  if (view.begin() == view.end())
-    return;
+  if (view.begin() == view.end()) return;
 
   constexpr std::array<Color, 5> colors = {GREEN, YELLOW, ORANGE, WHITE, BLACK};
   const auto entity = view.front();
   const auto hud = registry.get<HudWidget>(entity);
 
   const auto player_entity = registry.ctx().get<PlayerEntity>().id;
-  const auto [player, inputs, gh] =
-      registry.get<Player, PlayerInputs, GroundHeight>(player_entity);
+  const auto [player, inputs, gh] = registry.get<Player, PlayerInputs, GroundHeight>(player_entity);
+  const auto flyting = is_player_flying(registry);
 
-  const int safeIndex = hud.colorIndex >= 0 && hud.colorIndex < static_cast<int>(colors.size())
-                      ? hud.colorIndex : 0;
+  const int safeIndex = hud.colorIndex >= 0 && hud.colorIndex < static_cast<int>(colors.size()) ? hud.colorIndex : 0;
   const auto color = colors[safeIndex];
 
   draw_ladder(hud, player, color);
@@ -236,4 +221,5 @@ export void RenderHud(entt::registry &registry) {
   draw_boresight(hud, color);
   draw_heading(hud, player, color);
   draw_warnings(hud, inputs, color);
+  gear_warning(hud, player, inputs, flyting, color);
 }

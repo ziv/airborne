@@ -17,16 +17,16 @@ void physics(entt::registry& registry, const float dt) {
 
   auto& player = get_player(registry);
   const auto& inputs = get_player_inputs(registry);
+  const auto flying = is_player_flying(registry);
 
   // angular velocity
 
   // how much angular velocity we have in relation to the speed (more speed -> better steering)
-  auto speed_ratio = player.speed / (conf.maxSpeed * 0.8f);
-  if (speed_ratio < 0.0f) speed_ratio = 0.0f;
-  if (speed_ratio > 1.2f) speed_ratio = 1.2f;
+  auto speed_ratio = std::clamp(player.speed / (conf.maxSpeed * 0.8f), 0.0f, 1.2f);
   float control_authority = speed_ratio * speed_ratio;
 
-  if (control_authority < conf.minAuthority) control_authority = conf.minAuthority;
+  // on ground, we allow user to yaw
+  float yaw_authority = flying ? control_authority : conf.minAuthority;
 
   // some effects...
 
@@ -39,15 +39,14 @@ void physics(entt::registry& registry, const float dt) {
   const float induced_pitch = -lift_loss * conf.liftLossPitchRatio;
 
   // all together
-
   const Vector3 pitch_torque = Vector3Scale(player.right, (inputs.pitch * conf.pitchRatio * control_authority + induced_pitch) * dt);
   const Vector3 roll_torque = Vector3Scale(player.forward, inputs.roll * conf.rollRatio * control_authority * dt);
-  const Vector3 yaw_torque = Vector3Scale(player.up, (inputs.yaw * conf.yawRatio * control_authority + induced_yaw) * dt);
+  const Vector3 yaw_torque = Vector3Scale(player.up, (inputs.yaw * conf.yawRatio * yaw_authority + induced_yaw) * dt);
 
   player.angular_velocity = player.angular_velocity + pitch_torque + roll_torque + yaw_torque;
 
-  // (2.5 is some air dumping factor)
-  float damping_factor = 1.0f - (conf.airDumpingFactor * dt);
+  // some air dumping
+  float damping_factor = 1.0f - conf.airDumpingFactor * dt;
   if (damping_factor < 0.0f) damping_factor = 0.0f;
   player.angular_velocity *= damping_factor;
 
@@ -56,36 +55,36 @@ void physics(entt::registry& registry, const float dt) {
   const auto square_speed = player.speed * player.speed;
   const float mass = conf.weight / 9.81f;
 
-  auto cd = conf.dragCoefficient;
+  Ratio cd = conf.dragCoefficient;
   if (inputs.brakes) cd += cd * 3.0f;
   if (inputs.gear) cd += cd * 3.0f;
 
-  const auto drag = square_speed * cd;
-  const auto thrust = inputs.throttle * conf.engineThrust;
-  const auto lift = square_speed * conf.liftCoefficient;
+  const float drag = square_speed * cd;
+  const float thrust = inputs.throttle * conf.engineThrust;
+  const float lift = square_speed * conf.liftCoefficient;
 
   // ground forces
-  if (!is_player_flying(registry)) {
+  if (!flying) {
     auto normal_face = conf.weight - lift;
     if (normal_face < 0.0f) {
       normal_face = 0.0f;
     }
+
+    // todo should be very high for carrier (0.9 for example)
     const float friction_coefficient = inputs.brakes ? 0.6f : 0.02f;
     const float max_braking_force = friction_coefficient * normal_face;
 
     const Vector3 ground_velocity = {player.velocity.x, 0.0f, player.velocity.z};
-    float ground_speed = Vector3Length(ground_velocity);
 
-    if (ground_speed > 0.1f) {
-      const Vector3 brakingDirection = ground_velocity * (-1.0f / ground_speed);
-      const float brakingAccelerationMag = max_braking_force / mass;
-      const Vector3 brakingAcceleration = brakingDirection * brakingAccelerationMag;
+    if (float ground_speed = Vector3Length(ground_velocity); ground_speed > 0.1f) {
+      const Vector3 braking_direction = ground_velocity * (-1.0f / ground_speed);
+      const float braking_acceleration_mag = max_braking_force / mass;
+      const Vector3 braking_acceleration = braking_direction * braking_acceleration_mag;
 
-      player.velocity = player.velocity + brakingAcceleration * dt;
+      player.velocity = player.velocity + braking_acceleration * dt;
 
       // don't go back...
-      const Vector3 new_ground_velocity = {player.velocity.x, 0.0f, player.velocity.z};
-      if (Vector3DotProduct(ground_velocity, new_ground_velocity) < 0.0f) {
+      if (const Vector3 new_ground_velocity = {player.velocity.x, 0.0f, player.velocity.z}; Vector3DotProduct(ground_velocity, new_ground_velocity) < 0.0f) {
         player.velocity.x = 0.0f;
         player.velocity.z = 0.0f;
       }
@@ -97,23 +96,15 @@ void physics(entt::registry& registry, const float dt) {
     }
   }
 
-  // --- Force vectors (world space) ---
-  const auto thrustForce = player.forward * thrust;
-  const auto dragForce = player.forward * -drag;
-  const auto liftForce = player.up * lift;
-  const auto weightForce = gravity() * mass;
+  // force vectors
+  const auto thrust_force = player.forward * thrust;
+  const auto drag_force = player.forward * -drag;
+  const auto lift_force = player.up * lift;
+  const auto weight_force = gravity() * mass;
 
-  // todo on ground, add friction force
-  // todo on ground, add brakes friction force
-  // conf.frictionCoefficient
-
-  const auto total = thrustForce + dragForce + weightForce + liftForce;
+  const auto total = thrust_force + drag_force + weight_force + lift_force;
   const auto acceleration = total * 1 / mass;
 
-  // todo  keeping forces globally only for debug view, remove later
-  // registry.ctx().insert_or_assign(Forces{thrust, drag, lift, mass, acceleration});
-
-  // --- Euler integration ---
   player.velocity = player.velocity + acceleration * dt;
   player.speed = Vector3Length(player.velocity);
 

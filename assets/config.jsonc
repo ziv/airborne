@@ -53,7 +53,7 @@
         "maxRelativeHeight": 3500,
         // 104.65,
         "heightMapSizeRatio": 105,
-        "heightAboveGround": 3
+        "heightAboveGround": 5
       },
       // todo not needed anymore, but still used for stall warning
       "groundCheck": {

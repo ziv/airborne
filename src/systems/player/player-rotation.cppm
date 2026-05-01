@@ -18,10 +18,10 @@ void rotation(entt::registry& registry, const float dt) {
   if (const float angular_speed = Vector3Length(player.angular_velocity); angular_speed > 0.0001f) {
     if (!is_player_flying(registry)) {
       // no roll on ground
-      // player.angular_velocity.z = 0.0f;
+      player.angular_velocity.z = 0.0f;
       // no nose down on ground
       // unless nose is already up
-      // player.angular_velocity.x = player.angular_velocity.x <= 0.0f || player.forward.y >= 0.0f ? player.angular_velocity.x : 0.0f;
+      player.angular_velocity.x = player.angular_velocity.x <= 0.0f || player.forward.y >= 0.0f ? player.angular_velocity.x : 0.0f;
     }
 
     const float rotation_angle = angular_speed * dt;

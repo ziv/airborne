@@ -146,10 +146,9 @@ class streamer {
   }
 
   void show_debug_data() const {
-    DrawText("TILE STREAMER DEBUG DATA", 15, 200, 15, BLACK);
-    DrawText(TextFormat("Desired tiles: %d", static_cast<int>(desired_tiles.size())), 15, 235, 15, BLUE);
-    DrawText(TextFormat("Rendered tiles: %d", static_cast<int>(rendered_tiles.size())), 15, 255, 15, BLUE);
-    DrawText(TextFormat("Threads: %d", threads), 15, 275, 15, BLUE);
+    DrawText(TextFormat("desired tiles: %d", static_cast<int>(desired_tiles.size())), 15, 280, 10, BLACK);
+    DrawText(TextFormat("rendered tiles: %d", static_cast<int>(rendered_tiles.size())), 15, 295, 10, BLACK);
+    DrawText(TextFormat("threads: %d", threads), 15, 310, 10, BLACK);
   }
 
   void update(entt::registry& registry) {
