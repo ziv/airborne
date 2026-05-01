@@ -25,11 +25,7 @@ import TileDownloader;
 /// 3. Map tiles downloaded on demand from TomTom (road style)
 /// 4. Supports all zoom levels 1–20 (zoom < 12 uses tiles larger than TILE_SIZE_12)
 
-// ---------------------------------------------------------------------------
-// Constants — anchor tile matches terrain streamer's BASE_X / BASE_Z at z12.
-// ---------------------------------------------------------------------------
-
-constexpr int MAP_GRID_HALF = 2;          // tiles in each direction → 5×5 grid
+constexpr int MAP_GRID_HALF = 1;          // tiles in each direction → 5×5 grid
 constexpr int MAP_TILE_PX = 256;          // each downloaded tile is 256×256 px
 constexpr float TILE_SIZE_Z12 = 9783.9f;  // world metres per z12 tile (matches terrain streamer)
 constexpr int MAP_BASE_X = 2444;          // geographic TMS x of local-origin tile at zoom 12
@@ -52,24 +48,19 @@ int world_to_geo(const float world, const int base, const int zoom) {
 }
 
 // Compute the local tile index for a world coordinate at the given zoom.
-int world_to_local(const float world, const int zoom) {
-  return static_cast<int>(std::floor(world / map_tile_size(zoom)));
-}
+int world_to_local(const float world, const int zoom) { return static_cast<int>(std::floor(world / map_tile_size(zoom))); }
 
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
 
-int map_tile_id(const int zoom, const int x, const int z) {
-  return static_cast<int>(entt::hashed_string(TextFormat("map_tile_%d_%d_%d", zoom, x, z)).value());
-}
+int map_tile_id(const int zoom, const int x, const int z) { return static_cast<int>(entt::hashed_string(TextFormat("map_tile_%d_%d_%d", zoom, x, z)).value()); }
 
 Image load_map_tile(const int zoom, const int geo_tx, const int geo_tz) {
   const std::string path = std::format("assets/tiles/map/{}/{}/{}.png", zoom, geo_tx, geo_tz);
-  const auto tomtom_token = std::string(std::getenv("TOMTOM_TOKEN") ? std::getenv("TOMTOM_TOKEN") : "");
+  const auto tomtom_token = std::string(std::getenv("TOMTOM_TOKEN"));
   const std::string url = tile_downloader::map_url(zoom, geo_tx, geo_tz, tomtom_token);
-  // todo fix me, should be done in a thread and not in main process
-  // tile_downloader::enqueue(path, url).wait();
+  tile_downloader::enqueue(path, url).wait();
   return LoadImage(path.c_str());
 }
 
@@ -81,18 +72,18 @@ Image load_map_tile(const int zoom, const int geo_tx, const int geo_tz) {
 export struct AsyncMapTileLoad {
   std::future<Image> future;
   int zoom = 14;
-  int x = 0;     // local index
+  int x = 0;  // local index
   int z = 0;
-  int geo_x = 0; // geographic TMS index
+  int geo_x = 0;  // geographic TMS index
   int geo_z = 0;
 };
 
 export struct MapTile {
   int tex_id = 0;  // key into rm.textures
   int zoom = 14;
-  int x = 0;       // local index
+  int x = 0;  // local index
   int z = 0;
-  int geo_x = 0;   // geographic TMS index (used for rendering position)
+  int geo_x = 0;  // geographic TMS index (used for rendering position)
   int geo_z = 0;
 };
 
@@ -100,35 +91,29 @@ export struct MapTile {
 // Streamer
 // ---------------------------------------------------------------------------
 
-export namespace map_streamer {
-
 struct TileKey {
-  int zoom, x, z;        // local indices (used for tracking + rendering)
+  int zoom, x, z;            // local indices (used for tracking + rendering)
   int geo_x = 0, geo_z = 0;  // geographic TMS indices (used for download)
   // Comparison only on logical identity — zoom+local coords.
   bool operator==(const TileKey& o) const { return zoom == o.zoom && x == o.x && z == o.z; }
-  bool operator<(const TileKey& o)  const {
+  bool operator<(const TileKey& o) const {
     if (zoom != o.zoom) return zoom < o.zoom;
-    if (x != o.x)      return x < o.x;
+    if (x != o.x) return x < o.x;
     return z < o.z;
   }
 };
 
+export namespace map_streamer {
+
 class streamer {
-  std::map<TileKey, entt::entity> tracked_tiles;  // all tiles currently alive
+  std::map<TileKey, entt::entity> tracked_tiles;
 
  public:
-  // ------------------------------------------------------------------
-  // update() — call once per frame (before draw).
-  // Computes the desired 5×5 grid for the current player position and
-  // map_zoom, spawns missing tiles, evicts stale ones.
-  // ------------------------------------------------------------------
   void update(entt::registry& registry) {
     const auto& player = get_player(registry);
     const auto pos = player.absolute_position();
 
-    // Read map_zoom from the minimap widget (first one found).
-    int map_zoom = 14;
+    int map_zoom = 12;
     if (const auto view = registry.view<MinimapWidget>(); !view.empty()) {
       map_zoom = registry.get<MinimapWidget>(view.front()).map_zoom;
     }
@@ -136,71 +121,54 @@ class streamer {
     const int cx = world_to_local(pos.x, map_zoom);
     const int cz = world_to_local(pos.z, map_zoom);
 
-    // Geo tile of the player's exact position — computed once in float to avoid
+    // geo tile of the player's exact position — computed once in float to avoid
     // integer truncation errors that grow at coarser zoom levels.
     const int geo_cx = world_to_geo(pos.x, MAP_BASE_X, map_zoom);
     const int geo_cz = world_to_geo(pos.z, MAP_BASE_Z, map_zoom);
 
-    // Build desired set.  Local and geo offsets step together by the same delta.
     std::set<TileKey> desired;
     for (int dx = -MAP_GRID_HALF; dx <= MAP_GRID_HALF; ++dx)
-      for (int dz = -MAP_GRID_HALF; dz <= MAP_GRID_HALF; ++dz)
-        desired.insert({map_zoom, cx + dx, cz + dz, geo_cx + dx, geo_cz + dz});
+      for (int dz = -MAP_GRID_HALF; dz <= MAP_GRID_HALF; ++dz) desired.insert({map_zoom, cx + dx, cz + dz, geo_cx + dx, geo_cz + dz});
 
     // Spawn newly desired tiles.
     for (const auto& key : desired) {
       if (!tracked_tiles.contains(key)) tracked_tiles[key] = spawn_tile(registry, key);
     }
 
-    // Evict tiles no longer desired.
-    for (auto it = tracked_tiles.begin(); it != tracked_tiles.end();) {
-      if (desired.contains(it->first)) {
-        ++it;
-        continue;
-      }
-      const auto& [key, entity] = *it;
-      auto& rm = get_resource_manager(registry);
-      const int tid = map_tile_id(key.zoom, key.x, key.z);
-      rm.textures.erase(tid);
+  // evict tiles no longer desired.
+  std:
+    erase_if(tracked_tiles, [&](const auto& item) {
+      const auto [key, entity] = item;
+      if (desired.contains(key)) return false;
+      get_resource_manager(registry).textures.erase(map_tile_id(key.zoom, key.x, key.z));
       registry.destroy(entity);
-      // TraceLog(LOG_DEBUG, "map tile evicted z%d %d %d", key.zoom, key.x, key.z);
-      it = tracked_tiles.erase(it);
-    }
+      return true;
+    });
   }
 
-  // ------------------------------------------------------------------
-  // process_loaded_tiles() — call once per frame (after update).
-  // Promotes one finished AsyncMapTileLoad to MapTile per frame to
-  // avoid stutter.
-  // ------------------------------------------------------------------
   void process_loaded_tiles(entt::registry& registry) {
     for (const auto view = registry.view<AsyncMapTileLoad>(); const auto [entity, tile] : view.each()) {
       if (tile.future.wait_for(std::chrono::seconds(0)) != std::future_status::ready) continue;
 
-      Image img = tile.future.get();
+      const Image img = tile.future.get();
       const Texture2D tex = LoadTextureFromImage(img);
       UnloadImage(img);
 
-      const int zoom  = tile.zoom;
-      const int tx    = tile.x;
-      const int tz    = tile.z;
+      const int zoom = tile.zoom;
+      const int tx = tile.x;
+      const int tz = tile.z;
       const int geo_x = tile.geo_x;
       const int geo_z = tile.geo_z;
-      const int tid   = map_tile_id(zoom, tx, tz);
+      const int tid = map_tile_id(zoom, tx, tz);
 
-      auto& rm = get_resource_manager(registry);
-      rm.textures.load(tid, tex);
+      get_resource_manager(registry).textures.load(tid, tex);
 
-      registry.remove<AsyncMapTileLoad>(entity);
       registry.emplace<MapTile>(entity, tid, zoom, tx, tz, geo_x, geo_z);
-      // TraceLog(LOG_DEBUG, "map tile loaded z%d local(%d,%d) geo(%d,%d)", zoom, tx, tz, geo_x, geo_z);
-      break;  // one per frame
+      registry.remove<AsyncMapTileLoad>(entity);
+      break;
     }
   }
 
-  // ------------------------------------------------------------------
-  // Returns the rm.textures key for a loaded tile, or -1 if not ready.
-  // ------------------------------------------------------------------
   [[nodiscard]] static int get_tile_tex(entt::registry& registry, const int zoom, const int x, const int z) {
     const int tid = map_tile_id(zoom, x, z);
     return get_resource_manager(registry).textures.contains(tid) ? tid : -1;
@@ -209,12 +177,8 @@ class streamer {
  private:
   static entt::entity spawn_tile(entt::registry& registry, const TileKey& key) {
     const auto entity = registry.create();
-    // Geo coords were computed in update() via world_to_geo — use them directly.
-    auto task = std::async(std::launch::async, [zoom = key.zoom, geo_tx = key.geo_x, geo_tz = key.geo_z]() {
-      return load_map_tile(zoom, geo_tx, geo_tz);
-    });
+    auto task = std::async(std::launch::async, [zoom = key.zoom, geo_tx = key.geo_x, geo_tz = key.geo_z]() { return load_map_tile(zoom, geo_tx, geo_tz); });
     registry.emplace<AsyncMapTileLoad>(entity, std::move(task), key.zoom, key.x, key.z, key.geo_x, key.geo_z);
-    // TraceLog(LOG_DEBUG, "map tile spawned z%d local(%d,%d) geo(%d,%d)", key.zoom, key.x, key.z, key.geo_x, key.geo_z);
     return entity;
   }
 };

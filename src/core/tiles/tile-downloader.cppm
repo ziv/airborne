@@ -34,6 +34,10 @@ std::string map_url(const int zoom, const int x, const int z, const std::string&
   return std::format("https://api.tomtom.com/map/1/tile/basic/main/{}/{}/{}.png?tileSize=256&view=Unified&language=NGT&key={}", zoom, x, z, token);
 }
 
+std::string night_url(const int zoom, const int x, const int z, const std::string& token) {
+  return std::format("https://api.tomtom.com/map/1/tile/basic/night/{}/{}/{}.png?tileSize=256&view=Unified&language=NGT&key={}", zoom, x, z, token);
+}
+
 // ---------------------------------------------------------------------------
 // Thread pool with deduplication
 // ---------------------------------------------------------------------------
