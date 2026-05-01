@@ -446,21 +446,6 @@
   ],
   "resources": [
     {
-      "name": "world-tex",
-      "type": "texture",
-      "path": "assets/images/north-tx-2048.jpg"
-    },
-    {
-      "name": "world-hm",
-      "type": "image",
-      "path": "assets/tiles/north/heightmap.png"
-    },
-    {
-      "name": "minimap-tex",
-      "type": "texture",
-      "path": "assets/tiles/north/map.png"
-    },
-    {
       "name": "cockpit-tex",
       "type": "texture",
       "path": "assets/images/cockpit-z.png"

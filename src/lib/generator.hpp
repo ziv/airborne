@@ -1,5 +1,6 @@
 #pragma once
 #include <coroutine>
+#include <exception>
 
 template <typename T>
 struct Generator {

@@ -58,22 +58,24 @@ Generator<int> make_setup_sequence(entt::registry& registry, const nlohmann::jso
 
 export class Game {
   entt::registry& registry;
-  Camera camera = {};
   nlohmann::json scene;
   Generator<int> setup_gen;
   terrain_streamer::streamer streamer;
   map_streamer::streamer map_str;
+  Camera camera = {};
 
  public:
-  explicit Game(entt::registry& reg)
-      : registry(reg), scene(parse_json_file(resources::scenario_path)), setup_gen(make_setup_sequence(reg, scene)), streamer(reg) {
+  explicit Game(entt::registry& reg, const nlohmann::json& s)
+      : registry(reg),  // keep aligned
+        scene(s),
+        setup_gen(make_setup_sequence(reg, s)),
+        streamer(reg) {
     camera.up = world_up();
     camera.projection = CAMERA_PERSPECTIVE;
-    // setup_gen = make_setup_sequence(registry, scene);
   }
 
   ~Game() {
-    registry.ctx().erase<ResourceManager>();
+    // todo if we clear here and want to re-create the game, what happened to the loaded items?
     registry.clear();
   }
 

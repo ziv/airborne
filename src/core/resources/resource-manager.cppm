@@ -2,7 +2,7 @@ module;
 #include <raylib.h>
 
 #include <entt/entt.hpp>
-#include <memory>
+#include <nlohmann/json.hpp>
 #include <string>
 
 export module ResourceManager;
@@ -53,8 +53,8 @@ export struct RenderTextureResourceLoader {
   RenderTexture2D res;
   explicit RenderTextureResourceLoader(RenderTexture2D rt) : res(rt) {}
   ~RenderTextureResourceLoader() { UnloadRenderTexture(res); }
-  RenderTextureResourceLoader(const RenderTextureResourceLoader&) = delete;
-  RenderTextureResourceLoader& operator=(const RenderTextureResourceLoader&) = delete;
+  RenderTextureResourceLoader(const RenderTextureResourceLoader &) = delete;
+  RenderTextureResourceLoader &operator=(const RenderTextureResourceLoader &) = delete;
 };
 
 export struct ResourceManager {
@@ -72,3 +72,45 @@ constexpr auto MANAGER_ID = entt::hashed_string("ResourceManager");
 export void create_resource_manager(entt::registry &registry) { registry.ctx().emplace_as<ResourceManager>(MANAGER_ID); }
 
 export ResourceManager &get_resource_manager(entt::registry &registry) { return registry.ctx().get<ResourceManager>(MANAGER_ID); }
+
+export void unload_resource_manager(entt::registry &registry) {
+  auto &[textures, models, images, shaders, music_streams, sounds, render_textures] = get_resource_manager(registry);
+  models.clear();
+  images.clear();
+  textures.clear();
+  shaders.clear();
+  music_streams.clear();
+  sounds.clear();
+  render_textures.clear();
+  registry.ctx().erase<ResourceManager>();
+}
+
+export namespace resources {
+
+void load_resource(entt::registry &registry, const nlohmann::json &res) {
+  auto &rm = get_resource_manager(registry);
+  const std::string type = res["type"].get<std::string>();
+  const std::string name = res["name"].get<std::string>();
+  const std::string path = res["path"].get<std::string>();
+  const auto res_id = entt::hashed_string(name.data());
+  TraceLog(LOG_DEBUG, TextFormat("preloading resource '%s' of type '%s' from path '%s'", name.c_str(), type.c_str(), path.c_str()));
+
+  // todo add support for shaders
+  if (type == "texture") {
+    rm.textures.load(res_id, path);
+  } else if (type == "model") {
+    rm.models.load(res_id, path);
+  } else if (type == "image") {
+    rm.images.load(res_id, path);
+  } else if (type == "fragment") {
+    rm.shaders.load(res_id, path);
+  } else if (type == "music") {
+    rm.music_streams.load(res_id, path);
+  } else if (type == "sound") {
+    rm.sounds.load(res_id, path);
+  } else {
+    TraceLog(LOG_WARNING, TextFormat("Unknown resource type '%s' for resource '%s'", type.c_str(), name.c_str()));
+  }
+}
+
+}  // namespace resources
