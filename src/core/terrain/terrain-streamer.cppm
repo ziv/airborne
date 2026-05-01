@@ -266,7 +266,7 @@ class streamer {
     const auto height = static_cast<float>(GetScreenHeight());
 
     for (const auto view = registry.view<TerrainChunk, Position3D>(); const auto [entity, chunk, pos] : view.each()) {
-      if (chunk.zoom != 15) continue;
+      // if (chunk.zoom != 15) continue;
       // Raise the label a bit above the ground for legibility
       const Vector3 world_pos = pos.pos + player.offset + Vector3{0.0f, 200.0f, 0.0f};
 

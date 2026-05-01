@@ -10,6 +10,10 @@ import Types;
 import Components;
 
 void spawn_entity(entt::registry &registry, const nlohmann::json &entity) {
+  if (!entity["components"].is_object()) {
+    TraceLog(LOG_WARNING, "entity %s components is not an object", entity.dump().c_str());
+    return;
+  }
   const auto e = registry.create();
   for (const auto &[key, value] : entity["components"].items()) {
     TraceLog(LOG_DEBUG, "component: %s", key.c_str());
@@ -141,9 +145,7 @@ void spawn_entity(entt::registry &registry, const nlohmann::json &entity) {
 
 export namespace factories {
 
-void spawn_one(entt::registry &registry, const nlohmann::json &entity) {
-  spawn_entity(registry, entity);
-}
+void spawn_one(entt::registry &registry, const nlohmann::json &entity) { spawn_entity(registry, entity); }
 
 void spawn(entt::registry &registry, const nlohmann::json &scene) {
   for (const auto &entity : scene["entities"]) {

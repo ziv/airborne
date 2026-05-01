@@ -1,7 +1,6 @@
 module;
 #include <entt/entt.hpp>
 #include <nlohmann/json.hpp>
-#include <optional>
 
 #include "lib/generator.hpp"
 #include "lib/ray.hpp"
@@ -26,29 +25,30 @@ import GameOptions;
 
 Generator<int> make_setup_sequence(entt::registry& registry, const nlohmann::json& scene) {
   factories::create_player(registry, scene);
-  co_yield 10;
+  co_yield 1;
   factories::create_scene(registry, scene);
-  co_yield 20;
+  co_yield 2;
   factories::create_engine(registry);
-  co_yield 30;
+  co_yield 3;
   factories::create_cockpit(registry);
-  co_yield 40;
+  co_yield 4;
   factories::create_hud(registry);
-  co_yield 50;
+  co_yield 5;
   factories::create_cockpit_widgets(registry);
-  co_yield 55;
+  co_yield 6;
 
   updates::set_minimap(0, registry);
+  co_yield 7;
   // updates::set_engine_status(1, registry);
   updates::set_target_camera(1, registry);
+  co_yield 8;
   updates::set_radar(2, registry);
-  co_yield 65;
+  co_yield 9;
 
-  const auto& entities = scene["entities"];
-  const int n = static_cast<int>(entities.size());
-  for (int i = 0; i < n; ++i) {
-    factories::spawn_one(registry, entities[i]);
-    co_yield 65 + 30 * (i + 1) / std::max(n, 1);  // 65 → 95
+  int c = 0;
+  for (const auto& entity : scene["entities"]) {
+    factories::spawn_one(registry, entity);
+    co_yield 10 + ++c;
   }
 
   npc_systems::setup(registry);
@@ -60,15 +60,16 @@ export class Game {
   entt::registry& registry;
   Camera camera = {};
   nlohmann::json scene;
-  std::optional<Generator<int>> setup_gen;
+  Generator<int> setup_gen;
   terrain_streamer::streamer streamer;
   map_streamer::streamer map_str;
 
  public:
-  explicit Game(entt::registry& reg) : registry(reg), scene(parse_json_file(resources::scenario_path)), streamer(reg) {
+  explicit Game(entt::registry& reg)
+      : registry(reg), scene(parse_json_file(resources::scenario_path)), setup_gen(make_setup_sequence(reg, scene)), streamer(reg) {
     camera.up = world_up();
     camera.projection = CAMERA_PERSPECTIVE;
-    setup_gen.emplace(make_setup_sequence(registry, scene));
+    // setup_gen = make_setup_sequence(registry, scene);
   }
 
   ~Game() {
@@ -78,8 +79,7 @@ export class Game {
 
   // advance one setup step. Returns progress [0,100], or -1 when done.
   int setup() {
-    if (setup_gen->next()) return setup_gen->current();
-    setup_gen.reset();
+    if (setup_gen.next()) return setup_gen.current();
     return -1;
   }
 
@@ -141,11 +141,11 @@ export class Game {
     RenderHud(registry);
     RenderRadar(registry);
     render_systems::target_camera(registry);
-    DrawFPS(1050, 780);
     RenderDebug(registry);
     RenderCrashLayout(registry);
 
     game_options::options(registry);
     streamer.show_debug_data();
+    DrawFPS(1050, 780);
   }
 };
