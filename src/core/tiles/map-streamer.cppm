@@ -50,10 +50,6 @@ int world_to_geo(const float world, const int base, const int zoom) {
 // Compute the local tile index for a world coordinate at the given zoom.
 int world_to_local(const float world, const int zoom) { return static_cast<int>(std::floor(world / map_tile_size(zoom))); }
 
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
-
 int map_tile_id(const int zoom, const int x, const int z) { return static_cast<int>(entt::hashed_string(TextFormat("map_tile_%d_%d_%d", zoom, x, z)).value()); }
 
 Image load_map_tile(const int zoom, const int geo_tx, const int geo_tz) {
@@ -135,9 +131,8 @@ class streamer {
       if (!tracked_tiles.contains(key)) tracked_tiles[key] = spawn_tile(registry, key);
     }
 
-  // evict tiles no longer desired.
-  std:
-    erase_if(tracked_tiles, [&](const auto& item) {
+    // evict tiles no longer desired.
+    std::erase_if(tracked_tiles, [&](const auto& item) {
       const auto [key, entity] = item;
       if (desired.contains(key)) return false;
       get_resource_manager(registry).textures.erase(map_tile_id(key.zoom, key.x, key.z));
