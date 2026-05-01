@@ -64,10 +64,10 @@ target_sources(${PROJECT_NAME} PUBLIC
         src/core/resources/raylib-resource.cppm
         src/core/resources/resource-manager.cppm
         src/core/resources/resource-preloader.cppm
-        src/core/terrain/terrain-streamer.cppm
-        src/core/terrain/terrain-utils.cppm
-        src/core/terrain/map-streamer.cppm
-        src/core/tile-downloader.cppm
+        src/core/tiles/terrain-streamer.cppm
+        src/core/tiles/terrain-utils.cppm
+        src/core/tiles/map-streamer.cppm
+        src/core/tiles/tile-downloader.cppm
         src/components/components.cppm
         src/prefabs/prefabs.cppm
         src/prefabs/create-player.cppm
