@@ -51,15 +51,15 @@ std::tuple<AppConfig, nlohmann::json> load_requirements() {
 }
 
 int main() {
+  // setup raylib
   SetTraceLogCallback(CustomLogCallback);
   SetTraceLogLevel(LOG_DEBUG);
   SetConfigFlags(FLAG_WINDOW_RESIZABLE | FLAG_VSYNC_HINT);
 
   try {
-    // const auto app_conf = JsonConfig(resources::config_path).get<AppConfig>("/config");
-    // const auto options = parse_json_file(resources::options_path);
-
     const auto [app_conf, options] = load_requirements();
+
+    // setup devices
     InitWindow(app_conf.global.width, app_conf.global.height, app_conf.global.title.c_str());
     InitAudioDevice();
     rlSetClipPlanes(app_conf.global.nearPlane, app_conf.global.farPlane);
@@ -71,7 +71,7 @@ int main() {
     set_initial_globals(registry, app_conf, options);
 
     auto current = ScreenState::SPLASH;
-    ScreenState next = current;
+    auto next = ScreenState::SPLASH;
     std::unique_ptr<BaseScreen> screen = create_screen(current, registry);
 
     while (!WindowShouldClose()) {

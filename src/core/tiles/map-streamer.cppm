@@ -66,7 +66,7 @@ Image load_map_tile(const int zoom, const int geo_tx, const int geo_tz) {
 // ---------------------------------------------------------------------------
 
 export struct AsyncMapTileLoad {
-  std::future<Image> future;
+  std::shared_future<Image> future;
   int zoom = 14;
   int x = 0;  // local index
   int z = 0;
@@ -87,12 +87,13 @@ export struct MapTile {
 // Streamer
 // ---------------------------------------------------------------------------
 
-struct TileKey {
+struct MapKey {
   int zoom, x, z;            // local indices (used for tracking + rendering)
   int geo_x = 0, geo_z = 0;  // geographic TMS indices (used for download)
-  // Comparison only on logical identity — zoom+local coords.
-  bool operator==(const TileKey& o) const { return zoom == o.zoom && x == o.x && z == o.z; }
-  bool operator<(const TileKey& o) const {
+
+  // comparison only on logical identity — zoom+local coords.
+  bool operator==(const MapKey& o) const { return zoom == o.zoom && x == o.x && z == o.z; }
+  bool operator<(const MapKey& o) const {
     if (zoom != o.zoom) return zoom < o.zoom;
     if (x != o.x) return x < o.x;
     return z < o.z;
@@ -102,11 +103,12 @@ struct TileKey {
 export namespace map_streamer {
 
 class streamer {
-  std::map<TileKey, entt::entity> tracked_tiles;
+  std::map<MapKey, entt::entity> tracked_tiles;
   std::string token;
 
  public:
   explicit streamer(entt::registry& registry) : token(get_options(registry).maps_token) {}
+
   void update(entt::registry& registry) {
     const auto& player = get_player(registry);
     const auto pos = player.absolute_position();
@@ -124,7 +126,7 @@ class streamer {
     const int geo_cx = world_to_geo(pos.x, MAP_BASE_X, map_zoom);
     const int geo_cz = world_to_geo(pos.z, MAP_BASE_Z, map_zoom);
 
-    std::set<TileKey> desired;
+    std::set<MapKey> desired;
     for (int dx = -MAP_GRID_HALF; dx <= MAP_GRID_HALF; ++dx)
       for (int dz = -MAP_GRID_HALF; dz <= MAP_GRID_HALF; ++dz) desired.insert({map_zoom, cx + dx, cz + dz, geo_cx + dx, geo_cz + dz});
 
@@ -172,10 +174,14 @@ class streamer {
   }
 
  private:
-  static entt::entity spawn_tile(entt::registry& registry, const TileKey& key) {
+  entt::entity spawn_tile(entt::registry& registry, const MapKey& key) const {
+    const std::string path = std::format("assets/tiles/map/{}/{}/{}.png", key.zoom, key.geo_x, key.geo_z);
+    const std::string url = tile_downloader::map_url(key.zoom, key.geo_x, key.geo_z, token);
+
+    auto tex_future = tile_downloader::enqueue_and_load(path, url);
+
     const auto entity = registry.create();
-    auto task = std::async(std::launch::async, [zoom = key.zoom, geo_tx = key.geo_x, geo_tz = key.geo_z]() { return load_map_tile(zoom, geo_tx, geo_tz); });
-    registry.emplace<AsyncMapTileLoad>(entity, std::move(task), key.zoom, key.x, key.z, key.geo_x, key.geo_z);
+    registry.emplace<AsyncMapTileLoad>(entity, tex_future, key.zoom, key.x, key.z, key.geo_x, key.geo_z);
     return entity;
   }
 };
