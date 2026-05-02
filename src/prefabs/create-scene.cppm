@@ -33,6 +33,10 @@ void create_scene(entt::registry &registry, const nlohmann::json &scene) {
     const auto sky = LoadShader(resources::sky_vertex_shader_path, resources::sky_fragment_shader_path);
     SetShaderValue(sky, GetShaderLocation(sky, "zenithColor"), &dayZenith, SHADER_UNIFORM_VEC3);
     SetShaderValue(sky, GetShaderLocation(sky, "horizonColor"), &dayHorizon, SHADER_UNIFORM_VEC3);
+
+    // todo add variable to control the clouds color
+    // todo add color ambient like in terrain
+    // SetShaderValue(sky, GetShaderLocation(sky, "cloudColor"), &dayHorizon, SHADER_UNIFORM_VEC3);
     assets.shaders.load(resources::sky_shader, sky);
   }
 

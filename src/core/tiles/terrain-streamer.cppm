@@ -118,6 +118,12 @@ class streamer {
     constexpr float heightScale = 1.0;
     const int scaleLoc = GetShaderLocation(displacement_shader, "heightScale");
     SetShaderValue(displacement_shader, scaleLoc, &heightScale, SHADER_UNIFORM_FLOAT);
+
+    // todo read colors from scene for the light ambient
+    const int ambientLoc = GetShaderLocation(displacement_shader, "ambientLight");
+    float currentLight[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
+    SetShaderValue(displacement_shader, ambientLoc, currentLight, SHADER_UNIFORM_VEC4);
+
   }
 
   ~streamer() {
