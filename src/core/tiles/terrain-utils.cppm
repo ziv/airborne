@@ -69,6 +69,13 @@ constexpr Meter tile_size_for_zoom(const int zoom) {
 int get_tex_id(const int zoom, const int x, const int z) { return entt::hashed_string(TextFormat("tile_tex_%d_%d_%d", zoom, x, z)); }
 int get_height_id(const int zoom, const int x, const int z) { return entt::hashed_string(TextFormat("tile_height_%d_%d_%d", zoom, x, z)); }
 
+int get_height_id_by_position(const int zoom, const Vector3& pos) {
+  const float tile_size = tile_size_for_zoom(zoom);
+  const int tx = static_cast<int>(std::floor(pos.x / tile_size));
+  const int tz = static_cast<int>(std::floor(pos.z / tile_size));
+  return get_height_id(zoom, tx, tz);
+}
+
 // remove tile's dependencies
 void unload_tile_resources(ResourceManager& rm, const int zoom, const int x, const int z) {
   rm.textures.erase(get_tex_id(zoom, x, z));

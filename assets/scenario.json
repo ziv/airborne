@@ -91,6 +91,11 @@
           "weapon_prefab_id": "missile_sea_sparrow",
           "fire_rate_rpm": 1,
           "capacity": 24
+        },
+        "landing_zone": {
+          "runway_length_m": 500,
+          "runway_width_m": 80,
+          "elevation_m": 11
         }
       }
     },

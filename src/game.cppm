@@ -36,24 +36,28 @@ Generator<int> make_setup_sequence(entt::registry& registry, const nlohmann::jso
   co_yield 5;
   factories::create_cockpit_widgets(registry);
   co_yield 6;
-
   updates::set_minimap(0, registry);
   co_yield 7;
-  // updates::set_engine_status(1, registry);
-  updates::set_target_camera(1, registry);
+  updates::set_engine_status(1, registry);
+  // updates::set_target_camera(1, registry);
   co_yield 8;
   updates::set_radar(2, registry);
   co_yield 9;
 
-  int c = 0;
-  for (const auto& entity : scene["entities"]) {
-    factories::spawn_one(registry, entity);
-    co_yield 10 + ++c;
+  if (scene.contains("entities") && scene["entities"].is_array()) {
+    int c = 10;
+    for (const auto& entity : scene["entities"]) {
+      factories::spawn(registry, entity);
+      co_yield std::min(c++, 90);
+    }
   }
 
   map_streamer::setup(registry);
+  co_yield 91;
 
   npc_systems::setup(registry);
+  co_yield 92;
+
   registry.ctx().get<GameState>().status = GameStatus::PLAYING;
   co_yield 100;
 }

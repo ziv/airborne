@@ -10,20 +10,27 @@ import Types;
 import Components;
 
 void spawn_entity(entt::registry &registry, const nlohmann::json &entity) {
+  if (!entity.contains("components")) {
+    TraceLog(LOG_WARNING, "entity %s has no components", entity.dump().c_str());
+    return;
+  }
+
   if (!entity["components"].is_object()) {
     TraceLog(LOG_WARNING, "entity %s components is not an object", entity.dump().c_str());
     return;
   }
   const auto e = registry.create();
-  for (const auto &[key, value] : entity["components"].items()) {
-    TraceLog(LOG_DEBUG, "component: %s", key.c_str());
 
+  for (const auto &[key, value] : entity["components"].items()) {
     if ("entity_id" == key) {
       const auto id = value["id"].get<std::string>();
       const auto name = value["name"].get<std::string>();
       registry.emplace<Identify>(e, id, name);
+      TraceLog(LOG_DEBUG, "spawning component [%s]", id.c_str());
       continue;
     }
+
+    TraceLog(LOG_DEBUG, "  > %s", key.c_str());
 
     if ("type" == key) {
       const auto type = value.get<EntityType>();
@@ -116,9 +123,15 @@ void spawn_entity(entt::registry &registry, const nlohmann::json &entity) {
     }
 
     if ("landing_zone" == key) {
-      const auto runway_length_m = value["runway_length_m"].get<int>();
-      const auto runway_width_m = value["runway_width_m"].get<int>();
-      const auto elevation_m = value["elevation_m"].get<int>();
+      const auto runway_length_m = value["runway_length_m"].get<float>();
+      const auto runway_width_m = value["runway_width_m"].get<float>();
+      const auto elevation_m = value["elevation_m"].get<float>();
+
+      // calculate landing zone
+      // const float halfWidth = landable.carrier ? 100.0f : 200.0f;
+      // const float halfLength = landable.carrier ? 250.0f : 2000.0f;
+      // const float surfaceY = landable.carrier ? 8.0f : 0.0f;
+
       registry.emplace<LandingZone>(e, runway_length_m, runway_width_m, elevation_m);
       continue;
     }
@@ -145,11 +158,5 @@ void spawn_entity(entt::registry &registry, const nlohmann::json &entity) {
 
 export namespace factories {
 
-void spawn_one(entt::registry &registry, const nlohmann::json &entity) { spawn_entity(registry, entity); }
-
-void spawn(entt::registry &registry, const nlohmann::json &scene) {
-  for (const auto &entity : scene["entities"]) {
-    spawn_entity(registry, entity);
-  }
-}
+void spawn(entt::registry &registry, const nlohmann::json &entity) { spawn_entity(registry, entity); }
 }  // namespace factories

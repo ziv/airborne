@@ -278,9 +278,9 @@ export struct Weapons {
 };
 
 export struct LandingZone {
-  int runway_length_m;
-  int runway_width_m;
-  int elevation_m;
+  float runway_length_m;
+  float runway_width_m;
+  float elevation_m;
 };
 
 export struct Waypoints {

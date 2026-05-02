@@ -1,6 +1,5 @@
 module;
 #include <entt/entt.hpp>
-#include <utility>
 
 #include "../../lib/ray.hpp"
 
@@ -19,48 +18,47 @@ struct LandingZoneRet {
   float surface_y;
 };
 
+LandingZoneRet get_landing_zone(entt::registry &registry, const Vector3 &absolute_position, const bool gear) {
+  // we are not checking for landing zone when gear is up
+  if (!gear) {
+    return {false, false, 0.0f};
+  }
+  for (const auto view = registry.view<Landable, Position3D, Heading, LandingZone>(); const auto [entity, landable, pos, heading, zone] : view.each()) {
+    // check of we are in a landing zone
+    const auto [x, y, z] = absolute_position;
 
-LandingZoneRet get_landing_zone(entt::registry &registry, const Vector3 &absolute_position) {
-  // update ground height
-  // if there is a carrier below us, the ground height will be 12
-  const auto view = registry.view<Landable, Position3D, Heading>();
-  for (const auto [entity, landable, pos, heading] : view.each()) {
-    // check if the carrier is below us
+    if (constexpr auto height = 50; y > zone.elevation_m + height) continue;
 
-    // airbase/carrier position in the aircraft coordinate frame
-    // const auto landingPosition = pos.pos + offset;
-    // TraceLog(LOG_DEBUG, "Checking landing zone for entity %d at position:
-    // (%f, %f)", entity, landingPosition.x, landingPosition.z);
+    // is always align to 0, 90, 180 or 270
+    auto width = zone.runway_width_m / 2.0f;
+    auto len = zone.runway_length_m / 2.0f;
+    if (heading.heading == 90.0f || heading.heading == 270.0f) std::swap(width, len);
 
-    // vector from entity center to aircraft (XZ plane)
-    const float dx = absolute_position.x - pos.pos.x;
-    const float dz = absolute_position.z - pos.pos.z;
-    // TraceLog(LOG_DEBUG, "Relative position to entity %d: dx = %f, dz = %f",
-    // entity, dx, dz);
+    if (x < pos.pos.x - width || x > pos.pos.x + width) continue;
+    if (z < pos.pos.z - len || z > pos.pos.z + len) continue;
 
-    // half-extents: short side (width) across heading, long side along
-    // heading
-    const float halfWidth = landable.carrier ? 100.0f : 200.0f;
-    const float halfLength = landable.carrier ? 250.0f : 2000.0f;
-    const float surfaceY = landable.carrier ? 8.0f : 0.0f;
-
-    // rotate into the entity's heading-aligned frame
-    // heading 0 → forward = +Z, heading 90 → forward = +X
-    const float rad = heading.heading * DEG2RAD;
-    const float cosH = cosf(rad);
-    const float sinH = sinf(rad);
-    const float localAlong = dx * sinH + dz * cosH;   // along runway
-    const float localAcross = dx * cosH - dz * sinH;  // across runway
-
-    // 2D footprint check
-    if (fabsf(localAlong) >= halfLength) continue;
-    if (fabsf(localAcross) >= halfWidth) continue;
-
-    // vertical check — aircraft must be inside the 3D box:
-    if (constexpr float LANDING_BOX_HEIGHT = 150.0f; absolute_position.y > surfaceY + LANDING_BOX_HEIGHT) continue;
-    return {true, landable.carrier, surfaceY};
+    return {true, landable.carrier, zone.elevation_m};
   }
   return {false, false, 0.0f};
+}
+
+void update_large_world_offset(Player &player, const float threshold) {
+  if (player.pos.x > threshold) {
+    player.pos.x -= threshold;
+    player.offset.x -= threshold;
+  }
+  if (player.pos.x < -threshold) {
+    player.pos.x += threshold;
+    player.offset.x += threshold;
+  }
+  if (player.pos.z > threshold) {
+    player.pos.z -= threshold;
+    player.offset.z -= threshold;
+  }
+  if (player.pos.z < -threshold) {
+    player.pos.z += threshold;
+    player.offset.z += threshold;
+  }
 }
 
 export namespace player_systems {
@@ -72,42 +70,25 @@ void position(entt::registry &registry, const float dt) {
   auto [player, gh, inputs] = registry.get<Player, GroundHeight, const PlayerInputs>(entity);
 
   // update position
-  player.pos = player.pos + (player.velocity * dt);
+  player.pos = player.pos + player.velocity * dt;
 
-  const auto THRESHOLD = conf.threshold;
-  // update offset (large numbers)
-  if (player.pos.x > THRESHOLD) {
-    player.pos.x -= THRESHOLD;
-    player.offset.x -= THRESHOLD;
-  }
-  if (player.pos.x < -THRESHOLD) {
-    player.pos.x += THRESHOLD;
-    player.offset.x += THRESHOLD;
-  }
-  if (player.pos.z > THRESHOLD) {
-    player.pos.z -= THRESHOLD;
-    player.offset.z -= THRESHOLD;
-  }
-  if (player.pos.z < -THRESHOLD) {
-    player.pos.z += THRESHOLD;
-    player.offset.z += THRESHOLD;
-  }
+  update_large_world_offset(player, conf.threshold);
 
   const auto absolute_position = player.pos - player.offset;
 
-  // update ground height
-  gh.height = terrain_streamer::ground_height_at(registry, absolute_position);
-
   // are we above a landing zone? (carrier is more than ground height - sea
   // level in this case)
-  const auto [is_landing_zone, is_carrier, surface_y] = inputs.gear ? get_landing_zone(registry, absolute_position) : LandingZoneRet{false, false, 0.0f};
+  const auto [is_landing_zone, is_carrier, surface_y] = get_landing_zone(registry, absolute_position, inputs.gear);
 
-  // if we are in a landing zone, add it to the player
-  if (is_landing_zone && !registry.all_of<LandingZoneDef>(entity))
+  // if we are in a landing zone, add its definition to the player
+  if (is_landing_zone) {
     registry.emplace_or_replace<LandingZoneDef>(entity, is_landing_zone, is_carrier, surface_y);
+  } else {
+    registry.remove<LandingZoneDef>(entity);
+  }
 
-  // if we are not in a landing zone, remove it from the user
-  if (!is_landing_zone && registry.all_of<LandingZoneDef>(entity)) registry.remove<LandingZoneDef>(entity);
+  // update ground height
+  gh.height = terrain_streamer::ground_height_at(registry, absolute_position);
 
   // update effective ground height
   gh.effectiveGroundHeight = is_landing_zone ? fmaxf(gh.height, surface_y) : gh.height;
@@ -129,21 +110,21 @@ void position(entt::registry &registry, const float dt) {
       registry.emplace<TouchDown>(entity);
       TraceLog(LOG_WARNING, "[Grounded], [TouchDown] added to player");
     }
-
-    if (registry.remove<Flying>(entity)) TraceLog(LOG_WARNING, "[Grounded] removed from player");
+    // in any case we are surely not flying right now
+    if (registry.remove<Flying>(entity)) TraceLog(LOG_DEBUG, "[Flying] removed from player");
   }
 
+  // this is where we are flying
   if (player.pos.y > ground_height + 1.0f) {
-    if (registry.remove<Grounded>(entity)) TraceLog(LOG_WARNING, "[Grounded] removed from player");
-
-    if (registry.remove<TouchDown>(entity)) TraceLog(LOG_WARNING, "[TouchDown] removed from player");
-
+    if (registry.remove<Grounded>(entity)) TraceLog(LOG_DEBUG, "[Grounded] removed from player");
+    if (registry.remove<TouchDown>(entity)) TraceLog(LOG_DEBUG, "[TouchDown] removed from player");
     if (!registry.all_of<Flying>(entity)) {
       registry.emplace<Flying>(entity);
-      TraceLog(LOG_WARNING, "[Flying] added to player");
+      TraceLog(LOG_DEBUG, "[Flying] added to player");
     }
   }
 
-  player.abs_pos = absolute_position;
+  // last, calculate again...
+  player.abs_pos = player.pos - player.offset;
 }
 }  // namespace player_systems
