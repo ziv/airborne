@@ -96,7 +96,7 @@ struct MapStreamer {
   std::string token;
 };
 
-entt::entity spawn_tile(entt::registry& registry, const MapKey& key, const std::string token) const {
+entt::entity spawn_tile(entt::registry& registry, const MapKey& key, const std::string &token) {
   const std::string path = std::format("assets/tiles/map/{}/{}/{}.png", key.zoom, key.geo_x, key.geo_z);
   const std::string url = tile_downloader::map_url(key.zoom, key.geo_x, key.geo_z, token);
 
@@ -175,88 +175,88 @@ void process_loaded_tiles(entt::registry& registry) {
   }
 }
 
-class streamer {
-  std::map<MapKey, entt::entity> tracked_tiles;
-  std::string token;
-
- public:
-  explicit streamer(entt::registry& registry) : token(get_options(registry).maps_token) {}
-
-  void update(entt::registry& registry) {
-    const auto& player = get_player(registry);
-    const auto pos = player.absolute_position();
-
-    int map_zoom = 12;
-    if (const auto view = registry.view<MinimapWidget>(); !view.empty()) {
-      map_zoom = registry.get<MinimapWidget>(view.front()).map_zoom;
-    }
-
-    const int cx = world_to_local(pos.x, map_zoom);
-    const int cz = world_to_local(pos.z, map_zoom);
-
-    // geo tile of the player's exact position — computed once in float to avoid
-    // integer truncation errors that grow at coarser zoom levels.
-    const int geo_cx = world_to_geo(pos.x, MAP_BASE_X, map_zoom);
-    const int geo_cz = world_to_geo(pos.z, MAP_BASE_Z, map_zoom);
-
-    std::set<MapKey> desired;
-    for (int dx = -MAP_GRID_HALF; dx <= MAP_GRID_HALF; ++dx)
-      for (int dz = -MAP_GRID_HALF; dz <= MAP_GRID_HALF; ++dz) desired.insert({map_zoom, cx + dx, cz + dz, geo_cx + dx, geo_cz + dz});
-
-    // Spawn newly desired tiles.
-    for (const auto& key : desired) {
-      if (!tracked_tiles.contains(key)) tracked_tiles[key] = spawn_tile(registry, key);
-    }
-
-    // evict tiles no longer desired.
-    std::erase_if(tracked_tiles, [&](const auto& item) {
-      const auto [key, entity] = item;
-      if (desired.contains(key)) return false;
-      get_resource_manager(registry).textures.erase(map_tile_id(key.zoom, key.x, key.z));
-      registry.destroy(entity);
-      return true;
-    });
-  }
-
-  void process_loaded_tiles(entt::registry& registry) {
-    for (const auto view = registry.view<AsyncMapTileLoad>(); const auto [entity, tile] : view.each()) {
-      if (tile.future.wait_for(std::chrono::seconds(0)) != std::future_status::ready) continue;
-
-      const Image img = tile.future.get();
-      const Texture2D tex = LoadTextureFromImage(img);
-      UnloadImage(img);
-
-      const int zoom = tile.zoom;
-      const int tx = tile.x;
-      const int tz = tile.z;
-      const int geo_x = tile.geo_x;
-      const int geo_z = tile.geo_z;
-      const int tid = map_tile_id(zoom, tx, tz);
-
-      get_resource_manager(registry).textures.load(tid, tex);
-
-      registry.emplace<MapTile>(entity, tid, zoom, tx, tz, geo_x, geo_z);
-      registry.remove<AsyncMapTileLoad>(entity);
-      break;
-    }
-  }
-
-  [[nodiscard]] static int get_tile_tex(entt::registry& registry, const int zoom, const int x, const int z) {
-    const int tid = map_tile_id(zoom, x, z);
-    return get_resource_manager(registry).textures.contains(tid) ? tid : -1;
-  }
-
- private:
-  entt::entity spawn_tile(entt::registry& registry, const MapKey& key) const {
-    const std::string path = std::format("assets/tiles/map/{}/{}/{}.png", key.zoom, key.geo_x, key.geo_z);
-    const std::string url = tile_downloader::map_url(key.zoom, key.geo_x, key.geo_z, token);
-
-    auto tex_future = tile_downloader::enqueue_and_load(path, url);
-
-    const auto entity = registry.create();
-    registry.emplace<AsyncMapTileLoad>(entity, tex_future, key.zoom, key.x, key.z, key.geo_x, key.geo_z);
-    return entity;
-  }
-};
+// class streamer {
+//   std::map<MapKey, entt::entity> tracked_tiles;
+//   std::string token;
+//
+//  public:
+//   explicit streamer(entt::registry& registry) : token(get_options(registry).maps_token) {}
+//
+//   void update(entt::registry& registry) {
+//     const auto& player = get_player(registry);
+//     const auto pos = player.absolute_position();
+//
+//     int map_zoom = 12;
+//     if (const auto view = registry.view<MinimapWidget>(); !view.empty()) {
+//       map_zoom = registry.get<MinimapWidget>(view.front()).map_zoom;
+//     }
+//
+//     const int cx = world_to_local(pos.x, map_zoom);
+//     const int cz = world_to_local(pos.z, map_zoom);
+//
+//     // geo tile of the player's exact position — computed once in float to avoid
+//     // integer truncation errors that grow at coarser zoom levels.
+//     const int geo_cx = world_to_geo(pos.x, MAP_BASE_X, map_zoom);
+//     const int geo_cz = world_to_geo(pos.z, MAP_BASE_Z, map_zoom);
+//
+//     std::set<MapKey> desired;
+//     for (int dx = -MAP_GRID_HALF; dx <= MAP_GRID_HALF; ++dx)
+//       for (int dz = -MAP_GRID_HALF; dz <= MAP_GRID_HALF; ++dz) desired.insert({map_zoom, cx + dx, cz + dz, geo_cx + dx, geo_cz + dz});
+//
+//     // Spawn newly desired tiles.
+//     for (const auto& key : desired) {
+//       if (!tracked_tiles.contains(key)) tracked_tiles[key] = spawn_tile(registry, key);
+//     }
+//
+//     // evict tiles no longer desired.
+//     std::erase_if(tracked_tiles, [&](const auto& item) {
+//       const auto [key, entity] = item;
+//       if (desired.contains(key)) return false;
+//       get_resource_manager(registry).textures.erase(map_tile_id(key.zoom, key.x, key.z));
+//       registry.destroy(entity);
+//       return true;
+//     });
+//   }
+//
+//   void process_loaded_tiles(entt::registry& registry) {
+//     for (const auto view = registry.view<AsyncMapTileLoad>(); const auto [entity, tile] : view.each()) {
+//       if (tile.future.wait_for(std::chrono::seconds(0)) != std::future_status::ready) continue;
+//
+//       const Image img = tile.future.get();
+//       const Texture2D tex = LoadTextureFromImage(img);
+//       UnloadImage(img);
+//
+//       const int zoom = tile.zoom;
+//       const int tx = tile.x;
+//       const int tz = tile.z;
+//       const int geo_x = tile.geo_x;
+//       const int geo_z = tile.geo_z;
+//       const int tid = map_tile_id(zoom, tx, tz);
+//
+//       get_resource_manager(registry).textures.load(tid, tex);
+//
+//       registry.emplace<MapTile>(entity, tid, zoom, tx, tz, geo_x, geo_z);
+//       registry.remove<AsyncMapTileLoad>(entity);
+//       break;
+//     }
+//   }
+//
+//   [[nodiscard]] static int get_tile_tex(entt::registry& registry, const int zoom, const int x, const int z) {
+//     const int tid = map_tile_id(zoom, x, z);
+//     return get_resource_manager(registry).textures.contains(tid) ? tid : -1;
+//   }
+//
+//  private:
+//   entt::entity spawn_tile(entt::registry& registry, const MapKey& key) const {
+//     const std::string path = std::format("assets/tiles/map/{}/{}/{}.png", key.zoom, key.geo_x, key.geo_z);
+//     const std::string url = tile_downloader::map_url(key.zoom, key.geo_x, key.geo_z, token);
+//
+//     auto tex_future = tile_downloader::enqueue_and_load(path, url);
+//
+//     const auto entity = registry.create();
+//     registry.emplace<AsyncMapTileLoad>(entity, tex_future, key.zoom, key.x, key.z, key.geo_x, key.geo_z);
+//     return entity;
+//   }
+// };
 
 }  // namespace map_streamer
