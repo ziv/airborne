@@ -236,7 +236,8 @@ class streamer {
 
       if (!IsImageValid(tex_img) || !IsImageValid(height_img)) {
         TraceLog(LOG_WARNING, "failed to load tile %d/%d/%d - the tile will not be display in next frame", zoom, x, z);
-        registry.remove<AsyncTileLoad>(entity);
+        // registry.remove<AsyncTileLoad>(entity);
+        registry.destroy(entity);
         continue;
       }
 
@@ -354,9 +355,7 @@ class streamer {
   }
 
   [[nodiscard]] bool is_tile_covered(const TileKey& key) const {
-    const auto contains = [&](const int zoom, const int x, const int z) {
-      return rendered_tiles.contains(TileKey{zoom, x, z});
-    };
+    const auto contains = [&](const int zoom, const int x, const int z) { return rendered_tiles.contains(TileKey{zoom, x, z}); };
 
     if (key.zoom == 14) {
       const int parent_x = key.x >> 1;

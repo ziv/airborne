@@ -145,6 +145,14 @@ void process_loaded_tiles(entt::registry& registry) {
     if (tile.future.wait_for(std::chrono::seconds(0)) != std::future_status::ready) continue;
 
     const Image img = tile.future.get();
+
+    if (IsImageValid(img)) {
+      TraceLog(LOG_WARNING, "failed to load map tile %d/%d/%d", tile.zoom, tile.geo_x, tile.geo_z);
+      // registry.remove<AsyncMapTileLoad>(entity);
+      registry.destroy(entity);
+      continue;
+    }
+
     const Texture2D tex = LoadTextureFromImage(img);
     UnloadImage(img);
 
