@@ -69,6 +69,9 @@ target_sources(${PROJECT_NAME} PUBLIC
         src/core/tiles/map-streamer.cppm
         src/core/tiles/tile-downloader.cppm
         src/components/components.cppm
+        src/components/widgets-components.cppm
+        src/components/player-components.cppm
+        src/components/global-components.cppm
         src/prefabs/prefabs.cppm
         src/prefabs/create-player.cppm
         src/prefabs/create-scene.cppm

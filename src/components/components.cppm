@@ -4,70 +4,14 @@ module;
 #include "../lib/ray.hpp"
 
 export module Components;
+export import :Widgets;
+export import :Player;
+export import :Global;
 
 import RaylibResource;
 import Types;
 import ResourceManager;
 import JsonConfig;
-
-export struct Configuration {
-  AppConfig conf{};
-};
-
-// global game state
-
-export enum class GameStatus { INITIALIZE, LOADING, PLAYING, PAUSED, GAME_OVER };
-
-export struct GameState {
-  GameStatus status = GameStatus::INITIALIZE;
-};
-
-// player/game options
-export struct GameOptions {
-  bool changed = false;
-  float tilt = 0.25f;
-  float fov = 85.0f;
-  std::string tiles_token;
-  std::string maps_token;
-};
-
-// global tag of the player
-export struct PlayerEntity {
-  entt::entity id;
-};
-
-// the player state
-export struct Player {
-  Quaternion rotation;
-  Vector3 pos;
-  Vector3 offset;
-  Vector3 abs_pos;
-  Vector3 velocity;
-  Vector3 angular_velocity;  // angular velocity
-  Vector3 forward;
-  Vector3 up;
-  Vector3 right;
-  float speed;
-  float ground_height;
-  float effective_ground_height;
-};
-
-// player inputs state
-export struct PlayerInputs {
-  float pitch = 0.0f;
-  float yaw = 0.0f;
-  float roll = 0.0f;
-  float throttle = 0.0f;
-  bool gear = true;
-  bool brakes = true;
-  bool autopilot = false;
-};
-
-// player ground state
-export struct GroundHeight {
-  float height;
-  float effectiveGroundHeight;
-};
 
 // widgets components
 
@@ -95,43 +39,6 @@ export struct WithTexture {
 
 export struct WithFsShader {
   entt::resource<ShaderLoader> handle;
-};
-
-export struct DashboardSlot {
-  int slot_index;
-};
-
-export struct CockpitWidget {};
-
-export struct HudWidget {
-  HudConfig cfg{};
-  Pixel centerX{};
-  Pixel centerY{};
-  Pixel pixelsPerDegree{};
-  float ppd{};
-  float tilt{};
-  int colorIndex{};
-};
-
-export struct RadarWidget {
-  RadarConfig cfg{};
-  int rangeCount = 0;
-  int rangeIndex = 0;
-};
-
-export struct MinimapWidget {
-  MinimapConfig cfg{};
-  int map_zoom = 14;  // slippy-map tile zoom level (1–20); X = zoom in, Z = zoom out
-};
-
-export struct EngineWidget {};
-
-// todo remove
-export struct CameraWidget {};
-
-export struct TargetCameraWidget {
-  int render_tex_id = 0;
-  int size = 150;
 };
 
 // area we can land on
