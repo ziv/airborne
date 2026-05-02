@@ -42,25 +42,11 @@ got from this magic game, so this project has begun.
 
 Leftovers from the ESC refactoring:
 
-- [x] complete the terrain streaming
-- [ ] move fog shader into terrain streamer
+- [ ] fog shader
 - [ ] complete configuring the terrain streamer
 - [ ] performance optimizations: change read only view data to const reference
-- [x] ~~move the scene into a view~~
-- [x] hud colors
-- [x] bring the radar widget
-- [x] complete radar items
-- [x] bring the clouds effect into scene view
-- [x] bring the sound into scene view
-- [ ] complete the debug view by type
-- [ ] bring the autopilot controller
-- [x] check safe landing mechanism
-- [x] bring scene sounds
-- [ ] bring the navball widget
-- [x] complete screens
-- [x] complete crash layout
-- [ ] refactor scene data into a scene config
-- [ ] add braking on landing
+- [ ] autopilot controller
+- [ ] navball widget
 
 ## Modules Rules
 
