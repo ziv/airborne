@@ -1,5 +1,6 @@
 module;
 #include <entt/entt.hpp>
+#include "raygui.h"
 
 #include "../lib/ray.hpp"
 

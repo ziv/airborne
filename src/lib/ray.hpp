@@ -4,7 +4,7 @@
 #include <raylib.h>
 #define RAYMATH_STATIC_INLINE
 #include <raymath.h>
-#include "raygui.h"
+// #include <raygui.h">
 
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Vector2, x, y);
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Vector3, x, y, z);
