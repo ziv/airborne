@@ -10,7 +10,6 @@ import Prefabs;
 import ResourceManager;
 import Accessors;
 
-
 void change_radar_range(entt::registry &registry) {
   for (const auto radar_view = registry.view<RadarWidget>(); const auto [entity, radar] : radar_view.each()) {
     radar.rangeIndex = (radar.rangeIndex + 1) % static_cast<int>(radar.cfg.ranges.size());
@@ -29,7 +28,7 @@ void change_slot_widget(entt::registry &registry, const int slotIndex) {
     // available widgets to put in slots: minimap, radar, engine
 
     if (registry.all_of<MinimapWidget>(entity)) {
-      registry.remove<MinimapWidget>(entity);
+      registry.remove<MinimapWidget>(entity);  // todo what about cleaning the texture?
       // set radar
       updates::set_radar(slotIndex, registry);
       continue;
