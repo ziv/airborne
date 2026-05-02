@@ -48,19 +48,13 @@ void set_minimap(const int slot, entt::registry &registry) {
   for (const auto view = registry.view<DashboardSlot>(); const auto [entity, dashboard] : view.each()) {
     if (dashboard.slot_index != slot) continue;
 
-    auto &manager = get_resource_manager(registry);
+    // auto &manager = get_resource_manager(registry);
 
     const MinimapConfig minimap_cfg = get_config(registry).views.minimap;
     MinimapWidget widget;
     widget.cfg      = minimap_cfg;
     widget.map_zoom = minimap_cfg.defaultMapZoom;
     registry.emplace_or_replace<MinimapWidget>(entity, widget);
-
-    if (const auto tex_id = entt::hashed_string(minimap_cfg.mapTexture.c_str()); manager.textures.contains(tex_id)) {
-      registry.emplace_or_replace<WithTexture>(entity, manager.textures[tex_id]);
-    } else {
-      TraceLog(LOG_WARNING, "minimap texture '%s' not found in cache", minimap_cfg.mapTexture.c_str());
-    }
     break;
   }
 }

@@ -17,6 +17,7 @@ import :Base;
 
 // todo finish impl
 Generator<float> make_loading_sequence(entt::registry& registry, const nlohmann::json& scene) {
+  TraceLog(LOG_DEBUG, "start loading resources");
   if (!scene["resources"].is_array()) {
     TraceLog(LOG_DEBUG, "no resources to load, skipping");
     co_return;
@@ -27,11 +28,13 @@ Generator<float> make_loading_sequence(entt::registry& registry, const nlohmann:
     TraceLog(LOG_DEBUG, "no resources to load, skipping");
     co_return;
   }
+  TraceLog(LOG_DEBUG, "loading %d resources", size);
 
   const auto s = static_cast<float>(size);
   auto c = 0.0f;
 
   for (auto& resource : scene["resources"]) {
+    TraceLog(LOG_DEBUG, "loading resource %d/%d: %s", static_cast<int>(c) + 1, size, resource.dump().c_str());
     resources::load_resource(registry, resource);
     co_yield ++c / s;
   }
@@ -41,7 +44,8 @@ export class GameScreen : public BaseScreen {
   entt::registry& registry;
   nlohmann::json scene;
   Game game;
-  int loaded = 0;
+  Generator<float> loading_gen;
+  float loaded = 0;
   int progress = 0;
   bool ready = false;
   bool loading = true;
@@ -51,8 +55,9 @@ export class GameScreen : public BaseScreen {
       : registry(reg),
         // required to load resources and for the game
         scene(parse_json_file(resources::scenario_path)),
-        game(registry, scene) {
-    // TraceLog(LOG_INFO, "SIZE IN CONSTRUCTOR: %zu", sizeof(GameScreen));
+        game(registry, scene),
+        loading_gen(make_loading_sequence(registry, scene)) {
+    TraceLog(LOG_INFO, "SIZE IN CONSTRUCTOR: %zu", sizeof(GameScreen));
   }
 
   /// state machine for all game phases
@@ -67,23 +72,13 @@ export class GameScreen : public BaseScreen {
 
     // todo move loading resource from resources screen?!
     // todo or just move the generator to resources screen
-    // if (loading) {
-    //   if (!scene["resources"].is_array()) {
-    //     TraceLog(LOG_DEBUG, "no resources to load, skipping");
-    //     loading = false;
-    //     return ScreenState::GAMEPLAY;
-    //   }
-    //   const auto size = static_cast<int>(!scene["resources"].size());
-    //   if (loaded >= size) {
-    //     TraceLog(LOG_DEBUG, "all resources loaded");
-    //     loading = false;
-    //     return ScreenState::GAMEPLAY;
-    //   }
-    //   TraceLog(LOG_DEBUG, "preloading resource %d/%d", loaded + 1, size);
-    //   resources::load_resource(registry, scene["resources"].at(loaded));
-    //   loaded++;
-    //   return ScreenState::GAMEPLAY;
-    // }
+    if (loading) {
+      if (loading_gen.next()) {
+        loaded = loading_gen.current();
+        return ScreenState::GAMEPLAY;  // progress is not used for now, but can be used to show loading progress
+      }
+      loading = false;
+    }
 
     if (const int p = game.setup(); p >= 0) {
       progress = p;
