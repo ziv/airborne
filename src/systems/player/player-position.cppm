@@ -18,11 +18,7 @@ struct LandingZoneRet {
   float surface_y;
 };
 
-LandingZoneRet get_landing_zone(entt::registry &registry, const Vector3 &absolute_position, const bool gear) {
-  // we are not checking for landing zone when gear is up
-  if (!gear) {
-    return {false, false, 0.0f};
-  }
+LandingZoneRet get_landing_zone(entt::registry &registry, const Vector3 &absolute_position) {
   for (const auto view = registry.view<Landable, Position3D, Heading, LandingZone>(); const auto [entity, landable, pos, heading, zone] : view.each()) {
     // check of we are in a landing zone
     const auto [x, y, z] = absolute_position;
@@ -76,24 +72,24 @@ void position(entt::registry &registry, const float dt) {
 
   const auto absolute_position = player.pos - player.offset;
 
-  // are we above a landing zone? (carrier is more than ground height - sea
-  // level in this case)
-  const auto [is_landing_zone, is_carrier, surface_y] = get_landing_zone(registry, absolute_position, inputs.gear);
+  // update ground height
+  gh.height = terrain_streamer::ground_height_at(registry, absolute_position);
+  gh.effectiveGroundHeight = gh.height;
 
-  // if we are in a landing zone, add its definition to the player
-  if (is_landing_zone) {
-    registry.emplace_or_replace<LandingZoneDef>(entity, is_landing_zone, is_carrier, surface_y);
+  // only when gear down, we check for landing zones
+  if (inputs.gear) {
+    const auto [is_landing_zone, is_carrier, surface_y] = get_landing_zone(registry, absolute_position);
+    if (is_landing_zone) {
+      // update effective ground height
+      gh.effectiveGroundHeight = fmaxf(gh.height, surface_y);
+      registry.emplace_or_replace<LandingZoneDef>(entity, is_landing_zone, is_carrier, surface_y);
+    }
   } else {
     registry.remove<LandingZoneDef>(entity);
   }
 
-  // update ground height
-  gh.height = terrain_streamer::ground_height_at(registry, absolute_position);
-
-  // update effective ground height
-  gh.effectiveGroundHeight = is_landing_zone ? fmaxf(gh.height, surface_y) : gh.height;
-
   const auto ground_height = gh.effectiveGroundHeight + conf.heightAboveGround;
+
   // limit going underground/underwater
   if (player.pos.y < ground_height) {
     player.pos.y = ground_height;
