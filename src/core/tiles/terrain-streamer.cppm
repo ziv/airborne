@@ -3,7 +3,7 @@ module;
 #include <entt/entt.hpp>
 #include <format>
 #include <future>
-#include <map>
+#include <unordered_map>
 #include <string>
 #include <vector>
 
@@ -81,8 +81,8 @@ float ground_height_at(entt::registry& registry, const Vector3& pos) {
 /// all resources are downloaded and cache automatically. currently support
 /// mapbox api and require MAPBOX_TOKEN to be set as environment variable
 class streamer {
-  std::map<TileKey, entt::entity> desired_tiles;   // what LOD logic wants this frame
-  std::map<TileKey, entt::entity> rendered_tiles;  // superset: desired + pending eviction
+  std::unordered_map<TileKey, entt::entity> desired_tiles;   // what LOD logic wants this frame
+  std::unordered_map<TileKey, entt::entity> rendered_tiles;  // superset: desired + pending eviction
   Vector3 last_position{-9.9f, -9.9f, -9.9f};
   Shader displacement_shader;
   int cam_pos_loc = -1;

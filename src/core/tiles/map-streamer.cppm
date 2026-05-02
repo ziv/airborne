@@ -4,7 +4,7 @@ module;
 #include <filesystem>
 #include <format>
 #include <future>
-#include <map>
+#include <unordered_map>
 #include <set>
 #include <string>
 
@@ -19,7 +19,7 @@ import Accessors;
 import Types;
 import TileDownloader;
 
-constexpr int MAP_GRID_HALF = 1;          // tiles in each direction
+constexpr int MAP_GRID_HALF = 2;          // tiles in each direction
 constexpr int MAP_TILE_PX = 256;          // each downloaded tile is 256×256 px
 constexpr float TILE_SIZE_Z12 = 9783.9f;  // world metres per z12 tile (matches terrain streamer)
 constexpr int MAP_BASE_X = 2444;          // geographic TMS x of local-origin tile at zoom 12
@@ -76,10 +76,26 @@ struct MapKey {
     return z < o.z;
   }
 };
+template <>
+struct std::hash<MapKey> {
+  std::size_t operator()(const MapKey& key) const noexcept {
+    std::size_t seed = 0;
+
+    const std::size_t hx = static_cast<entt::id_type>(key.x);
+    const std::size_t hy = static_cast<entt::id_type>(key.z);
+    const std::size_t hz = static_cast<entt::id_type>(key.zoom);
+
+    seed ^= hx + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+    seed ^= hy + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+    seed ^= hz + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+
+    return seed;
+  }
+};
 
 // the component that hold the steamer data
 struct MapStreamer {
-  std::map<MapKey, entt::entity> tracked_tiles;
+  std::unordered_map<MapKey, entt::entity> tracked_tiles;
   std::string token;
 };
 

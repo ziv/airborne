@@ -51,7 +51,9 @@ export class GameScreen : public BaseScreen {
       : registry(reg),
         // required to load resources and for the game
         scene(parse_json_file(resources::scenario_path)),
-        game(registry, scene) {}
+        game(registry, scene) {
+    // TraceLog(LOG_INFO, "SIZE IN CONSTRUCTOR: %zu", sizeof(GameScreen));
+  }
 
   /// state machine for all game phases
   /// 1. ready - game is playing

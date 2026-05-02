@@ -17,6 +17,7 @@ import Screens;
 /// screen selectors, create the required screen object
 /// screen are unique_ptr by design
 std::unique_ptr<BaseScreen> create_screen(const ScreenState& current, entt::registry& registry) {
+  // TraceLog(LOG_INFO, "SIZE IN FACTORY: %zu", sizeof(GameScreen));
   switch (current) {
     default:
     case ScreenState::SPLASH:

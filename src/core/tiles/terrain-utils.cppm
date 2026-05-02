@@ -41,6 +41,22 @@ struct TileKey {
   int z;
   auto operator<=>(const TileKey&) const = default;
 };
+template <>
+struct std::hash<TileKey> {
+  std::size_t operator()(const TileKey& key) const noexcept {
+    std::size_t seed = 0;
+
+    const std::size_t hx = static_cast<entt::id_type>(key.x);
+    const std::size_t hy = static_cast<entt::id_type>(key.z);
+    const std::size_t hz = static_cast<entt::id_type>(key.zoom);
+
+    seed ^= hx + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+    seed ^= hy + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+    seed ^= hz + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+
+    return seed;
+  }
+};
 
 // module private methods
 
