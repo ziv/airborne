@@ -95,7 +95,7 @@
         "landing_zone": {
           "runway_length_m": 500,
           "runway_width_m": 80,
-          "elevation_m": 11
+          "elevation_m": 8
         }
       }
     },
