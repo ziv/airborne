@@ -73,18 +73,6 @@ export void create_resource_manager(entt::registry &registry) { registry.ctx().e
 
 export ResourceManager &get_resource_manager(entt::registry &registry) { return registry.ctx().get<ResourceManager>(MANAGER_ID); }
 
-export void unload_resource_manager(entt::registry &registry) {
-  auto &[textures, models, images, shaders, music_streams, sounds, render_textures] = get_resource_manager(registry);
-  models.clear();
-  images.clear();
-  textures.clear();
-  shaders.clear();
-  music_streams.clear();
-  sounds.clear();
-  render_textures.clear();
-  registry.ctx().erase<ResourceManager>();
-}
-
 export namespace resources {
 
 void load_resource(entt::registry &registry, const nlohmann::json &res) {
@@ -111,6 +99,18 @@ void load_resource(entt::registry &registry, const nlohmann::json &res) {
   } else {
     TraceLog(LOG_WARNING, TextFormat("Unknown resource type '%s' for resource '%s'", type.c_str(), name.c_str()));
   }
+}
+
+void unload_resource_manager(entt::registry &registry) {
+  auto &[textures, models, images, shaders, music_streams, sounds, render_textures] = get_resource_manager(registry);
+  models.clear();
+  images.clear();
+  textures.clear();
+  shaders.clear();
+  music_streams.clear();
+  sounds.clear();
+  render_textures.clear();
+  registry.ctx().erase<ResourceManager>();
 }
 
 }  // namespace resources

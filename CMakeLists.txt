@@ -66,7 +66,6 @@ target_sources(${PROJECT_NAME} PUBLIC
         src/core/resources/resources.cppm
         src/core/resources/raylib-resource.cppm
         src/core/resources/resource-manager.cppm
-        src/core/resources/resource-preloader.cppm
         src/core/tiles/terrain-streamer.cppm
         src/core/tiles/terrain-utils.cppm
         src/core/tiles/map-streamer.cppm

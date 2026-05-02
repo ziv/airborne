@@ -87,7 +87,7 @@ int main() {
     }
 
     // make sure we clear everything
-    unload_resource_manager(registry);
+    resources::unload_resource_manager(registry);
     registry.clear();
 
     CloseAudioDevice();
