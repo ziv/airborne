@@ -75,7 +75,6 @@ float ground_height_at(entt::registry& registry, const Vector3& pos) {
   return 0.0f;
 }
 
-
 /// terrain streamer responsible to render the "world" all the entities
 /// leaves on. it supports multiple LOD (more level require performance
 /// optimizations).
@@ -159,7 +158,7 @@ class streamer {
     std::erase_if(rendered_tiles, [&](const auto& item) {
       const auto [key, entity] = item;
       if (desired_tiles.contains(key)) return false;
-      return is_tile_covered(key) || is_tile_out_of_range(key);
+      return is_tile_out_of_range(key) || is_tile_covered(key);
     });
 
     // remove orphans
@@ -185,9 +184,8 @@ class streamer {
     // recursively subdivide a tile if it's within the threshold for the next zoom.
     // at max zoom (14) always add the leaf. otherwise, check the tile center distance.
     auto subdivide = [&](auto& self, const int zoom, const int tx, const int tz) -> void {
-      const float dist_sq = tile_distance(player_pos, zoom, tx, tz);
-
-      if (zoom == 14 || (zoom == 13 && dist_sq >= Z14_THRESHOLD_SQ) || (zoom == 12 && dist_sq >= Z13_THRESHOLD_SQ)) {
+      if (const float dist_sq = tile_distance(player_pos, zoom, tx, tz);
+          zoom == 14 || (zoom == 13 && dist_sq >= Z14_THRESHOLD_SQ) || (zoom == 12 && dist_sq >= Z13_THRESHOLD_SQ)) {
         new_desired_keys.push_back({zoom, tx, tz});
         return;
       }
@@ -229,10 +227,18 @@ class streamer {
 
       if (!tex_ready || !height_ready) continue;
 
+      // it is important to offload tile as soon as possible and
+      // for sure before removing AsyncTileLoad from the entity
       const auto [texture_future, heightmap_future, x, z, zoom] = tile;
-      Image tex_img = texture_future.get();
+      const Image tex_img = texture_future.get();
       Image height_img = heightmap_future.get();
       threads -= 2;
+
+      if (!IsImageValid(tex_img) || !IsImageValid(height_img)) {
+        TraceLog(LOG_WARNING, "failed to load tile %d/%d/%d - the tile will not be display in next frame", zoom, x, z);
+        registry.remove<AsyncTileLoad>(entity);
+        continue;
+      }
 
       const Texture2D texture_tex = LoadTextureFromImage(tex_img);
       const Texture2D height_tex = LoadTextureFromImage(height_img);
@@ -262,48 +268,48 @@ class streamer {
     }
   }
 
-  static void draw_tile_labels(entt::registry& registry, const Camera3D& camera) {
-    const auto& player = get_player(registry);
-    const auto width = static_cast<float>(GetScreenWidth());
-    const auto height = static_cast<float>(GetScreenHeight());
+  // debugging code
+  // don't compile if not in use
 
-    for (const auto view = registry.view<TerrainChunk, Position3D>(); const auto [entity, chunk, pos] : view.each()) {
-      // if (chunk.zoom != 15) continue;
-      // Raise the label a bit above the ground for legibility
-      const Vector3 world_pos = pos.pos + player.offset + Vector3{0.0f, 200.0f, 0.0f};
+  // static void draw_tile_labels(entt::registry& registry, const Camera3D& camera) {
+  //   const auto& player = get_player(registry);
+  //   const auto width = static_cast<float>(GetScreenWidth());
+  //   const auto height = static_cast<float>(GetScreenHeight());
+  //
+  //   for (const auto view = registry.view<TerrainChunk, Position3D>(); const auto [entity, chunk, pos] : view.each()) {
+  //     // Raise the label a bit above the ground for legibility
+  //     const Vector3 world_pos = pos.pos + player.offset + Vector3{0.0f, 200.0f, 0.0f};
+  //
+  //     // "In front of camera" filter via dot product with forward
+  //     if (const Vector3 to_tile = world_pos - camera.position; Vector3DotProduct(to_tile, player.forward) <= 0.0f) continue;
+  //
+  //     const Vector2 sp = GetWorldToScreen(world_pos, camera);
+  //     if (sp.x < 0.0f || sp.x > width || sp.y < 0.0f || sp.y > height) continue;
+  //
+  //     DrawText(TextFormat("%d", chunk.zoom), static_cast<int>(sp.x), static_cast<int>(sp.y), 15, GREEN);
+  //     DrawText(TextFormat("%d %d", chunk.x, chunk.z), static_cast<int>(sp.x) + 20, static_cast<int>(sp.y), 10, GREEN);
+  //   }
+  // }
 
-      // "In front of camera" filter via dot product with forward
-      if (const Vector3 to_tile = world_pos - camera.position; Vector3DotProduct(to_tile, player.forward) <= 0.0f) continue;
-
-      const Vector2 sp = GetWorldToScreen(world_pos, camera);
-      if (sp.x < 0.0f || sp.x > width || sp.y < 0.0f || sp.y > height) continue;
-
-      DrawText(TextFormat("%d", chunk.zoom), static_cast<int>(sp.x), static_cast<int>(sp.y), 15, GREEN);
-      DrawText(TextFormat("%d %d", chunk.x, chunk.z), static_cast<int>(sp.x) + 20, static_cast<int>(sp.y), 10, GREEN);
-    }
-  }
-
-  void stream_debug(entt::registry& registry, const Camera3D& camera) const {
-    const auto& player = get_player(registry);
-    for (const auto view = registry.view<TerrainChunk, Position3D>(); const auto [entity, chunk, pos] : view.each()) {
-      auto color = RED;
-      auto size = TILE_SIZE_12;
-      if (chunk.zoom == 13) {
-        color = GREEN;
-        size = TILE_SIZE_13;
-      }
-      if (chunk.zoom == 14) {
-        color = BLUE;
-        size = TILE_SIZE_14;
-      }
-      DrawCube(pos.pos + player.offset, size, 5.0f, size, color);
-    }
-  }
+  // void stream_debug(entt::registry& registry, const Camera3D& camera) const {
+  //   const auto& player = get_player(registry);
+  //   for (const auto view = registry.view<TerrainChunk, Position3D>(); const auto [entity, chunk, pos] : view.each()) {
+  //     auto color = RED;
+  //     auto size = TILE_SIZE_12;
+  //     if (chunk.zoom == 13) {
+  //       color = GREEN;
+  //       size = TILE_SIZE_13;
+  //     }
+  //     if (chunk.zoom == 14) {
+  //       color = BLUE;
+  //       size = TILE_SIZE_14;
+  //     }
+  //     DrawCube(pos.pos + player.offset, size, 5.0f, size, color);
+  //   }
+  // }
 
  private:
   entt::entity spawn_tile(entt::registry& registry, const TileKey& tile) {
-    const auto entity = registry.create();
-
     const auto scale = 1 << (tile.zoom - ZOOM_LEVEL);
     const auto tx = tile.x + BASE_X * scale;
     const auto tz = tile.z + BASE_Z * scale;
@@ -311,7 +317,6 @@ class streamer {
     const auto tex_path = std::format("assets/tiles/texture/{}/{}/{}.png", tile.zoom, tx, tz);
     const auto height_path = std::format("assets/tiles/heightmaps/{}/{}/{}.png", tile.zoom, tx, tz);
 
-    // const auto mapbox_token = std::string(std::getenv("MAPBOX_TOKEN"));
     const auto tex_url = tile_downloader::texture_url(tile.zoom, tx, tz, token);
     const auto height_url = tile_downloader::heightmap_url(tile.zoom, tx, tz, token);
 
@@ -322,6 +327,8 @@ class streamer {
     auto tex_future = tile_downloader::enqueue_and_load(tex_path, tex_url);
     auto height_future = tile_downloader::enqueue_and_load(height_path, height_url);
     threads += 2;
+
+    const auto entity = registry.create();
     registry.emplace<Position3D>(entity, (Vector3){world_x, 0.0f, world_z});
     registry.emplace<AsyncTileLoad>(entity, std::move(tex_future), std::move(height_future), tile.x, tile.z, tile.zoom);
 
