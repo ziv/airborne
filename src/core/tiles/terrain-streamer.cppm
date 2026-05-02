@@ -169,7 +169,7 @@ class streamer {
       }
     }
 
-    const auto player_pos = get_player(registry).absolute_position();
+    const auto player_pos = get_player(registry).abs_pos;
 
     if (Vector3DistanceSqr(player_pos, last_position) < UPDATE_THRESHOLD) return;  // only update when moved more than N meters
     last_position = player_pos;

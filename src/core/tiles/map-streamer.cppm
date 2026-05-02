@@ -105,7 +105,7 @@ void setup(entt::registry& registry) {
 void update(entt::registry& registry) {
   auto& [tracked_tiles, token] = registry.ctx().get<MapStreamer>();
   const auto& player = get_player(registry);
-  const auto pos = player.absolute_position();
+  const auto pos = player.abs_pos;
 
   int map_zoom = 12;
   if (const auto view = registry.view<MinimapWidget>(); !view.empty()) {

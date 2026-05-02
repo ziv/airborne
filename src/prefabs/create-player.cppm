@@ -18,6 +18,7 @@ entt::entity create_player(entt::registry &registry, const nlohmann::json &scene
   registry.emplace<Player>(player, QuaternionIdentity(),
                            start_position,   // position
                            Vector3Zero(),    // offset
+                           Vector3Zero(),    // absolute position (calculated in position system as pos - offset)
                            Vector3Zero(),    // velocity
                            Vector3Zero(),    // angular velocity
                            world_forward(),  // forward

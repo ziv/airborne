@@ -19,7 +19,7 @@ void models(entt::registry &registry) {
   const auto view = registry.view<Position3D, WithModel, Heading>(entt::exclude<World>);
   const auto &models = get_resource_manager(registry).models;
   const auto &player = get_player(registry);
-  const auto &player_position = player.absolute_position();
+  const auto &player_position = player.abs_pos;
 
   for (auto [entity, position, modeled, heading] : view.each()) {
     // 1. model not exists

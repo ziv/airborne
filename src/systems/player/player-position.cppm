@@ -143,5 +143,7 @@ void position(entt::registry &registry, const float dt) {
       TraceLog(LOG_WARNING, "[Flying] added to player");
     }
   }
+
+  player.abs_pos = absolute_position;
 }
 }  // namespace player_systems

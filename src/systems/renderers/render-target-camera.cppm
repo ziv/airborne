@@ -34,7 +34,7 @@ void target_camera(entt::registry &registry) {
 
     const auto &target_pos = registry.get<Position3D>(radar.locked_target).pos;
     const auto &target_type = registry.get<IdentifyType>(radar.locked_target).type;
-    const Vector3 player_abs = player.absolute_position();
+    const Vector3 player_abs = player.abs_pos;
     const float distance = Vector3Distance(player_abs, target_pos);
     const int alt_feet = static_cast<int>(meter_to_feet(target_pos.y));
 
