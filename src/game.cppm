@@ -69,7 +69,8 @@ export class Game {
       : registry(reg),  // keep aligned
         scene(s),
         setup_gen(make_setup_sequence(reg, s)),
-        streamer(reg) {
+        streamer(reg),
+        map_str(reg) {
     camera.up = world_up();
     camera.projection = CAMERA_PERSPECTIVE;
   }

@@ -103,8 +103,10 @@ export namespace map_streamer {
 
 class streamer {
   std::map<TileKey, entt::entity> tracked_tiles;
+  std::string token;
 
  public:
+  explicit streamer(entt::registry& registry) : token(get_options(registry).maps_token) {}
   void update(entt::registry& registry) {
     const auto& player = get_player(registry);
     const auto pos = player.absolute_position();
