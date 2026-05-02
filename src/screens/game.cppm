@@ -15,8 +15,7 @@ import Types;
 import Accessors;
 import :Base;
 
-// todo finish impl
-Generator<float> make_loading_sequence(entt::registry& registry, const nlohmann::json& scene) {
+Generator<int> make_loading_sequence(entt::registry& registry, const nlohmann::json& scene) {
   TraceLog(LOG_DEBUG, "start loading resources");
   if (!scene["resources"].is_array()) {
     TraceLog(LOG_DEBUG, "no resources to load, skipping");
@@ -31,12 +30,12 @@ Generator<float> make_loading_sequence(entt::registry& registry, const nlohmann:
   TraceLog(LOG_DEBUG, "loading %d resources", size);
 
   const auto s = static_cast<float>(size);
-  auto c = 0.0f;
+  float c = 0;
 
   for (auto& resource : scene["resources"]) {
-    TraceLog(LOG_DEBUG, "loading resource %d/%d: %s", static_cast<int>(c) + 1, size, resource.dump().c_str());
+    TraceLog(LOG_DEBUG, "loading resource %d/%d: %s", c + 1, size, resource.dump().c_str());
     resources::load_resource(registry, resource);
-    co_yield ++c / s;
+    co_yield static_cast<int>(++c / s * 100.0f);
   }
 }
 
@@ -44,8 +43,8 @@ export class GameScreen : public BaseScreen {
   entt::registry& registry;
   nlohmann::json scene;
   Game game;
-  Generator<float> loading_gen;
-  float loaded = 0;
+  Generator<int> loading_gen;
+  int loaded = 0;
   int progress = 0;
   bool ready = false;
   bool loading = true;
@@ -70,8 +69,6 @@ export class GameScreen : public BaseScreen {
       return ScreenState::GAMEPLAY;
     }
 
-    // todo move loading resource from resources screen?!
-    // todo or just move the generator to resources screen
     if (loading) {
       if (loading_gen.next()) {
         loaded = loading_gen.current();
@@ -95,7 +92,12 @@ export class GameScreen : public BaseScreen {
       return;
     }
     ClearBackground(BLACK);
-    DrawText(TextFormat("Initializing %d%%", progress), 100, 100, 20, GREEN);
-    DrawRectangle(100, 150, progress * 4, 30, GREEN);
+    if (loading) {
+      DrawText(TextFormat("Loading resources %d%%", loaded), 100, 100, 20, GREEN);
+      DrawRectangle(100, 150, loaded * 4, 30, GREEN);
+    } else {
+      DrawText(TextFormat("Initializing %d%%", progress), 100, 100, 20, GREEN);
+      DrawRectangle(100, 150, progress * 4, 30, GREEN);
+    }
   }
 };
