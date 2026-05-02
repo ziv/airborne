@@ -7,6 +7,9 @@ constexpr auto config_path = "assets/config.jsonc";
 constexpr auto scenario_path = "assets/scenario.json";
 constexpr auto options_path = "assets/options.json";
 
+constexpr auto tiles_token_name = "MAPBOX_TOKEN";
+constexpr auto maps_token_name = "TOMTOM_TOKEN";
+
 constexpr auto sky_vertex_shader_path = "assets/shaders/sky.vs";
 constexpr auto sky_fragment_shader_path = "assets/shaders/sky.fs";
 

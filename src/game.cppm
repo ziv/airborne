@@ -51,6 +51,8 @@ Generator<int> make_setup_sequence(entt::registry& registry, const nlohmann::jso
     co_yield 10 + ++c;
   }
 
+  map_streamer::setup(registry);
+
   npc_systems::setup(registry);
   registry.ctx().get<GameState>().status = GameStatus::PLAYING;
   co_yield 100;
@@ -61,7 +63,7 @@ export class Game {
   nlohmann::json scene;
   Generator<int> setup_gen;
   terrain_streamer::streamer streamer;
-  map_streamer::streamer map_str;
+  // map_streamer::streamer map_str;
   Camera camera = {};
 
  public:
@@ -101,6 +103,9 @@ export class Game {
     }
 
     const auto dt = GetFrameTime();
+    auto player = get_player(registry);
+    auto inputs = get_player_inputs(registry);
+
     aircraft_systems::engine(registry, dt);
     aircraft_systems::gear(registry);
     player_systems::controls(registry, dt);
@@ -113,11 +118,14 @@ export class Game {
     aircraft_systems::update_lock(registry);
     npc_systems::autopilot(registry, dt);
     npc_systems::physics(registry, dt);
-    streamer.update(registry);
-    streamer.process_loaded_chunks(registry);
-    map_str.update(registry);
-    map_str.process_loaded_tiles(registry);
 
+    streamer.update(registry);
+    map_streamer::update(registry);
+
+    streamer.process_loaded_chunks(registry);
+    map_streamer::process_loaded_tiles(registry);
+
+    // todo into a system...
     if (const auto view = registry.view<MinimapWidget>(); !view.empty()) {
       auto& wd = registry.get<MinimapWidget>(view.front());
       if (IsKeyPressed(KEY_Z) && wd.map_zoom < 20) wd.map_zoom++;

@@ -91,6 +91,7 @@ class streamer {
   std::unique_ptr<Model> terrain_model13;
   std::unique_ptr<Model> terrain_model14;
   ResourceManager& rmg;
+  std::string token;
 
  public:
   explicit streamer(entt::registry& registry)
@@ -98,7 +99,8 @@ class streamer {
         terrain_model12(std::make_unique<Model>(create_model(TILE_SIZE_12, 16))),
         terrain_model13(std::make_unique<Model>(create_model(TILE_SIZE_13, 64))),
         terrain_model14(std::make_unique<Model>(create_model(TILE_SIZE_14, 256))),
-        rmg(get_resource_manager(registry)) {
+        rmg(get_resource_manager(registry)),
+        token(get_options(registry).tiles_token) {
     // set the displacement_shader as the terrain model shader
     terrain_model12->materials[0].shader = displacement_shader;
     terrain_model13->materials[0].shader = displacement_shader;
@@ -308,9 +310,9 @@ class streamer {
     const auto tex_path = std::format("assets/tiles/texture/{}/{}/{}.png", tile.zoom, tx, tz);
     const auto height_path = std::format("assets/tiles/heightmaps/{}/{}/{}.png", tile.zoom, tx, tz);
 
-    const auto mapbox_token = std::string(std::getenv("MAPBOX_TOKEN"));
-    const auto tex_url = tile_downloader::texture_url(tile.zoom, tx, tz, mapbox_token);
-    const auto height_url = tile_downloader::heightmap_url(tile.zoom, tx, tz, mapbox_token);
+    // const auto mapbox_token = std::string(std::getenv("MAPBOX_TOKEN"));
+    const auto tex_url = tile_downloader::texture_url(tile.zoom, tx, tz, token);
+    const auto height_url = tile_downloader::heightmap_url(tile.zoom, tx, tz, token);
 
     const float tile_size = tile_size_for_zoom(tile.zoom);
     const float world_x = (static_cast<float>(tile.x) + 0.5f) * tile_size;

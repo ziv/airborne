@@ -27,6 +27,8 @@ export struct GameOptions {
   bool changed = false;
   float tilt = 0.25f;
   float fov = 85.0f;
+  std::string tiles_token;
+  std::string maps_token;
 };
 
 // global tag of the player

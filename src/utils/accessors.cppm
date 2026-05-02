@@ -11,7 +11,8 @@ import Types;
 
 export void set_initial_globals(entt::registry &registry, const AppConfig &config, const nlohmann::json &options) {
   registry.ctx().emplace<GameState>(GameStatus::INITIALIZE);
-  registry.ctx().emplace<GameOptions>(false, options["tilt"].get<float>(), options["fov"].get<float>());
+  registry.ctx().emplace<GameOptions>(false, options["tilt"].get<float>(), options["fov"].get<float>(), options["tiles_token"].get<std::string>(),
+                                      options["maps_token"].get<std::string>());
   registry.ctx().emplace<Configuration>(config);
   create_resource_manager(registry);
 }
