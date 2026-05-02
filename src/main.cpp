@@ -28,17 +28,24 @@ std::unique_ptr<BaseScreen> create_screen(const ScreenState& current, entt::regi
   }
 }
 
+/// load configuration files and ensure existing of required tokens.
+/// tokens can be set in the options file or in environment variables.
+/// @see https://github.com/ziv/airborne/wiki/Tokens for more information
 std::tuple<AppConfig, nlohmann::json> load_requirements() {
   const auto app_conf = JsonConfig(resources::config_path).get<AppConfig>("/config");
   auto options = parse_json_file(resources::options_path);
 
-  const auto tiles_token = std::string(std::getenv(resources::tiles_token_name));
-  const auto maps_token = std::string(std::getenv(resources::maps_token_name));
+  if (!options.contains("tiles_token")) {
+    const auto tiles_token = std::string(std::getenv(resources::tiles_token_name));
+    if (tiles_token.empty()) throw std::runtime_error("missing tiles token in options or environment variables");
+    options["tiles_token"] = tiles_token;
+  }
 
-  if (tiles_token.empty() || maps_token.empty()) throw std::runtime_error("missing required environment variables");
-
-  options["tiles_token"] = tiles_token;
-  options["maps_token"] = maps_token;
+  if (!options.contains("maps_token")) {
+    const auto maps_token = std::string(std::getenv(resources::maps_token_name));
+    if (maps_token.empty()) throw std::runtime_error("missing maps token in options or environment variables");
+    options["maps_token"] = maps_token;
+  }
 
   return {app_conf, options};
 }
