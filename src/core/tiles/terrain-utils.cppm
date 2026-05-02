@@ -1,7 +1,5 @@
 module;
-#include <array>
 #include <entt/entt.hpp>
-#include <future>
 
 #include "../../lib/ray.hpp"
 
@@ -16,7 +14,12 @@ constexpr Meter TILE_SIZE_12 = 9783.9f;
 constexpr Meter TILE_SIZE_13 = 4891.95f;
 constexpr Meter TILE_SIZE_14 = 2445.975f;
 constexpr Meter TILE_SIZE_15 = 1222.9875f;
-// constexpr std::array<Meter, 3> TILE_SIZES{TILE_SIZE_12, TILE_SIZE_13, TILE_SIZE_14};
+const std::map<int, Meter> TILE_SIZES = {
+    {12, TILE_SIZE_12},
+    {13, TILE_SIZE_13},
+    {14, TILE_SIZE_14},
+    {15, TILE_SIZE_15},
+};
 
 constexpr int ZOOM_LEVEL = 12;
 constexpr int BASE_X = 2444;
@@ -38,10 +41,29 @@ struct TileKey {
   int z;
   auto operator<=>(const TileKey&) const = default;
 };
+template <>
+struct std::hash<TileKey> {
+  std::size_t operator()(const TileKey& key) const noexcept {
+    std::size_t seed = 0;
+
+    const std::size_t hx = static_cast<entt::id_type>(key.x);
+    const std::size_t hy = static_cast<entt::id_type>(key.z);
+    const std::size_t hz = static_cast<entt::id_type>(key.zoom);
+
+    seed ^= hx + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+    seed ^= hy + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+    seed ^= hz + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+
+    return seed;
+  }
+};
 
 // module private methods
 
-constexpr Meter tile_size_for_zoom(const int zoom) { return TILE_SIZE_12 / static_cast<Meter>(1 << (zoom - ZOOM_LEVEL)); }
+constexpr Meter tile_size_for_zoom(const int zoom) {
+  return TILE_SIZES.at(zoom);
+  // return TILE_SIZE_12 / static_cast<Meter>(1 << (zoom - ZOOM_LEVEL));
+}
 
 // ids for textures and heightmap to share between components
 int get_tex_id(const int zoom, const int x, const int z) { return entt::hashed_string(TextFormat("tile_tex_%d_%d_%d", zoom, x, z)); }
@@ -66,30 +88,7 @@ float tile_distance(const Vector3& player_pos, const int zoom, const int tx, con
   return ddx * ddx + ddz * ddz;
 }
 
-TileKey parent(const TileKey& key) { return TileKey{key.zoom - 1, key.x >> 1, key.z >> 1}; }
-
-std::vector<TileKey> children(const TileKey& key) {
-  const int child_zoom = key.zoom + 1;
-  const int child_x = key.x << 1;
-  const int child_z = key.z << 1;
-  return {TileKey{child_zoom, child_x, child_z}, TileKey{child_zoom, child_x + 1, child_z}, TileKey{child_zoom, child_x, child_z + 1},
-          TileKey{child_zoom, child_x + 1, child_z + 1}};
-}
-
-std::vector<TileKey> grand_children(const TileKey& key) {
-  const int child_zoom = key.zoom + 2;
-  const int child_x = key.x << 2;
-  const int child_z = key.z << 2;
-  std::vector<TileKey> result;
-  for (int dx = 0; dx < 4; dx++) {
-    for (int dz = 0; dz < 4; dz++) {
-      result.push_back(TileKey{child_zoom, child_x + dx, child_z + dz});
-    }
-  }
-  return result;
-}
-
-/// a better performance function thank using
+/// a better performance function instead of using
 /// const auto c = GetImageColor(img, px, pz);
 inline float get_height_from_image(const Image& img, int x, int y) {
   if (x < 0) x = 0;

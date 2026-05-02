@@ -23,7 +23,7 @@ export class SplashScreen : public BaseScreen {
 
   ScreenState update() override {
     UpdateMusicStream(music);
-    return IsKeyPressed(KEY_SPACE) ? ScreenState::LOADING : ScreenState::SPLASH;
+    return IsKeyPressed(KEY_SPACE) ? ScreenState::GAMEPLAY : ScreenState::SPLASH;
   }
 
   void draw() override {

@@ -63,7 +63,6 @@ export class Game {
   nlohmann::json scene;
   Generator<int> setup_gen;
   terrain_streamer::streamer streamer;
-  // map_streamer::streamer map_str;
   Camera camera = {};
 
  public:

@@ -3,7 +3,7 @@ module;
 #include <entt/entt.hpp>
 #include <format>
 #include <future>
-#include <map>
+#include <unordered_map>
 #include <string>
 #include <vector>
 
@@ -75,15 +75,14 @@ float ground_height_at(entt::registry& registry, const Vector3& pos) {
   return 0.0f;
 }
 
-
 /// terrain streamer responsible to render the "world" all the entities
 /// leaves on. it supports multiple LOD (more level require performance
 /// optimizations).
 /// all resources are downloaded and cache automatically. currently support
 /// mapbox api and require MAPBOX_TOKEN to be set as environment variable
 class streamer {
-  std::map<TileKey, entt::entity> desired_tiles;   // what LOD logic wants this frame
-  std::map<TileKey, entt::entity> rendered_tiles;  // superset: desired + pending eviction
+  std::unordered_map<TileKey, entt::entity> desired_tiles;   // what LOD logic wants this frame
+  std::unordered_map<TileKey, entt::entity> rendered_tiles;  // superset: desired + pending eviction
   Vector3 last_position{-9.9f, -9.9f, -9.9f};
   Shader displacement_shader;
   int cam_pos_loc = -1;
@@ -159,7 +158,7 @@ class streamer {
     std::erase_if(rendered_tiles, [&](const auto& item) {
       const auto [key, entity] = item;
       if (desired_tiles.contains(key)) return false;
-      return is_tile_covered(key) || is_tile_out_of_range(key);
+      return is_tile_out_of_range(key) || is_tile_covered(key);
     });
 
     // remove orphans
@@ -185,9 +184,8 @@ class streamer {
     // recursively subdivide a tile if it's within the threshold for the next zoom.
     // at max zoom (14) always add the leaf. otherwise, check the tile center distance.
     auto subdivide = [&](auto& self, const int zoom, const int tx, const int tz) -> void {
-      const float dist_sq = tile_distance(player_pos, zoom, tx, tz);
-
-      if (zoom == 14 || (zoom == 13 && dist_sq >= Z14_THRESHOLD_SQ) || (zoom == 12 && dist_sq >= Z13_THRESHOLD_SQ)) {
+      if (const float dist_sq = tile_distance(player_pos, zoom, tx, tz);
+          zoom == 14 || (zoom == 13 && dist_sq >= Z14_THRESHOLD_SQ) || (zoom == 12 && dist_sq >= Z13_THRESHOLD_SQ)) {
         new_desired_keys.push_back({zoom, tx, tz});
         return;
       }
@@ -229,10 +227,19 @@ class streamer {
 
       if (!tex_ready || !height_ready) continue;
 
+      // it is important to offload tile as soon as possible and
+      // for sure before removing AsyncTileLoad from the entity
       const auto [texture_future, heightmap_future, x, z, zoom] = tile;
-      Image tex_img = texture_future.get();
+      const Image tex_img = texture_future.get();
       Image height_img = heightmap_future.get();
       threads -= 2;
+
+      if (!IsImageValid(tex_img) || !IsImageValid(height_img)) {
+        TraceLog(LOG_WARNING, "failed to load tile %d/%d/%d - the tile will not be display in next frame", zoom, x, z);
+        // registry.remove<AsyncTileLoad>(entity);
+        registry.destroy(entity);
+        continue;
+      }
 
       const Texture2D texture_tex = LoadTextureFromImage(tex_img);
       const Texture2D height_tex = LoadTextureFromImage(height_img);
@@ -262,48 +269,48 @@ class streamer {
     }
   }
 
-  static void draw_tile_labels(entt::registry& registry, const Camera3D& camera) {
-    const auto& player = get_player(registry);
-    const auto width = static_cast<float>(GetScreenWidth());
-    const auto height = static_cast<float>(GetScreenHeight());
+  // debugging code
+  // don't compile if not in use
 
-    for (const auto view = registry.view<TerrainChunk, Position3D>(); const auto [entity, chunk, pos] : view.each()) {
-      // if (chunk.zoom != 15) continue;
-      // Raise the label a bit above the ground for legibility
-      const Vector3 world_pos = pos.pos + player.offset + Vector3{0.0f, 200.0f, 0.0f};
+  // static void draw_tile_labels(entt::registry& registry, const Camera3D& camera) {
+  //   const auto& player = get_player(registry);
+  //   const auto width = static_cast<float>(GetScreenWidth());
+  //   const auto height = static_cast<float>(GetScreenHeight());
+  //
+  //   for (const auto view = registry.view<TerrainChunk, Position3D>(); const auto [entity, chunk, pos] : view.each()) {
+  //     // Raise the label a bit above the ground for legibility
+  //     const Vector3 world_pos = pos.pos + player.offset + Vector3{0.0f, 200.0f, 0.0f};
+  //
+  //     // "In front of camera" filter via dot product with forward
+  //     if (const Vector3 to_tile = world_pos - camera.position; Vector3DotProduct(to_tile, player.forward) <= 0.0f) continue;
+  //
+  //     const Vector2 sp = GetWorldToScreen(world_pos, camera);
+  //     if (sp.x < 0.0f || sp.x > width || sp.y < 0.0f || sp.y > height) continue;
+  //
+  //     DrawText(TextFormat("%d", chunk.zoom), static_cast<int>(sp.x), static_cast<int>(sp.y), 15, GREEN);
+  //     DrawText(TextFormat("%d %d", chunk.x, chunk.z), static_cast<int>(sp.x) + 20, static_cast<int>(sp.y), 10, GREEN);
+  //   }
+  // }
 
-      // "In front of camera" filter via dot product with forward
-      if (const Vector3 to_tile = world_pos - camera.position; Vector3DotProduct(to_tile, player.forward) <= 0.0f) continue;
-
-      const Vector2 sp = GetWorldToScreen(world_pos, camera);
-      if (sp.x < 0.0f || sp.x > width || sp.y < 0.0f || sp.y > height) continue;
-
-      DrawText(TextFormat("%d", chunk.zoom), static_cast<int>(sp.x), static_cast<int>(sp.y), 15, GREEN);
-      DrawText(TextFormat("%d %d", chunk.x, chunk.z), static_cast<int>(sp.x) + 20, static_cast<int>(sp.y), 10, GREEN);
-    }
-  }
-
-  void stream_debug(entt::registry& registry, const Camera3D& camera) const {
-    const auto& player = get_player(registry);
-    for (const auto view = registry.view<TerrainChunk, Position3D>(); const auto [entity, chunk, pos] : view.each()) {
-      auto color = RED;
-      auto size = TILE_SIZE_12;
-      if (chunk.zoom == 13) {
-        color = GREEN;
-        size = TILE_SIZE_13;
-      }
-      if (chunk.zoom == 14) {
-        color = BLUE;
-        size = TILE_SIZE_14;
-      }
-      DrawCube(pos.pos + player.offset, size, 5.0f, size, color);
-    }
-  }
+  // void stream_debug(entt::registry& registry, const Camera3D& camera) const {
+  //   const auto& player = get_player(registry);
+  //   for (const auto view = registry.view<TerrainChunk, Position3D>(); const auto [entity, chunk, pos] : view.each()) {
+  //     auto color = RED;
+  //     auto size = TILE_SIZE_12;
+  //     if (chunk.zoom == 13) {
+  //       color = GREEN;
+  //       size = TILE_SIZE_13;
+  //     }
+  //     if (chunk.zoom == 14) {
+  //       color = BLUE;
+  //       size = TILE_SIZE_14;
+  //     }
+  //     DrawCube(pos.pos + player.offset, size, 5.0f, size, color);
+  //   }
+  // }
 
  private:
   entt::entity spawn_tile(entt::registry& registry, const TileKey& tile) {
-    const auto entity = registry.create();
-
     const auto scale = 1 << (tile.zoom - ZOOM_LEVEL);
     const auto tx = tile.x + BASE_X * scale;
     const auto tz = tile.z + BASE_Z * scale;
@@ -311,7 +318,6 @@ class streamer {
     const auto tex_path = std::format("assets/tiles/texture/{}/{}/{}.png", tile.zoom, tx, tz);
     const auto height_path = std::format("assets/tiles/heightmaps/{}/{}/{}.png", tile.zoom, tx, tz);
 
-    // const auto mapbox_token = std::string(std::getenv("MAPBOX_TOKEN"));
     const auto tex_url = tile_downloader::texture_url(tile.zoom, tx, tz, token);
     const auto height_url = tile_downloader::heightmap_url(tile.zoom, tx, tz, token);
 
@@ -322,6 +328,8 @@ class streamer {
     auto tex_future = tile_downloader::enqueue_and_load(tex_path, tex_url);
     auto height_future = tile_downloader::enqueue_and_load(height_path, height_url);
     threads += 2;
+
+    const auto entity = registry.create();
     registry.emplace<Position3D>(entity, (Vector3){world_x, 0.0f, world_z});
     registry.emplace<AsyncTileLoad>(entity, std::move(tex_future), std::move(height_future), tile.x, tile.z, tile.zoom);
 
@@ -346,25 +354,42 @@ class streamer {
     return distance_sq > RENDER_RADIUS_SQ;
   }
 
-  // todo NAIVE implementation by purpose, need a performance refactoring
   [[nodiscard]] bool is_tile_covered(const TileKey& key) const {
-    // if it is zoom 14, we need to check there is a prent exists
+    const auto contains = [&](const int zoom, const int x, const int z) { return rendered_tiles.contains(TileKey{zoom, x, z}); };
+
     if (key.zoom == 14) {
-      const auto p = parent(key);
-      if (rendered_tiles.contains(p)) return true;
-      if (rendered_tiles.contains(parent(p))) return true;
-      return false;
+      const int parent_x = key.x >> 1;
+      const int parent_z = key.z >> 1;
+      return contains(13, parent_x, parent_z) || contains(12, parent_x >> 1, parent_z >> 1);
     }
-    // if it is zoom 13 we need to check parent and children
+
     if (key.zoom == 13) {
-      if (rendered_tiles.contains(parent(key))) return true;
-      return std::ranges::all_of(children(key), [&](const TileKey& x) { return rendered_tiles.contains(x); });
+      if (contains(12, key.x >> 1, key.z >> 1)) return true;
+
+      const int child_x = key.x << 1;
+      const int child_z = key.z << 1;
+      return contains(14, child_x, child_z) && contains(14, child_x + 1, child_z) && contains(14, child_x, child_z + 1) &&
+             contains(14, child_x + 1, child_z + 1);
     }
-    // if it is zoom 12 we need to check children
+
     if (key.zoom == 12) {
-      if (std::ranges::all_of(children(key), [&](const TileKey& x) { return rendered_tiles.contains(x); })) return true;
-      return std::ranges::all_of(grand_children(key), [&](const TileKey& x) { return rendered_tiles.contains(x); });
+      const int child_x = key.x << 1;
+      const int child_z = key.z << 1;
+      if (contains(13, child_x, child_z) && contains(13, child_x + 1, child_z) && contains(13, child_x, child_z + 1) &&
+          contains(13, child_x + 1, child_z + 1)) {
+        return true;
+      }
+
+      const int grand_child_x = key.x << 2;
+      const int grand_child_z = key.z << 2;
+      for (int dx = 0; dx < 4; ++dx) {
+        for (int dz = 0; dz < 4; ++dz) {
+          if (!contains(14, grand_child_x + dx, grand_child_z + dz)) return false;
+        }
+      }
+      return true;
     }
+
     return false;
   }
 };
