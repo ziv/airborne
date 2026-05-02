@@ -10,17 +10,14 @@ module;
 #include <thread>
 #include <vector>
 
-// #define CPPHTTPLIB_OPENSSL_SUPPORT
 #include "../../lib/ray.hpp"
 #include "httplib.h"
 
 export module TileDownloader;
 
-// ---------------------------------------------------------------------------
-// URL builders — one per tile type, matching download_tile.mjs logic
-// ---------------------------------------------------------------------------
-
 export namespace tile_downloader {
+
+// todo URLs should come from options/configuration
 
 std::string texture_url(const int zoom, const int x, const int z, const std::string& token) {
   return std::format("https://api.mapbox.com/v4/mapbox.satellite/{}/{}/{}.png?access_token={}", zoom, x, z, token);
@@ -39,12 +36,6 @@ std::string night_url(const int zoom, const int x, const int z, const std::strin
 }
 
 class pool {
-  // struct Job {
-  //   std::string path;
-  //   std::string url;
-  //   std::promise<void> promise;
-  // };
-
   struct ImageJob {
     std::string path;
     std::string url;
