@@ -353,25 +353,44 @@ class streamer {
     return distance_sq > RENDER_RADIUS_SQ;
   }
 
-  // todo NAIVE implementation by purpose, need a performance refactoring
   [[nodiscard]] bool is_tile_covered(const TileKey& key) const {
-    // if it is zoom 14, we need to check there is a prent exists
+    const auto contains = [&](const int zoom, const int x, const int z) {
+      return rendered_tiles.contains(TileKey{zoom, x, z});
+    };
+
     if (key.zoom == 14) {
-      const auto p = parent(key);
-      if (rendered_tiles.contains(p)) return true;
-      if (rendered_tiles.contains(parent(p))) return true;
-      return false;
+      const int parent_x = key.x >> 1;
+      const int parent_z = key.z >> 1;
+      return contains(13, parent_x, parent_z) || contains(12, parent_x >> 1, parent_z >> 1);
     }
-    // if it is zoom 13 we need to check parent and children
+
     if (key.zoom == 13) {
-      if (rendered_tiles.contains(parent(key))) return true;
-      return std::ranges::all_of(children(key), [&](const TileKey& x) { return rendered_tiles.contains(x); });
+      if (contains(12, key.x >> 1, key.z >> 1)) return true;
+
+      const int child_x = key.x << 1;
+      const int child_z = key.z << 1;
+      return contains(14, child_x, child_z) && contains(14, child_x + 1, child_z) && contains(14, child_x, child_z + 1) &&
+             contains(14, child_x + 1, child_z + 1);
     }
-    // if it is zoom 12 we need to check children
+
     if (key.zoom == 12) {
-      if (std::ranges::all_of(children(key), [&](const TileKey& x) { return rendered_tiles.contains(x); })) return true;
-      return std::ranges::all_of(grand_children(key), [&](const TileKey& x) { return rendered_tiles.contains(x); });
+      const int child_x = key.x << 1;
+      const int child_z = key.z << 1;
+      if (contains(13, child_x, child_z) && contains(13, child_x + 1, child_z) && contains(13, child_x, child_z + 1) &&
+          contains(13, child_x + 1, child_z + 1)) {
+        return true;
+      }
+
+      const int grand_child_x = key.x << 2;
+      const int grand_child_z = key.z << 2;
+      for (int dx = 0; dx < 4; ++dx) {
+        for (int dz = 0; dz < 4; ++dz) {
+          if (!contains(14, grand_child_x + dx, grand_child_z + dz)) return false;
+        }
+      }
+      return true;
     }
+
     return false;
   }
 };

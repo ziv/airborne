@@ -65,29 +65,29 @@ float tile_distance(const Vector3& player_pos, const int zoom, const int tx, con
   const float ddz = player_pos.z - world_z;
   return ddx * ddx + ddz * ddz;
 }
-
-TileKey parent(const TileKey& key) { return TileKey{key.zoom - 1, key.x >> 1, key.z >> 1}; }
-
-std::vector<TileKey> children(const TileKey& key) {
-  const int child_zoom = key.zoom + 1;
-  const int child_x = key.x << 1;
-  const int child_z = key.z << 1;
-  return {TileKey{child_zoom, child_x, child_z}, TileKey{child_zoom, child_x + 1, child_z}, TileKey{child_zoom, child_x, child_z + 1},
-          TileKey{child_zoom, child_x + 1, child_z + 1}};
-}
-
-std::vector<TileKey> grand_children(const TileKey& key) {
-  const int child_zoom = key.zoom + 2;
-  const int child_x = key.x << 2;
-  const int child_z = key.z << 2;
-  std::vector<TileKey> result;
-  for (int dx = 0; dx < 4; dx++) {
-    for (int dz = 0; dz < 4; dz++) {
-      result.push_back(TileKey{child_zoom, child_x + dx, child_z + dz});
-    }
-  }
-  return result;
-}
+//
+// TileKey parent(const TileKey& key) { return TileKey{key.zoom - 1, key.x >> 1, key.z >> 1}; }
+//
+// std::vector<TileKey> children(const TileKey& key) {
+//   const int child_zoom = key.zoom + 1;
+//   const int child_x = key.x << 1;
+//   const int child_z = key.z << 1;
+//   return {TileKey{child_zoom, child_x, child_z}, TileKey{child_zoom, child_x + 1, child_z}, TileKey{child_zoom, child_x, child_z + 1},
+//           TileKey{child_zoom, child_x + 1, child_z + 1}};
+// }
+//
+// std::vector<TileKey> grand_children(const TileKey& key) {
+//   const int child_zoom = key.zoom + 2;
+//   const int child_x = key.x << 2;
+//   const int child_z = key.z << 2;
+//   std::vector<TileKey> result;
+//   for (int dx = 0; dx < 4; dx++) {
+//     for (int dz = 0; dz < 4; dz++) {
+//       result.push_back(TileKey{child_zoom, child_x + dx, child_z + dz});
+//     }
+//   }
+//   return result;
+// }
 
 /// a better performance function thank using
 /// const auto c = GetImageColor(img, px, pz);
