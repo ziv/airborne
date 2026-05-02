@@ -94,6 +94,8 @@ entt::entity spawn_tile(entt::registry& registry, const MapKey& key, const std::
   return entity;
 }
 
+// PUBLIC API
+
 export namespace map_streamer {
 
 void setup(entt::registry& registry) {
