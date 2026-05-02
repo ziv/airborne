@@ -146,7 +146,7 @@ void process_loaded_tiles(entt::registry& registry) {
 
     const Image img = tile.future.get();
 
-    if (IsImageValid(img)) {
+    if (!IsImageValid(img)) {
       TraceLog(LOG_WARNING, "failed to load map tile %d/%d/%d", tile.zoom, tile.geo_x, tile.geo_z);
       // registry.remove<AsyncMapTileLoad>(entity);
       registry.destroy(entity);
