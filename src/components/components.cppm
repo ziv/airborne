@@ -12,17 +12,17 @@ import JsonConfig;
 
 export struct Configuration {
   AppConfig conf{};
-  // JsonConfig scenario;
 };
 
 // global game state
-// todo check if in use
+
 export enum class GameStatus { INITIALIZE, LOADING, PLAYING, PAUSED, GAME_OVER };
 
 export struct GameState {
   GameStatus status = GameStatus::INITIALIZE;
 };
 
+// player/game options
 export struct GameOptions {
   bool changed = false;
   float tilt = 0.25f;
@@ -69,7 +69,7 @@ export struct GroundHeight {
   float effectiveGroundHeight;
 };
 
-// global tiles
+// widgets components
 
 export enum class RadarMode { AIR_TO_AIR, AIR_TO_GROUND };
 
@@ -85,50 +85,32 @@ export struct EngineState {
 
 export struct NpcTag {};
 
-// ---------------- todo need to make a hell of an order in this mess...
-
-export struct LoadingContext {
-  JsonConfig items_to_load;
-  size_t current_index = 0;
-  size_t total_items = 0;
-  bool is_finished = false;
-};
-
 export struct WithModel {
   entt::hashed_string model;
-  // entt::resource<ModelResourceLoader> handle;
 };
 
 export struct WithTexture {
   entt::resource<TextureResourceLoader> handle;
 };
 
-export struct WithImage {
-  entt::resource<ImageResourceLoader> handle;
-};
-
 export struct WithFsShader {
   entt::resource<ShaderLoader> handle;
 };
-
-// screen slots
 
 export struct DashboardSlot {
   int slot_index;
 };
 
-// widgets tags
-
 export struct CockpitWidget {};
 
 export struct HudWidget {
   HudConfig cfg{};
-  Pixel centerX;
-  Pixel centerY;
-  Pixel pixelsPerDegree;
-  float ppd;
-  float tilt;
-  int colorIndex;
+  Pixel centerX{};
+  Pixel centerY{};
+  Pixel pixelsPerDegree{};
+  float ppd{};
+  float tilt{};
+  int colorIndex{};
 };
 
 export struct RadarWidget {
@@ -144,7 +126,9 @@ export struct MinimapWidget {
 
 export struct EngineWidget {};
 
+// todo remove
 export struct CameraWidget {};
+
 export struct TargetCameraWidget {
   int render_tex_id = 0;
   int size = 150;
@@ -157,52 +141,6 @@ export struct Landable {
 
 // tag aircraft as crashed
 export struct Crashed {};
-
-export struct ChromaRender {
-  TextureHandle tex;
-  ShaderHandle shader;
-  Color tint = WHITE;
-  int priority = 0;
-};
-
-export struct Aircraft {
-  // drag
-  float cd;
-  float inducedDragCoefficient;
-
-  // lift
-  float cl;
-  float liftSlopeCoefficient;
-  float stallAngle;
-
-  // weight
-  float weight;
-
-  // agility
-  float pitchRatio;
-  float rollRatio;
-  float yawRatio;
-};
-
-export struct AircraftUtils {
-  bool brake;  // aircraft brakes status
-  bool gear;   // aircraft landing gear status
-};
-
-export struct Engine {
-  float thrust;
-  float throttle;
-};
-
-export struct AircraftControls {
-  float roll;
-  float pitch;
-  float yaw;
-  bool brake;  // pressed or not
-  bool gear;   // pressed or not
-  float throttle;
-  bool afterBurner;
-};
 
 // events/states
 
@@ -220,10 +158,7 @@ export struct LandingZoneDef {
   float surfaceY;
 };
 
-// specific player/world structures
-
-export struct World {
-};
+// entities
 
 export struct Identify {
   std::string id;
@@ -300,45 +235,6 @@ export struct Velocity3D {
   Vector3 velocity;
 };
 
-// dimensions
-
-export struct Dimensions3D {
-  Vector3 size;
-};
-
-export struct Dimensions2D {
-  Vector2 size;
-};
-
-// movement
-
-export struct LinearVelocity {
-  Vector3 velocity;
-  float speed;
-};
-
-export struct AngularVelocity {
-  Vector3 velocity;
-};
-
-export struct LinerAcceleration {
-  Vector3 acc;
-};
-
-export struct AngularAcceleration {
-  Vector3 acc;
-};
-
-export struct Rotation {
-  Quaternion rotation;
-};
-
-export struct Orientation {
-  Vector3 forward;
-  Vector3 up;
-  Vector3 right;
-};
-
 // units
 
 export struct FriendFoe {
@@ -354,8 +250,6 @@ export struct Forces {
   float mass;
   Vector3 acceleration;
 };
-
-// --------------- NPC / AI ---------------
 
 export enum class AiState { PATROL, ENGAGE, DISENGAGE };
 
@@ -373,7 +267,7 @@ export struct AiController {
 // NPC aircraft orientation (mirrors Player's forward/up/right/rotation fields).
 export struct AircraftOrientation {
   Quaternion rotation = QuaternionIdentity();
-  Vector3 forward     = {0.0f, 0.0f, 1.0f};
-  Vector3 up          = {0.0f, 1.0f, 0.0f};
-  Vector3 right       = {-1.0f, 0.0f, 0.0f};
+  Vector3 forward = {0.0f, 0.0f, 1.0f};
+  Vector3 up = {0.0f, 1.0f, 0.0f};
+  Vector3 right = {-1.0f, 0.0f, 0.0f};
 };

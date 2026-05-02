@@ -22,7 +22,7 @@ void models(entt::registry &registry) {
   const auto &player = get_player(registry);
   const auto &player_position = player.pos;
 
-  for (const auto view = registry.view<Position3D, WithModel, Heading>(entt::exclude<World>); auto [entity, position, modeled, heading] : view.each()) {
+  for (const auto view = registry.view<Position3D, WithModel, Heading>(); auto [entity, position, modeled, heading] : view.each()) {
     // 1. model not exists
     if (!models.contains(modeled.model)) continue;
 
