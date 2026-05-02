@@ -23,9 +23,6 @@ std::unique_ptr<BaseScreen> create_screen(const ScreenState& current, entt::regi
     case ScreenState::SPLASH:
       return std::make_unique<SplashScreen>(registry);
 
-    case ScreenState::LOADING:
-      return std::make_unique<LoadingScreen>(registry);
-
     case ScreenState::GAMEPLAY:
       return std::make_unique<GameScreen>(registry);
   }

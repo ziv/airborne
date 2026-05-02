@@ -112,7 +112,6 @@ target_sources(${PROJECT_NAME} PUBLIC
         src/screens/screens.cppm
         src/screens/splash.cppm
         src/screens/game.cppm
-        src/screens/loading.cppm
 )
 
 
