@@ -121,9 +121,8 @@ class streamer {
 
     // todo read colors from scene for the light ambient
     const int ambientLoc = GetShaderLocation(displacement_shader, "ambientLight");
-    float currentLight[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
+    float currentLight[4] = {1.0f, 1.0f, 1.0f, 1.0f};
     SetShaderValue(displacement_shader, ambientLoc, currentLight, SHADER_UNIFORM_VEC4);
-
   }
 
   ~streamer() {
@@ -158,12 +157,6 @@ class streamer {
       DrawModel(model, pos.pos + offset, 1.0f, WHITE);
     }
     // EndBlendMode();
-  }
-
-  void show_debug_data() const {
-    DrawText(TextFormat("desired tiles: %d", static_cast<int>(desired_tiles.size())), 15, 280, 10, BLACK);
-    DrawText(TextFormat("rendered tiles: %d", static_cast<int>(rendered_tiles.size())), 15, 295, 10, BLACK);
-    DrawText(TextFormat("threads: %d", threads), 15, 310, 10, BLACK);
   }
 
   void update(entt::registry& registry) {
@@ -235,21 +228,19 @@ class streamer {
 
   void process_loaded_chunks(entt::registry& registry) {
     for (const auto view = registry.view<AsyncTileLoad>(); const auto [entity, tile] : view.each()) {
-      const bool tex_ready = tile.texture_future.wait_for(std::chrono::seconds(0)) == std::future_status::ready;
-      const bool height_ready = tile.heightmap_future.wait_for(std::chrono::seconds(0)) == std::future_status::ready;
-
-      if (!tex_ready || !height_ready) continue;
-
       // it is important to offload tile as soon as possible and
       // for sure before removing AsyncTileLoad from the entity
       const auto [texture_future, heightmap_future, x, z, zoom] = tile;
+
+      if (const bool tex_ready = texture_future.wait_for(std::chrono::seconds(0)) == std::future_status::ready; !tex_ready) continue;
+      if (const bool height_ready = heightmap_future.wait_for(std::chrono::seconds(0)) == std::future_status::ready; !height_ready) continue;
+
       const Image tex_img = texture_future.get();
       Image height_img = heightmap_future.get();
       threads -= 2;
 
       if (!IsImageValid(tex_img) || !IsImageValid(height_img)) {
         TraceLog(LOG_WARNING, "failed to load tile %d/%d/%d - the tile will not be display in next frame", zoom, x, z);
-        // registry.remove<AsyncTileLoad>(entity);
         registry.destroy(entity);
         continue;
       }
@@ -263,7 +254,7 @@ class streamer {
       const auto texture_id = get_tex_id(zoom, x, z);
       const auto height_id = get_height_id(zoom, x, z);
 
-      // verify we are attaching to free spaced
+      // verify we are attaching to freed space (just for safety, should not happen)
       unload_tile_resources(rmg, zoom, x, z);
 
       // the assign
@@ -274,10 +265,13 @@ class streamer {
       // component for rendering
       registry.emplace<TerrainChunk>(entity, texture_id, height_id, zoom, x, z);
       registry.emplace<TerrainHeight>(entity, height_id);
+      // remove the async tile
       registry.remove<AsyncTileLoad>(entity);
 
       // keep in map of rendered
       rendered_tiles[{zoom, x, z}] = entity;
+
+      // we'll continue the next frame, the render is waiting
       break;
     }
   }
@@ -285,6 +279,12 @@ class streamer {
   // debugging code
   // don't compile if not in use
 
+
+  // void show_debug_data() const {
+  //   DrawText(TextFormat("desired tiles: %d", static_cast<int>(desired_tiles.size())), 15, 280, 10, BLACK);
+  //   DrawText(TextFormat("rendered tiles: %d", static_cast<int>(rendered_tiles.size())), 15, 295, 10, BLACK);
+  //   DrawText(TextFormat("threads: %d", threads), 15, 310, 10, BLACK);
+  // }
   // static void draw_tile_labels(entt::registry& registry, const Camera3D& camera) {
   //   const auto& player = get_player(registry);
   //   const auto width = static_cast<float>(GetScreenWidth());
@@ -304,7 +304,6 @@ class streamer {
   //     DrawText(TextFormat("%d %d", chunk.x, chunk.z), static_cast<int>(sp.x) + 20, static_cast<int>(sp.y), 10, GREEN);
   //   }
   // }
-
   // void stream_debug(entt::registry& registry, const Camera3D& camera) const {
   //   const auto& player = get_player(registry);
   //   for (const auto view = registry.view<TerrainChunk, Position3D>(); const auto [entity, chunk, pos] : view.each()) {

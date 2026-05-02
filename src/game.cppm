@@ -156,7 +156,6 @@ export class Game {
     RenderCrashLayout(registry);
 
     game_options::options(registry);
-    streamer.show_debug_data();
     DrawFPS(1050, 780);
   }
 };
