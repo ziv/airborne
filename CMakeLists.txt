@@ -1,12 +1,13 @@
 cmake_minimum_required(VERSION 4.2.2)
 set(CMAKE_CXX_COMPILER_LAUNCHER ccache)
+
 project(airborne LANGUAGES CXX)
+
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-# Fetch raylib from GitHub
 include(FetchContent)
 FetchContent_Declare(
         raylib
@@ -16,7 +17,6 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(raylib)
 
-# Fetch entt from GitHub
 include(FetchContent)
 FetchContent_Declare(
         entt
@@ -26,7 +26,6 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(entt)
 
-# Fetch nlohmann_json from GitHub
 include(FetchContent)
 FetchContent_Declare(
         nlohmann_json
@@ -36,7 +35,6 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(nlohmann_json)
 
-# Fetch cpp-httplib
 FetchContent_Declare(
         httplib
         GIT_REPOSITORY https://github.com/yhirose/cpp-httplib.git
@@ -53,12 +51,9 @@ add_executable(${PROJECT_NAME} src/main.cpp src/lib/raygui-impl.cpp src/lib/http
 target_sources(${PROJECT_NAME} PUBLIC
         FILE_SET CXX_MODULES FILES
         src/game.cppm
-        src/utils/utils.cppm
         src/core/types/types.cppm
         src/core/types/scenario-types.cppm
         src/core/types/units-types.cppm
-        src/core/helpers.cppm
-        src/core/json-config.cppm
         src/core/types/config-types.cppm
         src/core/resources/resources.cppm
         src/core/resources/raylib-resource.cppm
@@ -111,6 +106,9 @@ target_sources(${PROJECT_NAME} PUBLIC
         src/systems/aircraft/update-lock-system.cppm
         src/utils/accessors.cppm
         src/utils/loading.cppm
+        src/utils/utils.cppm
+        src/utils/helpers.cppm
+        src/utils/json-config.cppm
         src/screens/base.cppm
         src/screens/screens.cppm
         src/screens/splash.cppm
