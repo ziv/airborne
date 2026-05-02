@@ -61,7 +61,6 @@ export namespace player_systems {
 
 void position(entt::registry &registry, const float dt) {
   const PlayerPositionConfig conf = get_config(registry).player.position;
-
   const auto entity = get_player_entity(registry);
   auto [player, gh, inputs] = registry.get<Player, GroundHeight, const PlayerInputs>(entity);
 
@@ -78,8 +77,7 @@ void position(entt::registry &registry, const float dt) {
 
   // only when gear down, we check for landing zones
   if (inputs.gear) {
-    const auto [is_landing_zone, is_carrier, surface_y] = get_landing_zone(registry, absolute_position);
-    if (is_landing_zone) {
+    if (const auto [is_landing_zone, is_carrier, surface_y] = get_landing_zone(registry, absolute_position); is_landing_zone) {
       // update effective ground height
       gh.effectiveGroundHeight = fmaxf(gh.height, surface_y);
       registry.emplace_or_replace<LandingZoneDef>(entity, is_landing_zone, is_carrier, surface_y);
