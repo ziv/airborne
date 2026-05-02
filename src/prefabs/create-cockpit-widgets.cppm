@@ -20,6 +20,8 @@ void remove_widget(const int slot, entt::registry &registry) {
   for (const auto [entity, dashboard] : view.each()) {
     if (dashboard.slot_index != slot) continue;
     if (registry.all_of<WidgetType>(entity)) registry.remove<WidgetType>(entity);
+    const int rt_id = entt::hashed_string(TextFormat("target_cam_rt_%d", slot)).value();
+    if (get_resource_manager(registry).render_textures.contains(rt_id)) get_resource_manager(registry).render_textures.erase(rt_id);
   }
 }
 
@@ -52,7 +54,7 @@ void set_minimap(const int slot, entt::registry &registry) {
 
     const MinimapConfig minimap_cfg = get_config(registry).views.minimap;
     MinimapWidget widget;
-    widget.cfg      = minimap_cfg;
+    widget.cfg = minimap_cfg;
     widget.map_zoom = minimap_cfg.defaultMapZoom;
     registry.emplace_or_replace<MinimapWidget>(entity, widget);
     break;
@@ -76,6 +78,7 @@ void set_target_camera(const int slot, entt::registry &registry) {
     constexpr int size = 150;
     const int rt_id = entt::hashed_string(TextFormat("target_cam_rt_%d", slot)).value();
 
+    // todo this is not good, creating texture in middle of game?! think
     rm.render_textures.erase(rt_id);
     rm.render_textures.load(rt_id, LoadRenderTexture(size, size));
 

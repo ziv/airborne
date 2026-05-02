@@ -32,6 +32,10 @@ Generator<int> make_loading_sequence(entt::registry& registry, const nlohmann::j
   const auto s = static_cast<float>(size);
   float c = 0;
 
+  const int rt_id = entt::hashed_string("target_cam").value();
+  // get_resource_manager(registry).render_textures[rt_id] = LoadRenderTexture(150, 150);
+
+
   for (auto& resource : scene["resources"]) {
     TraceLog(LOG_DEBUG, "loading resource %d/%d: %s", c + 1, size, resource.dump().c_str());
     resources::load_resource(registry, resource);

@@ -3,8 +3,8 @@ module;
 #include <entt/entt.hpp>
 #include <format>
 #include <future>
-#include <unordered_map>
 #include <string>
+#include <unordered_map>
 #include <vector>
 
 #include "../../lib/ray.hpp"
@@ -118,6 +118,13 @@ class streamer {
     constexpr float heightScale = 1.0;
     const int scaleLoc = GetShaderLocation(displacement_shader, "heightScale");
     SetShaderValue(displacement_shader, scaleLoc, &heightScale, SHADER_UNIFORM_FLOAT);
+  }
+
+  ~streamer() {
+    UnloadModel(*terrain_model12);
+    UnloadModel(*terrain_model13);
+    UnloadModel(*terrain_model14);
+    UnloadShader(displacement_shader);
   }
 
   void stream(entt::registry& registry, const Camera3D& camera) const {

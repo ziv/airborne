@@ -51,7 +51,7 @@ export {
 
 export struct RenderTextureResourceLoader {
   RenderTexture2D res;
-  explicit RenderTextureResourceLoader(RenderTexture2D rt) : res(rt) {}
+  explicit RenderTextureResourceLoader(const RenderTexture2D &rt) : res(rt) {}
   ~RenderTextureResourceLoader() { UnloadRenderTexture(res); }
   RenderTextureResourceLoader(const RenderTextureResourceLoader &) = delete;
   RenderTextureResourceLoader &operator=(const RenderTextureResourceLoader &) = delete;
