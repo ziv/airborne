@@ -43,6 +43,14 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(httplib)
 
+FetchContent_Declare(
+        raygui
+        GIT_REPOSITORY https://github.com/raysan5/raygui.git
+        GIT_TAG 4.0
+        GIT_SHALLOW TRUE
+)
+FetchContent_MakeAvailable(raygui)
+
 # OpenSSL (system-provided — on macOS: brew install openssl)
 find_package(OpenSSL REQUIRED)
 
@@ -123,6 +131,10 @@ if(APPLE)
     target_link_libraries(${PROJECT_NAME} PRIVATE ${SECURITY_FRAMEWORK})
 endif()
 
-# httplib needs its include dir and the OPENSSL support flag
+
 target_include_directories(${PROJECT_NAME} PRIVATE ${httplib_SOURCE_DIR})
+
+target_include_directories(airborne PRIVATE ${raygui_SOURCE_DIR}/src)
+
+# httplib needs its include dir and the OPENSSL support flag
 target_compile_definitions(${PROJECT_NAME} PRIVATE CPPHTTPLIB_OPENSSL_SUPPORT)

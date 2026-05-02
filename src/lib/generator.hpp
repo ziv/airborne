@@ -2,6 +2,7 @@
 #include <coroutine>
 #include <exception>
 
+/// my compiler does not support std::generator so have to re-invent the wheel
 template <typename T>
 struct Generator {
   struct promise_type {
