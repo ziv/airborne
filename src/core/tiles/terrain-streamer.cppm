@@ -75,6 +75,11 @@ float ground_height_at(entt::registry& registry, const Vector3& pos) {
   return 0.0f;
 }
 
+
+// tiles data component
+struct TilesStreamer {
+
+};
 /// terrain streamer responsible to render the "world" all the entities
 /// leaves on. it supports multiple LOD (more level require performance
 /// optimizations).

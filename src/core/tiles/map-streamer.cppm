@@ -127,9 +127,8 @@ void update(entt::registry& registry) {
     for (int dz = -MAP_GRID_HALF; dz <= MAP_GRID_HALF; ++dz) desired.insert({map_zoom, cx + dx, cz + dz, geo_cx + dx, geo_cz + dz});
 
   // Spawn newly desired tiles.
-  for (const auto& key : desired) {
+  for (const auto& key : desired)
     if (!tracked_tiles.contains(key)) tracked_tiles[key] = spawn_tile(registry, key, token);
-  }
 
   // evict tiles no longer desired.
   std::erase_if(tracked_tiles, [&](const auto& item) {
