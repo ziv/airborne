@@ -92,7 +92,9 @@ class pool {
     cli.set_follow_location(true);
     cli.set_connection_timeout(10);
     cli.set_read_timeout(5);
+#ifdef __APPLE__
     cli.enable_server_certificate_verification(false);
+#endif
 
     const auto res = cli.Get(target);
     if (!res || res->status != 200) {
