@@ -90,8 +90,9 @@ class pool {
       }
       if (has_img_job) {
         download(img_job.path, img_job.url);
-        { std::lock_guard lock(mtx); in_flight_images.erase(img_job.path); }
+        // first load, then release
         img_job.promise.set_value(LoadImage(img_job.path.c_str()));
+        { std::lock_guard lock(mtx); in_flight_images.erase(img_job.path); }
       }
     }
   }
