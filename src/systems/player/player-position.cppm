@@ -114,7 +114,7 @@ void position(entt::registry &registry, const float dt) {
     if (registry.remove<TouchDown>(entity)) TraceLog(LOG_DEBUG, "[TouchDown] removed from player");
     if (!registry.all_of<Flying>(entity)) {
       registry.emplace<Flying>(entity);
-      TraceLog(LOG_DEBUG, "[Flying] added to player");
+      TraceLog(LOG_DEBUG, "[Flying] added to player at height %d", player.pos.y);
     }
   }
 

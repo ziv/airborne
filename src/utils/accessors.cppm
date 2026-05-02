@@ -30,3 +30,5 @@ export PlayerInputs &get_player_inputs(entt::registry &registry) { return regist
 export bool is_player_crashed(entt::registry &registry) { return registry.all_of<Crashed>(get_player_entity(registry)); }
 
 export bool is_player_flying(entt::registry &registry) { return registry.all_of<Flying>(get_player_entity(registry)); }
+
+export LandingZoneDef &get_landing_zone(entt::registry &registry) { return registry.get<LandingZoneDef>(get_player_entity(registry)); }

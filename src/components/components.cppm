@@ -223,9 +223,6 @@ export struct LandingZoneDef {
 // specific player/world structures
 
 export struct World {
-  // entt::resource<ModelResourceLoader> surface;
-  // entt::resource<ModelResourceLoader> clouds;
-  // entt::resource<MusicStreamResourceLoader> streams;
 };
 
 export struct Identify {
