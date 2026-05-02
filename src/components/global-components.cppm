@@ -1,7 +1,5 @@
 module;
-#include <entt/entt.hpp>
-
-#include "../lib/ray.hpp"
+#include <string>
 
 export module Components:Global;
 

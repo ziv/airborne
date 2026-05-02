@@ -1,6 +1,6 @@
 module;
 #include <entt/entt.hpp>
-
+#include <string>
 #include "../lib/ray.hpp"
 
 export module Components;
