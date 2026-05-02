@@ -14,7 +14,12 @@ constexpr Meter TILE_SIZE_12 = 9783.9f;
 constexpr Meter TILE_SIZE_13 = 4891.95f;
 constexpr Meter TILE_SIZE_14 = 2445.975f;
 constexpr Meter TILE_SIZE_15 = 1222.9875f;
-// constexpr std::array<Meter, 3> TILE_SIZES{TILE_SIZE_12, TILE_SIZE_13, TILE_SIZE_14};
+const std::map<int, Meter> TILE_SIZES = {
+    {12, TILE_SIZE_12},
+    {13, TILE_SIZE_13},
+    {14, TILE_SIZE_14},
+    {15, TILE_SIZE_15},
+};
 
 constexpr int ZOOM_LEVEL = 12;
 constexpr int BASE_X = 2444;
@@ -39,7 +44,10 @@ struct TileKey {
 
 // module private methods
 
-constexpr Meter tile_size_for_zoom(const int zoom) { return TILE_SIZE_12 / static_cast<Meter>(1 << (zoom - ZOOM_LEVEL)); }
+constexpr Meter tile_size_for_zoom(const int zoom) {
+  return TILE_SIZES.at(zoom);
+  // return TILE_SIZE_12 / static_cast<Meter>(1 << (zoom - ZOOM_LEVEL));
+}
 
 // ids for textures and heightmap to share between components
 int get_tex_id(const int zoom, const int x, const int z) { return entt::hashed_string(TextFormat("tile_tex_%d_%d_%d", zoom, x, z)); }
