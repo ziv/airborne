@@ -103,8 +103,6 @@ export class Game {
     }
 
     const auto dt = GetFrameTime();
-    auto player = get_player(registry);
-    auto inputs = get_player_inputs(registry);
 
     aircraft_systems::engine(registry, dt);
     aircraft_systems::gear(registry);

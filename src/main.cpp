@@ -14,6 +14,8 @@ import ResourceManager;
 import Resources;
 import Screens;
 
+/// screen selectors, create the required screen object
+/// screen are unique_ptr by design
 std::unique_ptr<BaseScreen> create_screen(const ScreenState& current, entt::registry& registry) {
   switch (current) {
     default:
@@ -59,7 +61,7 @@ int main() {
   try {
     const auto [app_conf, options] = load_requirements();
 
-    // setup devices
+    // init devices
     InitWindow(app_conf.global.width, app_conf.global.height, app_conf.global.title.c_str());
     InitAudioDevice();
     rlSetClipPlanes(app_conf.global.nearPlane, app_conf.global.farPlane);
@@ -67,9 +69,11 @@ int main() {
     // todo remove comment in production
     // SetTargetFPS(60);
 
+    // game globals
     entt::registry registry;
     set_initial_globals(registry, app_conf, options);
 
+    // screens state
     auto current = ScreenState::SPLASH;
     auto next = ScreenState::SPLASH;
     std::unique_ptr<BaseScreen> screen = create_screen(current, registry);
@@ -86,6 +90,7 @@ int main() {
 
     // make sure we clear everything
     unload_resource_manager(registry);
+    registry.clear();
 
     CloseAudioDevice();
     CloseWindow();

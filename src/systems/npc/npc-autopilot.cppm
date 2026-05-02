@@ -13,7 +13,7 @@ export namespace npc_systems {
 void autopilot(entt::registry& registry, const float dt) {
   // const auto player_entity = get_player_entity(registry);
   const auto& player = get_player(registry);
-  const Vector3 player_abs = player.absolute_position();
+  const Vector3 player_abs = player.abs_pos;
 
   const auto view = registry.view<NpcTag, AiController, AircraftOrientation, PhysicsProfile, Position3D, Velocity3D>();
 

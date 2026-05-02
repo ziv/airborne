@@ -18,7 +18,7 @@ export void RenderMinimap(entt::registry& registry) {
     const auto player_entity = registry.ctx().get<PlayerEntity>().id;
     const auto& player = registry.get<Player>(player_entity);
 
-    const Vector3 abs_pos = player.absolute_position();
+    const Vector3 abs_pos = player.abs_pos;
     const int map_zoom = wd.map_zoom;
     const float tile_sz = minimap_tile_size(map_zoom);
 

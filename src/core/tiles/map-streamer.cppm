@@ -94,6 +94,8 @@ entt::entity spawn_tile(entt::registry& registry, const MapKey& key, const std::
   return entity;
 }
 
+// PUBLIC API
+
 export namespace map_streamer {
 
 void setup(entt::registry& registry) {
@@ -105,7 +107,7 @@ void setup(entt::registry& registry) {
 void update(entt::registry& registry) {
   auto& [tracked_tiles, token] = registry.ctx().get<MapStreamer>();
   const auto& player = get_player(registry);
-  const auto pos = player.absolute_position();
+  const auto pos = player.abs_pos;
 
   int map_zoom = 12;
   if (const auto view = registry.view<MinimapWidget>(); !view.empty()) {
@@ -125,9 +127,8 @@ void update(entt::registry& registry) {
     for (int dz = -MAP_GRID_HALF; dz <= MAP_GRID_HALF; ++dz) desired.insert({map_zoom, cx + dx, cz + dz, geo_cx + dx, geo_cz + dz});
 
   // Spawn newly desired tiles.
-  for (const auto& key : desired) {
+  for (const auto& key : desired)
     if (!tracked_tiles.contains(key)) tracked_tiles[key] = spawn_tile(registry, key, token);
-  }
 
   // evict tiles no longer desired.
   std::erase_if(tracked_tiles, [&](const auto& item) {

@@ -75,6 +75,7 @@ float ground_height_at(entt::registry& registry, const Vector3& pos) {
   return 0.0f;
 }
 
+
 /// terrain streamer responsible to render the "world" all the entities
 /// leaves on. it supports multiple LOD (more level require performance
 /// optimizations).
@@ -169,7 +170,7 @@ class streamer {
       }
     }
 
-    const auto player_pos = get_player(registry).absolute_position();
+    const auto player_pos = get_player(registry).abs_pos;
 
     if (Vector3DistanceSqr(player_pos, last_position) < UPDATE_THRESHOLD) return;  // only update when moved more than N meters
     last_position = player_pos;

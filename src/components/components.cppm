@@ -41,6 +41,7 @@ export struct Player {
   Quaternion rotation;
   Vector3 pos;
   Vector3 offset;
+  Vector3 abs_pos;
   Vector3 velocity;
   Vector3 angular_velocity;  // angular velocity
   Vector3 forward;
@@ -49,8 +50,6 @@ export struct Player {
   float speed;
   float ground_height;
   float effective_ground_height;
-
-  [[nodiscard]] Vector3 absolute_position() const { return pos - offset; }
 };
 
 // player inputs state
