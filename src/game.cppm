@@ -51,6 +51,8 @@ Generator<int> make_setup_sequence(entt::registry& registry, const nlohmann::jso
     co_yield 10 + ++c;
   }
 
+  map_streamer::setup(registry);
+
   npc_systems::setup(registry);
   registry.ctx().get<GameState>().status = GameStatus::PLAYING;
   co_yield 100;
@@ -116,8 +118,10 @@ export class Game {
     npc_systems::physics(registry, dt);
     streamer.update(registry);
     streamer.process_loaded_chunks(registry);
-    map_str.update(registry);
-    map_str.process_loaded_tiles(registry);
+    map_streamer::update(registry);
+    map_streamer::process_loaded_tiles(registry);
+    // map_str.update(registry);
+    // map_str.process_loaded_tiles(registry);
 
     if (const auto view = registry.view<MinimapWidget>(); !view.empty()) {
       auto& wd = registry.get<MinimapWidget>(view.front());
