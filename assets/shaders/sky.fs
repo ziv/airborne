@@ -44,7 +44,8 @@ float fbm(vec2 p) {
 
 void main()
 {
-    vec3 cloudAmbient = vec3(0.65, 0.65, 0.75);
+    // vec3 cloudAmbient = vec3(0.65, 0.65, 0.75);
+    vec3 cloudAmbient = vec3(0.9, 0.9, 1.0);
     vec3 dir = normalize(fragLocalPos);
 
     float upFactor   = max(dir.y, 0.0);
@@ -57,7 +58,7 @@ void main()
     if (dir.y > 0.0) {
         // Project the view direction onto a flat cloud plane at a fixed "altitude".
         // Dividing xz by y gives a perspective-correct plane intersection.
-        float cloudAltitude = 0.15; // controls how high on the dome clouds appear
+        float cloudAltitude = 0.45; // controls how high on the dome clouds appear
         vec2 cloudUV = dir.xz / (dir.y + cloudAltitude);
 
         // Slow horizontal drift
