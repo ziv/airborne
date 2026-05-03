@@ -205,7 +205,7 @@ export void RenderHud(entt::registry &registry) {
 
   constexpr std::array<Color, 5> colors = {GREEN, YELLOW, ORANGE, WHITE, BLACK};
   const auto entity = view.front();
-  const auto hud = registry.get<HudWidget>(entity);
+  const auto &hud = registry.get<HudWidget>(entity);
 
   const auto &player_entity = get_player_entity(registry);
   const auto &[player, inputs, gh] = registry.get<Player, PlayerInputs, GroundHeight>(player_entity);
