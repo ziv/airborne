@@ -19,7 +19,7 @@ the [Wiki](https://github.com/ziv/airborne/wiki) for more information.
 - Do not use game engine and or LLM
 - I have to re-learn CPP and linear algebra (ohh, trigonometry)
 - To have fun
--
+
 
 ## How to
 
