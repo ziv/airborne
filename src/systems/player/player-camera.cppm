@@ -17,9 +17,9 @@ void camera(entt::registry &registry, Camera &camera) {
   auto &options = get_options(registry);
   const Player &player = get_player(registry);
 
-  camera.fovy = options.fov;
+  camera.fovy = options.get_fov();
   camera.position = player.pos;
-  const Quaternion qTilt = QuaternionFromAxisAngle(player.right, -options.tilt);
+  const Quaternion qTilt = QuaternionFromAxisAngle(player.right, -options.get_tilt());
   camera.target = camera.position + Vector3RotateByQuaternion(player.forward, qTilt);
   camera.up = Vector3RotateByQuaternion(player.up, qTilt);
 }

@@ -8,6 +8,7 @@
 #include "rlgl.h"
 
 import JsonConfig;
+import AppOptions;
 import Accessors;
 import Types;
 import ResourceManager;
@@ -31,22 +32,9 @@ std::unique_ptr<BaseScreen> create_screen(const ScreenState& current, entt::regi
 /// load configuration files and ensure existing of required tokens.
 /// tokens can be set in the options file or in environment variables.
 /// @see https://github.com/ziv/airborne/wiki/Tokens for more information
-std::tuple<AppConfig, nlohmann::json> load_requirements() {
+std::tuple<AppConfig, AppOptions> load_requirements() {
   const auto app_conf = JsonConfig(resources::config_path).get<AppConfig>("/config");
-  auto options = parse_json_file(resources::options_path);
-
-  if (!options.contains("tiles_token")) {
-    const auto tiles_token = std::string(std::getenv(resources::tiles_token_name));
-    if (tiles_token.empty()) throw std::runtime_error("missing tiles token in options or environment variables");
-    options["tiles_token"] = tiles_token;
-  }
-
-  if (!options.contains("maps_token")) {
-    const auto maps_token = std::string(std::getenv(resources::maps_token_name));
-    if (maps_token.empty()) throw std::runtime_error("missing maps token in options or environment variables");
-    options["maps_token"] = maps_token;
-  }
-
+  const AppOptions options{resources::options_path};
   return {app_conf, options};
 }
 
@@ -57,19 +45,20 @@ int main() {
   SetConfigFlags(FLAG_WINDOW_RESIZABLE | FLAG_VSYNC_HINT);
 
   try {
-    const auto [app_conf, options] = load_requirements();
+    const auto [config, options] = load_requirements();
 
     // init devices
-    InitWindow(app_conf.global.width, app_conf.global.height, app_conf.global.title.c_str());
+    InitWindow(config.global.width, config.global.height, config.global.title.c_str());
     InitAudioDevice();
-    rlSetClipPlanes(app_conf.global.nearPlane, app_conf.global.farPlane);
+    rlSetClipPlanes(config.global.nearPlane, config.global.farPlane);
 
     // todo remove comment in production
     // SetTargetFPS(60);
 
+    // todo remove to game screen, no need to have global registry, move conf into to screens instead
     // game globals
     entt::registry registry;
-    set_initial_globals(registry, app_conf, options);
+    set_initial_globals(registry, config, options);
 
     // screens state
     auto current = ScreenState::SPLASH;

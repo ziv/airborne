@@ -1,8 +1,8 @@
 module;
 #include <entt/entt.hpp>
-#include "raygui.h"
 
 #include "../lib/ray.hpp"
+#include "raygui.h"
 
 export module GameOptions;
 
@@ -31,25 +31,25 @@ void options(entt::registry& registry) {
 
     DrawText("PAUSED", 500, 250, 40, YELLOW);
 
-    float tilt = options.tilt;
+    float tilt = options.get_tilt();
     GuiSlider((Rectangle){380, 320, 300, 20}, "Tilt view", TextFormat("%.2f", tilt), &tilt, 0.0f, 1.0f);
-    if (tilt != options.tilt) {
-      options.tilt = tilt;
-      options.changed = true;
+    if (tilt != options.get_tilt()) {
+      // options.tilt = tilt;
+      // options.changed = true;
     }
 
-    float fov = options.fov;
+    float fov = options.get_fov();
     GuiSlider((Rectangle){380, 350, 300, 20}, "FOV", TextFormat("%.0f", fov), &fov, 40.0f, 120.0f);
-    if (fov != options.fov) {
-      options.fov = fov;
-      options.changed = true;
+    if (fov != options.get_fov()) {
+      // options.fov = fov;
+      // options.changed = true;
     }
 
-    if (options.changed) {
-      if (GuiButton((Rectangle){380, 410, 300, 20}, "SAVE")) {
-        save(options);
-      }
-    }
+    // if (options.changed) {
+    //   if (GuiButton((Rectangle){380, 410, 300, 20}, "SAVE")) {
+    //     save(options);
+    //   }
+    // }
   }
 }
 }  // namespace game_options

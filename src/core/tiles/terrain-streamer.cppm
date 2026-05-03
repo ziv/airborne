@@ -100,7 +100,7 @@ class streamer {
         terrain_model13(std::make_unique<Model>(create_model(TILE_SIZE_13, 64))),
         terrain_model14(std::make_unique<Model>(create_model(TILE_SIZE_14, 256))),
         rmg(get_resource_manager(registry)),
-        token(get_options(registry).tiles_token) {
+        token(get_options(registry).get_tiles_token()) {
     // set the displacement_shader as the terrain model shader
     terrain_model12->materials[0].shader = displacement_shader;
     terrain_model13->materials[0].shader = displacement_shader;

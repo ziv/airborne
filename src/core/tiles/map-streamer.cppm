@@ -116,7 +116,7 @@ export namespace map_streamer {
 
 void setup(entt::registry& registry) {
   MapStreamer streamer;
-  streamer.token = get_options(registry).maps_token;
+  streamer.token = get_options(registry).get_maps_token();
   registry.ctx().emplace<MapStreamer>(streamer);
 }
 

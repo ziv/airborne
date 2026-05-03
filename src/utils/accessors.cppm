@@ -4,20 +4,20 @@ module;
 
 export module Accessors;
 
+import AppOptions;
 import Components;
 import ResourceManager;
 import JsonConfig;
 import Types;
 
-export void set_initial_globals(entt::registry &registry, const AppConfig &config, const nlohmann::json &options) {
+export void set_initial_globals(entt::registry &registry, const AppConfig &config, const AppOptions &opts) {
   registry.ctx().emplace<GameState>(GameStatus::INITIALIZE);
-  registry.ctx().emplace<GameOptions>(false, options["tilt"].get<float>(), options["fov"].get<float>(), options["tiles_token"].get<std::string>(),
-                                      options["maps_token"].get<std::string>());
   registry.ctx().emplace<Configuration>(config);
+  registry.ctx().emplace<AppOptions>(opts);
   create_resource_manager(registry);
 }
 
-export GameOptions &get_options(entt::registry &registry) { return registry.ctx().get<GameOptions>(); }
+export AppOptions &get_options(entt::registry &registry) { return registry.ctx().get<AppOptions>(); }
 
 export const AppConfig &get_config(entt::registry &registry) { return registry.ctx().get<Configuration>().conf; }
 

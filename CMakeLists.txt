@@ -59,6 +59,7 @@ add_executable(${PROJECT_NAME} src/main.cpp src/lib/raygui-impl.cpp src/lib/http
 target_sources(${PROJECT_NAME} PUBLIC
         FILE_SET CXX_MODULES FILES
         src/game.cppm
+        src/options.cppm
         src/core/types/types.cppm
         src/core/types/scenario-types.cppm
         src/core/types/units-types.cppm
