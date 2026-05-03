@@ -35,12 +35,10 @@ export struct WithModel {
 
 export struct WithTexture {
   entt::hashed_string texture;
-  // entt::resource<TextureResourceLoader> handle;
 };
 
 export struct WithFsShader {
   entt::hashed_string shader;
-  // entt::resource<ShaderLoader> handle;
 };
 
 // area we can land on
