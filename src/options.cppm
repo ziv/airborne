@@ -9,6 +9,13 @@ export module AppOptions;
 import Resources;
 import JsonConfig;
 
+static std::string required_env(const char* name, std::string_view label) {
+  if (const char* value = std::getenv(name); value && *value) {
+    return value;
+  }
+  throw std::runtime_error(std::format("missing {} token in options or environment variables", label));
+}
+
 export class AppOptions {
   std::string path;
   nlohmann::json config;
@@ -38,18 +45,14 @@ export class AppOptions {
     if (config.contains("tiles_token")) {
       tiles_token = config["tiles_token"].get<std::string>();
     } else {
-      const auto env_tiles_token = std::string(std::getenv(resources::tiles_token_name));
-      if (env_tiles_token.empty()) throw std::runtime_error("missing tiles token in options or environment variables");
-      tiles_token = env_tiles_token;
+      tiles_token = required_env(resources::tiles_token_name, "tiles");
     }
 
     // token for Tomtom
     if (config.contains("maps_token")) {
       maps_token = config["maps_token"].get<std::string>();
     } else {
-      const auto env_maps_token = std::string(std::getenv(resources::maps_token_name));
-      if (env_maps_token.empty()) throw std::runtime_error("missing maps token in options or environment variables");
-      maps_token = env_maps_token;
+      maps_token = required_env(resources::maps_token_name, "maps");
     }
   }
 

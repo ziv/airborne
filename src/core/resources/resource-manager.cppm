@@ -19,6 +19,8 @@ struct ResourceLoader {
 
   ResourceLoader(const ResourceLoader &) = delete;
 
+  // move
+  ResourceLoader(ResourceLoader &&other) noexcept : res(std::exchange(other.res, T{})) {}
   ResourceLoader &operator=(const ResourceLoader &) = delete;
 };
 

@@ -232,6 +232,13 @@ class streamer {
       // for sure before removing AsyncTileLoad from the entity
       const auto [texture_future, heightmap_future, x, z, zoom] = tile;
 
+      // don't create stale tiles...
+      // todo still need to consume the future to free the thread, but we can skip the rest of the process if not desired anymore
+      // if (const TileKey key{zoom, x, z}; !desired_tiles.contains(key) && !rendered_tiles.contains(key)) {
+      //   registry.destroy(entity);
+      //   continue;
+      // }
+
       if (const bool tex_ready = texture_future.wait_for(std::chrono::seconds(0)) == std::future_status::ready; !tex_ready) continue;
       if (const bool height_ready = heightmap_future.wait_for(std::chrono::seconds(0)) == std::future_status::ready; !height_ready) continue;
 
@@ -241,6 +248,17 @@ class streamer {
 
       if (!IsImageValid(tex_img) || !IsImageValid(height_img)) {
         TraceLog(LOG_WARNING, "failed to load tile %d/%d/%d - the tile will not be display in next frame", zoom, x, z);
+        UnloadImage(tex_img);
+        UnloadImage(height_img);
+        registry.destroy(entity);
+        continue;
+      }
+
+      // if the tile is already stale, no need to make so much work...
+      if (const TileKey key{zoom, x, z}; !desired_tiles.contains(key) && !rendered_tiles.contains(key)) {
+        TraceLog(LOG_INFO, "tile %d/%d/%d is already stale when loaded - the tile will not be display and resources will be freed", zoom, x, z);
+        UnloadImage(tex_img);
+        UnloadImage(height_img);
         registry.destroy(entity);
         continue;
       }
@@ -278,7 +296,6 @@ class streamer {
 
   // debugging code
   // don't compile if not in use
-
 
   // void show_debug_data() const {
   //   DrawText(TextFormat("desired tiles: %d", static_cast<int>(desired_tiles.size())), 15, 280, 10, BLACK);
