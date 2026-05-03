@@ -207,8 +207,8 @@ export void RenderHud(entt::registry &registry) {
   const auto entity = view.front();
   const auto hud = registry.get<HudWidget>(entity);
 
-  const auto player_entity = registry.ctx().get<PlayerEntity>().id;
-  const auto [player, inputs, gh] = registry.get<Player, PlayerInputs, GroundHeight>(player_entity);
+  const auto &player_entity = get_player_entity(registry);
+  const auto &[player, inputs, gh] = registry.get<Player, PlayerInputs, GroundHeight>(player_entity);
   const auto flyting = is_player_flying(registry);
 
   const int safeIndex = hud.colorIndex >= 0 && hud.colorIndex < static_cast<int>(colors.size()) ? hud.colorIndex : 0;

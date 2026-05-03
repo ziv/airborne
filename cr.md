@@ -1,69 +1,5 @@
 # Excessive Code Review
 
-Scope: full repository pass over the C++ modules game code, resource loading, tile streaming, rendering systems, ECS usage, build files, and assets/config entry points. This review focuses on correctness, memory/resource lifetime, async/threading, performance, security, and early-project maintainability.
-
-## Executive Summary
-
-The project has a workable early ECS shape and the major game systems are easy to locate. The highest-risk area is the streaming/resource layer: remote tile failures, missing environment variables, unchecked raylib handles, and GPU resource ownership are not consistently represented as explicit success/failure states. The next biggest risk is frame-time cost from always-on debug/UI work and per-frame ECS scans/sorts that will become visible as entity and tile counts grow.
-
-The first cleanup pass should harden resource loading and tile downloading before adding more gameplay systems. That will also make future performance work measurable instead of chasing undefined behavior from invalid textures/images.
-
-## High Severity
-
-### 1. Missing map provider tokens can crash the game
-
-- `src/core/tiles/terrain-streamer.cppm:311`
-- `src/core/tiles/map-streamer.cppm:57`
-
-Both streamers construct `std::string(std::getenv("MAPBOX_TOKEN"))` / `std::string(std::getenv("TOMTOM_TOKEN"))` directly. If the env var is absent, `getenv` returns `nullptr`; constructing `std::string` from `nullptr` is undefined behavior and commonly crashes.
-
-This can happen on a fresh checkout as soon as streaming asks for a tile. The local cache does not fully protect this path because the URL is built before `download()` checks whether the file already exists.
-
-Recommendation: read the pointer first, validate it, and support one of these explicit states:
-
-- remote streaming disabled, cached tiles only;
-- startup error with a clear missing-token message;
-- configured provider credentials from a config object.
-
-### 2. Tile download failures are promoted to valid resources
-
-- `src/core/tiles/tile-downloader.cppm:86-95`
-- `src/core/tiles/tile-downloader.cppm:116-122`
-- `src/core/tiles/map-streamer.cppm:148-160`
-- `src/core/tiles/terrain-streamer.cppm:230-249`
-
-`download()` logs and returns on HTTP, network, or file errors. The worker still resolves the promise as success, sometimes with `LoadImage(path)` after the file was not created. Consumers then call `LoadTextureFromImage()` and cache the result without checking `Image.data`, dimensions, or texture id.
-
-Effects:
-
-- invalid `Image` objects can be cached in `rm.images`;
-- invalid GPU textures can be cached in `rm.textures`;
-- height sampling can read from bad image metadata/data;
-- rendering can operate on zero/invalid texture ids;
-- failures are silent after a warning log, so retry/debug behavior is unclear.
-
-Recommendation: make tile download return `expected<Image, TileError>` or set exceptions on promises. Only cache decoded images and textures after validation. Destroy or mark failed async tile entities with retry/backoff state rather than converting them to `TerrainChunk`/`MapTile`.
-
-### 3. HTTPS certificate verification is disabled
-
-- `src/core/tiles/tile-downloader.cppm:110-115`
-
-`cli.enable_server_certificate_verification(false)` disables TLS verification for Mapbox/TomTom downloads. Terrain, map, and heightmap bytes are cached to disk and later decoded/rendered, so this is cache poisoning and local asset poisoning, not just a transient display risk.
-
-Recommendation: enable verification by default. If a development bypass is needed, put it behind an explicit debug-only config or env var and log it once at startup.
-
-### 4. Terrain streamer leaks a shader and generated models
-
-- `src/core/tiles/terrain-streamer.cppm:89-99`
-- `src/core/tiles/terrain-streamer.cppm:97-99`
-- `src/core/tiles/terrain-utils.cppm:58`
-
-`terrain_streamer::streamer` owns `Shader displacement_shader` and three heap-allocated `Model` objects created by `LoadShader()` / `LoadModelFromMesh()`. There is no destructor that calls `UnloadShader()` or `UnloadModel()`. The `unique_ptr<Model>` frees the C++ `Model` struct allocation only; it does not release the GPU buffers/material resources owned by raylib.
-
-The current single-game flow may hide this, but it leaks GPU resources across screen/game recreation and at process shutdown.
-
-Recommendation: use the existing `RaylibResource` wrappers or add a `~streamer()` that unloads `terrain_model12/13/14` and `displacement_shader`. Prefer value members with explicit RAII handles rather than `std::unique_ptr<Model>`.
-
 ### 5. Render textures can leak when widgets are replaced or the game is destroyed
 
 - `src/prefabs/create-cockpit-widgets.cppm:85-88`
@@ -88,34 +24,6 @@ Recommendation: use `try_get<Position3D>()` / `try_get<IdentifyType>()` at rende
 
 ## Medium Severity
 
-### 7. Resource cache loaders do not validate raylib load success
-
-- `src/core/resources/resource-manager.cppm:14-18`
-- `src/core/resources/resource-manager.cppm:30-37`
-- `src/core/resources/resource-manager.cppm:52-55`
-- `src/core/resources/resource-preloader.cppm:18-30`
-
-The loader wrappers always call `Unload*` in destructors, but they do not know whether loading succeeded. For missing files or decode failures, invalid raylib resources can still enter the cache. This interacts badly with the download failure path, but it also applies to scenario resources and shaders.
-
-Recommendation: centralize validated loaders:
-
-- texture/model/render texture: verify non-zero `id`;
-- image: verify `data != nullptr`, `width > 0`, `height > 0`;
-- shader: verify `id != 0`;
-- music/sound: verify stream/buffer handles where raylib exposes them.
-
-Failed loads should return explicit errors and should not be cached.
-
-### 8. Terrain height images are intentionally kept in CPU memory, but eviction is all-or-nothing and unbounded between updates
-
-- `src/core/tiles/terrain-streamer.cppm:64-76`
-- `src/core/tiles/terrain-streamer.cppm:246-249`
-- `src/core/tiles/terrain-utils.cppm:52-54`
-
-The streamer stores both GPU height textures and CPU `Image` copies for ground-height sampling. That is reasonable, but it is expensive. A 1024x1024 RGB/RGBA heightmap is roughly 3-4 MB CPU memory per tile, plus GPU texture memory. During movement, rendered/pending tiles can coexist until coverage/range eviction runs, so memory can spike.
-
-Recommendation: set a memory budget for height images. Consider keeping CPU height data in a compact format (`uint16_t`/`float` height grid) instead of full decoded RGBA images, and make eviction budget-driven rather than only desired/rendered set-driven.
-
 ### 9. Async tile jobs cannot be cancelled after entities are evicted
 
 - `src/core/tiles/terrain-streamer.cppm:156-166`
@@ -126,63 +34,6 @@ Recommendation: set a memory budget for height images. Consider keeping CPU heig
 When a tile entity is no longer desired, the entity can be destroyed, but the queued/in-flight download continues. The global downloader has no cancellation and no bounded queue policy beyond four worker threads. Fast movement or zoom changes can enqueue work that is obsolete before it completes.
 
 Recommendation: add cancellation/obsolescence checks. A simple early version: attach a generation id or desired-set lookup and discard decoded results for obsolete tiles before texture creation. Later, add queue dedupe by URL/path plus a bounded priority queue around camera distance.
-
-### 10. Map streamer stacks `std::async` on top of the downloader thread pool
-
-- `src/core/tiles/map-streamer.cppm:55-60`
-- `src/core/tiles/map-streamer.cppm:173-176`
-- `src/core/tiles/tile-downloader.cppm:181-190`
-
-Map tiles use `std::async(std::launch::async)` per tile, and each async task blocks on the downloader pool with `enqueue(...).wait()`. That creates extra OS threads whose only job is to wait for another worker thread. This is unnecessary scheduling overhead and makes shutdown behavior less predictable.
-
-Recommendation: expose an `enqueue_and_load()` path for map tiles too, or have the map streamer use the same downloader future directly. Keep one queueing abstraction.
-
-### 11. `threads` debug counter is not an accurate thread count and can drift
-
-- `src/core/tiles/terrain-streamer.cppm:89`
-- `src/core/tiles/terrain-streamer.cppm:222-232`
-- `src/core/tiles/terrain-streamer.cppm:319-321`
-
-`threads += 2` counts futures, not actual threads. The downloader has a fixed four-thread pool. If a tile entity is destroyed before completion, or if a future errors after failure handling is improved, this counter can become wrong.
-
-Recommendation: rename it to `pending_tile_jobs` and decrement on all completion/failure/discard paths, or query real queue/in-flight stats from the downloader.
-
-### 12. Duplicate resource ids are not handled deliberately
-
-- `src/screens/loading.cppm:31`
-- `src/core/resources/resource-manager.cppm:99-110`
-
-The loading screen blindly calls `rm.*.load(res_id, path)`. Duplicate ids, mission reloads, or screen restarts are not checked. Depending on EnTT cache semantics, this can fail to replace resources, return existing stale resources, or make duplicate config hard to detect.
-
-Recommendation: make loading idempotent and explicit. Either reject duplicate ids as scenario errors or validate that an existing id has the same type/path and skip it.
-
-### 13. Game destruction clears entities but leaves context/global state behind
-
-- `src/game.cppm:77-80`
-- `src/utils/accessors.cppm:12-16`
-- `src/core/resources/resource-manager.cppm:72-85`
-
-`Game::~Game()` calls `registry.clear()`, but global context values (`PlayerEntity`, `GameState`, `Configuration`, `GameOptions`, `ResourceManager`) remain. A later `Game` instance calls `create_player()` and `registry.ctx().emplace<PlayerEntity>(player)`, which will fail if the context already contains `PlayerEntity`.
-
-Recommendation: separate per-game state from app-global state. On game teardown, erase per-game context values or use `insert_or_assign`/`emplace_or_replace` where reload is intended. Do not rely on process exit as the only valid lifecycle.
-
-### 14. Landing-zone checks are O(number of landables) every frame
-
-- `src/systems/player/player-position.cppm:23-63`
-- `src/systems/player/player-position.cppm:98-113`
-
-Every frame, player position checks every `Landable` entity and performs trig for heading rotation. This is fine for a few carriers/airbases, but it will scale poorly if scenario entities grow or if more landable/trigger volumes are added.
-
-Recommendation: precompute landing zone transform/half extents on a component, and only query nearby zones. A simple spatial hash or broad-phase grid is enough.
-
-### 15. Ground-height sampling checks only a fixed zoom chain and assumes loaded images are valid
-
-- `src/core/tiles/terrain-streamer.cppm:57-76`
-- `src/core/tiles/terrain-utils.cppm:96-120`
-
-`ground_height_at()` samples z14, z13, z12 only and returns `0.0f` if no image is loaded. That means terrain collision can temporarily flatten to sea level while tiles load or fail. The helper clamps pixel coordinates but does not verify `img.data` before casting it.
-
-Recommendation: track terrain availability separately from terrain height. If no valid height tile is available, keep the last known safe height, use a coarse fallback, or mark physics as waiting. Validate image data before sampling.
 
 ### 16. Per-frame render path copies ECS components unnecessarily
 
