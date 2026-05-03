@@ -14,6 +14,8 @@ between just genius like [Sid Meier](https://en.wikipedia.org/wiki/Sid_Meier) ca
 Check out the [development blog](https://ziv.github.io/airborne/) for updates ot
 the [Wiki](https://github.com/ziv/airborne/wiki) for more information.
 
+![ia](assets/images/f15-se-ii.png)
+
 ## The Rules
 
 - Do not use game engine and or LLM
@@ -54,14 +56,6 @@ cmake --build cmake-build-debug && ./cmake-build-debug/airborne
 
 ---
 
-## Nostalgia Moment
-
-I spent so many hours flying this beast on my XT-16MGhz machine with monochrome CGA resolution screen. I tried to play
-it again, it was fun but somthing is missing. No, I don't want another DCS neither an arcade game, I want the same
-gameplay I
-got from this magic game, so this project has begun.
-
-![ia](assets/images/f15-se-ii.png)
 
 ## TODOs
 
