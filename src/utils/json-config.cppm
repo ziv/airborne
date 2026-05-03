@@ -83,8 +83,8 @@ export class JsonConfig {
   }
 
   template <typename T>
-  T get_or(const std::string &path, const T &defaultValue) const {
+  T get_or(const std::string &path, const T &default_value) const {
     if (config.contains(nlohmann::json::json_pointer(path))) return get<T>(path);
-    return defaultValue;
+    return default_value;
   }
 };

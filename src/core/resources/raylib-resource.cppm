@@ -18,7 +18,7 @@ class RaylibResource {
   bool has_ownership;
 
  public:
-  explicit RaylibResource(T loadedResource) : res(loadedResource), has_ownership(true) {}
+  explicit RaylibResource(T loaded_resource) : res(loaded_resource), has_ownership(true) {}
 
   ~RaylibResource() {
     if (has_ownership) {

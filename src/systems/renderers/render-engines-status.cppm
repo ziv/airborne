@@ -7,44 +7,44 @@ export module RenderSystem:EngineStatus;
 
 import Components;
 
-void drawEngine(const PlayerInputs &inputs, const Vector2 &center) {
+void draw_engine(const PlayerInputs &inputs, const Vector2 &center) {
   constexpr float radius = 30.0f;
   constexpr float thickness = 2.0f;
   constexpr int segments = 180;
 
-  constexpr float innerRadius = radius - thickness;
-  constexpr float outerRadius = radius;
+  constexpr float inner_radius = radius - thickness;
+  constexpr float outer_radius = radius;
 
   // angle range (upper semicircle: 180 to 360)
-  constexpr float startAngle = 180.0f;
-  constexpr float endGreen = 300.0f;
-  constexpr float endOrange = 330.0f;
-  constexpr float endRed = 360.0f;
+  constexpr float start_angle = 180.0f;
+  constexpr float end_green = 300.0f;
+  constexpr float end_orange = 330.0f;
+  constexpr float end_red = 360.0f;
 
   // 1. draw background (transparent)
-  DrawRing(center, innerRadius, outerRadius, startAngle, endGreen, segments, Fade(GREEN, 0.2f));
-  DrawRing(center, innerRadius, outerRadius, endGreen, endOrange, segments, Fade(ORANGE, 0.2f));
-  DrawRing(center, innerRadius, outerRadius, endOrange, endRed, segments, Fade(RED, 0.2f));
+  DrawRing(center, inner_radius, outer_radius, start_angle, end_green, segments, Fade(GREEN, 0.2f));
+  DrawRing(center, inner_radius, outer_radius, end_green, end_orange, segments, Fade(ORANGE, 0.2f));
+  DrawRing(center, inner_radius, outer_radius, end_orange, end_red, segments, Fade(RED, 0.2f));
 
-  const float currentEndAngle = startAngle + ((inputs.throttle / 1.2f) * 180.0f);
+  const float current_end_angle = start_angle + ((inputs.throttle / 1.2f) * 180.0f);
 
-  if (currentEndAngle > startAngle) {
-    const float drawGreen = std::min(currentEndAngle, endGreen);
-    DrawRing(center, innerRadius, outerRadius, startAngle, drawGreen, segments, Fade(GREEN, 0.9f));
+  if (current_end_angle > start_angle) {
+    const float draw_green = std::min(current_end_angle, end_green);
+    DrawRing(center, inner_radius, outer_radius, start_angle, draw_green, segments, Fade(GREEN, 0.9f));
   }
 
-  if (currentEndAngle > endGreen) {
-    const float drawOrange = std::min(currentEndAngle, endOrange);
-    DrawRing(center, innerRadius, outerRadius, endGreen, drawOrange, segments, Fade(ORANGE, 0.9f));
+  if (current_end_angle > end_green) {
+    const float draw_orange = std::min(current_end_angle, end_orange);
+    DrawRing(center, inner_radius, outer_radius, end_green, draw_orange, segments, Fade(ORANGE, 0.9f));
   }
 
-  if (currentEndAngle > endOrange) {
-    const float drawRed = std::min(currentEndAngle, endRed);
-    DrawRing(center, innerRadius, outerRadius, endOrange, drawRed, segments, Fade(RED, 0.9f));
+  if (current_end_angle > end_orange) {
+    const float draw_red = std::min(current_end_angle, end_red);
+    DrawRing(center, inner_radius, outer_radius, end_orange, draw_red, segments, Fade(RED, 0.9f));
   }
 }
 
-export void RenderEngineStatus(entt::registry &registry) {
+export void render_engine_status(entt::registry &registry) {
   const auto view = registry.view<DashboardSlot, EngineWidget, Position2D>();
 
   for (auto [entity, slot, pos] : view.each()) {
@@ -60,8 +60,8 @@ export void RenderEngineStatus(entt::registry &registry) {
     const auto v1 = (Vector2){pos.pos.x + 45.0f, pos.pos.y + 60};
     const auto v2 = (Vector2){pos.pos.x + 115.0f, pos.pos.y + 60};
 
-    drawEngine(inputs, v1);
-    drawEngine(inputs, v2);
+    draw_engine(inputs, v1);
+    draw_engine(inputs, v2);
 
     const auto t = static_cast<int>(floor(inputs.throttle * 100));
 

@@ -10,7 +10,7 @@ import Accessors;
 import ResourceManager;
 import TerrainStreaming;
 
-export void RenderDebug(entt::registry& registry) {
+export void render_debug(entt::registry& registry) {
   // auto view = registry.view<Player, PlayerInputs, GroundHeight>();
   //
   // if (view.begin() == view.end()) {
@@ -43,12 +43,12 @@ export void RenderDebug(entt::registry& registry) {
   y += margin;
 
   // absolute position
-  const Vector3 absPos = player.pos - player.offset;
-  DrawText(TextFormat("Ax: %0.00f", absPos.x), margin, y, fs, BLACK);
+  const Vector3 abs_pos = player.pos - player.offset;
+  DrawText(TextFormat("Ax: %0.00f", abs_pos.x), margin, y, fs, BLACK);
   y += margin;
-  DrawText(TextFormat("Az: %0.00f", absPos.z), margin, y, fs, BLACK);
+  DrawText(TextFormat("Az: %0.00f", abs_pos.z), margin, y, fs, BLACK);
   y += margin;
-  DrawText(TextFormat("Ay: %0.00f", absPos.y), margin, y, fs, BLACK);
+  DrawText(TextFormat("Ay: %0.00f", abs_pos.y), margin, y, fs, BLACK);
   y += margin;
 
   y += margin;

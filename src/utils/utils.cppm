@@ -4,9 +4,9 @@ export module Utils;
 
 export namespace utils {
 
-float approach(const float current, const float target, const float maxDelta) {
-  if (current < target) return current + maxDelta > target ? target : current + maxDelta;
-  if (current > target) return current - maxDelta < target ? target : current - maxDelta;
+float approach(const float current, const float target, const float max_delta) {
+  if (current < target) return current + max_delta > target ? target : current + max_delta;
+  if (current > target) return current - max_delta < target ? target : current - max_delta;
   return current;
 }
 }  // namespace utils

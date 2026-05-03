@@ -25,12 +25,12 @@ entt::entity create_unit(entt::registry &registry, const EntityDef &def) {
   registry.emplace<FriendFoe>(entity, def.faction);
 
   // resources
-  if (!def.modelId.empty()) {
+  if (!def.model_id.empty()) {
     auto &assets = get_resource_manager(registry);
-    if (const auto model_id = entt::hashed_string(def.modelId.c_str()); assets.models.contains(model_id)) {
+    if (const auto model_id = entt::hashed_string(def.model_id.c_str()); assets.models.contains(model_id)) {
       registry.emplace<WithModel>(entity, model_id);
     } else {
-      TraceLog(LOG_WARNING, "Model %s not loaded for entity %s", def.modelId.c_str(), def.id.c_str());
+      TraceLog(LOG_WARNING, "Model %s not loaded for entity %s", def.model_id.c_str(), def.id.c_str());
     }
   }
 

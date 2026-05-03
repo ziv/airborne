@@ -6,16 +6,16 @@
       "height": 800,
       "fov": 85,
       "tilt": 0.25,
-      "nearPlane": 1,
-      "farPlane": 100000,
+      "near_plane": 1,
+      "far_plane": 100000,
       "resources": "assets/resources.jsonc"
     },
     "window": {
       "title": "airborne",
       "width": 1200,
       "height": 800,
-      "nearPlane": 1,
-      "farPlane": 100000
+      "near_plane": 1,
+      "far_plane": 100000
     },
     "player": {
       "camera": {
@@ -25,51 +25,51 @@
         "tilt": 0.25
       },
       "controls": {
-        "pitchRatio": 1.7,
-        "rollRatio": 1.1,
-        "yawRatio": 1.3
+        "pitch_ratio": 1.7,
+        "roll_ratio": 1.1,
+        "yaw_ratio": 1.3
       },
       "aircraft": {
         "weight": 120000,
         // 130000 at max speed
-        "engineThrust": 108333,
-        "maxSpeed": 600,
-        "stallSpeed": 65,
-        "vleSpeed": 150,
-        "liftCoefficient": 1.92,
-        "dragCoefficient": 0.46,
-        "bankInduceYawRatio": 0.2,
-        "liftLossPitchRatio": 0.1,
-        "airDumpingFactor": 2.5,
-        "minAuthority": 0.1,
-        "frictionCoefficient": 2,
-        "pitchRatio": 7.7,
-        "rollRatio": 9.1,
-        "yawRatio": 10.3
+        "engine_thrust": 108333,
+        "max_speed": 600,
+        "stall_speed": 65,
+        "vle_speed": 150,
+        "lift_coefficient": 1.92,
+        "drag_coefficient": 0.46,
+        "bank_induce_yaw_ratio": 0.2,
+        "lift_loss_pitch_ratio": 0.1,
+        "air_damping_factor": 2.5,
+        "min_authority": 0.1,
+        "friction_coefficient": 2,
+        "pitch_ratio": 7.7,
+        "roll_ratio": 9.1,
+        "yaw_ratio": 10.3
       },
       "position": {
         "threshold": 5000,
-        "heightPath": "world-hm",
-        "maxRelativeHeight": 3500,
+        "height_path": "world-hm",
+        "max_relative_height": 3500,
         // 104.65,
-        "heightMapSizeRatio": 105,
-        "heightAboveGround": 5
+        "height_map_size_ratio": 105,
+        "height_above_ground": 5
       },
       // todo not needed anymore, but still used for stall warning
       "groundCheck": {
-        "stallSpeed": 65
+        "stall_speed": 65
       }
     },
     "scene": {
-      "mapTexture": "assets/images/north-tx-2048.jpg",
-      "mapHeightmap": "assets/tiles/north/heightmap.png",
-      "mapSize": {
+      "map_texture": "assets/images/north-tx-2048.jpg",
+      "map_heightmap": "assets/tiles/north/heightmap.png",
+      "map_size": {
         "x": 128000,
         "y": 5000,
         "z": 128000
       },
-      "fogShaderVs": "assets/shaders/fog.vs",
-      "fogShaderFs": "assets/shaders/fog.fs"
+      "fog_shader_vs": "assets/shaders/fog.vs",
+      "fog_shader_fs": "assets/shaders/fog.fs"
     },
     "views": {
       "hud": {
@@ -114,15 +114,15 @@
         }
       },
       "minimap": {
-        "mapTexture": "minimap-tex",
+        "map_texture": "minimap-tex",
         "size": 150,
-        "mapsRatio": 128,
-        "defaultMapZoom": 14
+        "maps_ratio": 128,
+        "default_map_zoom": 14
       },
       "cockpit": {
-        "texturePath": "cockpit-tex",
-        "shaderPath": "cockpit-chroma",
-        "tintColor": [
+        "texture_path": "cockpit-tex",
+        "shader_path": "cockpit-chroma",
+        "tint_color": [
           255,
           255,
           255,

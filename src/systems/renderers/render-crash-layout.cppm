@@ -6,7 +6,7 @@ export module RenderSystem:CrashLayout;
 
 import Accessors;
 
-export void RenderCrashLayout(entt::registry &registry) {
+export void render_crash_layout(entt::registry &registry) {
     if (!is_player_crashed(registry)) return;
 
     const int sw = GetScreenWidth();

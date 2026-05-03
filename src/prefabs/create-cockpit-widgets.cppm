@@ -56,7 +56,7 @@ void set_minimap(const int slot, entt::registry &registry) {
     const MinimapConfig minimap_cfg = get_config(registry).views.minimap;
     MinimapWidget widget;
     widget.cfg = minimap_cfg;
-    widget.map_zoom = minimap_cfg.defaultMapZoom;
+    widget.map_zoom = minimap_cfg.default_map_zoom;
     registry.emplace_or_replace<MinimapWidget>(entity, widget);
     break;
   }

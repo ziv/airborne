@@ -22,16 +22,16 @@ void create_cockpit(entt::registry &registry) {
   registry.emplace<CockpitWidget>(cockpit);
   registry.emplace<Position2D>(cockpit, (Vector2){0.0f, 0.0});
 
-  if (const auto tex_id = entt::hashed_string(conf.texturePath.c_str()); manager.textures.contains(tex_id)) {
+  if (const auto tex_id = entt::hashed_string(conf.texture_path.c_str()); manager.textures.contains(tex_id)) {
     registry.emplace<WithTexture>(cockpit, tex_id);
   } else {
-    TraceLog(LOG_WARNING, "cockpit texture '%s' not found in cache", conf.texturePath.c_str());
+    TraceLog(LOG_WARNING, "cockpit texture '%s' not found in cache", conf.texture_path.c_str());
   }
 
-  if (const auto fs_id = entt::hashed_string(conf.shaderPath.c_str()); manager.shaders.contains(fs_id)) {
+  if (const auto fs_id = entt::hashed_string(conf.shader_path.c_str()); manager.shaders.contains(fs_id)) {
     registry.emplace<WithFsShader>(cockpit, fs_id);
   } else {
-    TraceLog(LOG_WARNING, "cockpit shader '%s' not found in cache", conf.shaderPath.c_str());
+    TraceLog(LOG_WARNING, "cockpit shader '%s' not found in cache", conf.shader_path.c_str());
   }
 }
 }  // namespace factories

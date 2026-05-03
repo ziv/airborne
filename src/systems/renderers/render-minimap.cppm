@@ -13,7 +13,7 @@ import Accessors;
 
 static float minimap_tile_size(const int zoom) { return 9783.9f * static_cast<float>(std::pow(2.0f, 12 - zoom)); }
 
-export void RenderMinimap(entt::registry& registry) {
+export void render_minimap(entt::registry& registry) {
   for (const auto view = registry.view<DashboardSlot, MinimapWidget, Position2D>(); auto [entity, slot, wd, pos] : view.each()) {
     const auto player_entity = registry.ctx().get<PlayerEntity>().id;
     const auto& player = registry.get<Player>(player_entity);

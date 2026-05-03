@@ -17,51 +17,51 @@ export struct PlayerCameraConfig {
 };
 
 export struct PlayerControlsConfig {
-  float pitchRatio = 2.0f;  ///< Pitch sensitivity (degrees per second at full deflection).
-  float rollRatio = 3.0f;   ///< Roll sensitivity.
-  float yawRatio = 1.0f;    ///< Yaw (rudder) sensitivity.
+  float pitch_ratio = 2.0f;  ///< Pitch sensitivity (degrees per second at full deflection).
+  float roll_ratio = 3.0f;   ///< Roll sensitivity.
+  float yaw_ratio = 1.0f;    ///< Yaw (rudder) sensitivity.
 };
 
 export struct PlayerPhysicsConfig {
   Newton weight = 120000.0f;          ///< Aircraft empty weight (Newtons).
-  Newton engineThrust = 130000.0f;    ///< Maximum engine thrust at full military power (N).
-  MeterPerSecond maxSpeed = 600.0f;   ///< Hard speed cap (m/s) — safety limit.
-  MeterPerSecond stallSpeed = 65.0f;  ///< Speed below which lift drops sharply.
-  MeterPerSecond vleSpeed = 150.0f;   ///< Max gear-extended speed; above this → turbulence.
-  Ratio liftCoefficient = 1.93f;      ///< Base lift coefficient (proportional to v²).
-  Ratio dragCoefficient = 0.36f;      ///< Base aerodynamic drag coefficient.
-  Ratio bankInduceYawRatio = 0.4f;    ///< Adverse yaw factor from bank angle.
-  Ratio liftLossPitchRatio = 0.9f;    ///< Nose-down pitch tendency when lift vector tilts.
-  Ratio airDumpingFactor = 2.5f;      ///< Additional damping factor for aerodynamic stability.
-  Ratio minAuthority = 0.1f;          ///< Minimum control authority at stall speed (0–1).
-  Ratio frictionCoefficient = 2.0f;   // todo complete
-  Ratio pitchRatio = 4.0f;            ///< Pitch acceleration sensitivity
-  Ratio rollRatio = 6.0f;             ///< Roll acceleration sensitivity.
-  Ratio yawRatio = 1.0f;              ///< Yaw acceleration sensitivity.
+  Newton engine_thrust = 130000.0f;    ///< Maximum engine thrust at full military power (N).
+  MeterPerSecond max_speed = 600.0f;   ///< Hard speed cap (m/s) — safety limit.
+  MeterPerSecond stall_speed = 65.0f;  ///< Speed below which lift drops sharply.
+  MeterPerSecond vle_speed = 150.0f;   ///< Max gear-extended speed; above this → turbulence.
+  Ratio lift_coefficient = 1.93f;      ///< Base lift coefficient (proportional to v²).
+  Ratio drag_coefficient = 0.36f;      ///< Base aerodynamic drag coefficient.
+  Ratio bank_induce_yaw_ratio = 0.4f;    ///< Adverse yaw factor from bank angle.
+  Ratio lift_loss_pitch_ratio = 0.9f;    ///< Nose-down pitch tendency when lift vector tilts.
+  Ratio air_damping_factor = 2.5f;      ///< Additional damping factor for aerodynamic stability.
+  Ratio min_authority = 0.1f;          ///< Minimum control authority at stall speed (0–1).
+  Ratio friction_coefficient = 2.0f;   // todo complete
+  Ratio pitch_ratio = 4.0f;            ///< Pitch acceleration sensitivity
+  Ratio roll_ratio = 6.0f;             ///< Roll acceleration sensitivity.
+  Ratio yaw_ratio = 1.0f;              ///< Yaw acceleration sensitivity.
 };
 
 export struct PlayerPositionConfig {
   float threshold = 5000.0f;
-  std::string heightPath = "assets/images/north-hm.png";
-  float maxRelativeHeight = 5000.f;
-  float heightMapSizeRatio = 125.0f;  // ratio between the large area and the map we check the height
-  float heightAboveGround = 3.0f;     // the pilot is not sitting on "0"
+  std::string height_path = "assets/images/north-hm.png";
+  float max_relative_height = 5000.f;
+  float height_map_size_ratio = 125.0f;  // ratio between the large area and the map we check the height
+  float height_above_ground = 3.0f;     // the pilot is not sitting on "0"
 };
 
 // views
 // --------------------------
 
 export struct CockpitConfig {
-  std::string texturePath;
-  std::string shaderPath;
-  Color tintColor{};
+  std::string texture_path;
+  std::string shader_path;
+  Color tint_color{};
 };
 
 export struct MinimapConfig {
-  std::string mapTexture;   ///< Legacy: path to the fixed satellite map texture (unused by map streamer).
+  std::string map_texture;   ///< Legacy: path to the fixed satellite map texture (unused by map streamer).
   Pixel size = 150;         ///< Size (width and height) of the square minimap widget.
-  Ratio mapsRatio = 62.5f;  ///< Legacy: ratio between world coordinates and the fixed map texture.
-  int defaultMapZoom = 14;  ///< Initial slippy-map zoom level (1–20).
+  Ratio maps_ratio = 62.5f;  ///< Legacy: ratio between world coordinates and the fixed map texture.
+  int default_map_zoom = 14;  ///< Initial slippy-map zoom level (1–20).
 };
 
 // HUD config from here
@@ -149,16 +149,16 @@ export struct GlobalConfig {
   AngleDeg fov;
 
   // where to clip planes
-  Meter nearPlane;
-  Meter farPlane;
+  Meter near_plane;
+  Meter far_plane;
 };
 
 export struct WindowConfig {
   std::string title;
   Pixel width;
   Pixel height;
-  Meter nearPlane;
-  Meter farPlane;
+  Meter near_plane;
+  Meter far_plane;
 };
 
 export struct PlayerConfig {
@@ -170,11 +170,11 @@ export struct PlayerConfig {
 
 // todo temporary -> till moving to world streaming
 export struct SceneConfig {
-  std::string mapTexture;
-  std::string mapHeightmap;
-  Vector3 mapSize;
-  std::string fogShaderVs;
-  std::string fogShaderFs;
+  std::string map_texture;
+  std::string map_heightmap;
+  Vector3 map_size;
+  std::string fog_shader_vs;
+  std::string fog_shader_fs;
 };
 
 export struct ViewsConfig {
@@ -204,21 +204,21 @@ export {
   NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(PlayerCameraConfig, tilt, fov);
 
   // player - controls
-  NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(PlayerControlsConfig, pitchRatio, rollRatio, yawRatio);
+  NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(PlayerControlsConfig, pitch_ratio, roll_ratio, yaw_ratio);
 
   // player - aircraft/physics
-  NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(PlayerPhysicsConfig, weight, engineThrust, maxSpeed, stallSpeed, vleSpeed, liftCoefficient, dragCoefficient,
-                                     bankInduceYawRatio, liftLossPitchRatio, airDumpingFactor, minAuthority, frictionCoefficient, pitchRatio, rollRatio,
-                                     yawRatio);
+  NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(PlayerPhysicsConfig, weight, engine_thrust, max_speed, stall_speed, vle_speed, lift_coefficient, drag_coefficient,
+                                     bank_induce_yaw_ratio, lift_loss_pitch_ratio, air_damping_factor, min_authority, friction_coefficient, pitch_ratio, roll_ratio,
+                                     yaw_ratio);
 
   // player - position
-  NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(PlayerPositionConfig, threshold, heightPath, maxRelativeHeight, heightMapSizeRatio, heightAboveGround);
+  NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(PlayerPositionConfig, threshold, height_path, max_relative_height, height_map_size_ratio, height_above_ground);
 
   // views - cockpit
-  NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(CockpitConfig, texturePath, shaderPath, tintColor);
+  NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(CockpitConfig, texture_path, shader_path, tint_color);
 
   // views - minimap
-  NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(MinimapConfig, mapTexture, size, mapsRatio, defaultMapZoom);
+  NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(MinimapConfig, map_texture, size, maps_ratio, default_map_zoom);
 
   // views - hud
   NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(HudLadderConfig, x, y, width, height, offset);
@@ -237,9 +237,9 @@ export {
   NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(SplashScreenConfig, bg_tex_path, bg_sound_path);
 
   // categories
-  NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(WindowConfig, title, width, height, nearPlane, farPlane);
-  NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(GlobalConfig, title, resources, width, height, tilt, fov, nearPlane, farPlane);
-  NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(SceneConfig, mapTexture, mapHeightmap, mapSize, fogShaderVs, fogShaderFs);
+  NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(WindowConfig, title, width, height, near_plane, far_plane);
+  NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(GlobalConfig, title, resources, width, height, tilt, fov, near_plane, far_plane);
+  NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(SceneConfig, map_texture, map_heightmap, map_size, fog_shader_vs, fog_shader_fs);
   NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(ViewsConfig, hud, minimap, cockpit, radar);
   NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(ScreensConfig, splash);
   NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(PlayerConfig, camera, controls, aircraft, position);

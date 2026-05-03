@@ -42,7 +42,7 @@ std::tuple<AppConfig, AppOptions> load_requirements() {
 
 int main() {
   // setup raylib
-  SetTraceLogCallback(CustomLogCallback);
+  SetTraceLogCallback(custom_log_callback);
   SetTraceLogLevel(LOG_DEBUG);
   SetConfigFlags(FLAG_WINDOW_RESIZABLE | FLAG_VSYNC_HINT);
 
@@ -52,7 +52,7 @@ int main() {
     // init devices
     InitWindow(config.global.width, config.global.height, config.global.title.c_str());
     InitAudioDevice();
-    rlSetClipPlanes(config.global.nearPlane, config.global.farPlane);
+    rlSetClipPlanes(config.global.near_plane, config.global.far_plane);
 
     // todo remove comment in production
     // SetTargetFPS(60);

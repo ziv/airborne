@@ -12,18 +12,18 @@ export struct CockpitWidget {};
 
 export struct HudWidget {
   HudConfig cfg{};
-  Pixel centerX{};
-  Pixel centerY{};
-  Pixel pixelsPerDegree{};
+  Pixel center_x{};
+  Pixel center_y{};
+  Pixel pixels_per_degree{};
   float ppd{};
   float tilt{};
-  int colorIndex{};
+  int color_index{};
 };
 
 export struct RadarWidget {
   RadarConfig cfg{};
-  int rangeCount = 0;
-  int rangeIndex = 0;
+  int range_count = 0;
+  int range_index = 0;
 };
 
 export struct MinimapWidget {
