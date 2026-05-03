@@ -13,7 +13,7 @@ import Helpers;
 export namespace player_systems {
 
 void physics(entt::registry& registry, const float dt) {
-  const PlayerPhysicsConfig conf = get_config(registry).player.aircraft;
+  const PlayerPhysicsConfig& conf = get_config(registry).player.aircraft;
 
   auto& player = get_player(registry);
   const auto& inputs = get_player_inputs(registry);
@@ -22,11 +22,11 @@ void physics(entt::registry& registry, const float dt) {
   // angular velocity
 
   // how much angular velocity we have in relation to the speed (more speed -> better steering)
-  float speed_ratio = std::clamp(player.speed / (conf.maxSpeed * 0.8f), 0.0f, 1.2f);
-  float control_authority = speed_ratio * speed_ratio;
+  const float speed_ratio = std::clamp(player.speed / (conf.maxSpeed * 0.8f), 0.0f, 1.2f);
+  const float control_authority = speed_ratio * speed_ratio;
 
   // on ground, we allow user to yaw
-  float yaw_authority = flying ? control_authority : conf.minAuthority;
+  const float yaw_authority = flying ? control_authority : conf.minAuthority;
 
   // some effects...
 
@@ -69,7 +69,7 @@ void physics(entt::registry& registry, const float dt) {
 
     if (float ground_speed = Vector3Length(ground_velocity); ground_speed > 0.1f) {
       if (const auto lz = get_landing_zone(registry); lz.isCarrier && inputs.brakes) {
-        player.velocity = player.velocity * 0.9f;  // strong damping on carrier
+        player.velocity = player.velocity * 0.95f;  // strong damping on carrier
       } else {
         auto normal_face = conf.weight - lift;
         if (normal_face < 0.0f) normal_face = 0.0f;
@@ -111,10 +111,10 @@ void physics(entt::registry& registry, const float dt) {
   player.speed = Vector3Length(player.velocity);
 
   // hard speed cap (normally drag balances thrust before this limit)
-  if (player.speed > conf.maxSpeed && player.speed != 0.0f) {
-    player.velocity = player.velocity * conf.maxSpeed / player.speed;
-    player.speed = conf.maxSpeed;
-  }
+  // if (player.speed > conf.maxSpeed && player.speed != 0.0f) {
+  //   player.velocity = player.velocity * conf.maxSpeed / player.speed;
+  //   player.speed = conf.maxSpeed;
+  // }
 
   // don't mess with near zero speed
   if (player.speed < 0.02f) {
