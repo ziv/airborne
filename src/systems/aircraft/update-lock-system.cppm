@@ -41,30 +41,28 @@ void update_lock(entt::registry& registry) {
 
   // if "T" pressed or mode changed, update target
   if (IsKeyPressed(KEY_T) || search) {
-    TraceLog(LOG_WARNING, "updating lock");
+    TraceLog(LOG_DEBUG, "updating lock");
 
     // "browse" the targets
     std::vector<entt::entity> valid_targets;
 
-    // collect all valid targets in range
-    for (const auto view = registry.view<const IdentifyType, const Position3D>(); auto entity : view) {
-      const auto& type_comp = view.get<const IdentifyType>(entity).type;
-      const auto& target_pos = view.get<const Position3D>(entity).pos;
-
+    for (const auto view = registry.view<const IdentifyType, const Position3D>(); auto [entity, id, pos] : view.each()) {
+      // just to trigger the lazy loading of the chunk and get the debug log of how many entities we have in the world
       bool is_valid_type = false;
 
       if (radar_state.mode == RadarMode::AIR_TO_AIR) {
-        is_valid_type = type_comp == EntityType::AIRCRAFT;
+        is_valid_type = id.type == EntityType::AIRCRAFT;
       }
+
       if (radar_state.mode == RadarMode::AIR_TO_GROUND) {
-        if (type_comp == EntityType::AAA || type_comp == EntityType::SAM || type_comp == EntityType::STRUCTURE || type_comp == EntityType::NAVAL ||
-            type_comp == EntityType::AIRBASE || type_comp == EntityType::SHIP || type_comp == EntityType::CARRIER) {
+        if (id.type == EntityType::AAA || id.type == EntityType::SAM || id.type == EntityType::STRUCTURE || id.type == EntityType::NAVAL ||
+            id.type == EntityType::AIRBASE || id.type == EntityType::SHIP || id.type == EntityType::CARRIER) {
           is_valid_type = true;
         }
       }
 
       if (is_valid_type) {
-        if (Vector3Distance(player_abs_position, target_pos) <= radar_state.max_range) {
+        if (Vector3Distance(player_abs_position, pos.pos) <= radar_state.max_range) {
           valid_targets.push_back(entity);
         }
       }
@@ -85,19 +83,54 @@ void update_lock(entt::registry& registry) {
       return distA < distB;
     });
 
-    if (auto it = std::ranges::find(valid_targets, radar_state.locked_target); it != valid_targets.end()) {
-      // we found the current. move next
+    auto it = std::ranges::find(valid_targets, radar_state.locked_target);
+
+    if (it == valid_targets.end()) {
+      it = valid_targets.begin();
+    } else {
       ++it;
       if (it == valid_targets.end()) {
-        // end of the vector, start over
-        radar_state.locked_target = valid_targets.front();
-      } else {
-        // found and set
-        radar_state.locked_target = *it;
+        it = valid_targets.begin();
       }
-    } else {
-      radar_state.locked_target = valid_targets.front();
     }
+
+    radar_state.locked_target = *it;
+
+    // if (radar_state.locked_target == entt::null) {
+    //   // no need to search, take the front
+    //   radar_state.locked_target = valid_targets.front();
+    // } else {
+    //   // take the one after the current
+    //   auto it = std::ranges::find(valid_targets, radar_state.locked_target);
+    //   if (it == valid_targets.end()) {
+    //     // take the front
+    //     radar_state.locked_target = valid_targets.front();
+    //   } else {
+    //     // we found ourselves, lets continue
+    //     ++it;
+    //     if (it == valid_targets.end()) {
+    //       // again the end, take the front
+    //       radar_state.locked_target = valid_targets.front();
+    //     } else {
+    //       // take the target
+    //       radar_state.locked_target = *it;
+    //     }
+    //   }
+    // }
+
+    // if (auto it = std::ranges::find(valid_targets, radar_state.locked_target); it != valid_targets.end()) {
+    //   // we found the current. move next
+    //   ++it;
+    //   if (it == valid_targets.end()) {
+    //     // end of the vector, start over
+    //     radar_state.locked_target = valid_targets.front();
+    //   } else {
+    //     // found and set
+    //     radar_state.locked_target = *it;
+    //   }
+    // } else {
+    //   radar_state.locked_target = valid_targets.front();
+    // }
   }
 }
 }  // namespace aircraft_systems

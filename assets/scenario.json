@@ -172,6 +172,76 @@
     {
       "components": {
         "entity_id": {
+          "id": "aircraft-117",
+          "name": "MiG-29 Fulcrum"
+        },
+        "type": "aircraft",
+        "faction": "enemy",
+        "position": {
+          "x": 10000,
+          "y": 40,
+          "z": -26500
+        },
+        "heading": 170,
+        "model": "mig29-model",
+        "prefab": "ac_sov_mig29",
+        "identity": {
+          "name": "MiG-29 Fulcrum",
+          "origin": "USSR",
+          "type": "aircraft"
+        },
+        "physics_profile": {
+          "mass_kg": 11000,
+          "max_thrust_n": 162000,
+          "lift_coefficient": 0.1,
+          "drag_coefficient": 0.02,
+          "max_speed_m_s": 500,
+          "max_g_load": 9,
+          "turn_rate_deg_s": 20
+        },
+        "radar": {
+          "detection_range_m": 100000,
+          "engagement_range_m": 50000
+        },
+        "health": {
+          "max": 350
+        },
+        "loadout": {
+          "weapons": {
+            "missile_r27": 4,
+            "missile_r73": 4,
+            "gun_gsh301": 150
+          }
+        },
+        "waypoints": {
+          "points": [
+            {
+              "x": 12000,
+              "y": 100,
+              "z": -28000
+            },
+            {
+              "x": 8000,
+              "y": 100,
+              "z": -28000
+            },
+            {
+              "x": 8000,
+              "y": 100,
+              "z": -24000
+            },
+            {
+              "x": 12000,
+              "y": 100,
+              "z": -24000
+            }
+          ]
+        }
+      }
+    },
+    {
+      "components": {
+        "entity_id": {
           "id": "sam-3",
           "name": "MIM-104 Patriot"
         },

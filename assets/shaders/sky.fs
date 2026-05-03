@@ -5,6 +5,7 @@ in vec3 fragLocalPos;
 uniform vec3 zenithColor;
 uniform vec3 horizonColor;
 uniform float time;
+// uniform vec3 cloudAmbient; // todo get the colors from options
 
 out vec4 finalColor;
 
@@ -43,6 +44,7 @@ float fbm(vec2 p) {
 
 void main()
 {
+    vec3 cloudAmbient = vec3(0.65, 0.65, 0.75);
     vec3 dir = normalize(fragLocalPos);
 
     float upFactor   = max(dir.y, 0.0);
@@ -71,7 +73,7 @@ void main()
         float horizonFade = smoothstep(0.0, 0.12, dir.y);
         cloudDensity *= horizonFade;
 
-        vec3 cloudColor = mix(vec3(0.95, 0.95, 1.0), vec3(1.0), cloudDensity * 0.4);
+        vec3 cloudColor = mix(cloudAmbient, vec3(1.0), cloudDensity * 0.4);
         skyColor = mix(skyColor, cloudColor, cloudDensity * 0.85);
     }
 
