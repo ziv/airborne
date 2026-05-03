@@ -47,11 +47,18 @@ void models(entt::registry &registry) {
 void sky(entt::registry &registry) {
   const auto &player = get_player(registry);
   const auto &assets = get_resource_manager(registry);
+  auto &options = get_options(registry);
 
   const auto t = static_cast<float>(GetTime());
   const Shader &sky_shader = assets.shaders[resources::sky_shader]->res;
+
   static int time_loc = GetShaderLocation(sky_shader, "time");
+  static int zenith_loc = GetShaderLocation(sky_shader, "zenithColor");
+  static int horizon_loc = GetShaderLocation(sky_shader, "horizonColor");
+
   SetShaderValue(sky_shader, time_loc, &t, SHADER_UNIFORM_FLOAT);
+  SetShaderValue(sky_shader, zenith_loc, &options.get_zenith_color(), SHADER_UNIFORM_VEC3);
+  SetShaderValue(sky_shader, horizon_loc, &options.get_horizon_color(), SHADER_UNIFORM_VEC3);
 
   rlDisableDepthTest();
   rlDisableBackfaceCulling();

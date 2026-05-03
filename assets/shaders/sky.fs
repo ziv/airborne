@@ -8,7 +8,7 @@ uniform float time;
 
 out vec4 finalColor;
 
-// --- Noise primitives ---
+// noise primitives
 
 vec2 hash2(vec2 p) {
     p = vec2(dot(p, vec2(127.1, 311.7)), dot(p, vec2(269.5, 183.3)));
@@ -49,7 +49,7 @@ void main()
     float blendFactor = clamp(pow(upFactor, 0.6), 0.0, 1.0);
     vec3 skyColor    = mix(horizonColor, zenithColor, blendFactor);
 
-    // --- Clouds ---
+    // --- clouds ---
     // todo take cloudAltitude and threshold from the game to allow player controls the weather
     // Only draw clouds above the horizon
     if (dir.y > 0.0) {
