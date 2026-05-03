@@ -1,6 +1,7 @@
 module;
 #include <entt/entt.hpp>
 #include <nlohmann/json.hpp>
+
 #include "../lib/ray.hpp"
 
 export module Prefabs:Cockpit;
@@ -13,24 +14,24 @@ import Types;
 import Accessors;
 
 export namespace factories {
-    void create_cockpit(entt::registry &registry) {
-        const auto conf = get_config(registry).views.cockpit;
-        auto &manager = get_resource_manager(registry);
+void create_cockpit(entt::registry &registry) {
+  const auto conf = get_config(registry).views.cockpit;
+  const auto &manager = get_resource_manager(registry);
 
-        const auto cockpit = registry.create();
-        registry.emplace<CockpitWidget>(cockpit);
-        registry.emplace<Position2D>(cockpit, (Vector2){0.0f, 0.0});
+  const auto cockpit = registry.create();
+  registry.emplace<CockpitWidget>(cockpit);
+  registry.emplace<Position2D>(cockpit, (Vector2){0.0f, 0.0});
 
-        if (const auto tex_id = entt::hashed_string(conf.texturePath.c_str()); manager.textures.contains(tex_id)) {
-            registry.emplace<WithTexture>(cockpit, manager.textures[tex_id]);
-        } else {
-            TraceLog(LOG_WARNING, "cockpit texture '%s' not found in cache", conf.texturePath.c_str());
-        }
+  if (const auto tex_id = entt::hashed_string(conf.texturePath.c_str()); manager.textures.contains(tex_id)) {
+    registry.emplace<WithTexture>(cockpit, tex_id);
+  } else {
+    TraceLog(LOG_WARNING, "cockpit texture '%s' not found in cache", conf.texturePath.c_str());
+  }
 
-        if (const auto fs_id = entt::hashed_string(conf.shaderPath.c_str()); manager.shaders.contains(fs_id)) {
-            registry.emplace<WithFsShader>(cockpit, manager.shaders[fs_id]);
-        } else {
-            TraceLog(LOG_WARNING, "cockpit shader '%s' not found in cache", conf.shaderPath.c_str());
-        }
-    }
+  if (const auto fs_id = entt::hashed_string(conf.shaderPath.c_str()); manager.shaders.contains(fs_id)) {
+    registry.emplace<WithFsShader>(cockpit, fs_id);
+  } else {
+    TraceLog(LOG_WARNING, "cockpit shader '%s' not found in cache", conf.shaderPath.c_str());
+  }
 }
+}  // namespace factories
