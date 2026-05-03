@@ -11,12 +11,12 @@ import JsonConfig;
 import Resources;
 import Accessors;
 
-void save(const GameOptions& options) {
-  auto j = parse_json_file(resources::options_path);
-  j["tilt"] = options.tilt;
-  j["fov"] = options.fov;
-  save_json_to_file(j, resources::options_path);
-}
+// void save(const GameOptions& options) {
+//   auto j = parse_json_file(resources::options_path);
+//   j["tilt"] = options.tilt;
+//   j["fov"] = options.fov;
+//   save_json_to_file(j, resources::options_path);
+// }
 
 export namespace game_options {
 void options(entt::registry& registry) {

@@ -29,11 +29,13 @@ std::unique_ptr<BaseScreen> create_screen(const ScreenState& current, entt::regi
   }
 }
 
-/// load configuration files and ensure existing of required tokens.
+/// load configuration files and ensure existing of required tokens in AppOptions.
 /// tokens can be set in the options file or in environment variables.
 /// @see https://github.com/ziv/airborne/wiki/Tokens for more information
 std::tuple<AppConfig, AppOptions> load_requirements() {
-  const auto app_conf = JsonConfig(resources::config_path).get<AppConfig>("/config");
+  // while config is a plain object, app options contain method
+  // to save data that changed during the game
+  const auto app_conf = get_json_node<AppConfig>(parse_json_file(resources::config_path), "/config");
   const AppOptions options{resources::options_path};
   return {app_conf, options};
 }
@@ -55,10 +57,8 @@ int main() {
     // todo remove comment in production
     // SetTargetFPS(60);
 
-    // todo remove to game screen, no need to have global registry, move conf into to screens instead
-    // game globals
-    entt::registry registry;
-    set_initial_globals(registry, config, options);
+    // game registry
+    entt::registry registry = initial_registry(config, options);
 
     // screens state
     auto current = ScreenState::SPLASH;

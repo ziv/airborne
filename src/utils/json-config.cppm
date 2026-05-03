@@ -32,54 +32,10 @@ export void save_json_to_file(const nlohmann::json &json, const std::string &pat
   }
 }
 
-// export class AppOptions {
-//   std::string path;
-//   nlohmann::json config;
-//   bool changed = false;
-//
-//  public:
-//   float tilt = 0.25f;
-//   float fov = 85.0f;
-//
-//   Vector3 zenith_color{};
-//   Vector3 horizon_color{};
-//
-//   std::string tiles_token;
-//   std::string maps_token;
-//
-//   explicit AppOptions(std::string options_path)
-//       : path(std::move(options_path)),
-//         config(parse_json_file(path)),
-//         // read all options
-//         tilt(config["tilt"].get<float>()),
-//         fov(config["fov"].get<float>()),
-//         zenith_color(config["zenith_color"].get<Vector3>()),
-//         horizon_color(config["horizon_color"].get<Vector3>()) {
-//     // token for Mapbox
-//     if (config.contains("tiles_token")) {
-//       tiles_token = config["tiles_token"].get<std::string>();
-//     } else {
-//       const auto env_tiles_token = std::string(std::getenv(resources::tiles_token_name));
-//       if (env_tiles_token.empty()) throw std::runtime_error("missing tiles token in options or environment variables");
-//       tiles_token = env_tiles_token;
-//     }
-//
-//     // token for Tomtom
-//     if (config.contains("maps_token")) {
-//       maps_token = config["maps_token"].get<std::string>();
-//     } else {
-//       const auto env_maps_token = std::string(std::getenv(resources::maps_token_name));
-//       if (env_maps_token.empty()) throw std::runtime_error("missing maps token in options or environment variables");
-//       maps_token = env_maps_token;
-//     }
-//   }
-//
-//   void save() {
-//     config["tilt"] = tilt;
-//     config["fov"] = fov;
-//     save_json_to_file(config, path);
-//   }
-// };
+export template <typename T>
+T get_json_node(const nlohmann::json &json, const std::string &path) {
+  return json.at(nlohmann::json::json_pointer(path)).get<T>();
+}
 
 export class JsonConfig {
  public:

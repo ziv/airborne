@@ -1,6 +1,5 @@
 module;
 #include <entt/entt.hpp>
-#include <nlohmann/json.hpp>
 
 export module Accessors;
 
@@ -10,11 +9,13 @@ import ResourceManager;
 import JsonConfig;
 import Types;
 
-export void set_initial_globals(entt::registry &registry, const AppConfig &config, const AppOptions &opts) {
+export entt::registry initial_registry(const AppConfig &config, const AppOptions &opts) {
+  entt::registry registry;
   registry.ctx().emplace<GameState>(GameStatus::INITIALIZE);
   registry.ctx().emplace<Configuration>(config);
   registry.ctx().emplace<AppOptions>(opts);
   create_resource_manager(registry);
+  return registry;
 }
 
 export AppOptions &get_options(entt::registry &registry) { return registry.ctx().get<AppOptions>(); }
