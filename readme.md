@@ -14,20 +14,45 @@ between just genius like [Sid Meier](https://en.wikipedia.org/wiki/Sid_Meier) ca
 Check out the [development blog](https://ziv.github.io/airborne/) for updates ot
 the [Wiki](https://github.com/ziv/airborne/wiki) for more information.
 
-## How to
-
-Still in progress, but...
-
-```shell
-cmake --build cmake-build-debug
-./cmake-build-debug/se
-```
-
 ## The Rules
 
 - Do not use game engine and or LLM
 - I have to re-learn CPP and linear algebra (ohh, trigonometry)
 - To have fun
+-
+
+## How to
+
+Still in progress, but...
+
+#### Required Dependencies
+
+- C++20 compiler with support for modules (I'm using LLVM with Ninja)
+- CMake 3.25 or higher
+- Tomtom and Mapbox API tokens for the maps/tiles.
+
+#### Installation and Running
+
+```shell
+# make sure to have llvm installed and configured as your default compiler
+brew install llvm cmake ninja
+
+# let cmake find the llvm clang compiler
+export CC=$(brew --prefix llvm)/bin/clang
+export CXX=$(brew --prefix llvm)/bin/clang++
+
+# required environment variables for the map API tokens
+export TOMTOM_TOKEN=***
+export MAPBOX_TOKEN=***
+
+# creating debug build
+cmake -B cmake-build-debug -S . -DCMAKE_BUILD_TYPE=Debug -G Ninja
+
+# compiling and running the game
+cmake --build cmake-build-debug && ./cmake-build-debug/airborne
+```
+
+---
 
 ## Nostalgia Moment
 

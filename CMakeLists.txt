@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 4.2.2)
-set(CMAKE_CXX_COMPILER_LAUNCHER ccache)
+#set(CMAKE_CXX_COMPILER_LAUNCHER ccache)
 
 project(airborne LANGUAGES CXX)
 
