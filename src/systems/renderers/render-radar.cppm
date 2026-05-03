@@ -60,7 +60,6 @@ export void RenderRadar(entt::registry &registry) {
   const auto &player = get_player(registry);
 
   for (auto [entity, slot, wd, pos] : view.each()) {
-
     const auto displayRadius = static_cast<float>(wd.cfg.size) / 2.0f;
     const Vector2 center = {pos.pos.x + displayRadius, pos.pos.y + displayRadius};
     const float range = wd.cfg.ranges[wd.rangeIndex];
@@ -74,17 +73,18 @@ export void RenderRadar(entt::registry &registry) {
     // player absolute world position (accounting for large-world offset)
     const float playerX = player.pos.x - player.offset.x;
     const float playerZ = player.pos.z - player.offset.z;
+    const float playerH = atan2f(player.forward.x, player.forward.z) * RAD2DEG;
 
     // project orientation onto XZ plane for top-down radar
     const Vector2 fwd_xz = {player.forward.x, player.forward.z};
-    const Vector2 fwd   = Vector2LengthSqr(fwd_xz) > 0.0001f ? Vector2Normalize(fwd_xz) : Vector2{0.0f, 1.0f};
+    const Vector2 fwd = Vector2LengthSqr(fwd_xz) > 0.0001f ? Vector2Normalize(fwd_xz) : Vector2{0.0f, 1.0f};
     const Vector2 right = {-fwd.y, fwd.x};
 
     const auto &radar = registry.get<RadarState>(get_player_entity(registry));
 
     // iterating items and if they are in range, display them on the radar
-    const auto blip_view = registry.view<Identify, Position3D, IdentifyType, FriendFoe, Heading>();
-    for (const auto [en, id, pos, typ, ff, hd] : blip_view.each()) {
+    for (const auto blip_view = registry.view<Identify, Position3D, IdentifyType, FriendFoe, Heading>();
+         const auto [en, id, pos, typ, ff, hd] : blip_view.each()) {
       const float dx = pos.pos.x - playerX;
       const float dz = pos.pos.z - playerZ;
 
@@ -93,9 +93,9 @@ export void RenderRadar(entt::registry &registry) {
 
       if (alongFwd * alongFwd + alongRight * alongRight > rangeSq) continue;
 
-      const Vector2 blipPos = {center.x + alongRight * pixelsPerMeter, center.y - alongFwd * pixelsPerMeter};
-      const auto bpx = static_cast<int>(blipPos.x);
-      const auto bpy = static_cast<int>(blipPos.y);
+      // const Vector2 blipPos = {center.x + alongRight * pixelsPerMeter, center.y - alongFwd * pixelsPerMeter};
+      const auto bpx = static_cast<int>(center.x + alongRight * pixelsPerMeter);
+      const auto bpy = static_cast<int>(center.y - alongFwd * pixelsPerMeter);
 
       color = GRAY;
       if (ff.faction == Faction::ENEMY)
@@ -105,7 +105,7 @@ export void RenderRadar(entt::registry &registry) {
 
       switch (typ.type) {
         case EntityType::AIRCRAFT:
-          drawAircraft(bpx, bpy, hd.heading, color);
+          drawAircraft(bpx, bpy, hd.heading + playerH, color);
           break;
         case EntityType::SAM:
         case EntityType::AAA:

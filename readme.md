@@ -73,59 +73,16 @@ Leftovers from the ESC refactoring:
 - [ ] autopilot controller
 - [ ] navball widget
 
-## Modules Rules
 
-```c++
-module;
-// includes only here:
-#include <vector>
-
-export module MyModule;
-
-// import only here:
-import JsonConfig;
-
-export class MyClass { ... };
-```
-
-## Modern CPP Rules
-
-- Modules
-- `static_cast` for casting
-- `if-init` statements
-- `auto` for type inference
-- `constexpr` for compile-time constants
-- `nullptr` instead of `NULL`
-
-Style Rules
-
-- Use `PascalCase` for class names, structs, and enums
-- Use `snake_case` for variables, methods, and functions
-
-## Build
-
-The project require C++ compiler with support for C++20 modules, and CMake 3.25 or higher.
-
-I'm using LLVM. My configuration looks like this (macos):
+## Drafts
 
 ```shell
-export CC=$(brew --prefix llvm)/bin/clang
-export CXX=$(brew --prefix llvm)/bin/clang++
-
-cmake -B cmake-build-debug -S . -DCMAKE_BUILD_TYPE=Debug -G Ninja
+# release
 cmake -B cmake-build-release -S . -DCMAKE_BUILD_TYPE=Release -G Ninja
+
+# asan
 cmake -S . -B cmake-build-asan -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_FLAGS="-fsanitize=address -g -fno-omit-frame-pointer" -DCMAKE_EXE_LINKER_FLAGS="-fsanitize=address"
 
 # clean builds
 cmake --build cmake-build-debug --target clean && cmake --build cmake-build-debug
 ```
-
-New tiles map, 16m/pixel (world under assets)
-Tile 2048x2048 pixels
-Tile hm map 512x512 pixels
-
-flight simulator
-cpp with raylib and entt
-ECS architecture
-3d word
-2d cockpit
