@@ -56,30 +56,6 @@ void options(entt::registry& registry) {
     if (!compare_colors(horizon_value, prevHorizonValue)) {
       options.set_horizon_color(color_to_vector(horizon_value));
     }
-
-    // ClearBackground(GetColor(GuiGetStyle(DEFAULT, BACKGROUND_COLOR)));
-
-    // DrawText("PAUSED", 500, 250, 40, YELLOW);
-
-    // float tilt = options.get_tilt();
-    // GuiSlider((Rectangle){380, 320, 300, 20}, "Tilt view", TextFormat("%.2f", tilt), &tilt, 0.0f, 1.0f);
-    // if (tilt != options.get_tilt()) {
-    //   // options.tilt = tilt;
-    //   // options.changed = true;
-    // }
-    //
-    // float fov = options.get_fov();
-    // GuiSlider((Rectangle){380, 350, 300, 20}, "FOV", TextFormat("%.0f", fov), &fov, 40.0f, 120.0f);
-    // if (fov != options.get_fov()) {
-    //   // options.fov = fov;
-    //   // options.changed = true;
-    // }
-
-    // if (options.changed) {
-    //   if (GuiButton((Rectangle){380, 410, 300, 20}, "SAVE")) {
-    //     save(options);
-    //   }
-    // }
   }
 }
 }  // namespace game_options
