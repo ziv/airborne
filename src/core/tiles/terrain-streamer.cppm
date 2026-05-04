@@ -97,8 +97,8 @@ class streamer {
   explicit streamer(entt::registry& registry)
       : displacement_shader(LoadShader(resources::terrain_vertex_shader_path, resources::terrain_fragment_shader_path)),
         terrain_model12(std::make_unique<Model>(create_model(TILE_SIZE_12, 16))),
-        terrain_model13(std::make_unique<Model>(create_model(TILE_SIZE_13, 64))),
-        terrain_model14(std::make_unique<Model>(create_model(TILE_SIZE_14, 256))),
+        terrain_model13(std::make_unique<Model>(create_model(TILE_SIZE_13, 32))),
+        terrain_model14(std::make_unique<Model>(create_model(TILE_SIZE_14, 64))),
         rmg(get_resource_manager(registry)),
         token(get_options(registry).get_tiles_token()) {
     // set the displacement_shader as the terrain model shader
@@ -302,25 +302,25 @@ class streamer {
   //   DrawText(TextFormat("rendered tiles: %d", static_cast<int>(rendered_tiles.size())), 15, 295, 10, BLACK);
   //   DrawText(TextFormat("threads: %d", threads), 15, 310, 10, BLACK);
   // }
-  // static void draw_tile_labels(entt::registry& registry, const Camera3D& camera) {
-  //   const auto& player = get_player(registry);
-  //   const auto width = static_cast<float>(GetScreenWidth());
-  //   const auto height = static_cast<float>(GetScreenHeight());
-  //
-  //   for (const auto view = registry.view<TerrainChunk, Position3D>(); const auto [entity, chunk, pos] : view.each()) {
-  //     // Raise the label a bit above the ground for legibility
-  //     const Vector3 world_pos = pos.pos + player.offset + Vector3{0.0f, 200.0f, 0.0f};
-  //
-  //     // "In front of camera" filter via dot product with forward
-  //     if (const Vector3 to_tile = world_pos - camera.position; Vector3DotProduct(to_tile, player.forward) <= 0.0f) continue;
-  //
-  //     const Vector2 sp = GetWorldToScreen(world_pos, camera);
-  //     if (sp.x < 0.0f || sp.x > width || sp.y < 0.0f || sp.y > height) continue;
-  //
-  //     DrawText(TextFormat("%d", chunk.zoom), static_cast<int>(sp.x), static_cast<int>(sp.y), 15, GREEN);
-  //     DrawText(TextFormat("%d %d", chunk.x, chunk.z), static_cast<int>(sp.x) + 20, static_cast<int>(sp.y), 10, GREEN);
-  //   }
-  // }
+  static void draw_tile_labels(entt::registry& registry, const Camera3D& camera) {
+    const auto& player = get_player(registry);
+    const auto width = static_cast<float>(GetScreenWidth());
+    const auto height = static_cast<float>(GetScreenHeight());
+
+    for (const auto view = registry.view<TerrainChunk, Position3D>(); const auto [entity, chunk, pos] : view.each()) {
+      // Raise the label a bit above the ground for legibility
+      const Vector3 world_pos = pos.pos + player.offset + Vector3{0.0f, 200.0f, 0.0f};
+
+      // "In front of camera" filter via dot product with forward
+      if (const Vector3 to_tile = world_pos - camera.position; Vector3DotProduct(to_tile, player.forward) <= 0.0f) continue;
+
+      const Vector2 sp = GetWorldToScreen(world_pos, camera);
+      if (sp.x < 0.0f || sp.x > width || sp.y < 0.0f || sp.y > height) continue;
+
+      DrawText(TextFormat("%d", chunk.zoom), static_cast<int>(sp.x), static_cast<int>(sp.y), 15, GREEN);
+      DrawText(TextFormat("%d %d", chunk.x, chunk.z), static_cast<int>(sp.x) + 20, static_cast<int>(sp.y), 10, GREEN);
+    }
+  }
   // void stream_debug(entt::registry& registry, const Camera3D& camera) const {
   //   const auto& player = get_player(registry);
   //   for (const auto view = registry.view<TerrainChunk, Position3D>(); const auto [entity, chunk, pos] : view.each()) {

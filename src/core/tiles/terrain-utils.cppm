@@ -84,7 +84,7 @@ void unload_tile_resources(ResourceManager& rm, const int zoom, const int x, con
 }
 
 // create models for tiles (model per zoom)
-Model create_model(const Meter size, const int res) { return LoadModelFromMesh(GenMeshPlane(size + size * 0.02f, size + size * 0.02f, res, res)); }
+Model create_model(const Meter size, const int res) { return LoadModelFromMesh(GenMeshPlane(size + size * 0.05f, size + size * 0.05f, res, res)); }
 
 float tile_distance(const Vector3& player_pos, const int zoom, const int tx, const int tz) {
   const float tile_size = tile_size_for_zoom(zoom);
