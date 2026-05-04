@@ -126,7 +126,7 @@ class streamer {
 
     // todo need to taken from scene sky color...
     const int fog_color_log = GetShaderLocation(displacement_shader, "fogColor");
-    const Vector4 fog = ColorNormalize({76, 179, 225, 1}); // or BLUE
+    const Vector4 fog = ColorNormalize({76, 179, 225, 1});  // or BLUE
     SetShaderValue(displacement_shader, fog_color_log, &fog, SHADER_UNIFORM_VEC4);
   }
 
@@ -218,6 +218,7 @@ class streamer {
 
     // height base optimization
     // todo move rlSetClipPlanes here and set it by height
+    // todo not suppose to change the radius of the search, should change the threshold
     auto radius = 7;
     if (player_pos.y < 500)
       radius = 3;
