@@ -11,7 +11,7 @@ import ResourceManager;
 // any change of 2km is space or 500m in height will trigger the update of tiles
 constexpr Meter UPDATE_THRESHOLD = 1000.0f * 1000.0f;
 constexpr Meter UPDATE_HEIGHT_THRESHOLD = 500.0f;
-constexpr Meter SKIRT_SIZE = 0.0f;
+constexpr Meter SKIRT_SIZE = 0.05f;
 
 // the equator
 // constexpr Meter TILE_SIZE_12 = 9783.9f;
@@ -40,8 +40,8 @@ constexpr int RENDER_DISC_R2 = 36;
 constexpr Meter RENDER_RADIUS = 6 * TILE_SIZE_12;
 constexpr Meter RENDER_RADIUS_SQ = RENDER_RADIUS * RENDER_RADIUS;
 constexpr Meter Z13_THRESHOLD = RENDER_RADIUS * 0.4f;
-constexpr Meter Z14_THRESHOLD = RENDER_RADIUS * 0.1f;
-constexpr Meter Z15_THRESHOLD = RENDER_RADIUS * 0.025f;
+constexpr Meter Z14_THRESHOLD = RENDER_RADIUS * 0.2f;
+constexpr Meter Z15_THRESHOLD = RENDER_RADIUS * 0.1f;
 constexpr Meter Z13_THRESHOLD_SQ = Z13_THRESHOLD * Z13_THRESHOLD;
 constexpr Meter Z14_THRESHOLD_SQ = Z14_THRESHOLD * Z14_THRESHOLD;
 constexpr Meter Z15_THRESHOLD_SQ = Z15_THRESHOLD * Z15_THRESHOLD;
@@ -100,7 +100,7 @@ void unload_tile_resources(ResourceManager& rm, const int zoom, const int x, con
 }
 
 // create models for tiles (model per zoom)
-Model create_model(const Meter size, const int res) { return LoadModelFromMesh(GenMeshPlane(size + size * 0.05f, size + size * 0.05f, res, res)); }
+Model create_model(const Meter size, const int res) { return LoadModelFromMesh(GenMeshPlane(size + size * SKIRT_SIZE, size + size * SKIRT_SIZE, res, res)); }
 
 float tile_distance(const Vector3& player_pos, const int zoom, const int tx, const int tz) {
   const float tile_size = tile_size_for_zoom(zoom);
