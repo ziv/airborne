@@ -133,7 +133,8 @@ class streamer {
   }
 
   void stream(entt::registry& registry, const Camera3D& camera) const {
-    const auto& offset = get_player(registry).offset;
+    const auto &player = get_player(registry);
+    // const auto& offset = get_player(registry).offset;
     SetShaderValue(displacement_shader, cam_pos_loc, &camera.position, SHADER_UNIFORM_VEC3);
 
     // we use BLEND_ALPHA to allow transparency in 3d (raylib default is not to allow)
@@ -145,6 +146,11 @@ class streamer {
       // the heightmap is not exists (not suppose to happen, just for safety)
       if (!rmg.textures.contains(chunk.height)) continue;
 
+      // do not render if it is not in front of me
+      const auto model_position = pos.pos + player.offset;
+      const auto player_pos = player.abs_pos;
+
+
       // now this access is safe
       const auto tex = rmg.textures[chunk.model]->res;
       const auto heightmap = rmg.textures[chunk.height]->res;
@@ -154,7 +160,7 @@ class streamer {
       model.materials[0].maps[MATERIAL_MAP_ALBEDO].texture = tex;
       model.materials[0].maps[MATERIAL_MAP_ROUGHNESS].texture = heightmap;
 
-      DrawModel(model, pos.pos + offset, 1.0f, WHITE);
+      DrawModel(model, pos.pos + player.offset, 1.0f, WHITE);
     }
     // EndBlendMode();
   }

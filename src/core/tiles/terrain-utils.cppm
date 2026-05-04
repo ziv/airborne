@@ -12,10 +12,19 @@ import ResourceManager;
 constexpr Meter UPDATE_THRESHOLD = 2000.0f * 2000.0f;
 constexpr Meter UPDATE_HEIGHT_THRESHOLD = 500.0f;
 constexpr Meter SKIRT_SIZE = 0.0f;
-constexpr Meter TILE_SIZE_12 = 9783.9f;
-constexpr Meter TILE_SIZE_13 = 4891.95f;
-constexpr Meter TILE_SIZE_14 = 2445.975f;
-constexpr Meter TILE_SIZE_15 = 1222.9875f;
+
+// the equator
+// constexpr Meter TILE_SIZE_12 = 9783.9f;
+// constexpr Meter TILE_SIZE_13 = 4891.95f;
+// constexpr Meter TILE_SIZE_14 = 2445.975f;
+// constexpr Meter TILE_SIZE_15 = 1222.9875f;
+
+// il area
+constexpr Meter TILE_SIZE_12 = 8300.0f;
+constexpr Meter TILE_SIZE_13 = 4150.0f;
+constexpr Meter TILE_SIZE_14 = 2075.0f;
+constexpr Meter TILE_SIZE_15 = 1037.5f;
+
 const std::map<int, Meter> TILE_SIZES = {
     {12, TILE_SIZE_12},
     {13, TILE_SIZE_13},
