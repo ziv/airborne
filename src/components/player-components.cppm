@@ -41,5 +41,5 @@ export struct PlayerInputs {
 
 export struct GroundHeight {
   float height;
-  float effective_ground_height;
+  float effectiveGroundHeight;
 };

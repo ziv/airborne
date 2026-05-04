@@ -8,7 +8,7 @@ export module RenderSystem:Cockpit;
 import Components;
 import ResourceManager;
 
-export void render_cockpit(entt::registry &registry) {
+export void RenderCockpit(entt::registry &registry) {
   const auto view = registry.view<CockpitWidget, WithFsShader, WithTexture, Position2D>();
   if (view.begin() == view.end()) return;
 

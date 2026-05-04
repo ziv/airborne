@@ -32,8 +32,8 @@ void options(entt::registry& registry) {
     Color zenith_value = vector_to_color(options.get_zenith_color());
     Color horizon_value = vector_to_color(options.get_horizon_color());
 
-    const Color prev_zenith_value = zenith_value;
-    const Color prev_horizon_value = horizon_value;
+    const Color prevZenithValue = zenith_value;
+    const Color prevHorizonValue = horizon_value;
 
     GuiWindowBox((Rectangle){256, 64, 440, 440}, "GAME PAUSED");
     GuiLabel((Rectangle){280, 104, 120, 24}, "Player view");
@@ -50,10 +50,10 @@ void options(entt::registry& registry) {
     if (fovy_value != options.get_fov()) {
       options.set_fov(fovy_value);
     }
-    if (!compare_colors(zenith_value, prev_zenith_value)) {
+    if (!compare_colors(zenith_value, prevZenithValue)) {
       options.set_zenith_color(color_to_vector(zenith_value));
     }
-    if (!compare_colors(horizon_value, prev_horizon_value)) {
+    if (!compare_colors(horizon_value, prevHorizonValue)) {
       options.set_horizon_color(color_to_vector(horizon_value));
     }
   }

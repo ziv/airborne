@@ -7,16 +7,16 @@
  * Replaces the default raylib logger. Prefixes each message with a coloured
  * tag: blue [DEBUG], green [INFO], red [ERROR], yellow [WARN].
  */
-inline void custom_log_callback(const int log_level, const char *text, const va_list args) {
+inline void CustomLogCallback(const int logLevel, const char *text, const va_list args) {
     // get rid of raylib internal annoying messages
-    if (log_level == LOG_INFO) {
+    if (logLevel == LOG_INFO) {
         if (strstr(text, "uploaded successfully") != nullptr ||
             strstr(text, "loaded successfully") != nullptr ||
             strstr(text, "Unloaded") != nullptr) {
             return;
             }
     }
-    switch (log_level) {
+    switch (logLevel) {
         case LOG_DEBUG:
             printf("\033[34m[D]\033[0m ");
             break;

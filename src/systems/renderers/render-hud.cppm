@@ -19,14 +19,14 @@ void draw_ladder(const HudWidget &widget, const Player &player, const Color colo
   const auto roll = (fabsf(fy) < 0.999f ? atan2f(-y, uy) : atan2f(z, x)) * RAD2DEG;
 
   BeginScissorMode(widget.cfg.ladder.x, widget.cfg.ladder.y, widget.cfg.ladder.width, widget.cfg.ladder.height);
-  DrawCircleLines(widget.center_x, widget.center_y - widget.cfg.ladder.offset, 5.0f, color);
+  DrawCircleLines(widget.centerX, widget.centerY - widget.cfg.ladder.offset, 5.0f, color);
 
   // freeze state
   rlPushMatrix();
 
   // take us to the center
   // the offset allow to define where to put the 0 line
-  rlTranslatef(static_cast<float>(widget.center_x), static_cast<float>(widget.center_y) - static_cast<float>(widget.cfg.ladder.offset), 0);
+  rlTranslatef(static_cast<float>(widget.centerX), static_cast<float>(widget.centerY) - static_cast<float>(widget.cfg.ladder.offset), 0);
 
   // pitch & roll
   rlRotatef(-roll, 0, 0, 1);
@@ -39,19 +39,19 @@ void draw_ladder(const HudWidget &widget, const Player &player, const Color colo
   for (int i = -180; i <= 180; i += 15) {
     if (i == 0) continue;
 
-    const auto line_y = -static_cast<float>(i * widget.pixels_per_degree);
-    const auto line_yint = static_cast<int>(line_y);
+    const auto lineY = -static_cast<float>(i * widget.pixelsPerDegree);
+    const auto lineYint = static_cast<int>(lineY);
 
     // main line
-    DrawLineEx({-100, line_y}, {-20, line_y}, 1, color);
-    DrawLineEx({20, line_y}, {100, line_y}, 1, color);
+    DrawLineEx({-100, lineY}, {-20, lineY}, 1, color);
+    DrawLineEx({20, lineY}, {100, lineY}, 1, color);
 
     // wings
-    const auto to = i > 0 ? line_y + 10 : line_y - 10;
-    DrawLineEx({100, line_y}, {110, to}, 1, color);
-    DrawLineEx({-100, line_y}, {-110, to}, 1, color);
-    DrawText(TextFormat("%d", i), -130, line_yint - 5, 10, color);
-    DrawText(TextFormat("%d", i), 115, line_yint - 5, 10, color);
+    const auto to = i > 0 ? lineY + 10 : lineY - 10;
+    DrawLineEx({100, lineY}, {110, to}, 1, color);
+    DrawLineEx({-100, lineY}, {-110, to}, 1, color);
+    DrawText(TextFormat("%d", i), -130, lineYint - 5, 10, color);
+    DrawText(TextFormat("%d", i), 115, lineYint - 5, 10, color);
   }
 
   // resume from freeze
@@ -87,31 +87,31 @@ void gear_warning(const HudWidget &widget, const Player &player, const PlayerInp
 void draw_heading(const HudWidget &widget, const Player &player, const Color color) {
   const auto [x, y, width, font] = widget.cfg.heading;
   const auto fx = static_cast<float>(x);
-  // constexpr auto pixels_per_degree = 10.0f;
-  constexpr auto tick_interval = 5;
+  // constexpr auto pixelsPerDegree = 10.0f;
+  constexpr auto tickInterval = 5;
 
-  auto current_heading = std::atan2(-player.forward.x, player.forward.z) * RAD2DEG;
+  auto currentHeading = std::atan2(-player.forward.x, player.forward.z) * RAD2DEG;
   // apply 180-degree offset to align north (0) with the world's 180 degree
   // mark. since atan2 returns [-180, 180], adding 180 shifts the range to [0,
   // 360].
-  current_heading += 180.0f;
+  currentHeading += 180.0f;
 
   // normalize 360 to 0
-  if (current_heading >= 360.0f) {
-    current_heading -= 360.0f;
+  if (currentHeading >= 360.0f) {
+    currentHeading -= 360.0f;
   }
 
   DrawLine(x, y, x, y + font / 2, color);
-  DrawText(TextFormat("%03.0f", current_heading), x - font / 2, y - font, font, color);
+  DrawText(TextFormat("%03.0f", currentHeading), x - font / 2, y - font, font, color);
 
-  const auto half_width = width / 2;
-  const auto half_width_f = static_cast<float>(half_width);
-  DrawLine(x - half_width, y, x + half_width, y, color);
+  const auto halfWidth = width / 2;
+  const auto halfWidth_f = static_cast<float>(halfWidth);
+  DrawLine(x - halfWidth, y, x + halfWidth, y, color);
 
-  for (auto i = 0; i < 360; i += tick_interval) {
+  for (auto i = 0; i < 360; i += tickInterval) {
     // calculate shortest angular difference between current heading and the
     // tick
-    auto diff = static_cast<float>(i) - current_heading;
+    auto diff = static_cast<float>(i) - currentHeading;
 
     // normalize difference to [-180, 180] to handle the 360->0 wrap around
     if (diff > 180.0f)
@@ -121,19 +121,19 @@ void draw_heading(const HudWidget &widget, const Player &player, const Color col
 
     // calculate screen X position and check if it's within the HUD tape width
     // using if-init
-    if (const auto tick_x = fx + (diff * widget.ppd); tick_x >= fx - half_width_f && tick_x <= fx + half_width_f) {
-      const auto is_major_tick = (i % 10 == 0);
-      const auto tick_length = is_major_tick ? font / 2 : font / 4;
+    if (const auto tickX = fx + (diff * widget.ppd); tickX >= fx - halfWidth_f && tickX <= fx + halfWidth_f) {
+      const auto isMajorTick = (i % 10 == 0);
+      const auto tickLength = isMajorTick ? font / 2 : font / 4;
 
       // Draw the tick line
-      DrawLine(static_cast<int>(tick_x), y, static_cast<int>(tick_x), y + tick_length, color);
+      DrawLine(static_cast<int>(tickX), y, static_cast<int>(tickX), y + tickLength, color);
 
       // Draw text for major ticks (every 10 degrees)
-      if (is_major_tick) {
+      if (isMajorTick) {
         const auto *text = TextFormat("%03d", i);
-        const auto text_offset = static_cast<float>(font) * 0.6f;
+        const auto textOffset = static_cast<float>(font) * 0.6f;
 
-        DrawText(text, static_cast<int>(tick_x - text_offset), y + tick_length + 4, static_cast<int>(static_cast<float>(font) * 0.8f), color);
+        DrawText(text, static_cast<int>(tickX - textOffset), y + tickLength + 4, static_cast<int>(static_cast<float>(font) * 0.8f), color);
       }
     }
   }
@@ -175,31 +175,31 @@ void draw_speed_indicator(const HudWidget &widget, const Player &player, Color c
 }
 
 void draw_rate_of_climb(const HudWidget &widget, const Player &player, Color color) {
-  const auto vertical_speed_fpm = ms_to_fpm(player.velocity.y);
+  const auto verticalSpeedFPM = ms_to_fpm(player.velocity.y);
   constexpr float MAX_CLIMB_RATE_FPM = 50000.0f;
   const float MAX_BAR_PIXELS = (static_cast<float>(widget.cfg.roc.height) / 2.0f) - 20.0f;
 
-  float vs_ratio = vertical_speed_fpm / MAX_CLIMB_RATE_FPM;
-  if (vs_ratio > 1.0f) vs_ratio = 1.0f;
-  if (vs_ratio < -1.0f) vs_ratio = -1.0f;
+  float vsRatio = verticalSpeedFPM / MAX_CLIMB_RATE_FPM;
+  if (vsRatio > 1.0f) vsRatio = 1.0f;
+  if (vsRatio < -1.0f) vsRatio = -1.0f;
 
-  const int current_bar_height = static_cast<int>(vs_ratio * MAX_BAR_PIXELS);
-  const int max_bar_pixels = static_cast<int>(MAX_BAR_PIXELS);
+  const int currentBarHeight = static_cast<int>(vsRatio * MAX_BAR_PIXELS);
+  const int maxBarPixels = static_cast<int>(MAX_BAR_PIXELS);
 
-  const int center_x = widget.cfg.roc.x;  // see speed location
-  const int center_y = widget.cfg.roc.y;
+  const int centerX = widget.cfg.roc.x;  // see speed location
+  const int centerY = widget.cfg.roc.y;
   const int width = widget.cfg.roc.width;
-  DrawLine(center_x, center_y - max_bar_pixels, center_x, center_y + max_bar_pixels, Fade(color, 0.3f));
-  DrawLine(center_x - width, center_y, center_x + width, center_y, color);
+  DrawLine(centerX, centerY - maxBarPixels, centerX, centerY + maxBarPixels, Fade(color, 0.3f));
+  DrawLine(centerX - width, centerY, centerX + width, centerY, color);
 
-  if (current_bar_height > 0) {
-    DrawRectangle(center_x - width / 2, center_y - current_bar_height, width, current_bar_height, color);
+  if (currentBarHeight > 0) {
+    DrawRectangle(centerX - width / 2, centerY - currentBarHeight, width, currentBarHeight, color);
   } else {
-    DrawRectangle(center_x - width / 2, center_y, width, -current_bar_height, color);
+    DrawRectangle(centerX - width / 2, centerY, width, -currentBarHeight, color);
   }
 }
 
-export void render_hud(entt::registry &registry) {
+export void RenderHud(entt::registry &registry) {
   const auto view = registry.view<HudWidget>();
   if (view.begin() == view.end()) return;
 
@@ -211,8 +211,8 @@ export void render_hud(entt::registry &registry) {
   const auto &[player, inputs, gh] = registry.get<Player, PlayerInputs, GroundHeight>(player_entity);
   const auto flyting = is_player_flying(registry);
 
-  const int safe_index = hud.color_index >= 0 && hud.color_index < static_cast<int>(colors.size()) ? hud.color_index : 0;
-  const auto color = colors[safe_index];
+  const int safeIndex = hud.colorIndex >= 0 && hud.colorIndex < static_cast<int>(colors.size()) ? hud.colorIndex : 0;
+  const auto color = colors[safeIndex];
 
   draw_ladder(hud, player, color);
   draw_rate_of_climb(hud, player, color);

@@ -146,14 +146,14 @@ export class Game {
     EndMode3D();
 
     // terrain_streamer::streamer::draw_tile_labels(registry, camera);
-    render_cockpit(registry);
-    render_minimap(registry);
-    render_engine_status(registry);
-    render_hud(registry);
-    render_radar(registry);
+    RenderCockpit(registry);
+    RenderMinimap(registry);
+    RenderEngineStatus(registry);
+    RenderHud(registry);
+    RenderRadar(registry);
     render_systems::target_camera(registry);
-    render_debug(registry);
-    render_crash_layout(registry);
+    RenderDebug(registry);
+    RenderCrashLayout(registry);
 
     game_options::options(registry);
     DrawFPS(1050, 780);

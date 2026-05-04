@@ -60,9 +60,9 @@ export struct TouchDown {};
 export struct Autopilot {};
 
 export struct LandingZoneDef {
-  bool is_landing_zone;
-  bool is_carrier;
-  float surface_y;
+  bool isLandingZone;
+  bool isCarrier;
+  float surfaceY;
 };
 
 // entities

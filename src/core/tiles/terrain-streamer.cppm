@@ -110,19 +110,19 @@ class streamer {
     cam_pos_loc = GetShaderLocation(displacement_shader, "cameraPosition");
 
     // set the heightmap data into MATERIAL_MAP_ROUGHNESS slot
-    constexpr int heightmap_slot_index = MATERIAL_MAP_ROUGHNESS;  // Raylib map roughness index
-    const int shader_location = GetShaderLocation(displacement_shader, "heightMap");
-    SetShaderValue(displacement_shader, shader_location, &heightmap_slot_index, SHADER_UNIFORM_INT);
+    constexpr int heightmapSlotIndex = MATERIAL_MAP_ROUGHNESS;  // Raylib map roughness index
+    const int shaderLocation = GetShaderLocation(displacement_shader, "heightMap");
+    SetShaderValue(displacement_shader, shaderLocation, &heightmapSlotIndex, SHADER_UNIFORM_INT);
 
     // set scale 1 as long as the model is stretched properly
-    constexpr float height_scale = 1.0;
-    const int scale_loc = GetShaderLocation(displacement_shader, "height_scale");
-    SetShaderValue(displacement_shader, scale_loc, &height_scale, SHADER_UNIFORM_FLOAT);
+    constexpr float heightScale = 1.0;
+    const int scaleLoc = GetShaderLocation(displacement_shader, "heightScale");
+    SetShaderValue(displacement_shader, scaleLoc, &heightScale, SHADER_UNIFORM_FLOAT);
 
     // todo read colors from scene for the light ambient
-    const int ambient_loc = GetShaderLocation(displacement_shader, "ambientLight");
-    float current_light[4] = {1.0f, 1.0f, 1.0f, 1.0f};
-    SetShaderValue(displacement_shader, ambient_loc, current_light, SHADER_UNIFORM_VEC4);
+    const int ambientLoc = GetShaderLocation(displacement_shader, "ambientLight");
+    float currentLight[4] = {1.0f, 1.0f, 1.0f, 1.0f};
+    SetShaderValue(displacement_shader, ambientLoc, currentLight, SHADER_UNIFORM_VEC4);
   }
 
   ~streamer() {

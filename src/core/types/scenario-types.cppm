@@ -99,19 +99,19 @@ export {
 
   // for missiles only
   struct WeaponAgility {
-    AngleDeg max_pitch = 0.0f;  ///< Maximum pitch rate (deg/s).
-    AngleDeg max_yaw = 0.0f;    ///< Maximum yaw rate (deg/s).
-    AngleDeg max_roll = 0.0f;   ///< Maximum roll rate (deg/s).
+    AngleDeg maxPitch = 0.0f;  ///< Maximum pitch rate (deg/s).
+    AngleDeg maxYaw = 0.0f;    ///< Maximum yaw rate (deg/s).
+    AngleDeg maxRoll = 0.0f;   ///< Maximum roll rate (deg/s).
   };
 
-  NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(WeaponAgility, max_pitch, max_yaw, max_roll);
+  NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(WeaponAgility, maxPitch, maxYaw, maxRoll);
 
   struct WeaponEffects {
-    Meter area_of_effect = 0.0f;      ///< Blast radius in meters.
-    float armor_penetration = 0.0f;  ///< Armor penetration factor (0–100).
+    Meter areaOfEffect = 0.0f;      ///< Blast radius in meters.
+    float armorPenetration = 0.0f;  ///< Armor penetration factor (0–100).
   };
 
-  NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(WeaponEffects, area_of_effect, armor_penetration);
+  NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(WeaponEffects, areaOfEffect, armorPenetration);
 
   struct WeaponDef {
     std::string id;                                 ///< Unique weapon identifier (e.g. "aim-9m").
@@ -120,20 +120,20 @@ export {
 
     Meter range = 0.0f;                 ///< Maximum engagement range in meters.
     float damage = 0.0f;                ///< Base damage per hit.
-    int ammo_capacity = 1;               ///< Number of rounds/missiles carried.
-    float rate_of_fire = 1.0f;            ///< Rounds per second (guns) or launches per second.
+    int ammoCapacity = 1;               ///< Number of rounds/missiles carried.
+    float rateOfFire = 1.0f;            ///< Rounds per second (guns) or launches per second.
     MeterPerSecond speed = 0.0f;        ///< Initial projectile/missile speed.
-    MeterPerSecond max_velocity = 0.0f;  ///< Maximum velocity after boost.
+    MeterPerSecond maxVelocity = 0.0f;  ///< Maximum velocity after boost.
 
     WeaponAgility agility;  ///< Steering limits (guided missiles only).
     WeaponEffects effects;  ///< Damage area and penetration.
 
-    bool player_selectable = false;  ///< Available in the player weapon selection screen.
-    bool player_default = false;     ///< Pre-selected in the default loadout.
+    bool playerSelectable = false;  ///< Available in the player weapon selection screen.
+    bool playerDefault = false;     ///< Pre-selected in the default loadout.
   };
 
-  NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(WeaponDef, id, name, category, range, damage, ammo_capacity, rate_of_fire, speed, max_velocity, agility, effects,
-                                                  player_selectable, player_default);
+  NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(WeaponDef, id, name, category, range, damage, ammoCapacity, rateOfFire, speed, maxVelocity, agility, effects,
+                                                  playerSelectable, playerDefault);
 
   struct Waypoint {
     std::string name;
@@ -152,14 +152,14 @@ export {
     Vector3 position = (Vector3){0, 0, 0};  ///< World-space position (before large-world offset).
     AngleDeg heading = 0.0f;                ///< Compass heading in degrees (0 = north/+Z).
     float health = 100.0f;
-    float max_health = 100.0f;
+    float maxHealth = 100.0f;
     float scale = 1.0f;
 
-    std::string model_id;  ///< Path to the .glb model file, or empty for fallback cube.
+    std::string modelId;  ///< Path to the .glb model file, or empty for fallback cube.
 
     /// Numeric behavior parameters keyed by name. Schema depends on entity
     /// type:
-    /// - aircraft: speed, max_speed, altitude, fuelCapacity, fuelConsumption,
+    /// - aircraft: speed, maxSpeed, altitude, fuelCapacity, fuelConsumption,
     /// turnRate, climbRate, radarRange
     /// - sam: detectionRange, engagementRange, maxAltitude, fireRate, accuracy,
     /// reloadTime
@@ -177,24 +177,24 @@ export {
     /// Ordered flight-path waypoints (aircraft entities only).
     std::vector<Waypoint> waypoints = {};
 
-    [[nodiscard]] float get_param(const std::string &key, const float default_value = 0.0f) const {
+    [[nodiscard]] float getParam(const std::string &key, const float defaultValue = 0.0f) const {
       const auto it = params.find(key);
-      return it != params.end() ? it->second : default_value;
+      return it != params.end() ? it->second : defaultValue;
     }
 
-    [[nodiscard]] std::string get_property(const std::string &key, const std::string &default_value = "") const {
+    [[nodiscard]] std::string getProperty(const std::string &key, const std::string &defaultValue = "") const {
       const auto it = properties.find(key);
-      return it != properties.end() ? it->second : default_value;
+      return it != properties.end() ? it->second : defaultValue;
     }
 
-    [[nodiscard]] bool is_alive() const { return state == EntityState::ACTIVE || state == EntityState::DAMAGED; }
+    [[nodiscard]] bool isAlive() const { return state == EntityState::ACTIVE || state == EntityState::DAMAGED; }
 
-    [[nodiscard]] bool is_enemy() const { return faction == Faction::ENEMY; }
+    [[nodiscard]] bool isEnemy() const { return faction == Faction::ENEMY; }
 
-    [[nodiscard]] bool is_friendly() const { return faction == Faction::FRIENDLY; }
+    [[nodiscard]] bool isFriendly() const { return faction == Faction::FRIENDLY; }
   };
 
-  NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(EntityDef, id, type, subtype, faction, state, position, heading, health, max_health, model_id, params,
+  NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(EntityDef, id, type, subtype, faction, state, position, heading, health, maxHealth, modelId, params,
                                                   properties, weapons, waypoints);
 
   struct Objective {
@@ -270,8 +270,8 @@ export {
     Difficulty difficulty = Difficulty::EASY;
     Weather weather = Weather::SUNNY;
     Season season = Season::SUMMER;
-    TimeOfDay time_of_day = TimeOfDay::DAY;
-    Color sky_color{BLUE};
+    TimeOfDay timeOfDay = TimeOfDay::DAY;
+    Color skyColor{BLUE};
     std::string theater;  ///< Geographic region / map name.
     StartConditions start;
 
@@ -281,6 +281,6 @@ export {
     std::vector<ResourceDef> resources;
   };
 
-  NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(Scenario, id, name, description, difficulty, weather, season, time_of_day, sky_color, theater, start, entities,
+  NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(Scenario, id, name, description, difficulty, weather, season, timeOfDay, skyColor, theater, start, entities,
                                                   weapons, objectives, resources);
 }

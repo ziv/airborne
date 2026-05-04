@@ -73,20 +73,20 @@ void position(entt::registry &registry, const float dt) {
 
   // update ground height
   gh.height = terrain_streamer::ground_height_at(registry, absolute_position);
-  gh.effective_ground_height = gh.height;
+  gh.effectiveGroundHeight = gh.height;
 
   // only when gear down, we check for landing zones
   if (inputs.gear) {
     if (const auto [is_landing_zone, is_carrier, surface_y] = get_landing_zone(registry, absolute_position); is_landing_zone) {
       // update effective ground height
-      gh.effective_ground_height = fmaxf(gh.height, surface_y);
+      gh.effectiveGroundHeight = fmaxf(gh.height, surface_y);
       registry.emplace_or_replace<LandingZoneDef>(entity, is_landing_zone, is_carrier, surface_y);
     }
   } else {
     registry.remove<LandingZoneDef>(entity);
   }
 
-  const auto ground_height = gh.effective_ground_height + conf.height_above_ground;
+  const auto ground_height = gh.effectiveGroundHeight + conf.heightAboveGround;
 
   // limit going underground/underwater
   if (player.pos.y < ground_height) {

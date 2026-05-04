@@ -128,9 +128,9 @@ void spawn_entity(entt::registry &registry, const nlohmann::json &entity) {
       const auto elevation_m = value["elevation_m"].get<float>();
 
       // calculate landing zone
-      // const float half_width = landable.carrier ? 100.0f : 200.0f;
+      // const float halfWidth = landable.carrier ? 100.0f : 200.0f;
       // const float halfLength = landable.carrier ? 250.0f : 2000.0f;
-      // const float surface_y = landable.carrier ? 8.0f : 0.0f;
+      // const float surfaceY = landable.carrier ? 8.0f : 0.0f;
 
       registry.emplace<LandingZone>(e, runway_length_m, runway_width_m, elevation_m);
       continue;
