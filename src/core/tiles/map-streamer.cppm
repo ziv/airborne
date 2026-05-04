@@ -100,8 +100,8 @@ struct MapStreamer {
 };
 
 entt::entity spawn_tile(entt::registry& registry, const MapKey& key, const std::string& token) {
-  const std::string path = std::format("assets/tiles/map/{}/{}/{}.png", key.zoom, key.geo_x, key.geo_z);
-  const std::string url = tile_downloader::map_url(key.zoom, key.geo_x, key.geo_z, token);
+  const std::string path = std::format("assets/tiles/night/{}/{}/{}.png", key.zoom, key.geo_x, key.geo_z);
+  const std::string url = tile_downloader::night_url(key.zoom, key.geo_x, key.geo_z, token);
 
   auto tex_future = tile_downloader::enqueue_and_load(path, url);
 
