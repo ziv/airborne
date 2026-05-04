@@ -8,6 +8,7 @@ module;
 #include <memory>
 #include <mutex>
 #include <queue>
+#include <optional>
 #include <stdexcept>
 #include <stop_token>
 #include <string>
@@ -53,20 +54,30 @@ class pool {
   std::mutex mtx;
   std::condition_variable_any cv;
 
-  // tracks every live SSLClient across all workers so the destructor can abort
-  // in-flight HTTP requests. raw pointers are valid until the owning worker's
-  // local map destructs — which happens only after the jthread joins.
+  // The pool owns every SSLClient — workers only hold non-owning pointers in
+  // their per-thread maps. This guarantees clients outlive workers regardless
+  // of which side teardown happens on first.
   std::mutex clients_mtx;
-  std::vector<httplib::SSLClient*> all_clients;
+  std::vector<std::unique_ptr<httplib::SSLClient>> all_clients;
 
-  void register_client(httplib::SSLClient* cli) {
+  httplib::SSLClient* create_client(const std::string& host) {
+    auto cli = std::make_unique<httplib::SSLClient>(host);
+    cli->set_follow_location(true);
+    cli->set_connection_timeout(10);
+    cli->set_read_timeout(5);
+    cli->set_keep_alive(true);
+#ifdef __APPLE__
+    cli->enable_server_certificate_verification(false);
+#endif
+    auto* ref = cli.get();
     std::lock_guard l(clients_mtx);
-    all_clients.push_back(cli);
+    all_clients.push_back(std::move(cli));
+    return ref;
   }
 
   void worker_loop(const std::stop_token& st) {
-    // per-worker keep-alive HTTP clients, one per host.
-    std::unordered_map<std::string, std::unique_ptr<httplib::SSLClient>> clients;
+    // per-worker host -> client map. non-owning; the pool owns the clients.
+    std::unordered_map<std::string, httplib::SSLClient*> clients;
 
     while (true) {
       ImageJob img_job;
@@ -78,9 +89,16 @@ class pool {
       }
 
       try {
-        download(*this, clients, img_job.path, img_job.url);
-        Image img = LoadImage(img_job.path.c_str());
-        if (img.data == nullptr) throw std::runtime_error("LoadImage returned empty image: " + img_job.path);
+        Image img;
+        if (auto body = fetch(*this, clients, img_job.path, img_job.url); body) {
+          // decode the freshly downloaded bytes directly, skipping a disk round-trip.
+          img = LoadImageFromMemory(".png", reinterpret_cast<const unsigned char*>(body->data()), static_cast<int>(body->size()));
+          write_atomic(img_job.path, *body);
+        } else {
+          // tile already cached on disk.
+          img = LoadImage(img_job.path.c_str());
+        }
+        if (img.data == nullptr) throw std::runtime_error("image decode returned empty image: " + img_job.path);
         img_job.promise.set_value(img);
       } catch (...) {
         try {
@@ -97,25 +115,18 @@ class pool {
     }
   }
 
-  static httplib::SSLClient& get_client(pool& self, std::unordered_map<std::string, std::unique_ptr<httplib::SSLClient>>& clients, const std::string& host) {
+  static httplib::SSLClient& get_client(pool& self, std::unordered_map<std::string, httplib::SSLClient*>& clients, const std::string& host) {
     if (const auto it = clients.find(host); it != clients.end()) return *it->second;
 
-    auto cli = std::make_unique<httplib::SSLClient>(host);
-    cli->set_follow_location(true);
-    cli->set_connection_timeout(10);
-    cli->set_read_timeout(5);
-    cli->set_keep_alive(true);
-#ifdef __APPLE__
-    cli->enable_server_certificate_verification(false);
-#endif
-    const auto [it, _] = clients.emplace(host, std::move(cli));
-    httplib::SSLClient& ref = *it->second;
-    self.register_client(&ref);
-    return ref;
+    httplib::SSLClient* cli = self.create_client(host);
+    clients.emplace(host, cli);
+    return *cli;
   }
 
-  static void download(pool& self, std::unordered_map<std::string, std::unique_ptr<httplib::SSLClient>>& clients, const std::string& path, const std::string& url) {
-    if (std::filesystem::exists(path)) return;
+  // returns the response body if a network fetch happened, or nullopt if the file
+  // was already cached on disk. throws on HTTP failure.
+  static std::optional<std::string> fetch(pool& self, std::unordered_map<std::string, httplib::SSLClient*>& clients, const std::string& path, const std::string& url) {
+    if (std::filesystem::exists(path)) return std::nullopt;
 
     // Parse host and target from url
     //  format: https://host/path?query
@@ -126,14 +137,18 @@ class pool {
     const std::string target = url.substr(slash);
 
     auto& cli = get_client(self, clients, host);
-    const auto res = cli.Get(target);
+    auto res = cli.Get(target);
     if (!res || res->status != 200) {
       const int status = res ? res->status : -1;
       const std::string err = res ? std::string{} : httplib::to_string(res.error());
       TraceLog(LOG_WARNING, "tile download failed: %s status=%d err=%s", path.c_str(), status, err.c_str());
       throw std::runtime_error(std::format("download failed: {} status={} err={}", path, status, err));
     }
+    TraceLog(LOG_DEBUG, "tile downloaded: %s", path.c_str());
+    return std::move(res->body);
+  }
 
+  static void write_atomic(const std::string& path, const std::string& bytes) {
     std::filesystem::create_directories(std::filesystem::path(path).parent_path());
     const std::string tmp_path = path + ".tmp";
     std::FILE* f = std::fopen(tmp_path.c_str(), "wb");
@@ -141,7 +156,7 @@ class pool {
       TraceLog(LOG_WARNING, "tile fopen failed: %s", tmp_path.c_str());
       throw std::runtime_error("fopen failed: " + tmp_path);
     }
-    std::fwrite(res->body.data(), 1, res->body.size(), f);
+    std::fwrite(bytes.data(), 1, bytes.size(), f);
     std::fclose(f);
     std::error_code ec;
     std::filesystem::rename(tmp_path, path, ec);
@@ -149,7 +164,6 @@ class pool {
       TraceLog(LOG_WARNING, "tile rename failed: %s -> %s (%s)", tmp_path.c_str(), path.c_str(), ec.message().c_str());
       throw std::runtime_error("rename failed: " + path);
     }
-    TraceLog(LOG_DEBUG, "tile downloaded: %s", path.c_str());
   }
 
  public:
@@ -158,21 +172,26 @@ class pool {
     for (int i = 0; i < thread_count; ++i) workers.emplace_back([this](const std::stop_token& st) { worker_loop(st); });
   }
 
-  // jthread auto-requests stop and joins on destruction; condition_variable_any
-  // wakes from wait() when stop is requested. We additionally call stop() on
-  // every live HTTP client so any worker currently blocked inside Get() returns
-  // immediately instead of waiting on its socket timeout.
+  // Tear down in this exact order:
+  //   1. Abort in-flight HTTP so any worker blocked inside Get() returns now.
+  //   2. Request stop on the workers (so threads idle in cv.wait exit) and join.
+  //   3. Destroy the SSLClients — only safe once we know no worker can touch them.
+  // Doing (2) before (1) would race: a worker waking from cv.wait would unblock
+  // with no work and exit; if its client were worker-owned it would be freed
+  // while we're about to call stop() on it. With the pool owning clients we
+  // dodge that, but we still order (1) before (2) so blocked Gets are aborted
+  // before we wait on join.
   ~pool() {
-    for (auto& w : workers) w.request_stop();
     {
       std::lock_guard l(clients_mtx);
-      for (auto* c : all_clients) c->stop();
+      for (auto& c : all_clients) c->stop();
     }
-    // Explicitly join workers here, while the rest of the members (mtx, cv,
-    // clients_mtx) are still alive — they would otherwise be destroyed first
-    // (members destruct in reverse declaration order) and the workers would
-    // touch destroyed primitives on their way out.
+    for (auto& w : workers) w.request_stop();
     workers.clear();
+    {
+      std::lock_guard l(clients_mtx);
+      all_clients.clear();
+    }
   }
 
   // returns a shared_future that resolves with the decoded Image after download.
@@ -190,9 +209,37 @@ class pool {
   }
 };
 
+// Global singleton lifetime is managed explicitly: callers must invoke
+// shutdown() before process exit (e.g. just before raylib's CloseWindow), so
+// that OpenSSL is still alive when the pool aborts in-flight requests. Relying
+// on a magic-static destructor races with libssl's own static teardown and
+// will crash inside ssl3_shutdown.
+namespace detail {
+inline std::mutex& instance_mutex() {
+  static std::mutex m;
+  return m;
+}
+inline std::unique_ptr<pool>& instance_ptr() {
+  static std::unique_ptr<pool> p;
+  return p;
+}
+inline pool& get_instance() {
+  std::lock_guard l(instance_mutex());
+  auto& p = instance_ptr();
+  if (!p) p = std::make_unique<pool>(4);
+  return *p;
+}
+}  // namespace detail
+
 std::shared_future<Image> enqueue_and_load(const std::string& path, const std::string& url) {
-  static pool instance(4);
-  return instance.enqueue_and_load(path, url);
+  return detail::get_instance().enqueue_and_load(path, url);
+}
+
+// Tears down the worker pool. Safe to call multiple times. Call this before
+// CloseWindow / process exit while libssl is still loaded.
+void shutdown() {
+  std::lock_guard l(detail::instance_mutex());
+  detail::instance_ptr().reset();
 }
 
 }  // namespace tile_downloader

@@ -14,6 +14,7 @@ import Types;
 import ResourceManager;
 import Resources;
 import Screens;
+import TileDownloader;
 
 /// screen selectors, create the required screen object
 /// screen are unique_ptr by design
@@ -78,6 +79,11 @@ int main() {
     // make sure we clear everything
     resources::unload_resource_manager(registry);
     registry.clear();
+
+    // Tear down the tile downloader pool while libssl is still alive. Doing
+    // this here (instead of relying on static destruction) avoids a crash in
+    // ssl3_shutdown caused by OpenSSL globals being finalized first.
+    tile_downloader::shutdown();
 
     CloseAudioDevice();
     CloseWindow();
