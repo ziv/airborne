@@ -64,7 +64,7 @@ class pool {
     all_clients.push_back(cli);
   }
 
-  void worker_loop(std::stop_token st) {
+  void worker_loop(const std::stop_token& st) {
     // per-worker keep-alive HTTP clients, one per host.
     std::unordered_map<std::string, std::unique_ptr<httplib::SSLClient>> clients;
 
@@ -108,9 +108,9 @@ class pool {
 #ifdef __APPLE__
     cli->enable_server_certificate_verification(false);
 #endif
-    auto& ref = *cli;
+    const auto [it, _] = clients.emplace(host, std::move(cli));
+    httplib::SSLClient& ref = *it->second;
     self.register_client(&ref);
-    clients.emplace(host, std::move(cli));
     return ref;
   }
 
@@ -118,7 +118,7 @@ class pool {
     if (std::filesystem::exists(path)) return;
 
     // Parse host and target from url
-    // url format: https://host/path?query
+    //  format: https://host/path?query
     const std::string https = "https://";
     const auto host_start = https.size();
     const auto slash = url.find('/', host_start);
@@ -155,7 +155,7 @@ class pool {
  public:
   explicit pool(const int thread_count = 4) {
     workers.reserve(thread_count);
-    for (int i = 0; i < thread_count; ++i) workers.emplace_back([this](std::stop_token st) { worker_loop(st); });
+    for (int i = 0; i < thread_count; ++i) workers.emplace_back([this](const std::stop_token& st) { worker_loop(st); });
   }
 
   // jthread auto-requests stop and joins on destruction; condition_variable_any
