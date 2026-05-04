@@ -165,7 +165,7 @@ class streamer {
       model.materials[0].maps[MATERIAL_MAP_ALBEDO].texture = rmg.textures[chunk.model]->res;
       model.materials[0].maps[MATERIAL_MAP_ROUGHNESS].texture = rmg.textures[chunk.height]->res;
 
-      DrawModel(model, pos.pos + player.offset, 1.0f, WHITE);
+      DrawModel(model, model_position, 1.0f, WHITE);
     }
     // EndBlendMode();
   }
