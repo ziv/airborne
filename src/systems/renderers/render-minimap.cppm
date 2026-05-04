@@ -11,12 +11,20 @@ import ResourceManager;
 import MapStreaming;
 import Accessors;
 
-static float minimap_tile_size(const int zoom) { return 9783.9f * static_cast<float>(std::pow(2.0f, 12 - zoom)); }
+constexpr float TILE_SIZE_Z12 = 8300.0f;
+constexpr float MAP_BASE_X = 2444.0f;
+constexpr float MAP_BASE_Z = 1655.0f;
+
+static float minimap_tile_size(const int zoom) { return TILE_SIZE_Z12 * static_cast<float>(std::pow(2.0f, 12 - zoom)); }
+
 
 export void RenderMinimap(entt::registry& registry) {
+  const auto& player = get_player(registry);
   for (const auto view = registry.view<DashboardSlot, MinimapWidget, Position2D>(); auto [entity, slot, wd, pos] : view.each()) {
-    const auto player_entity = registry.ctx().get<PlayerEntity>().id;
-    const auto& player = registry.get<Player>(player_entity);
+
+
+    // const auto player_entity = registry.ctx().get<PlayerEntity>().id;
+    // const auto& player = registry.get<Player>(player_entity);
 
     const Vector3 abs_pos = player.abs_pos;
     const int map_zoom = wd.map_zoom;
@@ -28,8 +36,10 @@ export void RenderMinimap(entt::registry& registry) {
     // zoom < 12 where local-index space and geo space diverge (BASE not divisible
     // by 2^(12-zoom)).
     constexpr float tile_px = 256.0f;
-    constexpr float origin_x = 2444.0f * 9783.9f;  // world x where geo tile 0 starts (BASE_X * TILE_Z12)
-    constexpr float origin_z = 1655.0f * 9783.9f;  // world z where geo tile 0 starts (BASE_Z * TILE_Z12)
+    constexpr float origin_x = MAP_BASE_X * TILE_SIZE_Z12;  // world x where geo tile 0 starts (BASE_X * TILE_Z12)
+    constexpr float origin_z = MAP_BASE_Z * TILE_SIZE_Z12;  // world z where geo tile 0 starts (BASE_Z * TILE_Z12)
+    // constexpr float origin_x = 2444.0f * 8300.0f;  // world x where geo tile 0 starts (BASE_X * TILE_Z12)
+    // constexpr float origin_z = 1655.0f * 8300.0f;  // world z where geo tile 0 starts (BASE_Z * TILE_Z12)
 
     Camera2D cam{};
     cam.target = {(abs_pos.x + origin_x) / tile_sz * tile_px, (abs_pos.z + origin_z) / tile_sz * tile_px};

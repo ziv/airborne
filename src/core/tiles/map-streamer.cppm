@@ -4,9 +4,9 @@ module;
 #include <filesystem>
 #include <format>
 #include <future>
-#include <unordered_map>
 #include <set>
 #include <string>
+#include <unordered_map>
 
 #include "../../lib/ray.hpp"
 
@@ -21,7 +21,7 @@ import TileDownloader;
 
 constexpr int MAP_GRID_HALF = 2;          // tiles in each direction
 constexpr int MAP_TILE_PX = 256;          // each downloaded tile is 256×256 px
-constexpr float TILE_SIZE_Z12 = 9783.9f;  // world metres per z12 tile (matches terrain streamer)
+constexpr float TILE_SIZE_Z12 = 8300.0f;  // world metres per z12 tile (matches terrain streamer)
 constexpr int MAP_BASE_X = 2444;          // geographic TMS x of local-origin tile at zoom 12
 constexpr int MAP_BASE_Z = 1655;          // geographic TMS z of local-origin tile at zoom 12
 constexpr int MAP_ANCHOR_ZOOM = 12;
@@ -48,7 +48,7 @@ int map_tile_id(const int zoom, const int x, const int z) { return static_cast<i
 
 export struct AsyncMapTileLoad {
   std::shared_future<Image> future;
-  int zoom = 14;
+  int zoom = 10;
   int x = 0;  // local index
   int z = 0;
   int geo_x = 0;  // geographic TMS index
@@ -57,7 +57,7 @@ export struct AsyncMapTileLoad {
 
 export struct MapTile {
   int tex_id = 0;  // key into rm.textures
-  int zoom = 14;
+  int zoom = 10;
   int x = 0;  // local index
   int z = 0;
   int geo_x = 0;  // geographic TMS index (used for rendering position)
@@ -125,7 +125,7 @@ void update(entt::registry& registry) {
   const auto& player = get_player(registry);
   const auto pos = player.abs_pos;
 
-  int map_zoom = 12;
+  int map_zoom = 10;
   if (const auto view = registry.view<MinimapWidget>(); !view.empty()) {
     map_zoom = registry.get<MinimapWidget>(view.front()).map_zoom;
   }

@@ -9,7 +9,7 @@ import Types;
 import ResourceManager;
 
 // any change of 2km is space or 500m in height will trigger the update of tiles
-constexpr Meter UPDATE_THRESHOLD = 2000.0f * 2000.0f;
+constexpr Meter UPDATE_THRESHOLD = 1000.0f * 1000.0f;
 constexpr Meter UPDATE_HEIGHT_THRESHOLD = 500.0f;
 constexpr Meter SKIRT_SIZE = 0.0f;
 
@@ -39,12 +39,19 @@ constexpr int BASE_Z = 1655;
 constexpr int RENDER_DISC_R2 = 36;
 constexpr Meter RENDER_RADIUS = 6 * TILE_SIZE_12;
 constexpr Meter RENDER_RADIUS_SQ = RENDER_RADIUS * RENDER_RADIUS;
-constexpr Meter Z13_THRESHOLD = RENDER_RADIUS * 0.2f;
+constexpr Meter Z13_THRESHOLD = RENDER_RADIUS * 0.4f;
 constexpr Meter Z14_THRESHOLD = RENDER_RADIUS * 0.1f;
-constexpr Meter Z15_THRESHOLD = RENDER_RADIUS * 0.05;
+constexpr Meter Z15_THRESHOLD = RENDER_RADIUS * 0.025f;
 constexpr Meter Z13_THRESHOLD_SQ = Z13_THRESHOLD * Z13_THRESHOLD;
 constexpr Meter Z14_THRESHOLD_SQ = Z14_THRESHOLD * Z14_THRESHOLD;
 constexpr Meter Z15_THRESHOLD_SQ = Z15_THRESHOLD * Z15_THRESHOLD;
+
+const std::map<int, Meter> TILE_DISTANCE_THRESHOLDS_SQ = {
+    {12, RENDER_RADIUS_SQ},
+    {13, Z13_THRESHOLD_SQ},
+    {14, Z14_THRESHOLD_SQ},
+    {15, Z15_THRESHOLD_SQ},
+};
 
 struct TileKey {
   int zoom;
@@ -71,10 +78,8 @@ struct std::hash<TileKey> {
 
 // module private methods
 
-constexpr Meter tile_size_for_zoom(const int zoom) {
-  return TILE_SIZES.at(zoom);
-  // return TILE_SIZE_12 / static_cast<Meter>(1 << (zoom - ZOOM_LEVEL));
-}
+constexpr Meter tile_size_for_zoom(const int zoom) { return TILE_SIZES.at(zoom); }
+constexpr Meter tile_threshold_for_zoom(const int zoom) { return TILE_DISTANCE_THRESHOLDS_SQ.at(zoom); }
 
 // ids for textures and heightmap to share between components
 int get_tex_id(const int zoom, const int x, const int z) { return entt::hashed_string(TextFormat("tile_tex_%d_%d_%d", zoom, x, z)); }

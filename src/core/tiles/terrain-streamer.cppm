@@ -133,7 +133,7 @@ class streamer {
   }
 
   void stream(entt::registry& registry, const Camera3D& camera) const {
-    const auto &player = get_player(registry);
+    const auto& player = get_player(registry);
     // const auto& offset = get_player(registry).offset;
     SetShaderValue(displacement_shader, cam_pos_loc, &camera.position, SHADER_UNIFORM_VEC3);
 
@@ -146,10 +146,12 @@ class streamer {
       // the heightmap is not exists (not suppose to happen, just for safety)
       if (!rmg.textures.contains(chunk.height)) continue;
 
-      // do not render if it is not in front of me
+      // do not render if it is not in front of the aircraft
+      // with exception for close tile that always should be rendered
       const auto model_position = pos.pos + player.offset;
-      const auto player_pos = player.abs_pos;
-
+      const auto player_pos = player.pos;
+      const auto to_tile = Vector3Normalize(model_position - player_pos);
+      if (Vector3Distance(model_position, player_pos) > 2000.0f && Vector3DotProduct(to_tile, player.forward) <= -0.3f) continue;
 
       // now this access is safe
       const auto tex = rmg.textures[chunk.model]->res;
@@ -183,8 +185,8 @@ class streamer {
 
     const auto player_pos = get_player(registry).abs_pos;
 
-    if (Vector3DistanceSqr(player_pos, last_position) < UPDATE_THRESHOLD) return;  // only update when moved more than N meters
-    // if (std::abs(player_pos.y - last_position.y) < UPDATE_HEIGHT_THRESHOLD) return;
+    if (Vector3DistanceSqr(player_pos, last_position) < UPDATE_THRESHOLD && std::abs(player_pos.y - last_position.y) < UPDATE_HEIGHT_THRESHOLD)
+      return;  // only update when moved more than N meters
     last_position = player_pos;
 
     const int current_tile_x = static_cast<int>(std::floor(player_pos.x / TILE_SIZE_12));
@@ -215,14 +217,13 @@ class streamer {
     // todo move rlSetClipPlanes here and set it by height
     auto radius = 7;
     if (player_pos.y < 500)
-      radius = 2;
-    else if (player_pos.y < 1000)
       radius = 3;
+    else if (player_pos.y < 1000)
+      radius = 4;
     else if (player_pos.y < 2000)
       radius = 5;
     else if (player_pos.y < 4000)
       radius = 6;
-
 
     for (int dx = -radius; dx <= radius; ++dx) {
       for (int dz = -radius; dz <= radius; ++dz) {
@@ -230,7 +231,7 @@ class streamer {
         subdivide(subdivide, 12, current_tile_x + dx, current_tile_z + dz);
       }
     }
-    TraceLog(LOG_DEBUG, "radius %d, tile %d", radius, new_desired_keys.size());
+    // TraceLog(LOG_DEBUG, "radius %d, tile %d", radius, new_desired_keys.size());
 
     // sort for searching (still cheaper than set? YES, set required the heap and O(n log n) for searching)
     std::ranges::sort(new_desired_keys);
@@ -342,22 +343,22 @@ class streamer {
       DrawText(TextFormat("%d %d", chunk.x, chunk.z), static_cast<int>(sp.x) + 20, static_cast<int>(sp.y), 10, GREEN);
     }
   }
-  // void stream_debug(entt::registry& registry, const Camera3D& camera) const {
-  //   const auto& player = get_player(registry);
-  //   for (const auto view = registry.view<TerrainChunk, Position3D>(); const auto [entity, chunk, pos] : view.each()) {
-  //     auto color = RED;
-  //     auto size = TILE_SIZE_12;
-  //     if (chunk.zoom == 13) {
-  //       color = GREEN;
-  //       size = TILE_SIZE_13;
-  //     }
-  //     if (chunk.zoom == 14) {
-  //       color = BLUE;
-  //       size = TILE_SIZE_14;
-  //     }
-  //     DrawCube(pos.pos + player.offset, size, 5.0f, size, color);
-  //   }
-  // }
+  void stream_debug(entt::registry& registry, const Camera3D& camera) const {
+    const auto& player = get_player(registry);
+    for (const auto view = registry.view<TerrainChunk, Position3D>(); const auto [entity, chunk, pos] : view.each()) {
+      auto color = RED;
+      auto size = TILE_SIZE_12;
+      if (chunk.zoom == 13) {
+        color = GREEN;
+        size = TILE_SIZE_13;
+      }
+      if (chunk.zoom == 14) {
+        color = BLUE;
+        size = TILE_SIZE_14;
+      }
+      DrawCube(pos.pos + player.offset, size, 5.0f, size, color);
+    }
+  }
 
  private:
   entt::entity spawn_tile(entt::registry& registry, const TileKey& tile) {
@@ -398,10 +399,7 @@ class streamer {
   }
 
   [[nodiscard]] bool is_tile_out_of_range(const TileKey& key) const {
-    const auto distance_sq = tile_distance(last_position, key.zoom, key.x, key.z);
-    if (key.zoom == 14) return distance_sq > Z14_THRESHOLD_SQ;
-    if (key.zoom == 13) return distance_sq > Z13_THRESHOLD_SQ;
-    return distance_sq > RENDER_RADIUS_SQ;
+    return tile_distance(last_position, key.zoom, key.x, key.z) > tile_threshold_for_zoom(key.zoom);
   }
 
   [[nodiscard]] bool is_tile_covered(const TileKey& key) const {
