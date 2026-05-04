@@ -8,7 +8,9 @@ export module TerrainStreaming:Utils;
 import Types;
 import ResourceManager;
 
-constexpr Meter UPDATE_THRESHOLD = 200.0f * 200.0f;
+// any change of 2km is space or 500m in height will trigger the update of tiles
+constexpr Meter UPDATE_THRESHOLD = 2000.0f * 2000.0f;
+constexpr Meter UPDATE_HEIGHT_THRESHOLD = 500.0f;
 constexpr Meter SKIRT_SIZE = 0.0f;
 constexpr Meter TILE_SIZE_12 = 9783.9f;
 constexpr Meter TILE_SIZE_13 = 4891.95f;
@@ -28,9 +30,9 @@ constexpr int BASE_Z = 1655;
 constexpr int RENDER_DISC_R2 = 36;
 constexpr Meter RENDER_RADIUS = 6 * TILE_SIZE_12;
 constexpr Meter RENDER_RADIUS_SQ = RENDER_RADIUS * RENDER_RADIUS;
-constexpr Meter Z13_THRESHOLD = RENDER_RADIUS * 0.4f;
-constexpr Meter Z14_THRESHOLD = RENDER_RADIUS * 0.20f;
-constexpr Meter Z15_THRESHOLD = RENDER_RADIUS * 0.1;
+constexpr Meter Z13_THRESHOLD = RENDER_RADIUS * 0.2f;
+constexpr Meter Z14_THRESHOLD = RENDER_RADIUS * 0.1f;
+constexpr Meter Z15_THRESHOLD = RENDER_RADIUS * 0.05;
 constexpr Meter Z13_THRESHOLD_SQ = Z13_THRESHOLD * Z13_THRESHOLD;
 constexpr Meter Z14_THRESHOLD_SQ = Z14_THRESHOLD * Z14_THRESHOLD;
 constexpr Meter Z15_THRESHOLD_SQ = Z15_THRESHOLD * Z15_THRESHOLD;

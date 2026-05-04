@@ -96,9 +96,9 @@ class streamer {
  public:
   explicit streamer(entt::registry& registry)
       : displacement_shader(LoadShader(resources::terrain_vertex_shader_path, resources::terrain_fragment_shader_path)),
-        terrain_model12(std::make_unique<Model>(create_model(TILE_SIZE_12, 16))),
-        terrain_model13(std::make_unique<Model>(create_model(TILE_SIZE_13, 32))),
-        terrain_model14(std::make_unique<Model>(create_model(TILE_SIZE_14, 64))),
+        terrain_model12(std::make_unique<Model>(create_model(TILE_SIZE_12, 32))),
+        terrain_model13(std::make_unique<Model>(create_model(TILE_SIZE_13, 64))),
+        terrain_model14(std::make_unique<Model>(create_model(TILE_SIZE_14, 128))),
         rmg(get_resource_manager(registry)),
         token(get_options(registry).get_tiles_token()) {
     // set the displacement_shader as the terrain model shader
@@ -178,6 +178,7 @@ class streamer {
     const auto player_pos = get_player(registry).abs_pos;
 
     if (Vector3DistanceSqr(player_pos, last_position) < UPDATE_THRESHOLD) return;  // only update when moved more than N meters
+    // if (std::abs(player_pos.y - last_position.y) < UPDATE_HEIGHT_THRESHOLD) return;
     last_position = player_pos;
 
     const int current_tile_x = static_cast<int>(std::floor(player_pos.x / TILE_SIZE_12));
@@ -204,12 +205,26 @@ class streamer {
         for (int oz = 0; oz < 2; ++oz) self(self, child_zoom, cx0 + ox, cz0 + oz);
     };
 
-    for (int dx = -7; dx <= 7; ++dx) {
-      for (int dz = -7; dz <= 7; ++dz) {
+    // height base optimization
+    // todo move rlSetClipPlanes here and set it by height
+    auto radius = 7;
+    if (player_pos.y < 500)
+      radius = 2;
+    else if (player_pos.y < 1000)
+      radius = 3;
+    else if (player_pos.y < 2000)
+      radius = 5;
+    else if (player_pos.y < 4000)
+      radius = 6;
+
+
+    for (int dx = -radius; dx <= radius; ++dx) {
+      for (int dz = -radius; dz <= radius; ++dz) {
         if (dz * dz + dx * dx > RENDER_DISC_R2) continue;
         subdivide(subdivide, 12, current_tile_x + dx, current_tile_z + dz);
       }
     }
+    TraceLog(LOG_DEBUG, "radius %d, tile %d", radius, new_desired_keys.size());
 
     // sort for searching (still cheaper than set? YES, set required the heap and O(n log n) for searching)
     std::ranges::sort(new_desired_keys);
