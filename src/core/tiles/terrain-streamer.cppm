@@ -141,26 +141,24 @@ class streamer {
     // we use transparency in shader to mimic fog
     // BeginBlendMode(BLEND_ALPHA);
     for (const auto view = registry.view<TerrainChunk, Position3D>(); const auto [entity, chunk, pos] : view.each()) {
+      // do not render if it is not in front of the aircraft
+      // with exception for close tile that always should be rendered
+      const auto model_position = pos.pos + player.offset;
+      const auto player_pos = player.pos;
+      if (const auto to_tile = Vector3Normalize(model_position - player_pos);
+          Vector3Distance(model_position, player_pos) > 2000.0f && Vector3DotProduct(to_tile, player.forward) <= -0.3f)
+        continue;
+
       // the texture is not exists (not suppose to happen, just for safety)
       if (!rmg.textures.contains(chunk.model)) continue;
       // the heightmap is not exists (not suppose to happen, just for safety)
       if (!rmg.textures.contains(chunk.height)) continue;
 
-      // do not render if it is not in front of the aircraft
-      // with exception for close tile that always should be rendered
-      const auto model_position = pos.pos + player.offset;
-      const auto player_pos = player.pos;
-      const auto to_tile = Vector3Normalize(model_position - player_pos);
-      if (Vector3Distance(model_position, player_pos) > 2000.0f && Vector3DotProduct(to_tile, player.forward) <= -0.3f) continue;
-
-      // now this access is safe
-      const auto tex = rmg.textures[chunk.model]->res;
-      const auto heightmap = rmg.textures[chunk.height]->res;
-
+      // now this access is safe the resources
       // attach the texture and the heightmap to the slot we defined in the ctr
       const auto& model = model_for_zoom(chunk.zoom);
-      model.materials[0].maps[MATERIAL_MAP_ALBEDO].texture = tex;
-      model.materials[0].maps[MATERIAL_MAP_ROUGHNESS].texture = heightmap;
+      model.materials[0].maps[MATERIAL_MAP_ALBEDO].texture = rmg.textures[chunk.model]->res;
+      model.materials[0].maps[MATERIAL_MAP_ROUGHNESS].texture = rmg.textures[chunk.height]->res;
 
       DrawModel(model, pos.pos + player.offset, 1.0f, WHITE);
     }
