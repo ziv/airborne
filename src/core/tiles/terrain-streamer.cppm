@@ -84,29 +84,29 @@ class streamer {
   std::unordered_map<TileKey, entt::entity> desired_tiles;   // what LOD logic wants this frame
   std::unordered_map<TileKey, entt::entity> rendered_tiles;  // superset: desired + pending eviction
   Vector3 last_position{-9.9f, -9.9f, -9.9f};
-  Shader displacement_shader;
+
   int cam_pos_loc = -1;
-  int threads = 0;
-  std::unique_ptr<Model> terrain_model12;
-  std::unique_ptr<Model> terrain_model13;
-  std::unique_ptr<Model> terrain_model14;
+  std::map<int, Model> models;
+
+  Shader displacement_shader;
   ResourceManager& rmg;
   std::string token;
 
  public:
   explicit streamer(entt::registry& registry)
       : displacement_shader(LoadShader(resources::terrain_vertex_shader_path, resources::terrain_fragment_shader_path)),
-        terrain_model12(std::make_unique<Model>(create_model(TILE_SIZE_12, 32))),
-        terrain_model13(std::make_unique<Model>(create_model(TILE_SIZE_13, 64))),
-        terrain_model14(std::make_unique<Model>(create_model(TILE_SIZE_14, 128))),
         rmg(get_resource_manager(registry)),
         token(get_options(registry).get_tiles_token()) {
-    // set the displacement_shader as the terrain model shader
-    terrain_model12->materials[0].shader = displacement_shader;
-    terrain_model13->materials[0].shader = displacement_shader;
-    terrain_model14->materials[0].shader = displacement_shader;
+    // create default models
+    models[12] = create_model(TILE_SIZE_12, 32);
+    models[13] = create_model(TILE_SIZE_13, 64);
+    models[14] = create_model(TILE_SIZE_14, 128);
 
-    // keep for layer use
+    models[12].materials[0].shader = displacement_shader;
+    models[13].materials[0].shader = displacement_shader;
+    models[14].materials[0].shader = displacement_shader;
+
+    // keep for later use in renderer (cache)
     cam_pos_loc = GetShaderLocation(displacement_shader, "cameraPosition");
 
     // set the heightmap data into MATERIAL_MAP_ROUGHNESS slot
@@ -126,9 +126,9 @@ class streamer {
   }
 
   ~streamer() {
-    UnloadModel(*terrain_model12);
-    UnloadModel(*terrain_model13);
-    UnloadModel(*terrain_model14);
+    UnloadModel(models[12]);
+    UnloadModel(models[13]);
+    UnloadModel(models[14]);
     UnloadShader(displacement_shader);
   }
 
@@ -156,7 +156,7 @@ class streamer {
 
       // now this access is safe the resources
       // attach the texture and the heightmap to the slot we defined in the ctr
-      const auto& model = model_for_zoom(chunk.zoom);
+      const auto& model = models.at(chunk.zoom);  // model_for_zoom(chunk.zoom);
       model.materials[0].maps[MATERIAL_MAP_ALBEDO].texture = rmg.textures[chunk.model]->res;
       model.materials[0].maps[MATERIAL_MAP_ROUGHNESS].texture = rmg.textures[chunk.height]->res;
 
@@ -184,7 +184,7 @@ class streamer {
     const auto player_pos = get_player(registry).abs_pos;
 
     if (Vector3DistanceSqr(player_pos, last_position) < UPDATE_THRESHOLD && std::abs(player_pos.y - last_position.y) < UPDATE_HEIGHT_THRESHOLD)
-      return;  // only update when moved more than N meters
+      return;  // only update when moved more than N meters or gain/loose enough height
     last_position = player_pos;
 
     const int current_tile_x = static_cast<int>(std::floor(player_pos.x / TILE_SIZE_12));
@@ -264,7 +264,6 @@ class streamer {
 
       const Image tex_img = texture_future.get();
       Image height_img = heightmap_future.get();
-      threads -= 2;
 
       if (!IsImageValid(tex_img) || !IsImageValid(height_img)) {
         TraceLog(LOG_WARNING, "failed to load tile %d/%d/%d - the tile will not be display in next frame", zoom, x, z);
@@ -283,10 +282,11 @@ class streamer {
         continue;
       }
 
+      // now it safe to do the heavy load..
       const Texture2D texture_tex = LoadTextureFromImage(tex_img);
       const Texture2D height_tex = LoadTextureFromImage(height_img);
 
-      // need no more
+      // need no more (keeping the heightmap for querying the ground height)
       UnloadImage(tex_img);
 
       const auto texture_id = get_tex_id(zoom, x, z);
@@ -359,7 +359,7 @@ class streamer {
   }
 
  private:
-  entt::entity spawn_tile(entt::registry& registry, const TileKey& tile) {
+  entt::entity spawn_tile(entt::registry& registry, const TileKey& tile) const {
     const auto scale = 1 << (tile.zoom - ZOOM_LEVEL);
     const auto tx = tile.x + BASE_X * scale;
     const auto tz = tile.z + BASE_Z * scale;
@@ -376,24 +376,12 @@ class streamer {
 
     auto tex_future = tile_downloader::enqueue_and_load(tex_path, tex_url);
     auto height_future = tile_downloader::enqueue_and_load(height_path, height_url);
-    threads += 2;
 
     const auto entity = registry.create();
     registry.emplace<Position3D>(entity, (Vector3){world_x, 0.0f, world_z});
     registry.emplace<AsyncTileLoad>(entity, std::move(tex_future), std::move(height_future), tile.x, tile.z, tile.zoom);
 
     return entity;
-  }
-
-  [[nodiscard]] Model& model_for_zoom(const int zoom) const {
-    switch (zoom) {
-      case 13:
-        return *terrain_model13;
-      case 14:
-        return *terrain_model14;
-      default:
-        return *terrain_model12;
-    }
   }
 
   [[nodiscard]] bool is_tile_out_of_range(const TileKey& key) const {
