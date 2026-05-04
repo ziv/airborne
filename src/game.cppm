@@ -142,10 +142,10 @@ export class Game {
     // streamer.stream_debug(registry, camera);
     streamer.stream(registry, camera);
     render_systems::models(registry);
-    render_systems::debug_models(registry);
+    // render_systems::debug_models(registry);
     EndMode3D();
 
-    terrain_streamer::streamer::draw_tile_labels(registry, camera);
+    // terrain_streamer::streamer::draw_tile_labels(registry, camera);
     RenderCockpit(registry);
     RenderMinimap(registry);
     RenderEngineStatus(registry);
