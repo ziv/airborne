@@ -5,17 +5,17 @@ in float fragCamDist;
 
 uniform sampler2D texture0;
 uniform vec4 ambientLight;
+uniform vec4 fogColor;
 
 out vec4 finalColor;
+
+const float fogStart = 40000.0;
+const float fogEnd   = 60000.0;
 
 void main()
 {
     vec4 texColor = texture(texture0, fragTexCoord);
-
-    // float fogStart = 30000.0;
-    // float fogEnd   = 50000.0;
-    // float fogFactor = clamp((fragCamDist - fogStart) / (fogEnd - fogStart), 0.0, 1.0);
-
-    // finalColor = texColor * vec4(texColor.rgb, texColor.a * (1.0 - fogFactor));
-    finalColor = texColor * ambientLight; //  vec4(texColor.rgb, texColor.a * (1.0 - fogFactor));
+    vec4 lit = texColor * ambientLight;
+    float fogFactor = clamp((fragCamDist - fogStart) / (fogEnd - fogStart), 0.0, 1.0);
+    finalColor = mix(lit, fogColor, fogFactor);
 }

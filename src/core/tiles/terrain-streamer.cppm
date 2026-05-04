@@ -123,6 +123,11 @@ class streamer {
     const int ambientLoc = GetShaderLocation(displacement_shader, "ambientLight");
     float currentLight[4] = {1.0f, 1.0f, 1.0f, 1.0f};
     SetShaderValue(displacement_shader, ambientLoc, currentLight, SHADER_UNIFORM_VEC4);
+
+    // todo need to taken from scene sky color...
+    const int fog_color_log = GetShaderLocation(displacement_shader, "fogColor");
+    const Vector4 fog = ColorNormalize({76, 179, 225, 1}); // or BLUE
+    SetShaderValue(displacement_shader, fog_color_log, &fog, SHADER_UNIFORM_VEC4);
   }
 
   ~streamer() {
