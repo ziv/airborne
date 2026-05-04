@@ -80,6 +80,8 @@ export class Game {
   }
 
   ~Game() {
+    // todo if we clear here and want to re-create the game, what happened to the loaded items?
+    registry.clear();
   }
 
   // advance one setup step. Returns progress [0,100], or -1 when done.
