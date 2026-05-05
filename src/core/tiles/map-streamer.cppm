@@ -19,25 +19,24 @@ import Accessors;
 import Types;
 import TileDownloader;
 
-constexpr int MAP_GRID_HALF = 2;          // tiles in each direction
-constexpr int MAP_TILE_PX = 256;          // each downloaded tile is 256×256 px
-constexpr float TILE_SIZE_Z12 = 8300.0f;  // world metres per z12 tile (matches terrain streamer)
-constexpr int MAP_BASE_X = 2444;          // geographic TMS x of local-origin tile at zoom 12
-constexpr int MAP_BASE_Z = 1655;          // geographic TMS z of local-origin tile at zoom 12
-constexpr int MAP_ANCHOR_ZOOM = 12;
+constexpr int MAP_GRID_HALF = 2;           // tiles in each direction
+constexpr int MAP_TILE_PX = 256;           // each downloaded tile is 256×256 px
+constexpr float TILE_SIZE_Z11 = 16600.0f;  // world metres per z12 tile (matches terrain streamer)
+constexpr int MAP_BASE_X = 1223;           // geographic TMS x of local-origin tile at zoom 11
+constexpr int MAP_BASE_Z = 828;            // geographic TMS z of local-origin tile at zoom 11
+constexpr int MAP_ANCHOR_ZOOM = 11;
 
 // World metres per tile at any zoom level.
 float map_tile_size(const int zoom) {
   const int diff = zoom - MAP_ANCHOR_ZOOM;
-  if (diff >= 0) return TILE_SIZE_Z12 / static_cast<float>(1 << diff);
-  return TILE_SIZE_Z12 * static_cast<float>(1 << -diff);
+  if (diff >= 0) return TILE_SIZE_Z11 / static_cast<float>(1 << diff);
+  return TILE_SIZE_Z11 * static_cast<float>(1 << -diff);
 }
 
 // compute the geographic (TMS) tile index directly from a world coordinate.
 // avoids all intermediate integer truncation by doing one float floor at the end.
-// geo = floor((world + BASE * TILE_Z12) / tile_size(zoom))
 int world_to_geo(const float world, const int base, const int zoom) {
-  const float origin = static_cast<float>(base) * TILE_SIZE_Z12;
+  const double origin = static_cast<double>(base) * static_cast<double>(TILE_SIZE_Z11);
   return static_cast<int>(std::floor((world + origin) / map_tile_size(zoom)));
 }
 

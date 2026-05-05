@@ -9,16 +9,6 @@
       "x": 0.3,
       "y": 0.7,
       "z": 0.88
-    },
-    "x_zenith_color": {
-      "x": 0.1,
-      "y": 0.3,
-      "z": 0.9
-    },
-    "x_horizon_color": {
-      "x": 0.6,
-      "y": 0.8,
-      "z": 0.99
     }
   },
   "tiles": {
@@ -44,9 +34,9 @@
     "time_of_day": "day",
     "weather": "sunny",
     "start_position": {
-      "x": 12000,
+      "x": -4000,
       "y": 11,
-      "z": -26000
+      "z": -36000
     }
   },
   "entities": [
@@ -59,9 +49,9 @@
         "type": "carrier",
         "faction": "friendly",
         "position": {
-          "x": 12000,
+          "x": -4000,
           "y": 0,
-          "z": -26000
+          "z": -36000
         },
         "heading": 0,
         "model": "carrier-model",

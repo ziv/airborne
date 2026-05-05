@@ -10,9 +10,9 @@ import ResourceManager;
 import MapStreaming;
 import Accessors;
 
-constexpr float TILE_SIZE_Z12 = 8300.0f;
-constexpr float MAP_BASE_X = 2444.0f;
-constexpr float MAP_BASE_Z = 1655.0f;
+constexpr float TILE_SIZE_Z11 = 16600.0f;
+constexpr float MAP_BASE_X = 1223.0f;
+constexpr float MAP_BASE_Z = 828.0f;
 
 // All rendering is in "geo-pixel" space: geo tile g drawn at (g*256, g*256).
 // Camera target is the player's continuous position in that same space.
@@ -20,10 +20,10 @@ constexpr float MAP_BASE_Z = 1655.0f;
 // zoom < 12 where local-index space and geo space diverge (BASE not divisible
 // by 2^(12-zoom)).
 constexpr float TILE_PX = 256.0f;
-constexpr float ORIGIN_X = MAP_BASE_X * TILE_SIZE_Z12;  // world x where geo tile 0 starts (BASE_X * TILE_Z12)
-constexpr float ORIGIN_Z = MAP_BASE_Z * TILE_SIZE_Z12;  // world z where geo tile 0 starts (BASE_Z * TILE_Z12)
+constexpr float ORIGIN_X = MAP_BASE_X * TILE_SIZE_Z11;  // world x where geo tile 0 starts (BASE_X * TILE_Z12)
+constexpr float ORIGIN_Z = MAP_BASE_Z * TILE_SIZE_Z11;  // world z where geo tile 0 starts (BASE_Z * TILE_Z12)
 
-static float minimap_tile_size(const int zoom) { return TILE_SIZE_Z12 * static_cast<float>(std::pow(2.0f, 12 - zoom)); }
+static float minimap_tile_size(const int zoom) { return TILE_SIZE_Z11 * static_cast<float>(std::pow(2.0f, 11 - zoom)); }
 
 void draw_aircraft_marker(const Player& player, const Vector2& target) {
   const float heading = 180.0f - atan2f(player.forward.x, player.forward.z) * RAD2DEG;

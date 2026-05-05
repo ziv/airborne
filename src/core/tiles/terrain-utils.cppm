@@ -11,7 +11,7 @@ import ResourceManager;
 // any change of 2km is space or 500m in height will trigger the update of tiles
 constexpr Meter UPDATE_THRESHOLD = 1000.0f * 1000.0f;
 constexpr Meter UPDATE_HEIGHT_THRESHOLD = 500.0f;
-constexpr Meter SKIRT_SIZE = 0.02f;
+constexpr Meter SKIRT_SIZE = 0.05f;
 
 // the equator
 // constexpr Meter TILE_SIZE_12 = 9783.9f;
@@ -20,34 +20,43 @@ constexpr Meter SKIRT_SIZE = 0.02f;
 // constexpr Meter TILE_SIZE_15 = 1222.9875f;
 
 // il area
+constexpr Meter TILE_SIZE_11 = 16600.0f;
 constexpr Meter TILE_SIZE_12 = 8300.0f;
 constexpr Meter TILE_SIZE_13 = 4150.0f;
 constexpr Meter TILE_SIZE_14 = 2075.0f;
 constexpr Meter TILE_SIZE_15 = 1037.5f;
 
 const std::map<int, Meter> TILE_SIZES = {
+    {11, TILE_SIZE_11},
     {12, TILE_SIZE_12},
     {13, TILE_SIZE_13},
     {14, TILE_SIZE_14},
     {15, TILE_SIZE_15},
 };
 
-constexpr int ZOOM_LEVEL = 12;
-constexpr int BASE_X = 2444;
-constexpr int BASE_Z = 1655;
+// constexpr int ZOOM_LEVEL = 12;
+// constexpr int BASE_X = 2444;
+// constexpr int BASE_Z = 1655;
+
+constexpr int ZOOM_LEVEL = 11;
+constexpr int BASE_X = 1223;
+constexpr int BASE_Z = 828;
 
 constexpr int RENDER_DISC_R2 = 36;
 constexpr Meter RENDER_RADIUS = 7 * TILE_SIZE_12;
 constexpr Meter RENDER_RADIUS_SQ = RENDER_RADIUS * RENDER_RADIUS;
-constexpr Meter Z13_THRESHOLD = RENDER_RADIUS * 0.4f;
-constexpr Meter Z14_THRESHOLD = RENDER_RADIUS * 0.2f;
-constexpr Meter Z15_THRESHOLD = RENDER_RADIUS * 0.1f;
+constexpr Meter Z12_THRESHOLD = RENDER_RADIUS * 0.5f;
+constexpr Meter Z13_THRESHOLD = RENDER_RADIUS * 0.25f;
+constexpr Meter Z14_THRESHOLD = RENDER_RADIUS * 0.125f;
+constexpr Meter Z15_THRESHOLD = RENDER_RADIUS * 0.005f;
+constexpr Meter Z12_THRESHOLD_SQ = Z12_THRESHOLD * Z12_THRESHOLD;
 constexpr Meter Z13_THRESHOLD_SQ = Z13_THRESHOLD * Z13_THRESHOLD;
 constexpr Meter Z14_THRESHOLD_SQ = Z14_THRESHOLD * Z14_THRESHOLD;
 constexpr Meter Z15_THRESHOLD_SQ = Z15_THRESHOLD * Z15_THRESHOLD;
 
 const std::map<int, Meter> TILE_DISTANCE_THRESHOLDS_SQ = {
-    {12, RENDER_RADIUS_SQ},
+    {11, RENDER_RADIUS_SQ},
+    {12, Z12_THRESHOLD_SQ},
     {13, Z13_THRESHOLD_SQ},
     {14, Z14_THRESHOLD_SQ},
     {15, Z15_THRESHOLD_SQ},

@@ -75,6 +75,24 @@ float ground_height_at(entt::registry& registry, const Vector3& pos) {
   return 0.0f;
 }
 
+struct streamer_config {
+  int base_zoom = 12;
+  int max_zoom = 14;
+  int base_x = 2444;
+  int base_z = 1655;
+
+  Meter base_zoom_tile_size = 8300.0f;
+
+  // the distance between tiles check
+  MeterSq update_threshold = 2000.0f * 2000.0f;
+
+  // the height change between tiels check
+  Meter update_height_threshold = 500.0f;
+
+  // rendering radius in base zoom tiles
+  int rendering_radius = 7;
+};
+
 /// terrain streamer responsible to render the "world" all the entities
 /// leaves on. it supports multiple LOD (more level require performance
 /// optimizations).
@@ -100,10 +118,12 @@ class streamer {
         rmg(get_resource_manager(registry)),
         token(get_options(registry).get_tiles_token()) {
     // create default models
-    models[12] = create_model(TILE_SIZE_12, 32, 8.0f);
-    models[13] = create_model(TILE_SIZE_13, 64, 4.f);
+    models[11] = create_model(TILE_SIZE_11, 32, 1.0f);
+    models[12] = create_model(TILE_SIZE_12, 32, 1.0f);
+    models[13] = create_model(TILE_SIZE_13, 64, 1.f);
     models[14] = create_model(TILE_SIZE_14, 128, 1.0f);
 
+    models[11].materials[0].shader = displacement_shader;
     models[12].materials[0].shader = displacement_shader;
     models[13].materials[0].shader = displacement_shader;
     models[14].materials[0].shader = displacement_shader;
@@ -135,6 +155,7 @@ class streamer {
   }
 
   ~streamer() {
+    UnloadModel(models[11]);
     UnloadModel(models[12]);
     UnloadModel(models[13]);
     UnloadModel(models[14]);
@@ -217,8 +238,9 @@ class streamer {
     // recursively subdivide a tile if it's within the threshold for the next zoom.
     // at max zoom (14) always add the leaf. otherwise, check the tile center distance.
     auto subdivide = [&](auto& self, const int zoom, const int tx, const int tz) -> void {
-      if (const float dist_sq = tile_distance(player_pos, zoom, tx, tz);
-          zoom == 14 || (zoom == 13 && dist_sq >= Z14_THRESHOLD_SQ) || (zoom == 12 && dist_sq >= Z13_THRESHOLD_SQ)) {
+      if (const float dist_sq = tile_distance(player_pos, zoom, tx, tz); zoom == 14 || (zoom == 13 && dist_sq >= Z14_THRESHOLD_SQ) ||
+                                                                         (zoom == 12 && dist_sq >= Z13_THRESHOLD_SQ) ||
+                                                                         (zoom == 11 && dist_sq >= Z12_THRESHOLD_SQ)) {
         new_desired_keys.push_back({zoom, tx, tz});
         return;
       }
@@ -247,12 +269,14 @@ class streamer {
     for (int dx = -radius; dx <= radius; ++dx) {
       for (int dz = -radius; dz <= radius; ++dz) {
         if (dz * dz + dx * dx > RENDER_DISC_R2) continue;
-        subdivide(subdivide, 12, current_tile_x + dx, current_tile_z + dz);
+        subdivide(subdivide, 11, current_tile_x + dx, current_tile_z + dz);
       }
     }
 
     // sort for searching (still cheaper than set? YES, set required the heap and O(n log n) for searching)
     std::ranges::sort(new_desired_keys);
+
+    TraceLog(LOG_INFO, "tile %d", new_desired_keys.size());
 
     // remove from desired those that not in new desired
     std::erase_if(desired_tiles, [&](const auto& item) {
@@ -439,6 +463,24 @@ class streamer {
       for (int dx = 0; dx < 4; ++dx) {
         for (int dz = 0; dz < 4; ++dz) {
           if (!contains(14, grand_child_x + dx, grand_child_z + dz)) return false;
+        }
+      }
+      return true;
+    }
+
+    if (key.zoom == 11) {
+      const int child_x = key.x << 1;
+      const int child_z = key.z << 1;
+      if (contains(12, child_x, child_z) && contains(12, child_x + 1, child_z) && contains(12, child_x, child_z + 1) &&
+          contains(12, child_x + 1, child_z + 1)) {
+        return true;
+      }
+
+      const int grand_child_x = key.x << 2;
+      const int grand_child_z = key.z << 2;
+      for (int dx = 0; dx < 4; ++dx) {
+        for (int dz = 0; dz < 4; ++dz) {
+          if (!contains(13, grand_child_x + dx, grand_child_z + dz)) return false;
         }
       }
       return true;

@@ -9,6 +9,7 @@ export {
   // units
   using Newton = float;
   using Meter = float;
+  using MeterSq = float;
   using Knot = float;
   using NauticalMile = float;
   using Feet = float;
