@@ -22,6 +22,10 @@ void models(entt::registry &registry) {
   const auto &player = get_player(registry);
   const auto &player_position = player.pos;
 
+  // DrawLine3D(player.pos, Vector3Add(player.pos, Vector3Scale(player.forward, 5000.0f)), RED);
+  // TraceLog(LOG_DEBUG, "rendering models, player at (%.1f, %.1f, %.1f)", player.forward.x, player.forward.y, player.forward.z);
+
+
   for (const auto view = registry.view<Position3D, WithModel, Heading>(); auto [entity, position, modeled, heading] : view.each()) {
     // 1. model not exists
     if (!models.contains(modeled.model)) continue;

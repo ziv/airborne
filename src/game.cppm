@@ -119,10 +119,9 @@ export class Game {
     aircraft_systems::update_lock(registry);
     npc_systems::autopilot(registry, dt);
     npc_systems::physics(registry, dt);
-
+    aircraft_systems::fire_missile(registry);
     streamer.update(registry);
     map_streamer::update(registry);
-
     streamer.process_loaded_chunks(registry);
     map_streamer::process_loaded_tiles(registry);
 
