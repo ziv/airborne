@@ -110,6 +110,12 @@ void physics(entt::registry& registry, const float dt) {
   player.velocity = player.velocity + acceleration * dt;
   player.speed = Vector3Length(player.velocity);
 
+  // calculate G
+  // todo i don't know why this calculations displays funny numbers on the hud...
+  const auto proper_accel = acceleration - gravity();
+  const Vector3 local_accel = Vector3RotateByQuaternion(proper_accel, QuaternionInvert(player.rotation));
+  player.g = local_accel.z / 9.81f;  // head/ass
+
   // hard speed cap (normally drag balances thrust before this limit)
   // if (player.speed > conf.maxSpeed && player.speed != 0.0f) {
   //   player.velocity = player.velocity * conf.maxSpeed / player.speed;
@@ -130,12 +136,5 @@ void physics(entt::registry& registry, const float dt) {
     const float alignment_speed = 1.0f + (player.speed * 0.05f);
     player.velocity = Vector3Lerp(player.velocity, target_velocity, alignment_speed * dt);
   }
-
-  // calculate G
-  // const auto properAccel = acceleration - gravity();
-  // const Vector3 localAccel = Vector3RotateByQuaternion(properAccel, QuaternionInvert(player.rotation));
-  // const float gForceVertical = localAccel.y / 9.81f;      // head/ass
-  // float gForceLateral = localAccel.x / 9.81f;       // right/left
-  // float gForceLongitudinal = localAccel.z / 9.81f;  // front/back
 }
 }  // namespace player_systems

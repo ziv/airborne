@@ -26,6 +26,7 @@ export struct Player {
   float speed;
   float ground_height;
   float effective_ground_height;
+  float g;
 };
 
 // player inputs state

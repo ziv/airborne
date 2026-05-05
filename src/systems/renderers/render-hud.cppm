@@ -218,6 +218,10 @@ void draw_rate_of_climb(const HudWidget &widget, const Player &player, Color col
   }
 }
 
+void draw_g(const HudWidget &widget, const Player &player, const Color color) {
+  DrawText(TextFormat("g%.1f", player.g), widget.cfg.speedometer.x + 10, widget.cfg.speedometer.y + 90, widget.cfg.speedometer.font - 1, color);
+}
+
 export void RenderHud(entt::registry &registry) {
   const auto view = registry.view<HudWidget>();
   if (view.begin() == view.end()) return;
@@ -234,6 +238,7 @@ export void RenderHud(entt::registry &registry) {
   const auto color = colors[safeIndex];
 
   draw_ladder(hud, player, color);
+  draw_g(hud, player, color);
   draw_rate_of_climb(hud, player, color);
   draw_speed_indicator(hud, player, color);
   draw_height_indicator(hud, player, gh, color);

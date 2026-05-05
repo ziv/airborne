@@ -25,8 +25,9 @@ entt::entity create_player(entt::registry &registry, const nlohmann::json &scene
                            world_up(),       // up
                            world_right(),    // right
                            0.0f,             // speed
-                           0.0f,
-                           0.0f  // effective ground height
+                           0.0f,             // ground_height
+                           0.0f,             // effective ground height
+                           0.0f              // g
   );
   registry.emplace<PlayerInputs>(player, 0.0f, 0.0f, 0.0f, 0.0f, true, true, false);
   registry.emplace<GroundHeight>(player, start_position.y, start_position.y);
