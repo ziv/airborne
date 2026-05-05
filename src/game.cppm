@@ -150,6 +150,7 @@ export class Game {
     RenderMinimap(registry);
     RenderEngineStatus(registry);
     RenderHud(registry);
+    render_systems_2d::target_lock(registry, camera);
     RenderRadar(registry);
     render_systems::target_camera(registry);
     RenderDebug(registry);

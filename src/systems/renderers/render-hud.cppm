@@ -10,6 +10,25 @@ import Components;
 import Helpers;
 import Accessors;
 
+export namespace render_systems_2d {
+
+void target_lock(entt::registry &registry, const Camera3D &camera) {
+  const auto &radar = registry.get<RadarState>(get_player_entity(registry));
+  if (radar.locked_target == entt::null) return;
+  const auto &player = get_player(registry);
+  const auto &position = registry.get<Position3D>(radar.locked_target);
+
+  const auto pos = position.pos + player.offset;
+
+  const auto loc = GetWorldToScreen(pos, camera);
+  if (loc.x > 440.0f && loc.x < 760.0f && loc.y > 200.0f && loc.y < 420.0f) {
+    // DrawRectangle(static_cast<int>(loc.x) - 10, static_cast<int>(loc.y) - 10, 20, 20, RED);
+    DrawRectangleLines(static_cast<int>(loc.x) - 15, static_cast<int>(loc.y) - 15, 30, 30, GREEN);
+  }
+}
+
+}  // namespace render_systems_2d
+
 void draw_ladder(const HudWidget &widget, const Player &player, const Color color) {
   const auto fy = player.forward.y;
   const auto uy = player.up.y;
