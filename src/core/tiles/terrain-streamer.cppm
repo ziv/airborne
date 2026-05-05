@@ -86,6 +86,8 @@ class streamer {
   Vector3 last_position{-9.9f, -9.9f, -9.9f};
 
   int cam_pos_loc = -1;
+  int ambient_loc = -1;
+  int fog_color_log = -1;
   std::map<int, Model> models;
 
   Shader displacement_shader;
@@ -108,6 +110,8 @@ class streamer {
 
     // keep for later use in renderer (cache)
     cam_pos_loc = GetShaderLocation(displacement_shader, "cameraPosition");
+    ambient_loc = GetShaderLocation(displacement_shader, "ambientLight");
+    fog_color_log = GetShaderLocation(displacement_shader, "fogColor");
 
     // set the heightmap data into MATERIAL_MAP_ROUGHNESS slot
     constexpr int heightmapSlotIndex = MATERIAL_MAP_ROUGHNESS;  // Raylib map roughness index
@@ -120,14 +124,14 @@ class streamer {
     SetShaderValue(displacement_shader, scaleLoc, &heightScale, SHADER_UNIFORM_FLOAT);
 
     // todo read colors from scene for the light ambient
-    const int ambientLoc = GetShaderLocation(displacement_shader, "ambientLight");
-    float currentLight[4] = {1.0f, 1.0f, 1.0f, 1.0f};
-    SetShaderValue(displacement_shader, ambientLoc, currentLight, SHADER_UNIFORM_VEC4);
+    // const int ambientLoc = GetShaderLocation(displacement_shader, "ambientLight");
+    // float currentLight[4] = {1.0f, 1.0f, 1.0f, 1.0f};
+    // SetShaderValue(displacement_shader, ambientLoc, currentLight, SHADER_UNIFORM_VEC4);
 
     // todo need to taken from scene sky color...
-    const int fog_color_log = GetShaderLocation(displacement_shader, "fogColor");
-    const Vector4 fog = ColorNormalize({76, 179, 225, 1});  // or BLUE
-    SetShaderValue(displacement_shader, fog_color_log, &fog, SHADER_UNIFORM_VEC4);
+    // const int fog_color_log = GetShaderLocation(displacement_shader, "fogColor");
+    // const Vector4 fog = ColorNormalize({76, 179, 225, 1});  // or BLUE
+    // SetShaderValue(displacement_shader, fog_color_log, &fog, SHADER_UNIFORM_VEC4);
   }
 
   ~streamer() {
@@ -139,8 +143,19 @@ class streamer {
 
   void stream(entt::registry& registry, const Camera3D& camera) const {
     const auto& player = get_player(registry);
-    // const auto& offset = get_player(registry).offset;
+    auto& options = get_options(registry);
+    // set the camera location (for distance -> fog)
     SetShaderValue(displacement_shader, cam_pos_loc, &camera.position, SHADER_UNIFORM_VEC3);
+
+    // set the ambient color (weather/day/night/...)
+    auto [x, y, z] = options.get_ambient_color();
+    const float ambient_light[4] = {x, y, z, 1.0f};
+    SetShaderValue(displacement_shader, ambient_loc, ambient_light, SHADER_UNIFORM_VEC4);
+
+    // set the fog color (to match the sky)
+    auto [hx, hy, hz] = options.get_horizon_color();
+    const float fog_color[4] = {hx, hy, hz, 1.0f};
+    SetShaderValue(displacement_shader, fog_color_log, &fog_color, SHADER_UNIFORM_VEC4);
 
     // we use BLEND_ALPHA to allow transparency in 3d (raylib default is not to allow)
     // we use transparency in shader to mimic fog
