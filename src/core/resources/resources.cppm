@@ -16,6 +16,9 @@ constexpr auto sky_fragment_shader_path = "assets/shaders/sky.fs";
 constexpr auto terrain_vertex_shader_path = "assets/shaders/terrain.vs";
 constexpr auto terrain_fragment_shader_path = "assets/shaders/terrain.fs";
 
+constexpr auto cockpit_texture = entt::hashed_string("cockpit-tex");
+constexpr auto cockpit_chroma = entt::hashed_string("cockpit-chroma");
+
 constexpr auto engine_sound = entt::hashed_string("engine-sound");
 constexpr auto gear_sound = entt::hashed_string("gear-sound");
 

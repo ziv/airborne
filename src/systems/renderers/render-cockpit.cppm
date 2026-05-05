@@ -10,17 +10,11 @@ import ResourceManager;
 
 export namespace render_systems_2d {
 void cockpit(entt::registry &registry) {
-  const auto view = registry.view<CockpitWidget, WithFsShader, WithTexture, Position2D>();
-  if (view.begin() == view.end()) return;
-
-  const entt::entity entity = view.front();
-  auto [fs, tx, pos] = registry.get<const WithFsShader, const WithTexture, const Position2D>(entity);
-
+  const auto &[texture, shader] = registry.ctx().get<CockpitWidget>();
   const auto &rm = get_resource_manager(registry);
 
-  BeginShaderMode(rm.shaders[fs.shader]->res);
-  DrawTextureV(rm.textures[tx.texture]->res, pos.pos, WHITE);
+  BeginShaderMode(rm.shaders[shader]->res);
+  DrawTextureV(rm.textures[texture]->res, (Vector2){0.0f, 0.0f}, WHITE);
   EndShaderMode();
 }
-}
-
+}  // namespace render_systems_2d

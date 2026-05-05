@@ -8,7 +8,10 @@ export struct DashboardSlot {
   int slot_index;
 };
 
-export struct CockpitWidget {};
+export struct CockpitWidget {
+  unsigned int texture;
+  unsigned int shader;
+};
 
 export struct HudWidget {
   HudConfig cfg{};
