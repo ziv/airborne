@@ -41,6 +41,10 @@ std::string night_url(const int zoom, const int x, const int z, const std::strin
   return std::format("https://api.tomtom.com/map/1/tile/basic/night/{}/{}/{}.png?tileSize=256&view=Unified&language=NGT&key={}", zoom, x, z, token);
 }
 
+std::string openstreet_url(const int zoom, const int x, const int z, const std::string& token) {
+  return std::format("https://tile.openstreetmap.org/{}/{}/{}.png", zoom, x, z);
+}
+
 class pool {
   struct ImageJob {
     std::string path;

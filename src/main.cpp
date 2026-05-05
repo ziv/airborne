@@ -77,6 +77,7 @@ int main() {
     }
 
     // make sure we clear everything
+    screen = nullptr;
     resources::unload_resource_manager(registry);
     registry.clear();
 
