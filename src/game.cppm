@@ -24,28 +24,28 @@ import Components;
 import GameOptions;
 
 Generator<int> make_setup_sequence(entt::registry& registry, const nlohmann::json& scene) {
+  int c = 0;
   factories::create_player(registry, scene);
-  co_yield 1;
+  co_yield ++c;
   factories::create_scene(registry, scene);
-  co_yield 2;
+  co_yield ++c;
   factories::create_engine(registry);
-  co_yield 3;
+  co_yield ++c;
   factories::create_cockpit(registry);
-  co_yield 4;
+  co_yield ++c;
   factories::create_hud(registry);
-  co_yield 5;
+  co_yield ++c;
   factories::create_cockpit_widgets(registry);
-  co_yield 6;
+  co_yield ++c;
   updates::set_minimap(0, registry);
-  co_yield 7;
+  co_yield ++c;
   updates::set_engine_status(1, registry);
   // updates::set_target_camera(1, registry);
-  co_yield 8;
+  co_yield ++c;
   updates::set_radar(2, registry);
-  co_yield 9;
+  co_yield ++c;
 
   if (scene.contains("entities") && scene["entities"].is_array()) {
-    int c = 10;
     for (const auto& entity : scene["entities"]) {
       factories::spawn(registry, entity);
       co_yield std::min(c++, 90);
@@ -53,13 +53,13 @@ Generator<int> make_setup_sequence(entt::registry& registry, const nlohmann::jso
   }
 
   map_streamer::setup(registry);
-  co_yield 91;
+  co_yield std::min(c++, 100);
 
   npc_systems::setup(registry);
-  co_yield 92;
+  co_yield std::min(c++, 100);
 
   registry.ctx().get<GameState>().status = GameStatus::PLAYING;
-  co_yield 100;
+  co_yield std::min(c++, 100);
 }
 
 export class Game {
