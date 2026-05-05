@@ -8,7 +8,8 @@ export module RenderSystem:Cockpit;
 import Components;
 import ResourceManager;
 
-export void RenderCockpit(entt::registry &registry) {
+export namespace render_systems_2d {
+void cockpit(entt::registry &registry) {
   const auto view = registry.view<CockpitWidget, WithFsShader, WithTexture, Position2D>();
   if (view.begin() == view.end()) return;
 
@@ -21,3 +22,5 @@ export void RenderCockpit(entt::registry &registry) {
   DrawTextureV(rm.textures[tx.texture]->res, pos.pos, WHITE);
   EndShaderMode();
 }
+}
+

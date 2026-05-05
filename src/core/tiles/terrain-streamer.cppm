@@ -235,7 +235,6 @@ class streamer {
         subdivide(subdivide, 12, current_tile_x + dx, current_tile_z + dz);
       }
     }
-    TraceLog(LOG_DEBUG, "radius %d, tile %d", radius, new_desired_keys.size());
 
     // sort for searching (still cheaper than set? YES, set required the heap and O(n log n) for searching)
     std::ranges::sort(new_desired_keys);

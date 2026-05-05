@@ -32,4 +32,6 @@ export bool is_player_crashed(entt::registry &registry) { return registry.all_of
 
 export bool is_player_flying(entt::registry &registry) { return registry.all_of<Flying>(get_player_entity(registry)); }
 
+export bool is_player_grounded(entt::registry &registry) { return registry.all_of<Grounded>(get_player_entity(registry)); }
+
 export LandingZoneDef &get_landing_zone(entt::registry &registry) { return registry.get<LandingZoneDef>(get_player_entity(registry)); }
