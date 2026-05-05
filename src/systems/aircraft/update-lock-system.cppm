@@ -10,6 +10,20 @@ import Components;
 import Types;
 
 export namespace aircraft_systems {
+
+void fire_missile(entt::registry& registry) {
+  const auto player_entity = get_player_entity(registry);
+  const auto& radar_state = registry.get<RadarState>(player_entity);
+
+  if (radar_state.locked_target != entt::null) {
+    TraceLog(LOG_DEBUG, "firing missile at target %d", static_cast<int>(radar_state.locked_target));
+    // todo create missile entity with target and position
+  } else {
+    TraceLog(LOG_DEBUG, "no target locked");
+  }
+}
+
+
 void update_lock(entt::registry& registry) {
   const auto player = get_player(registry);
   auto& radar_state = registry.get<RadarState>(get_player_entity(registry));
