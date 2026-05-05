@@ -37,7 +37,7 @@ constexpr int BASE_X = 2444;
 constexpr int BASE_Z = 1655;
 
 constexpr int RENDER_DISC_R2 = 36;
-constexpr Meter RENDER_RADIUS = 6 * TILE_SIZE_12;
+constexpr Meter RENDER_RADIUS = 7 * TILE_SIZE_12;
 constexpr Meter RENDER_RADIUS_SQ = RENDER_RADIUS * RENDER_RADIUS;
 constexpr Meter Z13_THRESHOLD = RENDER_RADIUS * 0.4f;
 constexpr Meter Z14_THRESHOLD = RENDER_RADIUS * 0.2f;
