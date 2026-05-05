@@ -100,9 +100,9 @@ class streamer {
         rmg(get_resource_manager(registry)),
         token(get_options(registry).get_tiles_token()) {
     // create default models
-    models[12] = create_model(TILE_SIZE_12, 32);
-    models[13] = create_model(TILE_SIZE_13, 64);
-    models[14] = create_model(TILE_SIZE_14, 128);
+    models[12] = create_model(TILE_SIZE_12, 32, 8.0f);
+    models[13] = create_model(TILE_SIZE_13, 64, 4.f);
+    models[14] = create_model(TILE_SIZE_14, 128, 1.0f);
 
     models[12].materials[0].shader = displacement_shader;
     models[13].materials[0].shader = displacement_shader;
