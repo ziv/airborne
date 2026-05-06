@@ -76,12 +76,15 @@ float ground_height_at(entt::registry& registry, const Vector3& pos) {
 }
 
 struct streamer_config {
-  int base_zoom = 12;
+  // supported zoom
+  int base_zoom = 11;
   int max_zoom = 14;
-  int base_x = 2444;
-  int base_z = 1655;
 
-  Meter base_zoom_tile_size = 8300.0f;
+  // TMS anchor
+  int base_x = 1223;
+  int base_z = 828;
+
+  Meter base_zoom_tile_size = 16600.0f;
 
   // the distance between tiles check
   MeterSq update_threshold = 2000.0f * 2000.0f;
@@ -91,6 +94,26 @@ struct streamer_config {
 
   // rendering radius in base zoom tiles
   int rendering_radius = 7;
+
+  // how much stretch the model to cover the stitches
+  Meter skirt_size = 0.05f;
+
+  // by zoom
+  std::map<int, Meter> tile_sizes = {};
+  std::map<int, Meter> tile_distances = {};
+
+  explicit streamer_config() {
+    const auto distance = rendering_radius * base_zoom_tile_size;
+
+    for (int zoom = base_zoom; zoom <= max_zoom; ++zoom) {
+      const int ratio = 1 << (zoom - base_zoom);
+      tile_sizes[zoom] = base_zoom_tile_size / static_cast<float>(ratio);
+      tile_distances[zoom] = distance * distance / static_cast<float>(ratio * ratio);
+    }
+  }
+
+  [[nodiscard]] Meter get_size(const int zoom) const { return tile_sizes.at(zoom); }
+  [[nodiscard]] Meter get_distance(const int zoom) const { return tile_distances.at(zoom); }
 };
 
 /// terrain streamer responsible to render the "world" all the entities
@@ -99,6 +122,7 @@ struct streamer_config {
 /// all resources are downloaded and cache automatically. currently support
 /// mapbox api and require MAPBOX_TOKEN to be set as environment variable
 class streamer {
+  streamer_config config{};
   std::unordered_map<TileKey, entt::entity> desired_tiles;   // what LOD logic wants this frame
   std::unordered_map<TileKey, entt::entity> rendered_tiles;  // superset: desired + pending eviction
   Vector3 last_position{-9.9f, -9.9f, -9.9f};
@@ -117,16 +141,17 @@ class streamer {
       : displacement_shader(LoadShader(resources::terrain_vertex_shader_path, resources::terrain_fragment_shader_path)),
         rmg(get_resource_manager(registry)),
         token(get_options(registry).get_tiles_token()) {
-    // create default models
-    models[11] = create_model(TILE_SIZE_11, 32, 1.0f);
-    models[12] = create_model(TILE_SIZE_12, 32, 1.0f);
-    models[13] = create_model(TILE_SIZE_13, 64, 1.f);
-    models[14] = create_model(TILE_SIZE_14, 128, 1.0f);
-
-    models[11].materials[0].shader = displacement_shader;
-    models[12].materials[0].shader = displacement_shader;
-    models[13].materials[0].shader = displacement_shader;
-    models[14].materials[0].shader = displacement_shader;
+    // create default models for each zoom level
+    // in the right size to avoid stretching models
+    for (int zoom = config.base_zoom; zoom <= config.max_zoom; ++zoom) {
+      const int ratio = 1 << (zoom - config.base_zoom);  // 1,2,4,8,...
+      const int res = 16 * ratio;
+      const float size = config.get_size(zoom);
+      float skirt_size = size * config.skirt_size;  // / ratio;
+      if (zoom == 11) skirt_size *= 3.0; // zoom 11 for some reason require larger skirt
+      models[zoom] = LoadModelFromMesh(GenMeshPlane(size + skirt_size, size + skirt_size, res, res));
+      models[zoom].materials[0].shader = displacement_shader;
+    }
 
     // keep for later use in renderer (cache)
     cam_pos_loc = GetShaderLocation(displacement_shader, "cameraPosition");
@@ -142,23 +167,10 @@ class streamer {
     constexpr float heightScale = 1.0;
     const int scaleLoc = GetShaderLocation(displacement_shader, "heightScale");
     SetShaderValue(displacement_shader, scaleLoc, &heightScale, SHADER_UNIFORM_FLOAT);
-
-    // todo read colors from scene for the light ambient
-    // const int ambientLoc = GetShaderLocation(displacement_shader, "ambientLight");
-    // float currentLight[4] = {1.0f, 1.0f, 1.0f, 1.0f};
-    // SetShaderValue(displacement_shader, ambientLoc, currentLight, SHADER_UNIFORM_VEC4);
-
-    // todo need to taken from scene sky color...
-    // const int fog_color_log = GetShaderLocation(displacement_shader, "fogColor");
-    // const Vector4 fog = ColorNormalize({76, 179, 225, 1});  // or BLUE
-    // SetShaderValue(displacement_shader, fog_color_log, &fog, SHADER_UNIFORM_VEC4);
   }
 
   ~streamer() {
-    UnloadModel(models[11]);
-    UnloadModel(models[12]);
-    UnloadModel(models[13]);
-    UnloadModel(models[14]);
+    for (const auto& val : models | std::views::values) UnloadModel(val);
     UnloadShader(displacement_shader);
   }
 
@@ -202,6 +214,8 @@ class streamer {
       model.materials[0].maps[MATERIAL_MAP_ROUGHNESS].texture = rmg.textures[chunk.height]->res;
 
       DrawModel(model, model_position, 1.0f, WHITE);
+      // const auto size = TILE_SIZES.at(chunk.zoom);
+      // DrawCubeWires(model_position, size, 500.0f, size, YELLOW);
     }
     // EndBlendMode();
   }
@@ -228,8 +242,8 @@ class streamer {
       return;  // only update when moved more than N meters or gain/loose enough height
     last_position = player_pos;
 
-    const int current_tile_x = static_cast<int>(std::floor(player_pos.x / TILE_SIZE_12));
-    const int current_tile_z = static_cast<int>(std::floor(player_pos.z / TILE_SIZE_12));
+    const int current_tile_x = static_cast<int>(std::floor(player_pos.x / config.base_zoom_tile_size));
+    const int current_tile_z = static_cast<int>(std::floor(player_pos.z / config.base_zoom_tile_size));
 
     // build list or desired tiles keys
     std::vector<TileKey> new_desired_keys;

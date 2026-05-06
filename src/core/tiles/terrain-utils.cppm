@@ -27,11 +27,7 @@ constexpr Meter TILE_SIZE_14 = 2075.0f;
 constexpr Meter TILE_SIZE_15 = 1037.5f;
 
 const std::map<int, Meter> TILE_SIZES = {
-    {11, TILE_SIZE_11},
-    {12, TILE_SIZE_12},
-    {13, TILE_SIZE_13},
-    {14, TILE_SIZE_14},
-    {15, TILE_SIZE_15},
+    {11, TILE_SIZE_11}, {12, TILE_SIZE_12}, {13, TILE_SIZE_13}, {14, TILE_SIZE_14}, {15, TILE_SIZE_15},
 };
 
 // constexpr int ZOOM_LEVEL = 12;
@@ -55,11 +51,7 @@ constexpr Meter Z14_THRESHOLD_SQ = Z14_THRESHOLD * Z14_THRESHOLD;
 constexpr Meter Z15_THRESHOLD_SQ = Z15_THRESHOLD * Z15_THRESHOLD;
 
 const std::map<int, Meter> TILE_DISTANCE_THRESHOLDS_SQ = {
-    {11, RENDER_RADIUS_SQ},
-    {12, Z12_THRESHOLD_SQ},
-    {13, Z13_THRESHOLD_SQ},
-    {14, Z14_THRESHOLD_SQ},
-    {15, Z15_THRESHOLD_SQ},
+    {11, RENDER_RADIUS_SQ}, {12, Z12_THRESHOLD_SQ}, {13, Z13_THRESHOLD_SQ}, {14, Z14_THRESHOLD_SQ}, {15, Z15_THRESHOLD_SQ},
 };
 
 struct TileKey {
@@ -110,7 +102,7 @@ void unload_tile_resources(ResourceManager& rm, const int zoom, const int x, con
 
 // create models for tiles (model per zoom)
 Model create_model(const Meter size, const int res, const float skirt_factor) {
-  return LoadModelFromMesh(GenMeshPlane(size + size * SKIRT_SIZE * skirt_factor, size + size * SKIRT_SIZE * skirt_factor, res, res));
+  return LoadModelFromMesh(GenMeshPlane(size + size * skirt_factor, size + size * skirt_factor, res, res));
 }
 
 float tile_distance(const Vector3& player_pos, const int zoom, const int tx, const int tz) {
