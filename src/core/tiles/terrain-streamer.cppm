@@ -108,7 +108,7 @@ struct streamer_config {
     for (int zoom = base_zoom; zoom <= max_zoom; ++zoom) {
       const int ratio = 1 << (zoom - base_zoom);
       tile_sizes[zoom] = base_zoom_tile_size / static_cast<float>(ratio);
-      tile_distances[zoom] = distance * distance / static_cast<float>(ratio * ratio);
+      tile_distances[zoom] = distance * distance / static_cast<float>(ratio * ratio * ratio);
     }
   }
 
@@ -148,7 +148,7 @@ class streamer {
       const int res = 16 * ratio;
       const float size = config.get_size(zoom);
       float skirt_size = size * config.skirt_size;  // / ratio;
-      if (zoom == 11) skirt_size *= 3.0; // zoom 11 for some reason require larger skirt
+      if (zoom == 11) skirt_size *= 3.0;            // zoom 11 for some reason require larger skirt
       models[zoom] = LoadModelFromMesh(GenMeshPlane(size + skirt_size, size + skirt_size, res, res));
       models[zoom].materials[0].shader = displacement_shader;
     }
@@ -238,7 +238,7 @@ class streamer {
 
     const auto player_pos = get_player(registry).abs_pos;
 
-    if (Vector3DistanceSqr(player_pos, last_position) < UPDATE_THRESHOLD && std::abs(player_pos.y - last_position.y) < UPDATE_HEIGHT_THRESHOLD)
+    if (Vector3DistanceSqr(player_pos, last_position) < config.update_threshold && std::abs(player_pos.y - last_position.y) < config.update_height_threshold)
       return;  // only update when moved more than N meters or gain/loose enough height
     last_position = player_pos;
 
@@ -252,9 +252,16 @@ class streamer {
     // recursively subdivide a tile if it's within the threshold for the next zoom.
     // at max zoom (14) always add the leaf. otherwise, check the tile center distance.
     auto subdivide = [&](auto& self, const int zoom, const int tx, const int tz) -> void {
-      if (const float dist_sq = tile_distance(player_pos, zoom, tx, tz); zoom == 14 || (zoom == 13 && dist_sq >= Z14_THRESHOLD_SQ) ||
-                                                                         (zoom == 12 && dist_sq >= Z13_THRESHOLD_SQ) ||
-                                                                         (zoom == 11 && dist_sq >= Z12_THRESHOLD_SQ)) {
+      // if (const float dist_sq = tile_distance(player_pos, zoom, tx, tz); zoom == 14 || (zoom == 13 && dist_sq >= Z14_THRESHOLD_SQ) ||
+      //                                                                    (zoom == 12 && dist_sq >= Z13_THRESHOLD_SQ) ||
+      //                                                                    (zoom == 11 && dist_sq >= Z12_THRESHOLD_SQ)) {
+      //   new_desired_keys.push_back({zoom, tx, tz});
+      //   return;
+      // }
+
+      if (const float dist_sq = tile_distance(player_pos, zoom, tx, tz); zoom == 14 || (zoom == 13 && dist_sq >= config.get_distance(14)) ||
+                                                                         (zoom == 12 && dist_sq >= config.get_distance(13)) ||
+                                                                         (zoom == 11 && dist_sq >= config.get_distance(12))) {
         new_desired_keys.push_back({zoom, tx, tz});
         return;
       }

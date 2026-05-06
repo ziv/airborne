@@ -9,8 +9,8 @@ uniform vec4 fogColor;
 
 out vec4 finalColor;
 
-const float fogStart = 30000.0;
-const float fogEnd   = 50000.0;
+const float fogStart = 40000.0;
+const float fogEnd   = 70000.0;
 
 void main()
 {
