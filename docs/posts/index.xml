@@ -6,7 +6,24 @@
     <description>Recent content in Posts on Airborne</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Sat, 25 Apr 2026 00:00:00 +0000</lastBuildDate><atom:link href="https://ziv.github.io/airborne/posts/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Sun, 17 May 2026 00:00:00 +0000</lastBuildDate><atom:link href="https://ziv.github.io/airborne/posts/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>3D Geospatial Engine</title>
+      <link>https://ziv.github.io/airborne/posts/014-geospatial/</link>
+      <pubDate>Sun, 17 May 2026 00:00:00 +0000</pubDate>
+      
+      <guid>https://ziv.github.io/airborne/posts/014-geospatial/</guid>
+      <description>&lt;p&gt;After a short break from updating the blog, and the reason behind it.&lt;/p&gt;
+&lt;p&gt;One of the core components in developing a flight simulator is building and streaming a 3D world around the player. This is one of the systems I have invested the most time in so far, and one that went through countless iterations to meet the game’s performance requirements. It became overly complicated, was simplified, dismantled, and rebuilt from scratch.&lt;/p&gt;</description>
+      <content>&lt;p&gt;After a short break from updating the blog, and the reason behind it.&lt;/p&gt;
+&lt;p&gt;One of the core components in developing a flight simulator is building and streaming a 3D world around the player. This is one of the systems I have invested the most time in so far, and one that went through countless iterations to meet the game’s performance requirements. It became overly complicated, was simplified, dismantled, and rebuilt from scratch.&lt;/p&gt;
+&lt;p&gt;Rebuilding it allowed me to perform open-heart surgery on the simulator and separate the subsystem responsible for world generation and streaming. I then packaged and refined this component into a standalone product. &lt;strong&gt;Raytiles&lt;/strong&gt; a 3D geospatial engine for raylib, which can now be integrated into a wide range of applications beyond my flight simulator.&lt;/p&gt;
+&lt;p&gt;With Raytiles, it is possible to render any location on Earth with variable levels of detail up to zoom level 15, and achieve dynamic light and shadow effects across the terrain.&lt;/p&gt;
+&lt;p&gt;While modern engines such as Cesium or Google Earth rely on 3D Tiles and photogrammetry-generated models, the goals of Raytiles are more modest. It is designed for applications that require a bird’s-eye view and place less emphasis on micro-level detail.&lt;/p&gt;
+&lt;p&gt;&lt;a href=&#34;https://github.com/ziv/raytiles&#34;&gt;https://github.com/ziv/raytiles&lt;/a&gt;&lt;/p&gt;
+</content>
+    </item>
+    
     <item>
       <title>Greener Grass!</title>
       <link>https://ziv.github.io/airborne/posts/013-greener-grass/</link>
