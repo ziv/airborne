@@ -2,20 +2,18 @@
 <html lang="en" dir="ltr">
 <head>
   
-    <title>Greener Grass! :: Airborne</title>
+    <title>3D Geospatial Engine :: Airborne</title>
   
   <meta http-equiv="content-type" content="text/html; charset=utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="Is the grass greener on the other side? Maybe.
-I went to play with a real game engine.
-I tried Bevy, which is written in Rust and has a thriving community around it. The engine is essentially a combination of an ECS and a rendering engine, the two parts that even in my C&#43;&#43; version I didn&rsquo;t write myself (raylib for rendering and entt for ECS).
-With the kind help of an LLM that explained and guided me step by step (thanks Gemini), and with the help of the avian plugin (a physics engine), I reached a result in a few hours that is close to what took me weeks, sweat, and tears to achieve working with raylib and C&#43;&#43;.
+<meta name="description" content="After a short break from updating the blog, and the reason behind it.
+One of the core components in developing a flight simulator is building and streaming a 3D world around the player. This is one of the systems I have invested the most time in so far, and one that went through countless iterations to meet the game’s performance requirements. It became overly complicated, was simplified, dismantled, and rebuilt from scratch.
 " />
 <meta name="keywords" content="" />
 
   <meta name="robots" content="noodp" />
 
-<link rel="canonical" href="https://ziv.github.io/airborne/posts/013-greener-grass/" />
+<link rel="canonical" href="https://ziv.github.io/airborne/posts/014-geospatial/" />
 
 
       <script async src="https://www.googletagmanager.com/gtag/js?id=G-0GMMREP8RD"></script>
@@ -64,24 +62,22 @@ With the kind help of an LLM that explained and guided me step by step (thanks G
 
 <meta property="og:locale" content="en" />
 <meta property="og:type" content="article" />
-<meta property="og:title" content="Greener Grass!">
-<meta property="og:description" content="Is the grass greener on the other side? Maybe.
-I went to play with a real game engine.
-I tried Bevy, which is written in Rust and has a thriving community around it. The engine is essentially a combination of an ECS and a rendering engine, the two parts that even in my C&#43;&#43; version I didn&rsquo;t write myself (raylib for rendering and entt for ECS).
-With the kind help of an LLM that explained and guided me step by step (thanks Gemini), and with the help of the avian plugin (a physics engine), I reached a result in a few hours that is close to what took me weeks, sweat, and tears to achieve working with raylib and C&#43;&#43;.
+<meta property="og:title" content="3D Geospatial Engine">
+<meta property="og:description" content="After a short break from updating the blog, and the reason behind it.
+One of the core components in developing a flight simulator is building and streaming a 3D world around the player. This is one of the systems I have invested the most time in so far, and one that went through countless iterations to meet the game’s performance requirements. It became overly complicated, was simplified, dismantled, and rebuilt from scratch.
 " />
-<meta property="og:url" content="https://ziv.github.io/airborne/posts/013-greener-grass/" />
+<meta property="og:url" content="https://ziv.github.io/airborne/posts/014-geospatial/" />
 <meta property="og:site_name" content="Airborne" />
 
   
   
-  <meta property="og:image" content="https://ziv.github.io/airborne/cover/i12.png">
+  <meta property="og:image" content="https://ziv.github.io/airborne/cover/i13.png">
 
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="627">
 
 
-  <meta property="article:published_time" content="2026-04-25 00:00:00 &#43;0000 UTC" />
+  <meta property="article:published_time" content="2026-05-17 00:00:00 &#43;0000 UTC" />
 
 
 
@@ -178,16 +174,16 @@ With the kind help of an LLM that explained and guided me step by step (thanks G
     
 <article class="post">
   <h1 class="post-title">
-    <a href="https://ziv.github.io/airborne/posts/013-greener-grass/">Greener Grass!</a>
+    <a href="https://ziv.github.io/airborne/posts/014-geospatial/">3D Geospatial Engine</a>
   </h1>
-  <div class="post-meta"><time class="post-date">2026-04-25</time>
+  <div class="post-meta"><time class="post-date">2026-05-17</time>
     
 </div>
 
   
   
     
-    <img src="https://ziv.github.io/airborne/cover/i12.png"
+    <img src="https://ziv.github.io/airborne/cover/i13.png"
       class="post-cover"
       alt=" "
       title="Cover Image" />
@@ -198,21 +194,12 @@ With the kind help of an LLM that explained and guided me step by step (thanks G
   
 
   <div class="post-content"><div>
-        <p>Is the grass greener on the other side? Maybe.</p>
-<p>I went to play with a real game engine.</p>
-<p>I tried Bevy, which is written in Rust and has a thriving community around it. The engine is essentially a combination
-of an ECS and a rendering engine, the two parts that even in my C++ version I didn&rsquo;t write myself (raylib for rendering
-and entt for ECS).</p>
-<p>With the kind help of an LLM that explained and guided me step by step (thanks Gemini), and with the help of the avian
-plugin (a physics engine), I reached a result in a few hours that is close to what took me weeks, sweat, and tears to
-achieve working with raylib and C++.</p>
-<p>Am I tempted to switch to a game engine? Not yet. I really enjoy writing the physics, the rules, and the conditions, and
-at some point, if I decide to abandon C++ in favor of Rust (is it time?!), then I&rsquo;ll consider moving to a game engine,
-even though there are similar libraries to raylib for Rust, and even a version of raylib itself for Rust.</p>
-<p>Working with C++ demands discipline from me (and yes, frustrations too), and it seems to me that after C++, the
-transition to Rust will be easier.</p>
-<p>So for now, I&rsquo;ll maintain a side project in Rust whose sole purpose is learning, so that when the day comes, the
-transition will be smooth.</p>
+        <p>After a short break from updating the blog, and the reason behind it.</p>
+<p>One of the core components in developing a flight simulator is building and streaming a 3D world around the player. This is one of the systems I have invested the most time in so far, and one that went through countless iterations to meet the game’s performance requirements. It became overly complicated, was simplified, dismantled, and rebuilt from scratch.</p>
+<p>Rebuilding it allowed me to perform open-heart surgery on the simulator and separate the subsystem responsible for world generation and streaming. I then packaged and refined this component into a standalone product. <strong>Raytiles</strong> a 3D geospatial engine for raylib, which can now be integrated into a wide range of applications beyond my flight simulator.</p>
+<p>With Raytiles, it is possible to render any location on Earth with variable levels of detail up to zoom level 15, and achieve dynamic light and shadow effects across the terrain.</p>
+<p>While modern engines such as Cesium or Google Earth rely on 3D Tiles and photogrammetry-generated models, the goals of Raytiles are more modest. It is designed for applications that require a bird’s-eye view and place less emphasis on micro-level detail.</p>
+<p><a href="https://github.com/ziv/raytiles">https://github.com/ziv/raytiles</a></p>
 
       </div></div>
 
@@ -225,17 +212,10 @@ transition will be smooth.</p>
     </div>
     <div class="pagination__buttons">
         
-        <span class="button previous">
-            <a href="https://ziv.github.io/airborne/posts/014-geospatial/">
-                <span class="button__icon">←</span>
-                <span class="button__text">3D Geospatial Engine</span>
-            </a>
-        </span>
-        
         
         <span class="button next">
-            <a href="https://ziv.github.io/airborne/posts/012-refactoring/">
-                <span class="button__text">Refucktoring</span>
+            <a href="https://ziv.github.io/airborne/posts/013-greener-grass/">
+                <span class="button__text">Greener Grass!</span>
                 <span class="button__icon">→</span>
             </a>
         </span>
