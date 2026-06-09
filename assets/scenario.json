@@ -168,9 +168,9 @@
         "type": "aircraft",
         "faction": "enemy",
         "position": {
-          "x": 10000,
+          "x": 8000,
           "y": 600,
-          "z": -26500
+          "z": -20500
         },
         "heading": 170,
         "model": "mig29-model",

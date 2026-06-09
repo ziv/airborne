@@ -144,7 +144,7 @@ export class Game {
     // render_systems::debug_models(registry);
     EndMode3D();
 
-    terrain_streamer::streamer::draw_tile_labels(registry, camera);/**/
+    // terrain_streamer::streamer::draw_tile_labels(registry, camera);/**/
     render_systems_2d::cockpit(registry);
     RenderMinimap(registry);
     RenderEngineStatus(registry);

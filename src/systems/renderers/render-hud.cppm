@@ -27,7 +27,8 @@ void target_lock(entt::registry &registry, const Camera3D &camera) {
   const auto loc = GetWorldToScreen(pos, camera);
   if (!is_in_hud(loc)) return;
 
-  DrawRectangleLines(static_cast<int>(loc.x) - 15, static_cast<int>(loc.y) - 15, 30, 30, GREEN);
+  // DrawRectangleLines(static_cast<int>(loc.x) - 15, static_cast<int>(loc.y) - 15, 30, 30, GREEN);
+  DrawRectangleLinesEx({loc.x - 15.0f, loc.y - 15.0f, 30, 30}, 2, GREEN);
 }
 
 }  // namespace render_systems_2d
