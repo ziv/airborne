@@ -35,6 +35,8 @@ Still in progress, but...
 
 #### Installation and Running
 
+THIS IS OBSOLTETE, I'LL UPDATE THE DOCUMENTAION SOON (09-06-2026)
+
 ```shell
 # make sure to have llvm installed and configured as your default compiler
 brew install llvm cmake ninja
@@ -42,10 +44,6 @@ brew install llvm cmake ninja
 # let cmake find the llvm clang compiler
 export CC=$(brew --prefix llvm)/bin/clang
 export CXX=$(brew --prefix llvm)/bin/clang++
-
-# required environment variables for the map API tokens
-export TOMTOM_TOKEN=***
-export MAPBOX_TOKEN=***
 
 # creating debug build
 cmake -B cmake-build-debug -S . -DCMAKE_BUILD_TYPE=Debug -G Ninja
