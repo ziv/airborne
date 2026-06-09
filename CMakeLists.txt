@@ -9,10 +9,11 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 include(FetchContent)
+add_compile_definitions(SUPPORT_FILEFORMAT_JPG)
 FetchContent_Declare(
         raylib
         GIT_REPOSITORY https://github.com/raysan5/raylib.git
-        GIT_TAG 5.5
+        GIT_TAG 6.0
         GIT_SHALLOW TRUE
 )
 FetchContent_MakeAvailable(raylib)
