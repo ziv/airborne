@@ -2,6 +2,8 @@
 
 An indie flight simulator gmae without any game engine, just C++ and some libraries.
 
+IN PROGRESS
+
 ![splash](assets/images/splash.png)
 
 This project trys to make a little bit modern remake of the
