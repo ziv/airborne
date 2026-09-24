@@ -17,6 +17,20 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(raylib)
 
+# LLVM clang >= 23 emits `objc_msgSendClass$...` stubs for Objective-C class messages, which the
+# linker shipped with Apple's Command Line Tools cannot resolve yet (undefined symbols when linking
+# GLFW's Cocoa backend). Disable the stubs for those sources when the compiler knows the flag.
+if(APPLE)
+    enable_language(OBJC)
+    include(CheckOBJCCompilerFlag)
+    check_objc_compiler_flag(-fno-objc-msgsend-class-selector-stubs HAVE_NO_OBJC_MSGSEND_CLASS_STUBS)
+    if(HAVE_NO_OBJC_MSGSEND_CLASS_STUBS)
+        file(GLOB glfw_objc_sources ${raylib_SOURCE_DIR}/src/external/glfw/src/*.m)
+        set_source_files_properties(${glfw_objc_sources} TARGET_DIRECTORY glfw
+                PROPERTIES COMPILE_OPTIONS -fno-objc-msgsend-class-selector-stubs)
+    endif()
+endif()
+
 include(FetchContent)
 FetchContent_Declare(
         entt
